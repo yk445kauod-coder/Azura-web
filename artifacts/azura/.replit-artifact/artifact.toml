@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Azura Cafe"
+version = "1.0.0"
+id = "artifacts/azura"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22060
+
+[services.development]
+run = "pnpm --filter @workspace/azura run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/azura", "run", "build" ]
+publicDir = "artifacts/azura/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22060"
+BASE_PATH = "/"

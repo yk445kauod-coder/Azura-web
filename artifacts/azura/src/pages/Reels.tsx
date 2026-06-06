@@ -39,6 +39,10 @@ export default function Reels() {
   const [saving, setSaving] = useState(false);
 
   const isAdmin = sessionStorage.getItem("azura-admin") === "true";
+
+  // Protect upload - only admins can post
+  const canUpload = isAdmin;
+
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
   useEffect(() => {
@@ -100,7 +104,7 @@ export default function Reels() {
   };
 
   const saveReel = async () => {
-    if (!newImage || !user) return;
+    if (!canUpload || !newImage || !user) return;
     setSaving(true);
     const r = push(ref(db, "reels"));
     await set(r, {
@@ -148,7 +152,7 @@ export default function Reels() {
         <div className="h-[calc(100dvh-7.5rem)] flex flex-col items-center justify-center text-center px-6">
           <Camera size={56} className="text-muted-foreground/25 mb-4" />
           <h2 className="text-xl font-bold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>{tr("No posts yet", "لا يوجد منشورات")}</h2>
-          <p className="text-sm text-muted-foreground">{isAdmin ? tr("Tap + to add the first post", "اضغط + لإضافة أول منشور") : tr("Check back soon for cafe updates!", "ترقب منشوراتنا قريباً!")}</p>
+          <p className="text-sm text-muted-foreground">{tr("Check back soon for cafe updates!", "ترقب منشوراتنا قريباً!")}</p>
         </div>
       ) : (
         <div

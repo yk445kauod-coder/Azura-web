@@ -1,6 +1,7 @@
 /**
  * Cloudflare Pages Function for Azura AI API
- * Proxies requests to Gemini API - hides the API key from frontend
+ * Handles: /api/ai/chat (Gemini), /api/ai/tts (Google Cloud TTS)
+ * API keys are stored in environment variables (not in source code)
  */
 
 export default {
@@ -24,20 +25,14 @@ export default {
       });
     }
 
-    // Chat endpoint - key is hidden in environment variable
+    // Chat endpoint - Gemini API
     if (url.pathname === '/api/ai/chat' && request.method === 'POST') {
       return handleChat(request, env, corsHeaders);
     }
 
-    // TTS endpoint - returns 503 (not configured)
+    // TTS endpoint - Google Cloud TTS
     if (url.pathname === '/api/ai/tts' && request.method === 'POST') {
-      return new Response(JSON.stringify({ 
-        error: 'TTS not available', 
-        message: 'Text-to-speech uses browser built-in voice' 
-      }), {
-        status: 503,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      return handleTTS(request, env, corsHeaders);
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -107,6 +102,84 @@ async function handleChat(request, env, corsHeaders) {
     });
 
   } catch (error) {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// ── TTS Handler (Gemini 2.0 Flash Experimental) ────────────────────────────────
+async function handleTTS(request, env, corsHeaders) {
+  try {
+    const body = await request.json();
+    const { text, lang = 'en' } = body;
+
+    if (!text) {
+      return new Response(JSON.stringify({ error: 'Text is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Get API key from environment variable
+    const apiKey = env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'API key not configured. Please contact admin.' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Use Gemini 2.0 Flash TTS (text-to-speech)
+    const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+    
+    const response = await fetch(ttsUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: `Speak this clearly: ${text}` }]
+        }],
+        generationConfig: {
+          responseModalities: ["audio"]
+        }
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('TTS API error:', errorText);
+      return new Response(JSON.stringify({ 
+        error: 'TTS service error', 
+        details: response.statusText 
+      }), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const data = await response.json();
+    
+    // Extract audio data from response
+    const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    
+    if (!audioData) {
+      return new Response(JSON.stringify({ 
+        error: 'No audio generated',
+        message: 'TTS did not return audio data'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ audio: audioData }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('TTS error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

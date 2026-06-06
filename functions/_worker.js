@@ -29,6 +29,17 @@ export default {
       return handleChat(request, env, corsHeaders);
     }
 
+    // TTS endpoint - returns 503 (not configured)
+    if (url.pathname === '/api/ai/tts' && request.method === 'POST') {
+      return new Response(JSON.stringify({ 
+        error: 'TTS not available', 
+        message: 'Text-to-speech uses browser built-in voice' 
+      }), {
+        status: 503,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

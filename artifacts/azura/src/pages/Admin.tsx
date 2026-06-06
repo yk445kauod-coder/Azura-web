@@ -258,14 +258,6 @@ export default function Admin() {
       });
     });
 
-    // Real-time notifications - orders
-    const ordersRef = ref(db, "orders");
-    onValue(ordersRef, (snap) => {
-      if (!snap.exists()) return;
-      const data = snap.val() as Record<string, unknown>;
-      // This will trigger re-render with updated orders
-    });
-
     return () => {
       ["orders","menu","feedback","suggestions","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };

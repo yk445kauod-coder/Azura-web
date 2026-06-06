@@ -15,12 +15,13 @@ import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty } from "@/lib/firebase";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const [isAdmin] = useState(() => sessionStorage.getItem("azura-admin") === "true");
   useEffect(() => { seedMenuIfEmpty().catch(() => {}); }, []);
 
   if (loading) {
@@ -54,7 +55,7 @@ function AppRoutes() {
               <Route path="/barista" component={AIBarista} />
               <Route path="/cart" component={Cart} />
               <Route path="/orders" component={Orders} />
-              <Route path="/reels" component={Reels} />
+              {isAdmin && <Route path="/reels" component={Reels} />}
               <Route path="/profile" component={Profile} />
               <Route component={NotFound} />
             </Switch>

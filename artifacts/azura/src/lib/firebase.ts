@@ -20,10 +20,6 @@ import {
   off,
   update,
   remove,
-  query,
-  orderByChild,
-  limitToLast,
-  serverTimestamp,
 } from "firebase/database";
 
 const firebaseConfig = {
@@ -90,10 +86,6 @@ export {
   off,
   update,
   remove,
-  query,
-  orderByChild,
-  limitToLast,
-  serverTimestamp,
 };
 
 export type { User };

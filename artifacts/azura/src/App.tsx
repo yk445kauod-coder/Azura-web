@@ -17,7 +17,14 @@ import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty } from "@/lib/firebase";
 import { useEffect } from "react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function AppRoutes() {
   const { user, loading } = useAuth();

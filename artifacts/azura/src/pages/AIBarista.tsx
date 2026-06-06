@@ -68,8 +68,15 @@ export default function AIBarista() {
     const unsubscribe = onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
-        const encryptedKey = data.geminiKey as string;
-        setGeminiKey(encryptedKey ? decryptKey(encryptedKey) : "");
+        const storedKey = data.geminiKey as string;
+        
+        if (!storedKey) {
+          setGeminiKey("");
+        } else {
+          // Try to decrypt - if fails, use as-is (in case it was saved without encryption)
+          const decrypted = decryptKey(storedKey);
+          setGeminiKey(decrypted || storedKey);
+        }
         setAiEnabled(data.aiEnabled !== false);
       }
     });

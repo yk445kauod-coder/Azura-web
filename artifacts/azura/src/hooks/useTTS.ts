@@ -5,7 +5,6 @@ export function useTTS(lang: Lang, persona: "female" | "male" = "female") {
   const [enabled, setEnabled] = useState(() => localStorage.getItem("azura-tts") !== "false");
   const [speaking, setSpeaking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
   const toggle = () => {
     const next = !enabled;
@@ -15,7 +14,6 @@ export function useTTS(lang: Lang, persona: "female" | "male" = "female") {
   };
 
   const stop = useCallback(() => {
-    abortRef.current?.abort();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = "";
@@ -43,60 +41,28 @@ export function useTTS(lang: Lang, persona: "female" | "male" = "female") {
       setSpeaking(true);
 
       try {
-        abortRef.current = new AbortController();
+        // Use browser's built-in Web Speech API
+        if (!window.speechSynthesis) throw new Error("No TTS support");
         
-        // Call our Cloudflare Function for TTS (Gemini)
-        const res = await fetch("/api/ai/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: clean, lang }),
-          signal: abortRef.current.signal,
-        });
+        window.speechSynthesis.cancel();
 
-        if (!res.ok) throw new Error("TTS API failed");
+        const utterance = new SpeechSynthesisUtterance(clean);
+        utterance.lang = lang === "ar" ? "ar-EG" : "en-US";
+        utterance.rate = 0.95;
+        utterance.pitch = persona === "female" ? 1.1 : 0.9;
         
-        const { audio } = await res.json() as { audio: string };
+        utterance.onstart = () => setSpeaking(true);
+        utterance.onend = () => setSpeaking(false);
+        utterance.onerror = () => setSpeaking(false);
 
-        if (!audio) throw new Error("No audio data");
-
-        // Convert base64 audio to blob and play
-        const binary = atob(audio);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        const blob = new Blob([bytes], { type: "audio/mp3" });
-        const url = URL.createObjectURL(blob);
-
-        const audio_el = new Audio(url);
-        audioRef.current = audio_el;
-        audio_el.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); };
-        audio_el.onerror = () => { 
-          setSpeaking(false); 
-          // Fallback to browser TTS
-          fallbackBrowserTTS(clean);
-        };
-        await audio_el.play();
-        
+        window.speechSynthesis.speak(utterance);
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") { setSpeaking(false); return; }
-        // Fallback to browser TTS
-        fallbackBrowserTTS(clean);
+        setSpeaking(false);
       }
     },
     [enabled, lang, persona, stop]
   );
-
-  const fallbackBrowserTTS = (text: string) => {
-    if (!window.speechSynthesis) { setSpeaking(false); return; }
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === "ar" ? "ar-EG" : "en-US";
-    u.rate = 0.95;
-    u.pitch = persona === "female" ? 1.1 : 0.9;
-    u.onstart = () => setSpeaking(true);
-    u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
-    window.speechSynthesis.speak(u);
-  };
 
   useEffect(() => () => stop(), [stop]);
 

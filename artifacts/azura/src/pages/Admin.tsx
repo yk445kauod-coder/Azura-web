@@ -1071,18 +1071,18 @@ export default function Admin() {
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-5">
               <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("API & AI Configuration","إعدادات API والذكاء الاصطناعي")}
+                <Key size={18} className="text-primary"/> {tr("AI Service Configuration","إعدادات خدمة الذكاء الاصطناعي")}
               </h3>
 
-              {/* Gemini API Key */}
+              {/* AI Provider API Key */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("Gemini API Key","مفتاح Gemini API")}</label>
+                <label className="text-sm font-semibold text-foreground">{tr("AI Provider API Key","مفتاح مزود الذكاء الاصطناعي")}</label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
                       type={showApiKey ? "text" : "password"}
                       className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your Gemini API key","أدخل مفتاح Gemini")}
+                      placeholder={tr("Enter your AI provider API key","أدخل مفتاح مزود الذكاء الاصطناعي")}
                       value={apiSettings.geminiKey}
                       onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
                     />
@@ -1091,7 +1091,7 @@ export default function Admin() {
                     </button>
                   </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">{tr("Get your key from","احصل على مفتاحك من")} <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary underline">Google AI Studio</a></p>
+                <p className="text-[11px] text-muted-foreground">{tr("Get your AI API key from your provider","احصل على مفتاح API من مزود الخدمة")}</p>
               </div>
 
               {/* AI Toggle */}
@@ -1117,11 +1117,11 @@ export default function Admin() {
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${apiSettings.geminiKey ? "bg-green-500" : "bg-amber-500"}`}/>
                   <span className="text-xs font-medium">
-                    {apiSettings.geminiKey ? tr("Gemini API configured","Gemini API مُعدّ") : tr("Gemini API not configured","Gemini API غير مُعدّ")}
+                    {apiSettings.geminiKey ? tr("AI Service configured","خدمة الذكاء الاصطناعي مُعدّة") : tr("AI Service not configured","خدمة الذكاء الاصطناعي غير مُعدّة")}
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {tr("The API key will be sent to Cloudflare Function. Keep it safe!","مفتاح API هيُرسل للـ Cloudflare Function. حافظ عليه!")}
+                  {tr("The AI service runs directly in the browser for fast responses.","خدمة الذكاء الاصطناعي تعمل مباشرة في المتصفح لسرعة الاستجابة.")}
                 </p>
               </div>
             </div>

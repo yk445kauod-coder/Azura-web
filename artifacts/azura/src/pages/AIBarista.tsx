@@ -172,27 +172,32 @@ export default function AIBarista() {
         parts: [{ text: m.content }],
       }));
 
-      // Call our Cloudflare Function with API key in header
-      const res = await fetch("/api/ai/chat", {
+      // Call AI directly from browser
+      const aiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+      
+      const res = await fetch(aiUrl, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-API-Key": geminiKey,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: text,
-          history,
-          systemPrompt: buildSystemPrompt(),
-          language: lang,
+          contents: [
+            ...history.map((h) => ({
+              role: h.role === 'model' ? 'model' : 'user',
+              parts: h.parts,
+            })),
+            { role: 'user', parts: [{ text }] },
+          ],
+          systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
+          generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
         }),
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: 'API error' }));
-        throw new Error(errData.error || 'API error');
+        const errData = await res.json().catch(() => ({ error: 'Service error' }));
+        throw new Error(errData.error || 'Service error');
       }
 
-      const { content } = await res.json() as { content: string };
+      const data = await res.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const { text: parsed, suggestedItem } = parseMessage(content);
       
       const aiMsg: Message = {

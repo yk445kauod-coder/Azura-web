@@ -1,17 +1,16 @@
 /**
  * Cloudflare Pages Function for Azura AI API
- * Handles: /api/ai/chat, /api/ai/tts
+ * Proxies requests to Gemini API - hides the API key from frontend
  */
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     
-    // CORS headers
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
+      'Access-Control-Allow-Headers': 'Content-Type',
     };
 
     if (request.method === 'OPTIONS') {
@@ -25,14 +24,9 @@ export default {
       });
     }
 
-    // Chat endpoint
+    // Chat endpoint - key is hidden in environment variable
     if (url.pathname === '/api/ai/chat' && request.method === 'POST') {
       return handleChat(request, env, corsHeaders);
-    }
-
-    // TTS endpoint
-    if (url.pathname === '/api/ai/tts' && request.method === 'POST') {
-      return handleTTS(request, env, corsHeaders);
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -47,24 +41,22 @@ async function handleChat(request, env, corsHeaders) {
     const body = await request.json();
     const { message, history = [], systemPrompt, language = 'en' } = body;
 
-    // Get API key from header (sent from frontend with admin's stored key)
-    const apiKey = request.headers.get('X-API-Key') || env.GEMINI_API_KEY || '';
+    // Get API key from environment variable (set in Cloudflare Pages settings)
+    const apiKey = env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured. Please add your Gemini API key in Admin Panel.' }), {
+      return new Response(JSON.stringify({ error: 'API key not configured. Please contact admin.' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // Build the prompt for Gemini
     const defaultPrompt = language === 'ar' 
       ? `أنت زورا، باريستا ذكاء اصطناعي ودود في مقهى أزورا، الإسكندرية.`
       : `You are Zura, a friendly AI barista at Azura Cafe, Alexandria.`;
 
     const system = systemPrompt || defaultPrompt;
     
-    // Format history for Gemini
     const contents = [
       ...history.map((h) => ({
         role: h.role === 'model' ? 'model' : 'user',
@@ -76,7 +68,6 @@ async function handleChat(request, env, corsHeaders) {
       },
     ];
 
-    // Call Gemini API
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     
     const response = await fetch(geminiUrl, {
@@ -84,23 +75,14 @@ async function handleChat(request, env, corsHeaders) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents,
-        systemInstruction: {
-          parts: [{ text: system }],
-        },
-        generationConfig: {
-          temperature: 0.9,
-          maxOutputTokens: 2048,
-        },
+        systemInstruction: { parts: [{ text: system }] },
+        generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API error:', errorText);
-      return new Response(JSON.stringify({ 
-        error: 'AI service error',
-        details: response.statusText 
-      }), {
+      return new Response(JSON.stringify({ error: 'AI service error', details: response.statusText }), {
         status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -114,33 +96,7 @@ async function handleChat(request, env, corsHeaders) {
     });
 
   } catch (error) {
-    console.error('Chat error:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
-}
-
-async function handleTTS(request, env, corsHeaders) {
-  try {
-    const body = await request.json();
-    const { text, voice = 'en-US' } = body;
-
-    // TTS requires external service - placeholder for now
-    return new Response(JSON.stringify({ 
-      error: 'TTS not configured',
-      message: 'Text-to-speech service not yet configured.'
-    }), {
-      status: 503,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'TTS error' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

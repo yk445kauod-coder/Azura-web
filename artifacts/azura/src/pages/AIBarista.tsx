@@ -51,18 +51,16 @@ export default function AIBarista() {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
-  const [geminiKey, setGeminiKey] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load API settings
+  // Load AI settings from Firebase
   useEffect(() => {
     const apiRef = ref(db, "api-settings");
     onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
-        setGeminiKey((data.geminiKey as string) || "");
         setAiEnabled(data.aiEnabled !== false);
       }
     });
@@ -149,7 +147,7 @@ export default function AIBarista() {
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled || !geminiKey) {
+    if (!aiEnabled) {
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
@@ -172,38 +170,24 @@ export default function AIBarista() {
         parts: [{ text: m.content }],
       }));
 
-      // Call Gemini API directly from browser
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-      
-      const systemPrompt = buildSystemPrompt();
-      const contents = [
-        ...history.map((h) => ({
-          role: h.role === 'model' ? 'model' : 'user',
-          parts: h.parts,
-        })),
-        {
-          role: 'user',
-          parts: [{ text: text }],
-        },
-      ];
-
-      const res = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Call our Cloudflare Function - API key is hidden in the server
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents,
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
+          message: text,
+          history,
+          systemPrompt: buildSystemPrompt(),
+          language: lang,
         }),
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
+        const errData = await res.json().catch(() => ({ error: 'API error' }));
         throw new Error(errData.error || 'API error');
       }
 
-      const data = await res.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const { content } = await res.json() as { content: string };
       const { text: parsed, suggestedItem } = parseMessage(content);
       
       const aiMsg: Message = {

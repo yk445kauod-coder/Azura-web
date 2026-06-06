@@ -7,7 +7,7 @@ import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
   TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2, ToggleLeft, ToggleRight,
   Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
-  ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
+  ImageIcon, Megaphone, Film, Pin, Key, Settings,
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
@@ -145,11 +145,8 @@ export default function Admin() {
 
   // API settings
   const [apiSettings, setApiSettings] = useState({
-    geminiKey: "",
-    ttsKey: "",
     aiEnabled: true,
   });
-  const [showApiKey, setShowApiKey] = useState(false);
   const [savingApiKey, setSavingApiKey] = useState(false);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
@@ -252,8 +249,6 @@ export default function Admin() {
       if (!snap.exists()) return;
       const data = snap.val() as Record<string, unknown>;
       setApiSettings({
-        geminiKey: (data.geminiKey as string) || "",
-        ttsKey: (data.ttsKey as string) || "",
         aiEnabled: data.aiEnabled !== false,
       });
     });
@@ -348,8 +343,6 @@ export default function Admin() {
   const saveApiSettings = async () => {
     setSavingApiKey(true);
     await set(ref(db, "api-settings"), {
-      geminiKey: apiSettings.geminiKey,
-      ttsKey: apiSettings.ttsKey,
       aiEnabled: apiSettings.aiEnabled,
       updatedAt: Date.now(),
     });
@@ -1074,52 +1067,35 @@ export default function Admin() {
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-5">
               <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("API & AI Configuration","إعدادات API والذكاء الاصطناعي")}
+                <Key size={18} className="text-primary"/> {tr("AI Configuration","إعدادات الذكاء الاصطناعي")}
               </h3>
-
-              {/* Gemini API Key */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("Gemini API Key","مفتاح Gemini API")}</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <input
-                      type={showApiKey ? "text" : "password"}
-                      className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your Gemini API key","أدخل مفتاح Gemini")}
-                      value={apiSettings.geminiKey}
-                      onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
-                    />
-                    <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
-                    </button>
-                  </div>
-                </div>
-                <p className="text-[11px] text-muted-foreground">{tr("Get your key from","احصل على مفتاحك من")} <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary underline">Google AI Studio</a></p>
-              </div>
-
-              {/* TTS API Key */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("Text-to-Speech Key (Optional)","مفتاح الصوت (اختياري)")}</label>
-                <input
-                  type="password"
-                  className={inp}
-                  placeholder={tr("ElevenLabs or Google TTS key","مفتاح ElevenLabs أو Google TTS")}
-                  value={apiSettings.ttsKey}
-                  onChange={(e) => setApiSettings((p) => ({...p, ttsKey: e.target.value}))}
-                />
-                <p className="text-[11px] text-muted-foreground">{tr("Optional: For AI voice responses","اختياري: لأصوات الذكاء الاصطناعي")}</p>
-              </div>
 
               {/* AI Toggle */}
               <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-muted/50">
                 <div>
                   <p className="font-semibold text-sm">{tr("AI Barista","الباريستا الذكي")}</p>
-                  <p className="text-[11px] text-muted-foreground">{tr("Enable AI chat feature","تفعيل محادثة الذكاء الاصطناعي")}</p>
+                  <p className="text-[11px] text-muted-foreground">{tr("Enable/disable AI chat feature","تفعيل/إيقاف محادثة الذكاء الاصطناعي")}</p>
                 </div>
                 <button onClick={() => setApiSettings((p) => ({...p, aiEnabled: !p.aiEnabled}))}
                   className={`w-12 h-7 rounded-full relative transition-colors ${apiSettings.aiEnabled ? "bg-primary" : "bg-muted"}`}>
                   <div className={`w-5 h-5 rounded-full bg-white shadow-sm absolute top-1 transition-all ${apiSettings.aiEnabled ? "translate-x-6" : "translate-x-1"}`}/>
                 </button>
+              </div>
+
+              {/* Instructions */}
+              <div className="rounded-xl p-4 bg-amber-50 border border-amber-200">
+                <h4 className="font-bold text-amber-800 text-sm mb-2">🔑 {tr("How to set up your API key","كيفية إعداد مفتاح API")}</h4>
+                <ol className="text-xs text-amber-700 space-y-1 list-decimal list-inside">
+                  <li>{tr("Go to","اذهب إلى")} <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline font-medium">Google AI Studio</a> {tr("and get a Gemini API key"," واحصل على مفتاح Gemini API")}</li>
+                  <li>{tr("Go to Cloudflare Dashboard → Pages → your project → Settings → Functions","روح لـ Cloudflare Dashboard → Pages → مشروعك → Settings → Functions")}</li>
+                  <li>{tr("Add Environment Variable:","أضف متغير البيئة:")}</li>
+                </ol>
+                <div className="mt-2 p-2 bg-amber-100 rounded-lg font-mono text-[11px]">
+                  GEMINI_API_KEY = your_api_key_here
+                </div>
+                <p className="text-[10px] text-amber-600 mt-2">
+                  {tr("Your API key is stored securely on Cloudflare servers, hidden from users.","مفتاحك محفوظ بشكل آمن على خوادم Cloudflare، مخفي عن المستخدمين.")}
+                </p>
               </div>
 
               {/* Save Button */}
@@ -1131,13 +1107,13 @@ export default function Admin() {
               {/* Status */}
               <div className="rounded-xl p-3 bg-muted/30">
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${apiSettings.geminiKey ? "bg-green-500" : "bg-amber-500"}`}/>
+                  <div className={`w-2 h-2 rounded-full ${apiSettings.aiEnabled ? "bg-green-500" : "bg-gray-400"}`}/>
                   <span className="text-xs font-medium">
-                    {apiSettings.geminiKey ? tr("Gemini API configured","Gemini API مُعدّ") : tr("Gemini API not configured","Gemini API غير مُعدّ")}
+                    {apiSettings.aiEnabled ? tr("AI Barista is active","الباريستا الذكي نشط") : tr("AI Barista is disabled","الباريستا الذكي غير مُفعّل")}
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {tr("AI features require a valid API key. Get one free at makersuite.google.com","تتطلب ميزات الذكاء الاصطناعي مفتاح API صالح. احصل على واحد مجاناً من makersuite.google.com")}
+                  {tr("The API key must be configured in Cloudflare Pages settings.","يجب تكوين مفتاح API في إعدادات Cloudflare Pages.")}
                 </p>
               </div>
             </div>

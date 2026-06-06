@@ -171,17 +171,41 @@ export default function AIBarista() {
         role: m.role === "ai" ? "model" : "user",
         parts: [{ text: m.content }],
       }));
-      const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-API-Key": geminiKey,
+
+      // Call Gemini API directly from browser
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+      
+      const systemPrompt = buildSystemPrompt();
+      const contents = [
+        ...history.map((h) => ({
+          role: h.role === 'model' ? 'model' : 'user',
+          parts: h.parts,
+        })),
+        {
+          role: 'user',
+          parts: [{ text: text }],
         },
-        body: JSON.stringify({ message: text, history, systemPrompt: buildSystemPrompt(), language: lang }),
+      ];
+
+      const res = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents,
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
+        }),
       });
-      if (!res.ok) throw new Error("API error");
-      const { content } = await res.json() as { content: string };
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'API error');
+      }
+
+      const data = await res.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const { text: parsed, suggestedItem } = parseMessage(content);
+      
       const aiMsg: Message = {
         id: `a${Date.now()}`,
         role: "ai",
@@ -198,11 +222,14 @@ export default function AIBarista() {
       };
       setMessages((p) => [...p, aiMsg]);
       if (ttsEnabled) speak(parsed);
-    } catch {
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : 'Unknown error';
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
-        content: lang === "ar" ? "عذراً، في مشكلة دلوقتي. حاول تاني." : "Sorry, something went wrong. Please try again.",
+        content: lang === "ar" 
+          ? `عذراً، في مشكلة: ${errMsg}` 
+          : `Sorry, something went wrong: ${errMsg}`,
         timestamp: Date.now(),
       };
       setMessages((p) => [...p, err]);

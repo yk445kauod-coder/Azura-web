@@ -46,7 +46,8 @@ export function decryptKey(encrypted: string): string {
 export function isValidApiKey(key: string): boolean {
   if (!key) return false;
   // Gemini API keys are typically 30+ characters
-  return key.length >= 30 && key.includes("AIza");
+  // New format: AQ.xxx or AIza...
+  return key.length >= 30 && (key.startsWith("AIza") || key.startsWith("AQ."));
 }
 
 // ── AI Chat ─────────────────────────────────────────────────

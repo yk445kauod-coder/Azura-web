@@ -100,12 +100,12 @@ export async function seedMenuIfEmpty() {
 
   const menuData = {
     coffee: {
-      "espresso": { name: "Espresso", nameAr: "إسبريسو", description: "Rich & bold single shot", descriptionAr: "شوت إسبريسو غني وقوي", price: 35, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&q=80" },
+      "espresso": { name: "Espresso", nameAr: "إسبريسو", description: "Rich & bold single shot", descriptionAr: "شوت إسبريسو غني وقوي", price: 35, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&q=80" },
       "cappuccino": { name: "Cappuccino", nameAr: "كابتشينو", description: "Espresso with steamed milk foam", descriptionAr: "إسبريسو مع رغوة الحليب", price: 65, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&q=80" },
       "latte": { name: "Latte", nameAr: "لاتيه", description: "Smooth espresso with steamed milk", descriptionAr: "إسبريسو ناعم مع الحليب", price: 70, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1561882468-9110d70d8f4d?w=400&q=80" },
       "turkish": { name: "Turkish Coffee", nameAr: "قهوة تركية", description: "Traditional Egyptian-style coffee", descriptionAr: "قهوة على الطريقة المصرية التقليدية", price: 40, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1578374173713-b8e700b4f5f9?w=400&q=80" },
       "cold-brew": { name: "Cold Brew", nameAr: "كولد برو", description: "Slow-steeped cold coffee", descriptionAr: "قهوة باردة تُنقع ببطء", price: 75, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=80" },
-      "mocha": { name: "Mocha", nameAr: "موكا", description: "Chocolate espresso delight", descriptionAr: "إسبريسو بالشوكولاتة اللذيذة", price: 75, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1579888944880-d98341245702?w=400&q=80" },
+      "mocha": { name: "Mocha", nameAr: "موكا", description: "Chocolate espresso delight", descriptionAr: "إسبريسو بالشوكولاتة اللذيذة", price: 75, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4f?w=400&q=80" },
     },
     beverages: {
       "matcha": { name: "Matcha Latte", nameAr: "ماتشا لاتيه", description: "Japanese green tea with milk", descriptionAr: "شاي أخضر ياباني مع الحليب", price: 80, category: "beverages", available: true, image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&q=80" },
@@ -114,7 +114,7 @@ export async function seedMenuIfEmpty() {
       "fresh-juice": { name: "Fresh Orange Juice", nameAr: "عصير برتقال طازج", description: "Freshly squeezed orange", descriptionAr: "برتقال معصور طازج", price: 60, category: "beverages", available: true, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80" },
     },
     food: {
-      "croissant": { name: "Butter Croissant", nameAr: "كروسان زبدة", description: "Flaky, buttery French pastry", descriptionAr: "معجنات فرنسية هشة بالزبدة", price: 55, category: "food", available: true, image: "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=400&q=80" },
+      "croissant": { name: "Butter Croissant", nameAr: "كروسان زبدة", description: "Flaky, buttery French pastry", descriptionAr: "معجنات فرنسية هشة بالزبدة", price: 55, category: "food", available: true, image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&q=80" },
       "avocado-toast": { name: "Avocado Toast", nameAr: "توست أفوكادو", description: "Sourdough with smashed avocado", descriptionAr: "خبز بالحامض مع الأفوكادو المهروس", price: 95, category: "food", available: true, image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=400&q=80" },
       "eggs-benedict": { name: "Eggs Benedict", nameAr: "بيض بنديكت", description: "Poached eggs with hollandaise", descriptionAr: "بيض مسلوق مع صوص هولنديز", price: 110, category: "food", available: true, image: "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=400&q=80" },
       "club-sandwich": { name: "Club Sandwich", nameAr: "كلوب سندوتش", description: "Classic triple decker sandwich", descriptionAr: "ساندوتش كلاسيكي ثلاثي الطوابق", price: 120, category: "food", available: true, image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&q=80" },

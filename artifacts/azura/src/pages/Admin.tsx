@@ -538,13 +538,13 @@ export default function Admin() {
                 </div>
               </div>
               
-              {/* Outside table (14) */}
+              {/* Outside tables (12-25) */}
               <div className="col-span-3">
                 <h3 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-2">
-                  <span>🌳</span> {tr("Outside (14)","الخارجي (14)")}
+                  <span>🌳</span> {tr("Outside (12-25)","الخارجي (12-25)")}
                 </h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {[14].map((tableNum) => {
+                <div className="grid grid-cols-4 gap-2">
+                  {Array.from({length: 14}, (_, i) => i + 12).map((tableNum) => {
                     const tableOrders = orders.filter((o) => o.tableNumber === String(tableNum));
                     const hasActive = tableOrders.some((o) => o.status === "pending" || o.status === "preparing");
                     const hasNew = tableOrders.some((o) => {
@@ -560,7 +560,7 @@ export default function Admin() {
                               ? "bg-amber-50 ring-1 ring-amber-300"
                               : "bg-card hover:bg-muted/50"
                         }`}>
-                        <div className="text-2xl font-bold text-primary">{tableNum}</div>
+                        <div className="text-lg font-bold text-primary">{tableNum}</div>
                         <div className="text-[10px] text-muted-foreground">
                           {tableOrders.length} {tr("orders","طلب")}
                         </div>

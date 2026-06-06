@@ -51,6 +51,7 @@ export default function AIBarista() {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
+  const [geminiKey, setGeminiKey] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -61,6 +62,7 @@ export default function AIBarista() {
     onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
+        setGeminiKey((data.geminiKey as string) || "");
         setAiEnabled(data.aiEnabled !== false);
       }
     });
@@ -147,7 +149,7 @@ export default function AIBarista() {
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled) {
+    if (!aiEnabled || !geminiKey) {
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
@@ -170,10 +172,13 @@ export default function AIBarista() {
         parts: [{ text: m.content }],
       }));
 
-      // Call our Cloudflare Function - API key is hidden in the server
+      // Call our Cloudflare Function with API key in header
       const res = await fetch("/api/ai/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-API-Key": geminiKey,
+        },
         body: JSON.stringify({
           message: text,
           history,

@@ -1,7 +1,7 @@
 /**
  * Cloudflare Pages Function for Azura AI API
- * Handles: /api/ai/chat (Gemini), /api/ai/tts (Google Cloud TTS)
- * API keys are stored in environment variables (not in source code)
+ * Handles: /api/ai/chat, /api/ai/tts
+ * For demo mode, frontend calls Gemini directly
  */
 
 export default {
@@ -11,7 +11,7 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
     };
 
     if (request.method === 'OPTIONS') {
@@ -25,14 +25,19 @@ export default {
       });
     }
 
-    // Chat endpoint - Gemini API
+    // Chat endpoint - supports both env var and header (for demo)
     if (url.pathname === '/api/ai/chat' && request.method === 'POST') {
       return handleChat(request, env, corsHeaders);
     }
 
-    // TTS endpoint - Google Cloud TTS
+    // TTS endpoint
     if (url.pathname === '/api/ai/tts' && request.method === 'POST') {
       return handleTTS(request, env, corsHeaders);
+    }
+
+    // Root path - serve the app
+    if (url.pathname === '/' || url.pathname === '') {
+      return fetch(request);
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -47,11 +52,11 @@ async function handleChat(request, env, corsHeaders) {
     const body = await request.json();
     const { message, history = [], systemPrompt, language = 'en' } = body;
 
-    // Get API key from environment variable (set in Cloudflare Pages settings)
-    const apiKey = env.GEMINI_API_KEY;
+    // Get API key from header (for demo mode) or environment variable
+    const apiKey = request.headers.get('X-API-Key') || env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured. Please contact admin.' }), {
+      return new Response(JSON.stringify({ error: 'API key not configured. Please add your Gemini API key in Admin Panel.' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -122,8 +127,8 @@ async function handleTTS(request, env, corsHeaders) {
       });
     }
 
-    // Get API key from environment variable
-    const apiKey = env.GEMINI_API_KEY;
+    // Get API key from header (for demo mode) or environment variable
+    const apiKey = request.headers.get('X-API-Key') || env.GEMINI_API_KEY;
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'API key not configured. Please contact admin.' }), {
         status: 500,

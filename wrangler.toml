@@ -3,3 +3,6 @@ compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 pages_build_output_dir = "artifacts/azura/dist"
+
+# Cloudflare Functions (for API routes)
+pages_functions_directory = "functions"

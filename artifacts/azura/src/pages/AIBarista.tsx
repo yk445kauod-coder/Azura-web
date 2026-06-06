@@ -50,9 +50,23 @@ export default function AIBarista() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greeted, setGreeted] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(true);
+  const [geminiKey, setGeminiKey] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load API settings
+  useEffect(() => {
+    const apiRef = ref(db, "api-settings");
+    onValue(apiRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, unknown>;
+        setGeminiKey((data.geminiKey as string) || "");
+        setAiEnabled(data.aiEnabled !== false);
+      }
+    });
+  }, []);
 
   const handleSTTResult = useCallback((text: string) => {
     setInput((prev) => prev ? `${prev} ${text}` : text);
@@ -134,6 +148,20 @@ export default function AIBarista() {
   const sendMessage = async (msgText?: string) => {
     const text = (msgText || input).trim();
     if (!text || loading) return;
+
+    if (!aiEnabled || !geminiKey) {
+      const err: Message = {
+        id: `e${Date.now()}`,
+        role: "ai",
+        content: lang === "ar" 
+          ? "عذراً، خدمة الذكاء الاصطناعي غير مُفعّلة حالياً. تواصل مع الإدارة." 
+          : "Sorry, AI service is currently disabled. Please contact admin.",
+        timestamp: Date.now(),
+      };
+      setMessages((p) => [...p, err]);
+      return;
+    }
+
     const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text, timestamp: Date.now() };
     setMessages((p) => [...p, userMsg]);
     setInput("");
@@ -145,7 +173,10 @@ export default function AIBarista() {
       }));
       const res = await fetch("/api/ai/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-API-Key": geminiKey,
+        },
         body: JSON.stringify({ message: text, history, systemPrompt: buildSystemPrompt(), language: lang }),
       });
       if (!res.ok) throw new Error("API error");

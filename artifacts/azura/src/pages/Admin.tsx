@@ -7,11 +7,11 @@ import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
   TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2, ToggleLeft, ToggleRight,
   Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
-  ImageIcon, Megaphone, Film, Pin,
+  ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels";
+type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -138,9 +138,19 @@ export default function Admin() {
 
   // Orders filter
   const [orderFilter, setOrderFilter] = useState("all");
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
   // Reports range
   const [range, setRange] = useState<"today" | "week" | "month">("week");
+
+  // API settings
+  const [apiSettings, setApiSettings] = useState({
+    geminiKey: "",
+    ttsKey: "",
+    aiEnabled: true,
+  });
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [savingApiKey, setSavingApiKey] = useState(false);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const inp = "input-field px-3 py-2.5 text-sm";
@@ -237,8 +247,27 @@ export default function Admin() {
       }));
     });
 
+    // API Settings
+    onValue(ref(db, "api-settings"), (snap) => {
+      if (!snap.exists()) return;
+      const data = snap.val() as Record<string, unknown>;
+      setApiSettings({
+        geminiKey: (data.geminiKey as string) || "",
+        ttsKey: (data.ttsKey as string) || "",
+        aiEnabled: data.aiEnabled !== false,
+      });
+    });
+
+    // Real-time notifications - orders
+    const ordersRef = ref(db, "orders");
+    onValue(ordersRef, (snap) => {
+      if (!snap.exists()) return;
+      const data = snap.val() as Record<string, unknown>;
+      // This will trigger re-render with updated orders
+    });
+
     return () => {
-      ["orders","menu","feedback","suggestions","support-chat","broadcast","reels"].forEach((p) => off(ref(db, p)));
+      ["orders","menu","feedback","suggestions","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -323,6 +352,18 @@ export default function Admin() {
   const togglePin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
   const deleteReel = (reel: Reel) => { if (confirm(tr("Delete post?", "حذف المنشور؟"))) remove(ref(db, `reels/${reel.id}`)); };
 
+  // ── API Settings helpers ────────────────────────────────────
+  const saveApiSettings = async () => {
+    setSavingApiKey(true);
+    await set(ref(db, "api-settings"), {
+      geminiKey: apiSettings.geminiKey,
+      ttsKey: apiSettings.ttsKey,
+      aiEnabled: apiSettings.aiEnabled,
+      updatedAt: Date.now(),
+    });
+    setSavingApiKey(false);
+  };
+
   // ── Reports ───────────────────────────────────────────────────
   const now = Date.now();
   const rangeMs = range === "today" ? 86400000 : range === "week" ? 604800000 : 2592000000;
@@ -383,6 +424,7 @@ export default function Admin() {
     { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",   ar: "التقارير"   },
     { id: "broadcast",  icon: <Megaphone size={14}/>,     en: "Broadcast", ar: "إشعارات"   },
     { id: "reels",      icon: <Film size={14}/>,          en: "Reels",     ar: "ريلز"       },
+    { id: "api",        icon: <Key size={14}/>,           en: "API Keys",  ar: "مفاتيح API" },
   ];
 
   return (
@@ -465,64 +507,153 @@ export default function Admin() {
 
         {/* ━━━ ORDERS ━━━ */}
         {tab === "orders" && (
-          <div className="space-y-3 page-enter">
-            <div className="flex gap-2 overflow-x-auto scroll-hide pb-0.5">
-              {["all", ...STATUS_FLOW].map((s) => (
-                <button key={s} onClick={() => setOrderFilter(s)}
-                  className={`chip flex-shrink-0 capitalize ${orderFilter === s ? "chip-active" : "chip-inactive"}`}>
-                  {s === "all" ? tr("All","الكل") : (lang==="ar" ? STATUS_META[s]?.ar : STATUS_META[s]?.label)}
-                </button>
-              ))}
+          <div className="space-y-4 page-enter">
+            {/* Table Grid - 1-11 inside, 14 outside */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Inside tables (1-11) */}
+              <div className="col-span-3">
+                <h3 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-2">
+                  <span>🏠</span> {tr("Inside Tables (1-11)","الطاولات الداخلية (1-11)")}
+                </h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {Array.from({length: 11}, (_, i) => i + 1).map((tableNum) => {
+                    const tableOrders = orders.filter((o) => o.tableNumber === String(tableNum));
+                    const hasActive = tableOrders.some((o) => o.status === "pending" || o.status === "preparing");
+                    const hasNew = tableOrders.some((o) => {
+                      const created = o.createdAt || 0;
+                      return Date.now() - created < 300000; // 5 min
+                    });
+                    return (
+                      <button key={tableNum} onClick={() => setSelectedTable(String(tableNum))}
+                        className={`relative p-3 rounded-xl text-center transition-all ${
+                          selectedTable === String(tableNum) 
+                            ? "bg-primary/20 ring-2 ring-primary" 
+                            : hasActive 
+                              ? "bg-amber-50 ring-1 ring-amber-300"
+                              : "bg-card hover:bg-muted/50"
+                        }`}>
+                        <div className="text-2xl font-bold text-primary">{tableNum}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {tableOrders.length} {tr("orders","طلب")}
+                        </div>
+                        {hasNew && (
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"/>
+                        )}
+                        {hasActive && !hasNew && (
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full"/>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Outside table (14) */}
+              <div className="col-span-3">
+                <h3 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-2">
+                  <span>🌳</span> {tr("Outside (14)","الخارجي (14)")}
+                </h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {[14].map((tableNum) => {
+                    const tableOrders = orders.filter((o) => o.tableNumber === String(tableNum));
+                    const hasActive = tableOrders.some((o) => o.status === "pending" || o.status === "preparing");
+                    const hasNew = tableOrders.some((o) => {
+                      const created = o.createdAt || 0;
+                      return Date.now() - created < 300000;
+                    });
+                    return (
+                      <button key={tableNum} onClick={() => setSelectedTable(String(tableNum))}
+                        className={`relative p-3 rounded-xl text-center transition-all ${
+                          selectedTable === String(tableNum) 
+                            ? "bg-primary/20 ring-2 ring-primary" 
+                            : hasActive 
+                              ? "bg-amber-50 ring-1 ring-amber-300"
+                              : "bg-card hover:bg-muted/50"
+                        }`}>
+                        <div className="text-2xl font-bold text-primary">{tableNum}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {tableOrders.length} {tr("orders","طلب")}
+                        </div>
+                        {hasNew && (
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"/>
+                        )}
+                        {hasActive && !hasNew && (
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full"/>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-            {orders.filter((o) => orderFilter === "all" || o.status === orderFilter).length === 0 && (
-              <div className="text-center py-12">
-                <Package size={40} className="mx-auto text-muted-foreground/30 mb-2"/>
-                <p className="text-muted-foreground text-sm">{tr("No orders","لا يوجد طلبات")}</p>
+
+            {/* Selected Table Orders */}
+            {selectedTable && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-primary flex items-center gap-2">
+                    {tr("Table","طاولة")} {selectedTable} - {tr("Orders","الطلبات")}
+                  </h3>
+                  <button onClick={() => setSelectedTable(null)} className="text-xs text-muted-foreground hover:text-foreground">
+                    {tr("Close","إغلاق")}
+                  </button>
+                </div>
+                
+                {orders.filter((o) => o.tableNumber === selectedTable).length === 0 ? (
+                  <div className="text-center py-8 card rounded-xl">
+                    <Package size={36} className="mx-auto text-muted-foreground/30 mb-2"/>
+                    <p className="text-muted-foreground text-sm">{tr("No orders for this table","لا يوجد طلبات لهذه الطاولة")}</p>
+                  </div>
+                ) : (
+                  orders.filter((o) => o.tableNumber === selectedTable).map((o) => (
+                    <details key={`${o.userId || ""}-${o.orderId}`} className="card rounded-2xl overflow-hidden group">
+                      <summary className="p-4 cursor-pointer flex items-center gap-3 select-none list-none">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="font-bold text-sm text-foreground">{o.userName}</p>
+                            <span className="text-[10px] text-muted-foreground">#{o.orderId?.slice(-5)}</span>
+                            {Date.now() - (o.createdAt || 0) < 300000 && (
+                              <span className="bg-green-100 text-green-700 text-[9px] px-1.5 py-0.5 rounded-full font-bold">NEW</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{o.items?.length||0} {tr("items","عناصر")} · {o.total} {tr("EGP","ج.م")}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {new Date(o.createdAt).toLocaleString(lang==="ar"?"ar-EG":"en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
+                          </p>
+                        </div>
+                        <span className={`badge px-2 py-1 flex-shrink-0 ${STATUS_META[o.status]?.cls || ""}`}>
+                          {STATUS_META[o.status]?.icon}
+                          <span className="ms-1">{lang==="ar"?STATUS_META[o.status]?.ar:STATUS_META[o.status]?.label}</span>
+                        </span>
+                        <ChevronDown size={14} className="text-muted-foreground flex-shrink-0 group-open:rotate-180 transition-transform"/>
+                      </summary>
+                      <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+                        <div className="space-y-1">
+                          {o.items?.map((item, i) => (
+                            <div key={i} className="flex justify-between text-xs">
+                              <span className="text-foreground">{lang==="ar"?(item.nameAr||item.name):item.name} <span className="text-muted-foreground">×{item.quantity}</span></span>
+                              <span className="font-semibold text-secondary">{item.subtotal} {tr("EGP","ج.م")}</span>
+                            </div>
+                          ))}
+                          {o.notes && <p className="text-xs italic text-muted-foreground mt-1">📝 {o.notes}</p>}
+                          <div className="flex justify-between text-sm font-bold pt-1 border-t border-border/40">
+                            <span>{tr("Total","الإجمالي")}</span>
+                            <span className="text-primary">{o.total} {tr("EGP","ج.م")}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {STATUS_FLOW.filter((s) => s !== o.status).map((s) => (
+                            <button key={s} onClick={() => setOrderStatus(o, s)} className={`chip text-[11px] ${STATUS_META[s]?.cls}`}>
+                              {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </details>
+                  ))
+                )}
               </div>
             )}
-            {orders.filter((o) => orderFilter === "all" || o.status === orderFilter).map((o) => (
-              <details key={`${o.userId || ""}-${o.orderId}`} className="card rounded-2xl overflow-hidden group">
-                <summary className="p-4 cursor-pointer flex items-center gap-3 select-none list-none">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="font-bold text-sm text-foreground">{o.userName}</p>
-                      <span className="text-[10px] text-muted-foreground">#{o.orderId?.slice(-5)}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{tr("Table","طاولة")} {o.tableNumber} · {o.items?.length||0} {tr("items","عناصر")} · {o.total} {tr("EGP","ج.م")}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {new Date(o.createdAt).toLocaleString(lang==="ar"?"ar-EG":"en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
-                    </p>
-                  </div>
-                  <span className={`badge px-2 py-1 flex-shrink-0 ${STATUS_META[o.status]?.cls || ""}`}>
-                    {STATUS_META[o.status]?.icon}
-                    <span className="ms-1">{lang==="ar"?STATUS_META[o.status]?.ar:STATUS_META[o.status]?.label}</span>
-                  </span>
-                  <ChevronDown size={14} className="text-muted-foreground flex-shrink-0 group-open:rotate-180 transition-transform"/>
-                </summary>
-                <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
-                  <div className="space-y-1">
-                    {o.items?.map((item, i) => (
-                      <div key={i} className="flex justify-between text-xs">
-                        <span className="text-foreground">{lang==="ar"?(item.nameAr||item.name):item.name} <span className="text-muted-foreground">×{item.quantity}</span></span>
-                        <span className="font-semibold text-secondary">{item.subtotal} {tr("EGP","ج.م")}</span>
-                      </div>
-                    ))}
-                    {o.notes && <p className="text-xs italic text-muted-foreground mt-1">📝 {o.notes}</p>}
-                    <div className="flex justify-between text-sm font-bold pt-1 border-t border-border/40">
-                      <span>{tr("Total","الإجمالي")}</span>
-                      <span className="text-primary">{o.total} {tr("EGP","ج.م")}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {STATUS_FLOW.filter((s) => s !== o.status).map((s) => (
-                      <button key={s} onClick={() => setOrderStatus(o, s)} className={`chip text-[11px] ${STATUS_META[s]?.cls}`}>
-                        {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </details>
-            ))}
           </div>
         )}
 
@@ -942,6 +1073,81 @@ export default function Admin() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ━━━ API SETTINGS ━━━ */}
+        {tab === "api" && (
+          <div className="space-y-4 page-enter">
+            <div className="card-elevated rounded-2xl p-5 space-y-5">
+              <h3 className="font-bold text-foreground flex items-center gap-2">
+                <Key size={18} className="text-primary"/> {tr("API & AI Configuration","إعدادات API والذكاء الاصطناعي")}
+              </h3>
+
+              {/* Gemini API Key */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">{tr("Gemini API Key","مفتاح Gemini API")}</label>
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <input
+                      type={showApiKey ? "text" : "password"}
+                      className={`${inp} w-full pr-10`}
+                      placeholder={tr("Enter your Gemini API key","أدخل مفتاح Gemini")}
+                      value={apiSettings.geminiKey}
+                      onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
+                    />
+                    <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground">{tr("Get your key from","احصل على مفتاحك من")} <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary underline">Google AI Studio</a></p>
+              </div>
+
+              {/* TTS API Key */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">{tr("Text-to-Speech Key (Optional)","مفتاح الصوت (اختياري)")}</label>
+                <input
+                  type="password"
+                  className={inp}
+                  placeholder={tr("ElevenLabs or Google TTS key","مفتاح ElevenLabs أو Google TTS")}
+                  value={apiSettings.ttsKey}
+                  onChange={(e) => setApiSettings((p) => ({...p, ttsKey: e.target.value}))}
+                />
+                <p className="text-[11px] text-muted-foreground">{tr("Optional: For AI voice responses","اختياري: لأصوات الذكاء الاصطناعي")}</p>
+              </div>
+
+              {/* AI Toggle */}
+              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-muted/50">
+                <div>
+                  <p className="font-semibold text-sm">{tr("AI Barista","الباريستا الذكي")}</p>
+                  <p className="text-[11px] text-muted-foreground">{tr("Enable AI chat feature","تفعيل محادثة الذكاء الاصطناعي")}</p>
+                </div>
+                <button onClick={() => setApiSettings((p) => ({...p, aiEnabled: !p.aiEnabled}))}
+                  className={`w-12 h-7 rounded-full relative transition-colors ${apiSettings.aiEnabled ? "bg-primary" : "bg-muted"}`}>
+                  <div className={`w-5 h-5 rounded-full bg-white shadow-sm absolute top-1 transition-all ${apiSettings.aiEnabled ? "translate-x-6" : "translate-x-1"}`}/>
+                </button>
+              </div>
+
+              {/* Save Button */}
+              <button onClick={saveApiSettings} disabled={savingApiKey}
+                className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <Settings size={16}/> {savingApiKey ? tr("Saving…","جاري الحفظ…") : tr("Save Settings","حفظ الإعدادات")}
+              </button>
+
+              {/* Status */}
+              <div className="rounded-xl p-3 bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${apiSettings.geminiKey ? "bg-green-500" : "bg-amber-500"}`}/>
+                  <span className="text-xs font-medium">
+                    {apiSettings.geminiKey ? tr("Gemini API configured","Gemini API مُعدّ") : tr("Gemini API not configured","Gemini API غير مُعدّ")}
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {tr("AI features require a valid API key. Get one free at makersuite.google.com","تتطلب ميزات الذكاء الاصطناعي مفتاح API صالح. احصل على واحد مجاناً من makersuite.google.com")}
+                </p>
+              </div>
             </div>
           </div>
         )}

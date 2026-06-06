@@ -1,0 +1,170 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLang } from "@/contexts/LanguageContext";
+import { db, ref, onValue, off, update } from "@/lib/firebase";
+import { Heart, Share2, Camera } from "lucide-react";
+
+interface Reel {
+  id: string;
+  image: string;
+  caption: string;
+  captionAr: string;
+  likes: number;
+  likedBy: Record<string, boolean>;
+  createdAt: number;
+  authorName: string;
+  authorId: string;
+  pinned?: boolean;
+}
+
+const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
+
+export default function Reels() {
+  const { user } = useAuth();
+  const { lang, isRTL } = useLang();
+  const [reels, setReels] = useState<Reel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [heartPop, setHeartPop] = useState<string | null>(null);
+
+  const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
+
+  useEffect(() => {
+    const reelsRef = ref(db, "reels");
+    onValue(reelsRef, (snap) => {
+      if (!snap.exists()) { setReels([]); setLoading(false); return; }
+      const data = snap.val() as Record<string, Omit<Reel, "id">>;
+      const list = Object.entries(data)
+        .map(([id, r]) => ({ id, ...r }))
+        .sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          return b.createdAt - a.createdAt;
+        });
+      setReels(list);
+      setLoading(false);
+    });
+    return () => off(ref(db, "reels"));
+  }, []);
+
+  const handleLike = useCallback(async (reel: Reel) => {
+    if (!user) return;
+    const liked = reel.likedBy?.[user.uid];
+    const newLikes = liked ? Math.max(0, reel.likes - 1) : reel.likes + 1;
+    const likedBy = { ...(reel.likedBy || {}) };
+    if (liked) delete likedBy[user.uid];
+    else likedBy[user.uid] = true;
+    await update(ref(db, `reels/${reel.id}`), { likes: newLikes, likedBy });
+    if (!liked) {
+      setHeartPop(reel.id);
+      setTimeout(() => setHeartPop(null), 700);
+    }
+  }, [user]);
+
+  const handleDoubleTap = useCallback((reel: Reel) => {
+    handleLike(reel);
+  }, [handleLike]);
+
+  const handleShare = async (reel: Reel) => {
+    const text = lang === "ar" ? (reel.captionAr || reel.caption) : reel.caption;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Azura Cafe", text, url: window.location.href });
+      } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
+      alert(tr("Link copied!", "تم النسخ!"));
+    }
+  };
+
+  const lastTap = useRef<Record<string, number>>({});
+  const onTapImage = (reel: Reel) => {
+    const now = Date.now();
+    const last = lastTap.current[reel.id] || 0;
+    if (now - last < 300) { handleDoubleTap(reel); lastTap.current[reel.id] = 0; }
+    else lastTap.current[reel.id] = now;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100dvh-7.5rem)]">
+        <div className="flex gap-1.5">{[0,1,2].map((i) => <div key={i} className="w-2 h-2 rounded-full bg-primary dot-pulse" style={{ animationDelay: `${i*0.22}s` }} />)}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative" dir={isRTL ? "rtl" : "ltr"}>
+      {reels.length === 0 ? (
+        <div className="h-[calc(100dvh-7.5rem)] flex flex-col items-center justify-center text-center px-6">
+          <Camera size={56} className="text-muted-foreground/25 mb-4" />
+          <h2 className="text-xl font-bold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>{tr("No posts yet", "لا يوجد منشورات")}</h2>
+          <p className="text-sm text-muted-foreground">{tr("Check back soon for cafe updates!", "ترقب منشوراتنا قريباً!")}</p>
+        </div>
+      ) : (
+        <div
+          className="overflow-y-scroll scroll-hide"
+          style={{ height: "calc(100dvh - 7.5rem)", scrollSnapType: "y mandatory" }}
+        >
+          {reels.map((reel) => {
+            const liked = !!(user && reel.likedBy?.[user.uid]);
+            return (
+              <div key={reel.id}
+                className="relative w-full flex-shrink-0 overflow-hidden"
+                style={{ height: "calc(100dvh - 7.5rem)", scrollSnapAlign: "start", scrollSnapStop: "always" }}
+              >
+                <img
+                  src={reel.image || PLACEHOLDER}
+                  alt={reel.caption}
+                  className="absolute inset-0 w-full h-full object-cover select-none"
+                  onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
+                  onClick={() => onTapImage(reel)}
+                  draggable={false}
+                />
+
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.25) 100%)" }} />
+
+                {heartPop === reel.id && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <Heart size={80} className="text-red-500 fill-red-500 heart-burst" />
+                  </div>
+                )}
+
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                  {reel.pinned && (
+                    <span className="flex items-center gap-1 text-white text-xs font-bold bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                      📌 {tr("Pinned", "مثبت")}
+                    </span>
+                  )}
+                </div>
+
+                <div className="absolute bottom-0 left-0 right-16 p-4 pb-5">
+                  <p className="text-white/80 text-xs font-semibold mb-1">✨ {reel.authorName}</p>
+                  {(lang === "ar" ? reel.captionAr : reel.caption) && (
+                    <p className="text-white text-sm font-medium leading-relaxed line-clamp-3">
+                      {lang === "ar" ? (reel.captionAr || reel.caption) : reel.caption}
+                    </p>
+                  )}
+                </div>
+
+                <div className="absolute right-3 bottom-16 flex flex-col gap-5 items-center">
+                  <button onClick={() => handleLike(reel)} className="flex flex-col items-center gap-1 group">
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${liked ? "bg-red-500" : "bg-black/40 backdrop-blur-sm group-hover:bg-black/60"}`}>
+                      <Heart size={20} className={`transition-all ${liked ? "fill-white text-white" : "text-white"}`} />
+                    </div>
+                    <span className="text-white text-xs font-bold drop-shadow">{reel.likes || 0}</span>
+                  </button>
+                  <button onClick={() => handleShare(reel)} className="flex flex-col items-center gap-1">
+                    <div className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-all">
+                      <Share2 size={18} className="text-white" />
+                    </div>
+                    <span className="text-white text-xs font-bold drop-shadow">{tr("Share","شارك")}</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

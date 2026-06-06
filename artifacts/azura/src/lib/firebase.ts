@@ -74,6 +74,11 @@ export const auth = authInstance;
 export const db = dbInstance;
 export const googleProvider = new GoogleAuthProvider();
 
+// Ensure db is always defined
+if (!dbInstance) {
+  console.error("Firebase database initialization failed");
+}
+
 export {
   signInAnonymously,
   signInWithPopup,

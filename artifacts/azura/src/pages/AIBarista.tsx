@@ -43,7 +43,7 @@ export default function AIBarista() {
   const { addItem } = useCart();
   const { baristaName, baristaAvatar, persona } = useBarista();
 
-  const { enabled: ttsEnabled, toggle: toggleTTS, speak, speaking } = useTTS(lang, persona);
+  const { enabled: ttsEnabled, toggle: toggleTTS, speak, speaking, setApiKey: setTtsApiKey } = useTTS(lang, persona);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -59,8 +59,8 @@ export default function AIBarista() {
 
   // Update TTS API key when it changes
   useEffect(() => {
-    tts.setApiKey(geminiKey);
-  }, [geminiKey, tts]);
+    setTtsApiKey(geminiKey);
+  }, [geminiKey, setTtsApiKey]);
 
   // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {

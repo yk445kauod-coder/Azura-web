@@ -1,15 +1,11 @@
 {
-  "name": "workspace",
-  "version": "0.0.0",
+  "name": "azura-cafe",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/azura build",
-    "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "dev": "pnpm --filter azura dev",
+    "build": "pnpm --filter azura build",
+    "preview": "pnpm --filter azura preview"
   },
-  "private": true,
-  "devDependencies": {
-    "prettier": "^3.8.3",
-    "typescript": "~5.9.3"
-  }
+  "private": true
 }

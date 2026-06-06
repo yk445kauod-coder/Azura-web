@@ -1,0 +1,5 @@
+name = "azura-cafe"
+compatibility_flags = ["nodejs_compat"]
+
+[pages]
+build_output_dir = "artifacts/azura/dist"

@@ -1,29 +1,17 @@
 /**
- * Cloudflare Worker for Azura Cafe AI API
+ * Cloudflare Pages Function for Azura AI API
  * Handles: /api/ai/chat, /api/ai/tts
  */
 
-interface Env {
-  GEMINI_API_KEY: string;
-  GEMINI_API_URL?: string;
-}
-
-interface ChatRequest {
-  message: string;
-  history?: Array<{ role: string; parts: Array<{ text: string }> }>;
-  systemPrompt?: string;
-  language?: string;
-}
-
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     
     // CORS headers
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
     };
 
     if (request.method === 'OPTIONS') {
@@ -42,7 +30,7 @@ export default {
       return handleChat(request, env, corsHeaders);
     }
 
-    // TTS endpoint (placeholder - needs external service)
+    // TTS endpoint
     if (url.pathname === '/api/ai/tts' && request.method === 'POST') {
       return handleTTS(request, env, corsHeaders);
     }
@@ -54,13 +42,13 @@ export default {
   }
 };
 
-async function handleChat(request: Request, env: Env, corsHeaders: Record<string, string>): Promise<Response> {
+async function handleChat(request, env, corsHeaders) {
   try {
-    const body: ChatRequest = await request.json();
+    const body = await request.json();
     const { message, history = [], systemPrompt, language = 'en' } = body;
 
     // Get API key from header (sent from frontend with admin's stored key)
-    const apiKey = request.headers.get('X-API-Key') || env.GEMINI_API_KEY;
+    const apiKey = request.headers.get('X-API-Key') || env.GEMINI_API_KEY || '';
 
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'API key not configured. Please add your Gemini API key in Admin Panel.' }), {
@@ -137,16 +125,15 @@ async function handleChat(request: Request, env: Env, corsHeaders: Record<string
   }
 }
 
-async function handleTTS(request: Request, env: Env, corsHeaders: Record<string, string>): Promise<Response> {
+async function handleTTS(request, env, corsHeaders) {
   try {
     const body = await request.json();
     const { text, voice = 'en-US' } = body;
 
-    // For now, return a placeholder - TTS requires external service
-    // You can integrate with Google Cloud TTS, ElevenLabs, etc.
+    // TTS requires external service - placeholder for now
     return new Response(JSON.stringify({ 
       error: 'TTS not configured',
-      message: 'Text-to-speech service not yet configured. Please add API key in admin panel.'
+      message: 'Text-to-speech service not yet configured.'
     }), {
       status: 503,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -158,16 +145,4 @@ async function handleTTS(request: Request, env: Env, corsHeaders: Record<string,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
-}
-
-function getGeminiKeyFromRequest(request: Request): string | null {
-  // Check headers for API key
-  const authHeader = request.headers.get('Authorization');
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7);
-  }
-  
-  // Check query params (for testing)
-  const url = new URL(request.url);
-  return url.searchParams.get('key');
 }

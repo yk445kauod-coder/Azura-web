@@ -5,6 +5,7 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { useTTS } from "@/hooks/useTTS";
 import { useSTT } from "@/hooks/useSTT";
 import { db, ref, onValue, off } from "@/lib/firebase";
+import { decryptKey } from "@/lib/crypto";
 import { Send, Mic, MicOff, Volume2, VolumeX, Plus, RefreshCw } from "lucide-react";
 
 interface Message {
@@ -56,13 +57,14 @@ export default function AIBarista() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load AI settings from Firebase
+  // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {
     const apiRef = ref(db, "api-settings");
     onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
-        setGeminiKey((data.geminiKey as string) || "");
+        const encryptedKey = data.geminiKey as string;
+        setGeminiKey(encryptedKey ? decryptKey(encryptedKey) : "");
         setAiEnabled(data.aiEnabled !== false);
       }
     });

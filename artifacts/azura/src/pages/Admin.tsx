@@ -3,6 +3,7 @@ import { db, ref, onValue, off, update, set, push, remove } from "@/lib/firebase
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
+import { encryptKey } from "@/lib/crypto";
 import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
   TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2, ToggleLeft, ToggleRight,
@@ -346,7 +347,7 @@ export default function Admin() {
   const saveApiSettings = async () => {
     setSavingApiKey(true);
     await set(ref(db, "api-settings"), {
-      geminiKey: apiSettings.geminiKey,
+      geminiKey: apiSettings.geminiKey ? encryptKey(apiSettings.geminiKey) : "",
       aiEnabled: apiSettings.aiEnabled,
       updatedAt: Date.now(),
     });

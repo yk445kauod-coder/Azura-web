@@ -51,12 +51,17 @@ export async function chatWithAI(
         })),
         { role: 'user', parts: [{ text: message }] },
       ],
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
+      systemInstruction: {
+        parts: [{ text: systemPrompt }]
+      }
     }),
   });
 
-  if (!res.ok) throw new Error("AI service error");
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("Gemini API error:", err);
+    throw new Error("AI service error");
+  }
   
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -75,17 +80,21 @@ export async function textToSpeech(apiKey: string, text: string): Promise<string
         parts: [{ text: `Speak this clearly: ${text}` }]
       }],
       generationConfig: {
-        responseModalities: ["audio"]
+        responseModalities: ["TEXT", "AUDIO"]
       }
     }),
   });
 
-  if (!res.ok) throw new Error("TTS service error");
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("TTS API error:", err);
+    throw new Error("TTS service error");
+  }
   
   const data = await res.json();
   const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   
   if (!audioData) throw new Error("No audio generated");
   
-  return audioData; // base64 encoded audio
+  return audioData;
 }

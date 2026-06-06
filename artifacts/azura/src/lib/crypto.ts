@@ -30,3 +30,62 @@ export function decryptKey(encrypted: string): string {
     return "";
   }
 }
+
+// ── AI Chat ─────────────────────────────────────────────────
+export async function chatWithAI(
+  apiKey: string,
+  message: string,
+  history: Array<{ role: string; parts: Array<{ text: string }> }>,
+  systemPrompt: string
+): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        ...history.map((h) => ({
+          role: h.role === 'model' ? 'model' : 'user',
+          parts: h.parts,
+        })),
+        { role: 'user', parts: [{ text: message }] },
+      ],
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
+    }),
+  });
+
+  if (!res.ok) throw new Error("AI service error");
+  
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+// ── TTS (Text-to-Speech) ─────────────────────────────────────
+export async function textToSpeech(apiKey: string, text: string): Promise<string> {
+  // Use Gemini 2.0 Flash Experimental for TTS
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+  
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{ text: `Speak this clearly: ${text}` }]
+      }],
+      generationConfig: {
+        responseModalities: ["audio"]
+      }
+    }),
+  });
+
+  if (!res.ok) throw new Error("TTS service error");
+  
+  const data = await res.json();
+  const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+  
+  if (!audioData) throw new Error("No audio generated");
+  
+  return audioData; // base64 encoded audio
+}

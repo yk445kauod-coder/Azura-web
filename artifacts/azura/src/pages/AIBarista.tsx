@@ -5,7 +5,7 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { useTTS } from "@/hooks/useTTS";
 import { useSTT } from "@/hooks/useSTT";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { decryptKey } from "@/lib/crypto";
+import { decryptKey, chatWithAI } from "@/lib/crypto";
 import { Send, Mic, MicOff, Volume2, VolumeX, Plus, RefreshCw } from "lucide-react";
 
 interface Message {
@@ -57,10 +57,15 @@ export default function AIBarista() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Update TTS API key when it changes
+  useEffect(() => {
+    tts.setApiKey(geminiKey);
+  }, [geminiKey, tts]);
+
   // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {
     const apiRef = ref(db, "api-settings");
-    onValue(apiRef, (snap) => {
+    const unsubscribe = onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
         const encryptedKey = data.geminiKey as string;
@@ -68,6 +73,7 @@ export default function AIBarista() {
         setAiEnabled(data.aiEnabled !== false);
       }
     });
+    return () => unsubscribe();
   }, []);
 
   const handleSTTResult = useCallback((text: string) => {
@@ -174,32 +180,7 @@ export default function AIBarista() {
         parts: [{ text: m.content }],
       }));
 
-      // Call AI directly from browser
-      const aiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-      
-      const res = await fetch(aiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            ...history.map((h) => ({
-              role: h.role === 'model' ? 'model' : 'user',
-              parts: h.parts,
-            })),
-            { role: 'user', parts: [{ text }] },
-          ],
-          systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
-          generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: 'Service error' }));
-        throw new Error(errData.error || 'Service error');
-      }
-
-      const data = await res.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const content = await chatWithAI(geminiKey, text, history, buildSystemPrompt());
       const { text: parsed, suggestedItem } = parseMessage(content);
       
       const aiMsg: Message = {

@@ -6,6 +6,9 @@
 
 const SECRET_SALT = "Azura2024Cafe";
 
+// Markers to identify encrypted vs plain text keys
+const ENCRYPTED_PREFIX = "___ENC___";
+
 export function encryptKey(key: string): string {
   if (!key) return "";
   let result = "";
@@ -13,13 +16,21 @@ export function encryptKey(key: string): string {
     const charCode = key.charCodeAt(i) ^ SECRET_SALT.charCodeAt(i % SECRET_SALT.length);
     result += String.fromCharCode(charCode);
   }
-  return btoa(result);
+  return ENCRYPTED_PREFIX + btoa(result);
 }
 
 export function decryptKey(encrypted: string): string {
   if (!encrypted) return "";
+  
+  // Check if it's actually encrypted
+  if (!encrypted.startsWith(ENCRYPTED_PREFIX)) {
+    // Not encrypted, return as-is
+    return encrypted;
+  }
+  
   try {
-    const decoded = atob(encrypted);
+    const base64Part = encrypted.slice(ENCRYPTED_PREFIX.length);
+    const decoded = atob(base64Part);
     let result = "";
     for (let i = 0; i < decoded.length; i++) {
       const charCode = decoded.charCodeAt(i) ^ SECRET_SALT.charCodeAt(i % SECRET_SALT.length);
@@ -29,6 +40,13 @@ export function decryptKey(encrypted: string): string {
   } catch {
     return "";
   }
+}
+
+// Check if key looks valid (basic validation)
+export function isValidApiKey(key: string): boolean {
+  if (!key) return false;
+  // Gemini API keys are typically 30+ characters
+  return key.length >= 30 && key.includes("AIza");
 }
 
 // ── AI Chat ─────────────────────────────────────────────────

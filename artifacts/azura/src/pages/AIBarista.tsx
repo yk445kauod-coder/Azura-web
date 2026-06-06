@@ -5,7 +5,7 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { useTTS } from "@/hooks/useTTS";
 import { useSTT } from "@/hooks/useSTT";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { decryptKey, chatWithAI } from "@/lib/crypto";
+import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
 import { Send, Mic, MicOff, Volume2, VolumeX, Plus, RefreshCw } from "lucide-react";
 
 interface Message {
@@ -73,9 +73,18 @@ export default function AIBarista() {
         if (!storedKey) {
           setGeminiKey("");
         } else {
-          // Try to decrypt - if fails, use as-is (in case it was saved without encryption)
+          // Try to decrypt - if fails, use as-is
           const decrypted = decryptKey(storedKey);
-          setGeminiKey(decrypted || storedKey);
+          // Validate the key
+          if (decrypted && isValidApiKey(decrypted)) {
+            setGeminiKey(decrypted);
+          } else if (isValidApiKey(storedKey)) {
+            // Plain text key
+            setGeminiKey(storedKey);
+          } else {
+            console.error("Invalid API key format");
+            setGeminiKey("");
+          }
         }
         setAiEnabled(data.aiEnabled !== false);
       }

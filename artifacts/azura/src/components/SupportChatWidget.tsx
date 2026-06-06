@@ -47,13 +47,13 @@ export default function SupportChatWidget() {
   }, [msgs, open]);
 
   const ensureMeta = async () => {
-    if (!user || !profile) return;
+    if (!user) return;
     const metaRef = ref(db, `support-chat/${user.uid}/meta`);
     await update(metaRef, {
-      userName: profile.name || "Guest",
-      userEmail: profile.email || "",
+      userName: profile?.name || "Guest",
+      userEmail: profile?.email || "",
       userId: user.uid,
-      tableNumber: profile.tableNumber || "",
+      tableNumber: profile?.tableNumber || "",
     });
   };
 

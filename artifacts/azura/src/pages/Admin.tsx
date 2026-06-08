@@ -4,6 +4,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
 import { swalSuccess, swalError, swalConfirm, swalLoading, swalClose } from "@/lib/swal";
+import { fileToChunks, getChunksSizeMB } from "@/lib/chunkedVideo";
 import { encryptKey } from "@/lib/crypto";
 import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
@@ -28,7 +29,7 @@ interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdA
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
 interface Suggestion { id: string; userName: string; itemName: string; description: string; category: string; image?: string; status: string; adminNote?: string; votes: number; createdAt: number; }
 interface Broadcast { id: string; title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string; createdAt: number; }
-interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; }
+interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoChunks?: string[]; chunkCount?: number; }
 
 const STATUS_META: Record<string, { label: string; ar: string; icon: React.ReactNode; cls: string }> = {
   pending:   { label: "Pending",   ar: "انتظار",  icon: <Clock size={11}/>,       cls: "status-pending"   },
@@ -448,22 +449,64 @@ export default function Admin() {
   const createReel = async () => {
     if (!newReel.image || (!newReel.caption && !newReel.captionAr)) return;
     setUploading(true);
-    const r = push(ref(db, "reels"));
-    await set(r, {
-      image: newReel.image,
-      caption: newReel.caption,
-      captionAr: newReel.captionAr,
-      likes: 0,
-      createdAt: Date.now(),
-      authorName: "Admin",
-      mediaType: newReel.mediaType,
-      videoUrl: newReel.videoUrl || "",
-    });
-    setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" });
+    setUploadProgress(0);
+    
+    try {
+      const r = push(ref(db, "reels"));
+      const reelId = r.key;
+      
+      if (!reelId) throw new Error("Failed to create reel");
+      
+      // Save reel metadata first
+      await set(r, {
+        image: newReel.image,
+        caption: newReel.caption,
+        captionAr: newReel.captionAr,
+        likes: 0,
+        createdAt: Date.now(),
+        authorName: "Admin",
+        mediaType: newReel.mediaType,
+        videoUrl: newReel.videoUrl || "",
+        chunkCount: newReel.chunkCount || 0,
+      });
+      
+      // If video has chunks, save them separately
+      if (newReel.videoChunks && newReel.videoChunks.length > 0) {
+        const chunksRef = ref(db, `reelChunks/${reelId}`);
+        
+        // Save chunks in batches of 10 to avoid overwhelming RTDB
+        const batchSize = 10;
+        for (let i = 0; i < newReel.videoChunks.length; i += batchSize) {
+          const batch: Record<string, string> = {};
+          const end = Math.min(i + batchSize, newReel.videoChunks.length);
+          
+          for (let j = i; j < end; j++) {
+            batch[`chunk_${j}`] = newReel.videoChunks[j];
+          }
+          
+          await update(chunksRef, batch);
+          setUploadProgress(Math.round(((i + batchSize) / newReel.videoChunks.length) * 100));
+        }
+      }
+      
+      swalSuccess(tr("Reel created!", "تم إنشاء المنشور!"));
+      setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" });
+    } catch (err) {
+      console.error(err);
+      swalError(tr("Failed to create reel", "فشل في إنشاء المنشور"));
+    }
+    
     setUploading(false);
   };
   const togglePin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
-  const deleteReel = async (reel: Reel) => { if (await swalConfirm(tr("Delete Post", "حذف المنشور"), tr("Delete this post?", "حذف المنشور؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) remove(ref(db, `reels/${reel.id}`)); };
+  const deleteReel = async (reel: Reel) => { 
+    if (await swalConfirm(tr("Delete Post", "حذف المنشور"), tr("Delete this post?", "حذف المنشور؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
+      remove(ref(db, `reels/${reel.id}`));
+      if (reel.chunkCount) {
+        remove(ref(db, `reelChunks/${reel.id}`));
+      }
+    }
+  };
 
   // ── API Settings helpers ────────────────────────────────────
   const saveApiSettings = async () => {
@@ -1347,10 +1390,10 @@ export default function Admin() {
                   </>
                 )}
 
-                {/* Video Upload - stored as base64 in RTDB */}
+                {/* Video Upload - chunked storage in RTDB for large videos */}
                 {newReel.mediaType === 'video' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">{tr("Upload Video (base64 in RTDB)","ارفع فيديو (base64 في RTDB)")}</label>
+                    <label className="text-sm font-semibold">{tr("Upload Video (chunked in RTDB)","ارفع فيديو (مجزأ في RTDB)")}</label>
                     <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
                       <input
                         type="file"
@@ -1361,9 +1404,10 @@ export default function Admin() {
                           const file = e.target.files?.[0];
                           if (!file) return;
                           
-                          // Check file size (limit to 10MB for RTDB base64)
-                          if (file.size > 10 * 1024 * 1024) {
-                            swalError(tr("Video too large. Max 10MB for RTDB storage.", "الفيديو كبير جداً. الحد الأقصى 10 ميجابايت."));
+                          // Max 100MB for chunked storage
+                          const maxSize = 100 * 1024 * 1024;
+                          if (file.size > maxSize) {
+                            swalError(tr("Video too large. Max 100MB.", "الفيديو كبير جداً. الحد الأقصى 100 ميجابايت."));
                             return;
                           }
                           
@@ -1371,19 +1415,40 @@ export default function Admin() {
                           setUploadProgress(0);
                           
                           try {
-                            // Convert to base64 for RTDB storage
-                            const base64 = await new Promise<string>((resolve, reject) => {
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                const result = reader.result as string;
-                                setUploadProgress(50);
-                                resolve(result);
-                              };
-                              reader.onerror = reject;
-                              reader.readAsDataURL(file);
-                            });
+                            // For small videos (<10MB), use direct base64
+                            if (file.size <= 10 * 1024 * 1024) {
+                              const base64 = await new Promise<string>((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () => resolve(reader.result as string);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(file);
+                              });
+                              setNewReel({ ...newReel, videoUrl: base64, image: base64, videoChunks: undefined, chunkCount: undefined });
+                            } else {
+                              // For large videos, split into chunks
+                              swalLoading(tr("Processing large video...", "جاري معالجة الفيديو الكبير..."));
+                              const chunks = await fileToChunks(file, (progress) => {
+                                setUploadProgress(progress);
+                              });
+                              
+                              const sizeMB = getChunksSizeMB(chunks);
+                              swalClose();
+                              
+                              if (sizeMB > 100) {
+                                swalError(tr("Video too large after processing. Max 100MB.", "الفيديو كبير جداً بعد المعالجة. الحد الأقصى 100 ميجابايت."));
+                                setUploading(false);
+                                return;
+                              }
+                              
+                              setNewReel({ 
+                                ...newReel, 
+                                videoUrl: chunks[0], // First chunk for preview
+                                image: chunks[0], 
+                                videoChunks: chunks, 
+                                chunkCount: chunks.length 
+                              });
+                            }
                             
-                            setNewReel({ ...newReel, videoUrl: base64, image: base64 });
                             setUploadProgress(100);
                           } catch (err) {
                             console.error(err);
@@ -1395,14 +1460,19 @@ export default function Admin() {
                       <label htmlFor="reel-video-upload" className="cursor-pointer">
                         <Video size={24} className="mx-auto text-muted-foreground mb-2"/>
                         <p className="text-xs text-muted-foreground">
-                          {uploading ? `${tr("Processing...", "جاري المعالجة...")} ${uploadProgress}%` : tr("Click to upload video (max 10MB)", "انقر لرفع فيديو (حد أقصى 10 ميجابايت)")}
+                          {uploading 
+                            ? `${tr("Processing...", "جاري المعالجة...")} ${uploadProgress}%` 
+                            : tr("Click to upload video (max 100MB)", "انقر لرفع فيديو (حد أقصى 100 ميجابايت)")}
                         </p>
                         {newReel.videoUrl && (
                           <video src={newReel.videoUrl} className="w-24 h-24 object-cover rounded-lg mx-auto mt-2" controls />
                         )}
+                        {newReel.chunkCount && (
+                          <p className="text-xs text-primary mt-1">📦 {newReel.chunkCount} chunks</p>
+                        )}
                       </label>
                     </div>
-                    <p className="text-xs text-muted-foreground">⚠️ {tr("Videos stored as base64 in RTDB. Keep under 10MB.","الفيديوهات مخزنة كـ base64 في RTDB. احتفظ بها أقل من 10 ميجابايت.")}</p>
+                    <p className="text-xs text-muted-foreground">💡 {tr("Videos stored as base64 chunks in RTDB. Supports up to 100MB.","الفيديوهات مخزنة كـ chunks في RTDB. تدعم حتى 100 ميجابايت.")}</p>
                   </div>
                 )}
 

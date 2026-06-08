@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
-import { db, ref, onValue, off, update } from "@/lib/firebase";
+import { db, ref, onValue, off, update, get } from "@/lib/firebase";
 import { Heart, Share2, Camera } from "lucide-react";
+import { swalInfo } from "@/lib/swal";
 
 interface Reel {
   id: string;
@@ -15,6 +16,9 @@ interface Reel {
   authorName: string;
   authorId: string;
   pinned?: boolean;
+  mediaType?: "image" | "video";
+  videoUrl?: string;
+  chunkCount?: number;
 }
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
@@ -25,12 +29,49 @@ export default function Reels() {
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
   const [heartPop, setHeartPop] = useState<string | null>(null);
+  const [videoCache, setVideoCache] = useState<Record<string, string>>({});
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
+  // Load video from chunks
+  const loadVideoFromChunks = async (reelId: string): Promise<string | null> => {
+    if (videoCache[reelId]) return videoCache[reelId];
+    
+    try {
+      const chunksSnap = await get(ref(db, `reelChunks/${reelId}`));
+      if (!chunksSnap.exists()) return null;
+      
+      const chunksData = chunksSnap.val() as Record<string, string>;
+      const chunks: string[] = [];
+      
+      // Sort chunks by index
+      const chunkKeys = Object.keys(chunksData).sort((a, b) => {
+        const aIdx = parseInt(a.replace("chunk_", ""));
+        const bIdx = parseInt(b.replace("chunk_", ""));
+        return aIdx - bIdx;
+      });
+      
+      for (const key of chunkKeys) {
+        chunks.push(chunksData[key]);
+      }
+      
+      if (chunks.length === 0) return null;
+      
+      // Combine chunks into full video
+      const fullVideo = chunks.join("").replace(/^data:[^;]+;base64,/, "");
+      
+      // Cache the result
+      setVideoCache(prev => ({ ...prev, [reelId]: fullVideo }));
+      return fullVideo;
+    } catch (err) {
+      console.error("Failed to load video chunks:", err);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const reelsRef = ref(db, "reels");
-    onValue(reelsRef, (snap) => {
+    onValue(reelsRef, async (snap) => {
       if (!snap.exists()) { setReels([]); setLoading(false); return; }
       const data = snap.val() as Record<string, Omit<Reel, "id">>;
       const list = Object.entries(data)
@@ -41,10 +82,27 @@ export default function Reels() {
           return b.createdAt - a.createdAt;
         });
       setReels(list);
+      
+      // Preload videos with chunks
+      for (const reel of list) {
+        if (reel.mediaType === "video" && reel.chunkCount && !videoCache[reel.id]) {
+          loadVideoFromChunks(reel.id);
+        }
+      }
+      
       setLoading(false);
     });
     return () => off(ref(db, "reels"));
   }, []);
+
+  // Get video URL (either direct or from chunks)
+  const getVideoUrl = async (reel: Reel): Promise<string> => {
+    if (reel.mediaType === "video" && reel.chunkCount && !reel.videoUrl?.startsWith("data:")) {
+      const video = await loadVideoFromChunks(reel.id);
+      return video || "";
+    }
+    return reel.videoUrl || reel.image || "";
+  };
 
   const handleLike = useCallback(async (reel: Reel) => {
     if (!user) return;
@@ -72,7 +130,7 @@ export default function Reels() {
       } catch { /* user cancelled */ }
     } else {
       await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
-      alert(tr("Link copied!", "تم النسخ!"));
+      swalInfo(tr("Link copied!", "تم نسخ الرابط!"));
     }
   };
 

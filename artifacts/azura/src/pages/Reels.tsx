@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update, get } from "@/lib/firebase";
-import { Heart, Share2, Camera } from "lucide-react";
+import { Heart, Share2, Camera, Play, ExternalLink } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
 import { getFromIndexedDB, saveToIndexedDB } from "@/lib/chunkedVideo";
+import { parseVideoUrl, getProviderIcon, type VideoProvider } from "@/lib/videoProviders";
 
 interface Reel {
   id: string;
@@ -19,8 +20,9 @@ interface Reel {
   pinned?: boolean;
   mediaType?: "image" | "video";
   videoUrl?: string;
+  videoProvider?: VideoProvider;
+  videoThumbnail?: string;
   chunkCount?: number;
-  hasLocalCache?: boolean;
 }
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
@@ -33,6 +35,7 @@ export default function Reels() {
   const [heartPop, setHeartPop] = useState<string | null>(null);
   const [videoCache, setVideoCache] = useState<Record<string, string>>({});
   const [loadingVideos, setLoadingVideos] = useState<Set<string>>(new Set());
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
@@ -40,10 +43,8 @@ export default function Reels() {
   const loadVideo = async (reel: Reel): Promise<string | null> => {
     const cacheKey = `reel_${reel.id}`;
     
-    // Check memory cache first
     if (videoCache[cacheKey]) return videoCache[cacheKey];
     
-    // Check IndexedDB (fast local storage)
     try {
       const cached = await getFromIndexedDB(cacheKey);
       if (cached) {
@@ -54,7 +55,6 @@ export default function Reels() {
       console.warn("IndexedDB not available:", e);
     }
     
-    // Fallback to RTDB chunks
     try {
       const chunksSnap = await get(ref(db, `reelChunks/${reel.id}`));
       if (chunksSnap.exists()) {
@@ -73,7 +73,6 @@ export default function Reels() {
         
         if (chunks.length > 0) {
           const fullVideo = chunks.join("");
-          // Save to IndexedDB for future use
           saveToIndexedDB(cacheKey, fullVideo).catch(() => {});
           setVideoCache(prev => ({ ...prev, [cacheKey]: fullVideo }));
           return fullVideo;
@@ -104,19 +103,15 @@ export default function Reels() {
     return () => off(ref(db, "reels"));
   }, []);
 
-  // Lazy load video when reel is visible
+  // Get video URL for local videos
   const getVideoUrl = async (reel: Reel): Promise<string> => {
     if (reel.mediaType !== "video") return "";
     
     const cacheKey = `reel_${reel.id}`;
     
-    // Already cached
     if (videoCache[cacheKey]) return videoCache[cacheKey];
-    
-    // Already loading
     if (loadingVideos.has(cacheKey)) return "";
     
-    // Start loading
     setLoadingVideos(prev => new Set(prev).add(cacheKey));
     const video = await loadVideo(reel);
     setLoadingVideos(prev => {
@@ -126,6 +121,29 @@ export default function Reels() {
     });
     
     return video || reel.videoUrl || "";
+  };
+
+  // Check if video is URL-based (YouTube, Instagram, etc.)
+  const isUrlBasedVideo = (reel: Reel): boolean => {
+    if (!reel.videoUrl) return false;
+    if (reel.videoProvider && reel.videoProvider !== "direct") return true;
+    if (reel.chunkCount && reel.chunkCount > 0) return false;
+    // Check if URL is from a known provider
+    const parsed = parseVideoUrl(reel.videoUrl);
+    return parsed.provider !== "direct";
+  };
+
+  // Get embed URL for URL-based videos
+  const getEmbedUrl = (reel: Reel): string => {
+    if (reel.videoProvider === "youtube") {
+      const match = reel.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+      if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
+    }
+    if (reel.videoProvider === "google_drive") {
+      const fileMatch = reel.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
+    }
+    return reel.videoUrl || "";
   };
 
   const handleLike = useCallback(async (reel: Reel) => {
@@ -160,10 +178,27 @@ export default function Reels() {
 
   const lastTap = useRef<Record<string, number>>({});
   const onTapImage = (reel: Reel) => {
-    const now = Date.now();
-    const last = lastTap.current[reel.id] || 0;
-    if (now - last < 300) { handleDoubleTap(reel); lastTap.current[reel.id] = 0; }
-    else lastTap.current[reel.id] = now;
+    if (reel.mediaType === "video" && !isUrlBasedVideo(reel)) {
+      // Play local video
+      if (playingVideo === reel.id) {
+        setPlayingVideo(null);
+      } else {
+        setPlayingVideo(reel.id);
+      }
+    } else {
+      // Double tap to like for images
+      const now = Date.now();
+      const last = lastTap.current[reel.id] || 0;
+      if (now - last < 300) { handleDoubleTap(reel); lastTap.current[reel.id] = 0; }
+      else lastTap.current[reel.id] = now;
+    }
+  };
+
+  // Open external video URL
+  const openVideoUrl = (reel: Reel) => {
+    if (reel.videoUrl) {
+      window.open(reel.videoUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   if (loading) {
@@ -189,19 +224,89 @@ export default function Reels() {
         >
           {reels.map((reel) => {
             const liked = !!(user && reel.likedBy?.[user.uid]);
+            const isVideo = reel.mediaType === "video";
+            const isUrlVideo = isUrlBasedVideo(reel);
+            const isPlaying = playingVideo === reel.id;
+            
             return (
               <div key={reel.id}
                 className="relative w-full flex-shrink-0 overflow-hidden"
                 style={{ height: "calc(100dvh - 7.5rem)", scrollSnapAlign: "start", scrollSnapStop: "always" }}
               >
-                <img
-                  src={reel.image || PLACEHOLDER}
-                  alt={reel.caption}
-                  className="absolute inset-0 w-full h-full object-cover select-none"
-                  onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
-                  onClick={() => onTapImage(reel)}
-                  draggable={false}
-                />
+                {/* Image/Video Content */}
+                {isVideo && !isUrlVideo ? (
+                  // Local video - show video element
+                  isPlaying ? (
+                    <video
+                      src={reel.videoUrl || videoCache[`reel_${reel.id}`]}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      controls
+                      autoPlay
+                      onEnded={() => setPlayingVideo(null)}
+                    />
+                  ) : (
+                    <>
+                      <img
+                        src={reel.image || PLACEHOLDER}
+                        alt={reel.caption}
+                        className="absolute inset-0 w-full h-full object-cover select-none"
+                        onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
+                        onClick={() => onTapImage(reel)}
+                        draggable={false}
+                      />
+                      {/* Play button overlay */}
+                      <button
+                        onClick={() => onTapImage(reel)}
+                        className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-xl">
+                          <Play size={28} className="text-primary ml-1" />
+                        </div>
+                      </button>
+                    </>
+                  )
+                ) : isVideo && isUrlVideo ? (
+                  // URL-based video (YouTube, etc.) - show thumbnail with play button
+                  <>
+                    <img
+                      src={reel.videoThumbnail || reel.image || PLACEHOLDER}
+                      alt={reel.caption}
+                      className="absolute inset-0 w-full h-full object-cover select-none"
+                      onError={(e) => { (e.target as HTMLImageElement).src = reel.image || PLACEHOLDER; }}
+                      draggable={false}
+                    />
+                    {/* Provider badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="flex items-center gap-1 text-white text-xs font-bold bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                        {getProviderIcon(reel.videoProvider || "unknown")} {reel.videoProvider?.replace("_", " ")}
+                      </span>
+                    </div>
+                    {/* Play/Open button */}
+                    <button
+                      onClick={() => openVideoUrl(reel)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-xl">
+                        <ExternalLink size={24} className="text-primary" />
+                      </div>
+                    </button>
+                    <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-xs bg-black/50 px-3 py-1 rounded-full">
+                      {tr("Tap to watch", "انقر للمشاهدة")}
+                    </p>
+                  </>
+                ) : (
+                  // Image only
+                  <>
+                    <img
+                      src={reel.image || PLACEHOLDER}
+                      alt={reel.caption}
+                      className="absolute inset-0 w-full h-full object-cover select-none"
+                      onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
+                      onClick={() => onTapImage(reel)}
+                      draggable={false}
+                    />
+                  </>
+                )}
 
                 <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.25) 100%)" }} />
 

@@ -6,6 +6,7 @@ import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
 import { swalSuccess, swalError, swalConfirm, swalLoading, swalClose } from "@/lib/swal";
 import { fileToChunks, getChunksSizeMB, saveToIndexedDB } from "@/lib/chunkedVideo";
 import { encryptKey } from "@/lib/crypto";
+import { parseVideoUrl, getProviderName, getProviderIcon, type VideoProvider } from "@/lib/videoProviders";
 import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
   TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2, ToggleLeft, ToggleRight,
@@ -29,7 +30,7 @@ interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdA
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
 interface Suggestion { id: string; userName: string; itemName: string; description: string; category: string; image?: string; status: string; adminNote?: string; votes: number; createdAt: number; }
 interface Broadcast { id: string; title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string; createdAt: number; }
-interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoChunks?: string[]; chunkCount?: number; }
+interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoUrl?: string; videoProvider?: VideoProvider; videoThumbnail?: string; videoChunks?: string[]; chunkCount?: number; }
 
 const STATUS_META: Record<string, { label: string; ar: string; icon: React.ReactNode; cls: string }> = {
   pending:   { label: "Pending",   ar: "انتظار",  icon: <Clock size={11}/>,       cls: "status-pending"   },
@@ -146,7 +147,15 @@ export default function Admin() {
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
   // Reels form
-  const [newReel, setNewReel] = useState({ image: "", caption: "", captionAr: "", mediaType: "image" as "image" | "video", videoUrl: "" });
+  const [newReel, setNewReel] = useState({ 
+    image: "", 
+    caption: "", 
+    captionAr: "", 
+    mediaType: "image" as "image" | "video", 
+    videoUrl: "",
+    videoProvider: undefined as VideoProvider | undefined,
+    videoThumbnail: "",
+  });
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Orders filter
@@ -455,7 +464,7 @@ export default function Admin() {
       const r = push(ref(db, "reels"));
       const reelId = r.key!;
       
-      // Save reel metadata first (without video data for faster save)
+      // Save reel metadata with video URL info
       await set(r, {
         image: newReel.image,
         caption: newReel.caption,
@@ -465,19 +474,18 @@ export default function Admin() {
         authorName: "Admin",
         mediaType: newReel.mediaType,
         videoUrl: newReel.videoUrl || "",
+        videoProvider: newReel.videoProvider || "direct",
+        videoThumbnail: newReel.videoThumbnail || "",
         chunkCount: newReel.chunkCount || 0,
-        hasLocalCache: true, // Flag to indicate local cache exists
       });
       
-      // If video has chunks, save to IndexedDB first, then RTDB
+      // If video has chunks (uploaded file), save to IndexedDB and RTDB
       if (newReel.videoChunks && newReel.videoChunks.length > 0) {
-        // Save to IndexedDB (faster, reduces RTDB load)
         const fullVideo = newReel.videoChunks.join("");
         await saveToIndexedDB(`reel_${reelId}`, fullVideo);
         
-        // Then save to RTDB in smaller batches
         const chunksRef = ref(db, `reelChunks/${reelId}`);
-        const batchSize = 5; // Smaller batches for faster upload
+        const batchSize = 5;
         
         for (let i = 0; i < newReel.videoChunks.length; i += batchSize) {
           const batch: Record<string, string> = {};
@@ -490,14 +498,14 @@ export default function Admin() {
           await update(chunksRef, batch);
           setUploadProgress(Math.round(((i + batchSize) / newReel.videoChunks.length) * 90));
         }
-      } else if (newReel.mediaType === "video" && newReel.videoUrl) {
-        // Small video - save to IndexedDB as backup
+      } else if (newReel.mediaType === "video" && newReel.videoUrl && newReel.videoProvider !== "direct") {
+        // URL-based video - save to IndexedDB for caching
         await saveToIndexedDB(`reel_${reelId}`, newReel.videoUrl);
       }
       
       setUploadProgress(100);
       swalSuccess(tr("Reel created!", "تم إنشاء المنشور!"));
-      setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" });
+      setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "", videoProvider: undefined, videoThumbnail: "" });
     } catch (err) {
       console.error(err);
       swalError(tr("Failed to create reel", "فشل في إنشاء المنشور"));
@@ -1397,89 +1405,155 @@ export default function Admin() {
                   </>
                 )}
 
-                {/* Video Upload - chunked storage in RTDB for large videos */}
+                {/* Video URL Input - supports YouTube, Instagram, Facebook, Google Drive, Direct URLs */}
                 {newReel.mediaType === 'video' && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold">{tr("Upload Video (chunked in RTDB)","ارفع فيديو (مجزأ في RTDB)")}</label>
-                    <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
+                  <div className="space-y-3">
+                    <label className="text-sm font-semibold">{tr("Video URL","رابط الفيديو")}</label>
+                    
+                    {/* URL Input */}
+                    <div className="flex gap-2">
                       <input
-                        type="file"
-                        accept="video/*"
-                        className="hidden"
-                        id="reel-video-upload"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
+                        type="url"
+                        placeholder={tr("Paste video URL here...", "الصق رابط الفيديو هنا...")}
+                        className={`${inp} flex-1`}
+                        value={newReel.videoUrl}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          setNewReel({ ...newReel, videoUrl: url });
                           
-                          // Max 100MB for chunked storage
-                          const maxSize = 100 * 1024 * 1024;
-                          if (file.size > maxSize) {
-                            swalError(tr("Video too large. Max 100MB.", "الفيديو كبير جداً. الحد الأقصى 100 ميجابايت."));
-                            return;
+                          // Auto-parse URL
+                          if (url) {
+                            const parsed = parseVideoUrl(url);
+                            setNewReel(prev => ({
+                              ...prev,
+                              videoUrl: url,
+                              videoProvider: parsed.provider,
+                              videoThumbnail: parsed.thumbnail,
+                              image: parsed.thumbnail || prev.image,
+                            }));
                           }
-                          
-                          setUploading(true);
-                          setUploadProgress(0);
-                          
-                          try {
-                            // For small videos (<10MB), use direct base64
-                            if (file.size <= 10 * 1024 * 1024) {
-                              const base64 = await new Promise<string>((resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onload = () => resolve(reader.result as string);
-                                reader.onerror = reject;
-                                reader.readAsDataURL(file);
-                              });
-                              setNewReel({ ...newReel, videoUrl: base64, image: base64, videoChunks: undefined, chunkCount: undefined });
-                            } else {
-                              // For large videos, split into chunks
-                              swalLoading(tr("Processing large video...", "جاري معالجة الفيديو الكبير..."));
-                              const chunks = await fileToChunks(file, (progress) => {
-                                setUploadProgress(progress);
-                              });
-                              
-                              const sizeMB = getChunksSizeMB(chunks);
-                              swalClose();
-                              
-                              if (sizeMB > 100) {
-                                swalError(tr("Video too large after processing. Max 100MB.", "الفيديو كبير جداً بعد المعالجة. الحد الأقصى 100 ميجابايت."));
-                                setUploading(false);
-                                return;
-                              }
-                              
-                              setNewReel({ 
-                                ...newReel, 
-                                videoUrl: chunks[0], // First chunk for preview
-                                image: chunks[0], 
-                                videoChunks: chunks, 
-                                chunkCount: chunks.length 
-                              });
-                            }
-                            
-                            setUploadProgress(100);
-                          } catch (err) {
-                            console.error(err);
-                            swalError(tr("Failed to upload video", "فشل في رفع الفيديو"));
-                          }
-                          setUploading(false);
                         }}
                       />
-                      <label htmlFor="reel-video-upload" className="cursor-pointer">
-                        <Video size={24} className="mx-auto text-muted-foreground mb-2"/>
-                        <p className="text-xs text-muted-foreground">
-                          {uploading 
-                            ? `${tr("Processing...", "جاري المعالجة...")} ${uploadProgress}%` 
-                            : tr("Click to upload video (max 100MB)", "انقر لرفع فيديو (حد أقصى 100 ميجابايت)")}
-                        </p>
-                        {newReel.videoUrl && (
-                          <video src={newReel.videoUrl} className="w-24 h-24 object-cover rounded-lg mx-auto mt-2" controls />
-                        )}
-                        {newReel.chunkCount && (
-                          <p className="text-xs text-primary mt-1">📦 {newReel.chunkCount} chunks</p>
-                        )}
-                      </label>
+                      <button
+                        onClick={() => {
+                          if (!newReel.videoUrl) return;
+                          const parsed = parseVideoUrl(newReel.videoUrl);
+                          setNewReel(prev => ({
+                            ...prev,
+                            videoProvider: parsed.provider,
+                            videoThumbnail: parsed.thumbnail,
+                            image: parsed.thumbnail || prev.image,
+                          }));
+                        }}
+                        className="px-4 py-2 bg-primary text-white rounded-xl font-semibold"
+                      >
+                        <CheckCircle size={18} />
+                      </button>
                     </div>
-                    <p className="text-xs text-muted-foreground">💡 {tr("Videos stored as base64 chunks in RTDB. Supports up to 100MB.","الفيديوهات مخزنة كـ chunks في RTDB. تدعم حتى 100 ميجابايت.")}</p>
+                    
+                    {/* Provider Detection */}
+                    {newReel.videoProvider && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span>{getProviderIcon(newReel.videoProvider)}</span>
+                        <span className="text-muted-foreground">{getProviderName(newReel.videoProvider)}</span>
+                        {newReel.videoProvider === "unknown" && (
+                          <span className="text-amber-500 text-xs">{tr("Direct URL will be used as-is", "سيتم استخدام الرابط المباشر كما هو")}</span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Thumbnail Preview */}
+                    {newReel.videoThumbnail && (
+                      <div className="relative w-full h-32 rounded-xl overflow-hidden bg-muted">
+                        <img src={newReel.videoThumbnail} alt="Thumbnail" className="w-full h-full object-cover" />
+                        <span className="absolute top-2 left-2 px-2 py-1 bg-black/70 text-white text-xs rounded-lg">
+                          {getProviderIcon(newReel.videoProvider!)} {getProviderName(newReel.videoProvider!)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Quick Links */}
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">{tr("Supported platforms:", "المنصات المدعومة:")}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-2 py-1 bg-muted rounded-lg">▶️ YouTube</span>
+                        <span className="text-xs px-2 py-1 bg-muted rounded-lg">📸 Instagram Reels</span>
+                        <span className="text-xs px-2 py-1 bg-muted rounded-lg">👤 Facebook</span>
+                        <span className="text-xs px-2 py-1 bg-muted rounded-lg">📁 Google Drive</span>
+                        <span className="text-xs px-2 py-1 bg-muted rounded-lg">🎬 Direct MP4</span>
+                      </div>
+                    </div>
+                    
+                    {/* Direct Upload Alternative */}
+                    <details className="group">
+                      <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                        {tr("Or upload a video file instead...", "أو ارفع ملف فيديو بدلاً من ذلك...")}
+                      </summary>
+                      <div className="mt-2 border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          id="reel-video-upload"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            
+                            const maxSize = 100 * 1024 * 1024;
+                            if (file.size > maxSize) {
+                              swalError(tr("Video too large. Max 100MB.", "الفيديو كبير جداً. الحد الأقصى 100 ميجابايت."));
+                              return;
+                            }
+                            
+                            setUploading(true);
+                            setUploadProgress(0);
+                            
+                            try {
+                              if (file.size <= 10 * 1024 * 1024) {
+                                const base64 = await new Promise<string>((resolve, reject) => {
+                                  const reader = new FileReader();
+                                  reader.onload = () => resolve(reader.result as string);
+                                  reader.onerror = reject;
+                                  reader.readAsDataURL(file);
+                                });
+                                setNewReel({ ...newReel, videoUrl: base64, image: base64, videoProvider: "direct" });
+                              } else {
+                                swalLoading(tr("Processing large video...", "جاري معالجة الفيديو الكبير..."));
+                                const chunks = await fileToChunks(file, (progress) => setUploadProgress(progress));
+                                const sizeMB = getChunksSizeMB(chunks);
+                                swalClose();
+                                
+                                if (sizeMB > 100) {
+                                  swalError(tr("Video too large after processing. Max 100MB.", "الفيديو كبير جداً بعد المعالجة. الحد الأقصى 100 ميجابايت."));
+                                  setUploading(false);
+                                  return;
+                                }
+                                
+                                setNewReel({ 
+                                  ...newReel, 
+                                  videoUrl: chunks[0],
+                                  image: chunks[0],
+                                  videoProvider: "direct",
+                                  videoChunks: chunks,
+                                  chunkCount: chunks.length
+                                });
+                              }
+                              setUploadProgress(100);
+                            } catch (err) {
+                              console.error(err);
+                              swalError(tr("Failed to upload video", "فشل في رفع الفيديو"));
+                            }
+                            setUploading(false);
+                          }}
+                        />
+                        <label htmlFor="reel-video-upload" className="cursor-pointer">
+                          <Video size={24} className="mx-auto text-muted-foreground mb-2"/>
+                          <p className="text-xs text-muted-foreground">
+                            {uploading ? `${tr("Processing...", "جاري المعالجة...")} ${uploadProgress}%` : tr("Click to upload video (max 100MB)", "انقر لرفع فيديو (حد أقصى 100 ميجابايت)")}
+                          </p>
+                        </label>
+                      </div>
+                    </details>
                   </div>
                 )}
 

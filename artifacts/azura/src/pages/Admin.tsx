@@ -250,6 +250,7 @@ export default function Admin() {
         }
       });
       allOrders.sort((a, b) => b.createdAt - a.createdAt);
+      console.log("Loaded orders:", allOrders.length, allOrders.map(o => ({orderId: o.orderId, userId: o.userId, status: o.status})));
       setOrders(allOrders);
     });
 
@@ -357,6 +358,7 @@ export default function Admin() {
 
   // ── Order helpers ─────────────────────────────────────────────
   const setOrderStatus = (order: Order, status: string) => {
+    console.log("Updating order status:", { orderId: order.orderId, userId: order.userId, newStatus: status });
     // For per-user orders, update at /orders/{userId}/{orderId}
     // For flat orders, update at /orders/{orderId}
     if (order.userId) {
@@ -1556,8 +1558,6 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmAction, setConfirmAction] = useState<string>("");
-  const [editingOrder, setEditingOrder] = useState<any>(null);
-  const [orders, setOrders] = useState<any[]>([]);
 
   // Load backups list
   useEffect(() => {
@@ -1573,18 +1573,6 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
         setBackups(list.sort((a, b) => b.date - a.date));
       } else {
         setBackups([]);
-      }
-    });
-    return () => unsub();
-  }, []);
-
-  // Load orders for editing
-  useEffect(() => {
-    const unsub = onValue(ref(db, "orders"), (snap) => {
-      if (snap.exists()) {
-        const data = snap.val() as Record<string, any>;
-        const list = Object.entries(data).map(([id, v]: [string, any]) => ({ id, ...v }));
-        setOrders(list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
       }
     });
     return () => unsub();
@@ -1683,11 +1671,6 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
     await remove(ref(db, `backups/${id}`));
   };
 
-  const updateOrder = async (orderId: string, updates: any) => {
-    await update(ref(db, `orders/${orderId}`), updates);
-    setEditingOrder(null);
-  };
-
   return (
     <div className="space-y-6 page-enter">
       {/* Backup Section */}
@@ -1725,67 +1708,6 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
         </div>
       </div>
 
-      {/* Edit Orders Section */}
-      <div className="card-elevated rounded-2xl p-5 space-y-4">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <Edit3 size={18} className="text-primary"/> {tr("Edit Orders","تعديل الطلبات")}
-        </h3>
-
-        {orders.length === 0 && (
-          <p className="text-muted-foreground text-sm">{tr("No orders yet","لا توجد طلبات بعد")}</p>
-        )}
-
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          {orders.map((order) => (
-            <div key={order.id} className="card rounded-xl p-4">
-              {editingOrder?.id === order.id ? (
-                <div className="space-y-3">
-                  <input
-                    className={inp}
-                    value={editingOrder.tableNumber || ""}
-                    onChange={(e) => setEditingOrder({ ...editingOrder, tableNumber: e.target.value })}
-                    placeholder={tr("Table Number", "رقم الطاولة")}
-                  />
-                  <select
-                    className={inp}
-                    value={editingOrder.status || ""}
-                    onChange={(e) => setEditingOrder({ ...editingOrder, status: e.target.value })}
-                  >
-                    <option value="pending">{tr("Pending", "انتظار")}</option>
-                    <option value="preparing">{tr("Preparing", "يُحضَّر")}</option>
-                    <option value="ready">{tr("Ready", "جاهز")}</option>
-                    <option value="delivered">{tr("Delivered", "اتسلم")}</option>
-                    <option value="cancelled">{tr("Cancelled", "اتلغى")}</option>
-                  </select>
-                  <div className="flex gap-2">
-                    <button onClick={() => updateOrder(order.id, editingOrder)} className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-1">
-                      <Save size={14}/> {tr("Save", "حفظ")}
-                    </button>
-                    <button onClick={() => setEditingOrder(null)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
-                      {tr("Cancel", "إلغاء")}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-sm">#{order.orderId?.slice(-6) || order.id}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {tr("Table", "طاولة")} {order.tableNumber} • {order.total} EGP
-                    </p>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${STATUS_META[order.status]?.cls || "bg-muted"}`}>
-                      {STATUS_META[order.status]?.ar || order.status}
-                    </span>
-                  </div>
-                  <button onClick={() => setEditingOrder(order)} className="btn-icon w-8 h-8 text-primary">
-                    <Edit3 size={14}/>
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Reset System */}
       <div className="card-elevated rounded-2xl p-5 space-y-4 border-2 border-destructive/20">

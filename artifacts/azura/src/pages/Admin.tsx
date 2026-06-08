@@ -414,7 +414,7 @@ export default function Admin() {
     { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",   ar: "التقارير"   },
     { id: "broadcast",  icon: <Megaphone size={14}/>,     en: "Broadcast", ar: "إشعارات"   },
     { id: "reels",      icon: <Film size={14}/>,          en: "Reels",     ar: "ريلز"       },
-    { id: "api",        icon: <Key size={14}/>,           en: "API Keys",  ar: "مفاتيح API" },
+    { id: "api",        icon: <Key size={14}/>,           en: "Egyntronic",  ar: "إيجينترونيك" },
   ];
 
   return (
@@ -1072,18 +1072,18 @@ export default function Admin() {
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-5">
               <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("AI Service Configuration","إعدادات خدمة الذكاء الاصطناعي")}
+                <Key size={18} className="text-primary"/> {tr("Egyntronic AI Gateway","بوابة إيجينترونيك للذكاء الاصطناعي")}
               </h3>
 
-              {/* AI Provider API Key */}
+              {/* Egyntronic API Key */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("AI Provider API Key","مفتاح مزود الذكاء الاصطناعي")}</label>
+                <label className="text-sm font-semibold text-foreground">{tr("Egyntronic API Key","مفتاح API إيجينترونيك")}</label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
                       type={showApiKey ? "text" : "password"}
                       className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your AI provider API key","أدخل مفتاح مزود الذكاء الاصطناعي")}
+                      placeholder={tr("Enter your Egyntronic API key","أدخل مفتاح API إيجينترونيك")}
                       value={apiSettings.geminiKey}
                       onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
                     />
@@ -1092,7 +1092,7 @@ export default function Admin() {
                     </button>
                   </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">{tr("Get your AI API key from your provider","احصل على مفتاح API من مزود الخدمة")}</p>
+                <p className="text-[11px] text-muted-foreground">{tr("Get your Egyntronic API key from your provider","احصل على مفتاح API من مزود الخدمة")}</p>
               </div>
 
               {/* AI Toggle */}
@@ -1118,7 +1118,7 @@ export default function Admin() {
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${apiSettings.geminiKey ? "bg-green-500" : "bg-amber-500"}`}/>
                   <span className="text-xs font-medium">
-                    {apiSettings.geminiKey ? tr("AI Service configured","خدمة الذكاء الاصطناعي مُعدّة") : tr("AI Service not configured","خدمة الذكاء الاصطناعي غير مُعدّة")}
+                    {apiSettings.geminiKey ? tr("Egyntronic Gateway configured","بوابة إيجينترونيك مُعدّة") : tr("Egyntronic Gateway not configured","بوابة إيجينترونيك غير مُعدّة")}
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">

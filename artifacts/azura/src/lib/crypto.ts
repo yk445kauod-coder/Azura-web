@@ -51,13 +51,14 @@ export function isValidApiKey(key: string): boolean {
 }
 
 // ── AI Chat ─────────────────────────────────────────────────
+// Using gemini-2.0-flash-lite for higher free tier limits
 export async function chatWithAI(
   apiKey: string,
   message: string,
   history: Array<{ role: string; parts: Array<{ text: string }> }>,
   systemPrompt: string
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
   
   const res = await fetch(url, {
     method: "POST",

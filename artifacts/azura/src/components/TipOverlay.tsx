@@ -11,32 +11,30 @@ interface Tip {
   title: { en: string; ar: string };
   desc: { en: string; ar: string };
   color: string;
-  videoUrl?: string;
 }
 
 const TIPS: Tip[] = [
   {
-    icon: <Play size={32} />,
-    title: { en: "Welcome to Azura", ar: "أهلاً بيك في أزورا" },
-    desc: { en: "Your favorite cafe, now at your fingertips. Watch our intro video!", ar: "كافيهك المفضل، دلوقتي في ايدك. اتفرج على الفيديو التعريفي!" },
+    icon: <Coffee size={32} />,
+    title: { en: "Welcome to Azura ☕", ar: "أهلاً بيك في أزورا ☕" },
+    desc: { en: "Your favorite cafe, now at your fingertips! Order your favorites with just a few taps.", ar: "كافيهك المفضل، دلوقتي في ايدك. اطلب اللي تحبه بلمسة زر!" },
     color: "from-amber-500 to-orange-500",
-    videoUrl: "/intro.mp4", // Place video here
   },
   {
     icon: <Sparkles size={32} />,
-    title: { en: "AI Barista", ar: "البارستا الذكي" },
+    title: { en: "AI Barista ✨", ar: "البارستا الذكي ✨" },
     desc: { en: "Chat with our AI barista to get personalized drink recommendations!", ar: "تكلم مع البارستا الذكي عشان يوصلك بأفضل مشروب!" },
     color: "from-purple-500 to-pink-500",
   },
   {
     icon: <MessageCircle size={32} />,
-    title: { en: "Order Tracking", ar: "تتبع الطلبات" },
+    title: { en: "Order Tracking 📦", ar: "تتبع الطلبات 📦" },
     desc: { en: "Real-time updates on your order status. Know exactly when your order is ready!", ar: "تحديثات فورية لحالة طلبك. اعرف بالظبط امتى طلبك جاهز!" },
     color: "from-blue-500 to-cyan-500",
   },
   {
     icon: <Star size={32} />,
-    title: { en: "Share Feedback", ar: "شارك رأيك" },
+    title: { en: "Share Feedback ⭐", ar: "شارك رأيك ⭐" },
     desc: { en: "Rate your experience and suggest new items. Your opinion matters!", ar: "قيّم تجربتك واقترح عناصر جديدة. رأيك مهم!" },
     color: "from-green-500 to-emerald-500",
   },
@@ -47,12 +45,9 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const [step, setStep] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentTip = TIPS[step];
   const isLast = step === TIPS.length - 1;
-  const hasVideo = !!currentTip.videoUrl;
 
   const handleNext = () => {
     if (isLast) {
@@ -62,7 +57,6 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
         onComplete();
       }, 400);
     } else {
-      setVideoPlaying(false);
       setStep(step + 1);
     }
   };
@@ -73,17 +67,6 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
       localStorage.setItem("azura_tip_seen", "true");
       onComplete();
     }, 400);
-  };
-
-  const toggleVideo = () => {
-    if (videoRef.current) {
-      if (videoPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setVideoPlaying(!videoPlaying);
-    }
   };
 
   return (
@@ -103,37 +86,15 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
 
         {/* Tip card */}
         <div className="bg-card rounded-3xl overflow-hidden shadow-2xl">
-          {/* Video area */}
-          {hasVideo && (
-            <div className="relative aspect-video bg-gradient-to-br from-amber-900 to-orange-900 flex items-center justify-center">
-              <video
-                ref={videoRef}
-                src={currentTip.videoUrl}
-                className="w-full h-full object-cover"
-                loop={false}
-                onEnded={() => setVideoPlaying(false)}
-                playsInline
-              />
-              {!videoPlaying && (
-                <button
-                  onClick={toggleVideo}
-                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors"
-                >
-                  <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-xl">
-                    <Play size={28} className="text-primary ml-1" />
-                  </div>
-                </button>
-              )}
+          {/* Animated header */}
+          <div className={`relative h-32 bg-gradient-to-br ${currentTip.color} flex items-center justify-center`}>
+            <div className={`w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-xl animate-bounce`} style={{ animationDuration: "2s" }}>
+              {currentTip.icon}
             </div>
-          )}
+          </div>
 
           {/* Content */}
           <div className="p-6 text-center">
-            {!hasVideo && (
-              <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-gradient-to-br ${currentTip.color} text-white shadow-lg`}>
-                {currentTip.icon}
-              </div>
-            )}
             <h2 className="text-lg font-bold mb-2">{tr(currentTip.title.en, currentTip.title.ar)}</h2>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">{tr(currentTip.desc.en, currentTip.desc.ar)}</p>
 
@@ -149,7 +110,7 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
                 onClick={handleNext}
                 className={`flex-1 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r ${currentTip.color} shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2`}
               >
-                {isLast ? tr("Let's Go!", "يلا نبدأ!") : tr("Next", "التالي")}
+                {isLast ? tr("Let's Go! 🚀", "يلا نبدأ! 🚀") : tr("Next", "التالي")}
                 <ChevronRight size={18} />
               </button>
             </div>

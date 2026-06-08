@@ -3,6 +3,7 @@ import { db, ref, onValue, off, update, set, push, remove, get, storage, storage
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
+import { swalSuccess, swalError, swalConfirm, swalLoading, swalClose } from "@/lib/swal";
 import { encryptKey } from "@/lib/crypto";
 import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
@@ -363,7 +364,7 @@ export default function Admin() {
   // ── Menu helpers ──────────────────────────────────────────────
   const toggleAvail = (item: MenuItem) => update(ref(db, `menu/${item.category}/${item.id}`), { available: !item.available });
   const deleteItem = async (item: MenuItem) => {
-    if (!confirm(tr(`Delete "${item.name}"?`, `حذف "${item.nameAr || item.name}"؟`))) return;
+    if (!await swalConfirm(tr("Delete Item", "حذف العنصر"), tr(`Delete "${item.name}"?`, `حذف "${item.nameAr || item.name}"؟`), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) return;
     try {
       // Try direct path first
       await remove(ref(db, `menu/${item.category}/${item.id}`));
@@ -405,7 +406,7 @@ export default function Admin() {
       const b64 = await compressToBase64(file, 400, 0.72);
       setNewItem((p) => ({ ...p, image: b64 }));
       setImgSize(base64SizeKB(b64));
-    } catch { alert(tr("Image compression failed", "فشل ضغط الصورة")); }
+    } catch { swalError(tr("Image compression failed", "فشل ضغط الصورة")); }
     setUploading(false);
   };
   const saveItem = async () => {
@@ -462,7 +463,7 @@ export default function Admin() {
     setUploading(false);
   };
   const togglePin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
-  const deleteReel = (reel: Reel) => { if (confirm(tr("Delete post?", "حذف المنشور؟"))) remove(ref(db, `reels/${reel.id}`)); };
+  const deleteReel = async (reel: Reel) => { if (await swalConfirm(tr("Delete Post", "حذف المنشور"), tr("Delete this post?", "حذف المنشور؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) remove(ref(db, `reels/${reel.id}`)); };
 
   // ── API Settings helpers ────────────────────────────────────
   const saveApiSettings = async () => {
@@ -1327,7 +1328,7 @@ export default function Admin() {
                               setNewReel({ ...newReel, image: base64 });
                             } catch (err) {
                               console.error(err);
-                              alert(tr("Failed to upload image", "فشل في رفع الصورة"));
+                              swalError(tr("Failed to upload image", "فشل في رفع الصورة"));
                             }
                             setUploading(false);
                           }}
@@ -1362,7 +1363,7 @@ export default function Admin() {
                           
                           // Check file size (limit to 50MB for Firebase)
                           if (file.size > 50 * 1024 * 1024) {
-                            alert(tr("Video too large. Max 50MB.", "الفيديو كبير جداً. الحد الأقصى 50 ميجابايت."));
+                            swalError(tr("Video too large. Max 50MB.", "الفيديو كبير جداً. الحد الأقصى 50 ميجابايت."));
                             return;
                           }
                           
@@ -1382,7 +1383,7 @@ export default function Admin() {
                             setUploadProgress(100);
                           } catch (err) {
                             console.error(err);
-                            alert(tr("Failed to upload video", "فشل في رفع الفيديو"));
+                            swalError(tr("Failed to upload video", "فشل في رفع الفيديو"));
                           }
                           setUploading(false);
                         }}
@@ -1602,16 +1603,16 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
       a.click();
       URL.revokeObjectURL(url);
 
-      alert(tr("Backup created and downloaded!", "تم إنشاء النسخة الاحتياطية وت-download!"));
+      swalSuccess(tr("Backup created and downloaded!", "تم إنشاء النسخة الاحتياطية وت تحميلها!"));
     } catch (err) {
       console.error(err);
-      alert(tr("Failed to create backup", "فشل في إنشاء النسخة الاحتياطية"));
+      swalError(tr("Failed to create backup", "فشل في إنشاء النسخة الاحتياطية"));
     }
     setLoading(false);
   };
 
   const restoreBackup = async (backupId: string) => {
-    if (!confirm(tr("Restore this backup? Current data will be overwritten.", "استعادة هذه النسخة؟ البيانات الحالية سيتم استبدالها."))) return;
+    if (!await swalConfirm(tr("Restore Backup", "استعادة النسخة"), tr("Restore this backup? Current data will be overwritten.", "استعادة هذه النسخة؟ البيانات الحالية سيتم استبدالها."), tr("Restore", "استعادة"), tr("Cancel", "إلغاء"))) return;
     
     setLoading(true);
     try {
@@ -1625,10 +1626,10 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
         await set(ref(db, path), content);
       }
 
-      alert(tr("Backup restored successfully!", "تم استعادة النسخة بنجاح!"));
+      swalSuccess(tr("Backup restored successfully!", "تم استعادة النسخة بنجاح!"));
     } catch (err) {
       console.error(err);
-      alert(tr("Failed to restore backup", "فشل في استعادة النسخة"));
+      swalError(tr("Failed to restore backup", "فشل في استعادة النسخة"));
     }
     setLoading(false);
   };
@@ -1649,17 +1650,17 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
         await remove(ref(db, path));
       }
 
-      alert(tr("System reset complete! A backup was saved to your device.", "تم إعادة تعيين النظام! تم حفظ نسخة احتياطية على جهازك."));
+      swalSuccess(tr("System reset complete! A backup was saved to your device.", "تم إعادة تعيين النظام! تم حفظ نسخة احتياطية على جهازك."));
     } catch (err) {
       console.error(err);
-      alert(tr("Failed to reset system", "فشل في إعادة تعيين النظام"));
+      swalError(tr("Failed to reset system", "فشل في إعادة تعيين النظام"));
     }
     setLoading(false);
     setShowConfirm(false);
   };
 
   const deleteBackup = async (id: string) => {
-    if (!confirm(tr("Delete this backup?", "حذف هذه النسخة؟"))) return;
+    if (!await swalConfirm(tr("Delete Backup", "حذف النسخة"), tr("Delete this backup?", "حذف هذه النسخة؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) return;
     await remove(ref(db, `backups/${id}`));
   };
 

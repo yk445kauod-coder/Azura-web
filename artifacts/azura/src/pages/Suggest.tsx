@@ -3,6 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, push, set } from "@/lib/firebase";
 import { Lightbulb, AlertTriangle, Send, CheckCircle, Upload, Sparkles, MessageSquare } from "lucide-react";
 import { compressToBase64 } from "@/lib/imageUtils";
+import { swalError } from "@/lib/swal";
 
 export default function Suggest() {
   const { lang, isRTL } = useLang();
@@ -36,18 +37,18 @@ export default function Suggest() {
       setImage(base64);
     } catch (err) {
       console.error(err);
-      alert(tr("Failed to upload image", "فشل في رفع الصورة"));
+      swalError(tr("Failed to upload image", "فشل في رفع الصورة"));
     }
     setUploading(false);
   };
 
   const handleSubmit = async () => {
     if (type === "suggest" && !name.trim()) {
-      alert(tr("Please enter item name", "الرجاء إدخال اسم العنصر"));
+      swalError(tr("Please enter item name", "الرجاء إدخال اسم العنصر"));
       return;
     }
     if (type === "report" && !reportDesc.trim()) {
-      alert(tr("Please describe the issue", "الرجاء وصف المشكلة"));
+      swalError(tr("Please describe the issue", "الرجاء وصف المشكلة"));
       return;
     }
 
@@ -79,7 +80,7 @@ export default function Suggest() {
       setSubmitted(true);
     } catch (err) {
       console.error(err);
-      alert(tr("Failed to submit", "فشل في الإرسال"));
+      swalError(tr("Failed to submit", "فشل في الإرسال"));
     }
     setSubmitting(false);
   };
@@ -104,8 +105,8 @@ export default function Suggest() {
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-foreground">
               {type === "suggest" 
-                ? tr("Got it! 🎉", "تم接收! 🎉")
-                : tr("Got it! 📋", "تم接收! 📋")
+                ? tr("Got it! 🎉", "تمام! 🎉")
+                : tr("Got it! 📋", "تمام! 📋")
               }
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed">

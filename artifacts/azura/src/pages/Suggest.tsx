@@ -126,14 +126,14 @@ export default function Suggest() {
   return (
     <div className="min-h-screen bg-background pb-24" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white p-6 pb-16">
+      <div className="bg-primary text-primary-foreground p-6 pb-16">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur">
-            <Sparkles size={24} />
+          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+            <Lightbulb size={24} />
           </div>
           <div>
             <h1 className="text-2xl font-bold">{tr("Your Ideas","أفكارك")}</h1>
-            <p className="text-white/80 text-sm mt-0.5">{tr("Suggest items or report issues","اقترح عناصر أو ابلغ عن مشاكل")}</p>
+            <p className="text-primary-foreground/80 text-sm mt-0.5">{tr("Suggest items or report issues","اقترح عناصر أو ابلغ عن مشاكل")}</p>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@ export default function Suggest() {
             onClick={() => setType("suggest")}
             className={`flex-1 py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 font-semibold transition-all ${
               type === "suggest" 
-                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                ? "bg-primary text-primary-foreground shadow-md" 
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >
@@ -156,7 +156,7 @@ export default function Suggest() {
             onClick={() => setType("report")}
             className={`flex-1 py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 font-semibold transition-all ${
               type === "report" 
-                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                ? "bg-primary text-primary-foreground shadow-md" 
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >
@@ -172,8 +172,8 @@ export default function Suggest() {
           <>
             {/* Suggest Form */}
             <div className="card-elevated rounded-2xl p-5 space-y-5">
-              <div className="flex items-center gap-2 text-amber-600">
-                <Sparkles size={18} />
+              <div className="flex items-center gap-2 text-primary">
+                <Lightbulb size={18} />
                 <span className="font-semibold text-sm">{tr("What would you like to see on our menu?","إيه اللي تحب تشوفه في قائمتنا؟")}</span>
               </div>
               
@@ -198,8 +198,8 @@ export default function Suggest() {
                         onClick={() => setCategory(cat.id)}
                         className={`py-3 rounded-xl text-center transition-all ${
                           category === cat.id 
-                            ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md" 
-                            : "bg-muted text-muted-foreground hover:bg-amber-100"
+                            ? "bg-primary text-primary-foreground shadow-md" 
+                            : "bg-muted text-muted-foreground hover:bg-secondary/20"
                         }`}
                       >
                         <span className="text-lg">{cat.icon}</span>
@@ -221,7 +221,7 @@ export default function Suggest() {
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{tr("Picture (optional)","صورة (اختياري)")}</label>
                   {image ? (
-                    <div className="relative w-full h-28 rounded-xl overflow-hidden border-2 border-amber-200">
+                    <div className="relative w-full h-28 rounded-xl overflow-hidden border-2 border-border">
                       <img src={image} alt="Preview" className="w-full h-full object-cover" />
                       <button 
                         onClick={() => setImage("")}
@@ -231,9 +231,9 @@ export default function Suggest() {
                       </button>
                     </div>
                   ) : (
-                    <label className="border-2 border-dashed border-amber-200 rounded-xl p-5 text-center cursor-pointer hover:border-amber-400 hover:bg-amber-50/50 transition-all block">
+                    <label className="border-2 border-dashed border-border rounded-xl p-5 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-all block">
                       <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                      <Upload size={22} className="mx-auto text-amber-400 mb-2" />
+                      <Upload size={22} className="mx-auto text-muted-foreground mb-2" />
                       <p className="text-xs text-muted-foreground">
                         {uploading ? tr("Compressing...","جاري الضغط...") : tr("Add a photo of the item","ضيف صورة للعنصر")}
                       </p>
@@ -247,8 +247,8 @@ export default function Suggest() {
           <>
             {/* Report/Feedback Form */}
             <div className="card-elevated rounded-2xl p-5 space-y-5">
-              <div className="flex items-center gap-2 text-amber-600">
-                <MessageSquare size={18} />
+              <div className="flex items-center gap-2 text-primary">
+                <AlertTriangle size={18} />
                 <span className="font-semibold text-sm">{tr("Tell us what's on your mind","قولنا إيه اللي في بالك")}</span>
               </div>
               
@@ -263,9 +263,9 @@ export default function Suggest() {
                   />
                 </div>
 
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 text-sm text-amber-800 space-y-1">
+                <div className="bg-muted/50 rounded-xl p-4 text-sm text-foreground space-y-1">
                   <p className="font-semibold">💡 {tr("We read every message!","بنقرأ كل رسالة!")}</p>
-                  <p className="text-amber-700/80 text-xs">{tr("From missing items to wrong prices, we want to know.","من عناصر ناقصة لحد أسعار غلط، عايزين نعرف.")}</p>
+                  <p className="text-muted-foreground text-xs">{tr("From missing items to wrong prices, we want to know.","من عناصر ناقصة لحد أسعار غلط، عايزين نعرف.")}</p>
                 </div>
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function Suggest() {
         <button
           onClick={handleSubmit}
           disabled={submitting || (type === "suggest" && !name.trim()) || (type === "report" && !reportDesc.trim())}
-          className="w-full py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
+          className="w-full py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
         >
           {submitting ? (
             <>

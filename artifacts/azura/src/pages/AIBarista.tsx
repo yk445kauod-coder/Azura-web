@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useBarista } from "@/contexts/BaristaContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
-import { Send, Plus, RefreshCw } from "lucide-react";
+import { decryptKey, isValidApiKey, chatWithAI, textToSpeech } from "@/lib/crypto";
+import { Send, Plus, RefreshCw, Volume2, VolumeX } from "lucide-react";
 
 interface Message {
   id: string;
@@ -49,9 +49,24 @@ export default function AIBarista() {
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
   const [geminiKey, setGeminiKey] = useState("");
+  const [ttsEnabled, setTtsEnabled] = useState(() => localStorage.getItem("azura-tts") === "true");
+  const [speaking, setSpeaking] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const toggleTTS = () => {
+    const next = !ttsEnabled;
+    setTtsEnabled(next);
+    localStorage.setItem("azura-tts", String(next));
+  };
+
+  const speak = useCallback(async (text: string) => {
+    if (!ttsEnabled) return;
+    setSpeaking(true);
+    await textToSpeech(text);
+    setSpeaking(false);
+  }, [ttsEnabled]);
 
   // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {
@@ -117,11 +132,12 @@ export default function AIBarista() {
   useEffect(() => {
     if (menuItems.length === 0 || greeted) return;
     const greeting = lang === "ar"
-      ? `أهلاً! أنا ${baristaName}، باريستاك في أزورا 👋 إيه اللي تحب تطلبه النهارده؟`
-      : `Hi! I'm ${baristaName}, your barista at Azura! ☕ What can I get you today?`;
+      ? `أهلاً! أنا ${baristaName}، باريستاك في أزورا ☕ إيه اللي تحب تطلبه النهارده؟`
+      : `Hi! I'm ${baristaName}! ☕ What can I get for you today?`;
     setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
     setGreeted(true);
-  }, [menuItems.length, lang, greeted, baristaName]);
+    setTimeout(() => speak(greeting), 800);
+  }, [menuItems.length, lang, greeted, baristaName, speak]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -129,21 +145,26 @@ export default function AIBarista() {
     const menuCtx = menuItems.slice(0, 30)
       .map((i) => `- ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}]`)
       .join("\n");
-    return `${systemPrompt || `You are ${baristaName}, a ${persona === "female" ? "female" : "male"} AI barista at Azura Cafe & Restaurant, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and concise (2-4 sentences). When the user speaks Arabic, respond in Egyptian dialect (عامية مصرية). When recommending items, end with [SUGGEST:itemId:price] to suggest adding to cart.`}\n\nMenu:\n${menuCtx}`;
+    return `${systemPrompt || `You are ${baristaName}, a ${persona === "female" ? "female" : "male"} AI barista at Azura Cafe, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and concise. Egyptian Arabic when user writes in Arabic. When recommending items, end with [ADD_ITEM:item_id].`}\n\nMenu:\n${menuCtx}`;
   };
 
   const parseMessage = (raw: string) => {
-    const m = raw.match(/\[SUGGEST:([^:\]]+)(?::(\d+))?\]/);
+    // Check for [ADD_ITEM:item_id] pattern
+    const m = raw.match(/\[ADD_ITEM:([^\]]+)\]/);
     let suggestedItem: MenuItem | undefined;
     let text = raw;
+    
     if (m) {
-      const itemId = m[1];
-      suggestedItem = menuItems.find((i) => i.id === itemId);
+      const itemId = m[1].trim();
+      suggestedItem = menuItems.find((i) => i.id === itemId || i.name.toLowerCase().includes(itemId.toLowerCase()));
       text = raw.replace(m[0], "");
     }
+    
+    // Clean up any remaining markers
     text = text.replace(/\[[A-Z_]+:[^\]]*\]/g, "");
     text = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "");
     text = text.replace(/\n{3,}/g, "\n\n").trim();
+    
     return { text, suggestedItem };
   };
 
@@ -168,8 +189,9 @@ export default function AIBarista() {
     setMessages((p) => [...p, userMsg]);
     setInput("");
     setLoading(true);
+    
     try {
-      const history = messages.slice(-10).map((m) => ({
+      const history = messages.slice(-8).map((m) => ({
         role: m.role === "ai" ? "model" : "user",
         parts: [{ text: m.content }],
       }));
@@ -192,6 +214,9 @@ export default function AIBarista() {
         } : undefined,
       };
       setMessages((p) => [...p, aiMsg]);
+      
+      // Speak the response
+      speak(parsed);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : 'Unknown error';
       const err: Message = {
@@ -209,8 +234,8 @@ export default function AIBarista() {
 
   const quickPrompts =
     lang === "ar"
-      ? ["إيه الأحسن عندكم؟", "أنصحني بقهوة", "عندكم إيه حلو؟", "هاتلي حاجة بارده"]
-      : ["What's your best coffee?", "Something sweet please!", "What's popular today?", "I want an iced drink"];
+      ? ["إيه الأحسن عندكم؟ ☕", "أنصحني بقهوة", "عندكم إيه حلو؟ 🍰", "هاتلي حاجة بارده 🧊"]
+      : ["What's your best coffee? ☕", "Something sweet! 🍰", "What's popular?", "I want something cold 🧊"];
 
   return (
     <div className="flex flex-col h-[calc(100dvh-7.5rem)] max-w-2xl mx-auto" dir={isRTL ? "rtl" : "ltr"}>
@@ -227,9 +252,14 @@ export default function AIBarista() {
               {lang === "ar" ? "باريستا أزورا · متصل الآن" : "Azura Barista · Online"}
             </p>
           </div>
-          <button onClick={() => { setMessages([]); setGreeted(false); }} className="btn-icon w-8 h-8 text-muted-foreground hover:text-foreground">
-            <RefreshCw size={13} />
-          </button>
+          <div className="flex gap-1.5">
+            <button onClick={toggleTTS} className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
+              {ttsEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+            </button>
+            <button onClick={() => { setMessages([]); setGreeted(false); }} className="btn-icon w-8 h-8 text-muted-foreground hover:text-foreground">
+              <RefreshCw size={13} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -262,7 +292,7 @@ export default function AIBarista() {
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               </div>
               {msg.suggestedItem && (
-                <div className="card rounded-xl p-2.5 flex items-center gap-2.5">
+                <div className="card rounded-xl p-2.5 flex items-center gap-2.5 cursor-pointer hover:shadow-md transition-shadow" onClick={() => addItem({ ...msg.suggestedItem! })}>
                   <img
                     src={msg.suggestedItem.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
                     alt={msg.suggestedItem.name}
@@ -276,7 +306,7 @@ export default function AIBarista() {
                     <p className="text-xs text-muted-foreground">{msg.suggestedItem.price} {lang === "ar" ? "ج.م" : "EGP"}</p>
                   </div>
                   <button
-                    onClick={() => addItem({ ...msg.suggestedItem! })}
+                    onClick={(e) => { e.stopPropagation(); addItem({ ...msg.suggestedItem! }); }}
                     className="btn-primary w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center"
                     style={{ padding: 0 }}
                   >
@@ -299,6 +329,11 @@ export default function AIBarista() {
               </div>
             </div>
           </div>
+        )}
+        {speaking && (
+          <p className="text-center text-[10px] text-muted-foreground animate-pulse">
+            🔊 {lang === "ar" ? "جاري الكلام..." : "Speaking..."}
+          </p>
         )}
         <div ref={messagesEndRef} />
       </div>

@@ -138,6 +138,9 @@ export default function Admin() {
   const [newBroadcast, setNewBroadcast] = useState(BLANK_BROADCAST);
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
+  // Reels form
+  const [newReel, setNewReel] = useState({ image: "", caption: "", captionAr: "" });
+
   // Orders filter
   const [orderFilter, setOrderFilter] = useState("all");
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
@@ -341,6 +344,21 @@ export default function Admin() {
   const deleteBroadcast = (id: string) => remove(ref(db, `broadcast/${id}`));
 
   // ── Reels helpers ─────────────────────────────────────────────
+  const createReel = async () => {
+    if (!newReel.image || (!newReel.caption && !newReel.captionAr)) return;
+    setUploading(true);
+    const r = push(ref(db, "reels"));
+    await set(r, {
+      image: newReel.image,
+      caption: newReel.caption,
+      captionAr: newReel.captionAr,
+      likes: 0,
+      createdAt: Date.now(),
+      authorName: "Admin",
+    });
+    setNewReel({ image: "", caption: "", captionAr: "" });
+    setUploading(false);
+  };
   const togglePin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
   const deleteReel = (reel: Reel) => { if (confirm(tr("Delete post?", "حذف المنشور؟"))) remove(ref(db, `reels/${reel.id}`)); };
 
@@ -1034,37 +1052,126 @@ export default function Admin() {
         {/* ━━━ REELS ━━━ */}
         {tab === "reels" && (
           <div className="space-y-4 page-enter">
-            <div className="card rounded-xl p-3 bg-purple-50 border border-purple-200">
-              <p className="text-xs text-purple-800 font-semibold">🎬 {tr("Manage your cafe posts. To add a new post, visit the Reels page in the app (+ button).","أدر منشورات الكافيه. لإضافة منشور جديد، اذهب لصفحة الريلز في التطبيق (زر +).")}</p>
-            </div>
-            {reels.length === 0 && (
-              <div className="text-center py-12"><Film size={40} className="mx-auto text-muted-foreground/25 mb-2"/><p className="text-muted-foreground text-sm">{tr("No posts yet","لا يوجد منشورات بعد")}</p></div>
-            )}
-            <div className="space-y-3">
-              {reels.map((reel) => (
-                <div key={reel.id} className="card rounded-xl overflow-hidden flex">
-                  <div className="w-20 h-20 flex-shrink-0 bg-muted">
-                    {reel.image && <img src={reel.image} alt={reel.caption} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>}
-                  </div>
-                  <div className="flex-1 p-3 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        {reel.pinned && <span className="badge px-1.5 py-0.5 bg-primary/10 text-primary text-[9px] font-bold mb-1">📌 {tr("Pinned","مثبت")}</span>}
-                        <p className="text-xs text-foreground font-medium line-clamp-2">{reel.caption || reel.captionAr || tr("No caption","بدون وصف")}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">❤️ {reel.likes||0} · {new Date(reel.createdAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 p-2 flex-shrink-0 justify-center">
-                    <button onClick={() => togglePin(reel)} className="btn-icon w-8 h-8 text-primary" title={reel.pinned ? "Unpin" : "Pin"}>
-                      <Pin size={13} className={reel.pinned ? "fill-primary" : ""}/>
-                    </button>
-                    <button onClick={() => deleteReel(reel)} className="btn-icon w-8 h-8 text-destructive/60 hover:text-destructive">
-                      <Trash2 size={13}/>
-                    </button>
+            {/* Create New Reel Form */}
+            <div className="card-elevated rounded-2xl p-5 space-y-4">
+              <h3 className="font-bold text-foreground flex items-center gap-2">
+                <Film size={18} className="text-primary"/> {tr("Create New Post","إنشاء منشور جديد")}
+              </h3>
+              
+              <div className="space-y-3">
+                {/* Image URL Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">{tr("Image URL","رابط الصورة")}</label>
+                  <input
+                    type="text"
+                    className={inp}
+                    placeholder={tr("Paste image URL or upload below","الصق رابط الصورة أو ارفع من الأسفل")}
+                    value={newReel.image}
+                    onChange={(e) => setNewReel({ ...newReel, image: e.target.value })}
+                  />
+                </div>
+
+                {/* Image Upload */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">{tr("Or Upload Image","أو ارفع صورة")}</label>
+                  <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="reel-upload"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        try {
+                          const base64 = await compressToBase64(file);
+                          setNewReel({ ...newReel, image: base64 });
+                        } catch (err) {
+                          console.error(err);
+                          alert(tr("Failed to upload image", "فشل في رفع الصورة"));
+                        }
+                        setUploading(false);
+                      }}
+                    />
+                    <label htmlFor="reel-upload" className="cursor-pointer">
+                      <ImageIcon size={24} className="mx-auto text-muted-foreground mb-2"/>
+                      <p className="text-xs text-muted-foreground">
+                        {uploading ? tr("Uploading...", "جاري الرفع...") : tr("Click to upload image", "انقر لرفع صورة")}
+                      </p>
+                      {newReel.image && newReel.image.startsWith("data:") && (
+                        <img src={newReel.image} className="w-16 h-16 object-cover rounded-lg mx-auto mt-2"/>
+                      )}
+                    </label>
                   </div>
                 </div>
-              ))}
+
+                {/* English Caption */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">{tr("Caption (English)","الوصف (إنجليزي)")}</label>
+                  <textarea
+                    className={`${inp} min-h-[60px] resize-none`}
+                    placeholder={tr("Write caption in English...","اكتب الوصف بالإنجليزية...")}
+                    value={newReel.caption}
+                    onChange={(e) => setNewReel({ ...newReel, caption: e.target.value })}
+                  />
+                </div>
+
+                {/* Arabic Caption */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">{tr("Caption (Arabic)","الوصف (عربي)")}</label>
+                  <textarea
+                    className={`${inp} min-h-[60px] resize-none`}
+                    placeholder={tr("اكتب الوصف بالعربية...","اكتب الوصف بالعربية...")}
+                    value={newReel.captionAr}
+                    onChange={(e) => setNewReel({ ...newReel, captionAr: e.target.value })}
+                    dir="rtl"
+                  />
+                </div>
+
+                {/* Create Button */}
+                <button
+                  onClick={createReel}
+                  disabled={!newReel.image || (!newReel.caption && !newReel.captionAr)}
+                  className="btn-primary w-full py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <Plus size={16}/> {tr("Create Post","إنشاء المنشور")}
+                </button>
+              </div>
+            </div>
+
+            {/* Existing Reels */}
+            <div className="card-elevated rounded-2xl p-5 space-y-4">
+              <h3 className="font-bold text-foreground">{tr("Manage Posts","إدارة المنشورات")}</h3>
+              {reels.length === 0 && (
+                <div className="text-center py-8"><Film size={40} className="mx-auto text-muted-foreground/25 mb-2"/><p className="text-muted-foreground text-sm">{tr("No posts yet","لا يوجد منشورات بعد")}</p></div>
+              )}
+              <div className="space-y-3">
+                {reels.map((reel) => (
+                  <div key={reel.id} className="card rounded-xl overflow-hidden flex">
+                    <div className="w-20 h-20 flex-shrink-0 bg-muted">
+                      {reel.image && <img src={reel.image} alt={reel.caption} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>}
+                    </div>
+                    <div className="flex-1 p-3 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          {reel.pinned && <span className="badge px-1.5 py-0.5 bg-primary/10 text-primary text-[9px] font-bold mb-1">📌 {tr("Pinned","مثبت")}</span>}
+                          <p className="text-xs text-foreground font-medium line-clamp-2">{reel.caption || reel.captionAr || tr("No caption","بدون وصف")}</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">❤️ {reel.likes||0} · {new Date(reel.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1 p-2 flex-shrink-0 justify-center">
+                      <button onClick={() => togglePin(reel)} className="btn-icon w-8 h-8 text-primary" title={reel.pinned ? "Unpin" : "Pin"}>
+                        <Pin size={13} className={reel.pinned ? "fill-primary" : ""}/>
+                      </button>
+                      <button onClick={() => deleteReel(reel)} className="btn-icon w-8 h-8 text-destructive/60 hover:text-destructive">
+                        <Trash2 size={13}/>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

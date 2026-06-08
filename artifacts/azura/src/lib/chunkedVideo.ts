@@ -1,9 +1,59 @@
 /**
  * Chunked Video Storage for Firebase RTDB
- * Splits large videos into chunks and reassembles them
+ * Uses IndexedDB for local caching to reduce RTDB load
  */
 
-const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks (RTDB safe limit)
+const DB_NAME = "AzuraVideos";
+const DB_VERSION = 1;
+const STORE_NAME = "videos";
+
+// IndexedDB helpers
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: "id" });
+      }
+    };
+  });
+}
+
+export async function saveToIndexedDB(id: string, videoData: string): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).put({ id, data: videoData, timestamp: Date.now() });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    db.close();
+  });
+}
+
+export async function getFromIndexedDB(id: string): Promise<string | null> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const request = tx.objectStore(STORE_NAME).get(id);
+    request.onsuccess = () => resolve(request.result?.data || null);
+    request.onerror = () => reject(request.error);
+    db.close();
+  });
+}
+
+export async function deleteFromIndexedDB(id: string): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    db.close();
+  });
+}
 
 // Convert file to base64 chunks
 export async function fileToChunks(file: File, onProgress?: (progress: number) => void): Promise<string[]> {
@@ -12,16 +62,16 @@ export async function fileToChunks(file: File, onProgress?: (progress: number) =
     const reader = new FileReader();
     let offset = 0;
     let chunkIndex = 0;
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const totalChunks = Math.ceil(file.size / (512 * 1024)); // 512KB chunks for faster RTDB
 
     const readNextChunk = () => {
-      const slice = file.slice(offset, offset + CHUNK_SIZE);
+      const slice = file.slice(offset, offset + (512 * 1024));
       reader.readAsDataURL(slice);
     };
 
     reader.onload = () => {
       chunks.push(reader.result as string);
-      offset += CHUNK_SIZE;
+      offset += (512 * 1024);
       chunkIndex++;
       
       if (onProgress) {
@@ -43,134 +93,11 @@ export async function fileToChunks(file: File, onProgress?: (progress: number) =
   });
 }
 
-// Reconstruct video from chunks
-export function chunksToVideo(chunks: string[]): string {
-  // For playback, we need to combine the data URLs
-  // This creates a blob URL for the combined video
-  return chunks.join("").replace(/^data:[^;]+;base64,/g, "");
-}
-
-// Get video duration from base64
-export function getVideoDuration(base64Data: string): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
-    video.preload = "metadata";
-    
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(video.src);
-      resolve(video.duration);
-    };
-    
-    video.onerror = () => {
-      reject(new Error("Failed to load video"));
-    };
-
-    video.src = base64Data;
-  });
-}
-
-// Create a playable video URL from chunks
-export function createVideoUrlFromChunks(chunks: string[]): string {
-  // Combine all chunks
-  const combined = chunks.join("");
-  return combined;
-}
-
-// Compress video using canvas (for very large videos, reduces quality)
-export async function compressVideo(file: File, maxSizeMB: number = 50, onProgress?: (progress: number) => void): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    
-    video.preload = "auto";
-    
-    video.onloadedmetadata = () => {
-      const duration = video.duration;
-      const fps = 30;
-      const totalFrames = Math.min(duration * fps, 300); // Max 10 seconds or 300 frames
-      
-      // Calculate output dimensions
-      let width = video.videoWidth;
-      let height = video.videoHeight;
-      const maxDim = 720;
-      
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round(height * maxDim / width);
-          width = maxDim;
-        } else {
-          width = Math.round(width * maxDim / height);
-          height = maxDim;
-        }
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      
-      const frames: string[] = [];
-      let currentFrame = 0;
-      
-      const captureFrame = () => {
-        if (ctx && currentFrame < totalFrames) {
-          video.currentTime = currentFrame / fps;
-        }
-      };
-      
-      video.onseeked = () => {
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, width, height);
-          frames.push(canvas.toDataURL("image/jpeg", 0.7));
-        }
-        currentFrame++;
-        
-        if (onProgress) {
-          onProgress(Math.round((currentFrame / totalFrames) * 100));
-        }
-        
-        if (currentFrame < totalFrames) {
-          setTimeout(captureFrame, 1000 / fps);
-        } else {
-          // Reconstruct as a simple video
-          // For actual video encoding, we'd need a library like Whammy or WebCodecs
-          // For now, we'll just use the first frame as a thumbnail
-          // and suggest using a lower quality upload
-          resolve(file); // Return original file if compression not possible
-        }
-      };
-      
-      video.onerror = () => {
-        reject(new Error("Failed to load video"));
-      };
-      
-      // Start capturing
-      video.play();
-      captureFrame();
-    };
-    
-    video.src = URL.createObjectURL(file);
-  });
-}
-
-// Validate chunk data
-export function validateChunks(chunks: string[]): boolean {
-  if (!chunks || chunks.length === 0) return false;
-  
-  for (const chunk of chunks) {
-    if (!chunk || typeof chunk !== "string") return false;
-    if (!chunk.startsWith("data:video/")) return false;
-  }
-  
-  return true;
-}
-
 // Get total size of chunks in MB
 export function getChunksSizeMB(chunks: string[]): number {
   const totalBytes = chunks.reduce((acc, chunk) => {
-    // Remove the data URL prefix to get actual base64 size
     const base64 = chunk.replace(/^data:[^;]+;base64,/, "");
-    return acc + (base64.length * 0.75); // base64 is ~75% of actual size
+    return acc + (base64.length * 0.75);
   }, 0);
-  
   return totalBytes / (1024 * 1024);
 }

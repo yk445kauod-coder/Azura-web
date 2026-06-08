@@ -4,6 +4,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update, get } from "@/lib/firebase";
 import { Heart, Share2, Camera } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
+import { getFromIndexedDB, saveToIndexedDB } from "@/lib/chunkedVideo";
 
 interface Reel {
   id: string;
@@ -19,6 +20,7 @@ interface Reel {
   mediaType?: "image" | "video";
   videoUrl?: string;
   chunkCount?: number;
+  hasLocalCache?: boolean;
 }
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
@@ -30,48 +32,63 @@ export default function Reels() {
   const [loading, setLoading] = useState(true);
   const [heartPop, setHeartPop] = useState<string | null>(null);
   const [videoCache, setVideoCache] = useState<Record<string, string>>({});
+  const [loadingVideos, setLoadingVideos] = useState<Set<string>>(new Set());
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  // Load video from chunks
-  const loadVideoFromChunks = async (reelId: string): Promise<string | null> => {
-    if (videoCache[reelId]) return videoCache[reelId];
+  // Load video - tries IndexedDB first, then RTDB chunks
+  const loadVideo = async (reel: Reel): Promise<string | null> => {
+    const cacheKey = `reel_${reel.id}`;
     
+    // Check memory cache first
+    if (videoCache[cacheKey]) return videoCache[cacheKey];
+    
+    // Check IndexedDB (fast local storage)
     try {
-      const chunksSnap = await get(ref(db, `reelChunks/${reelId}`));
-      if (!chunksSnap.exists()) return null;
-      
-      const chunksData = chunksSnap.val() as Record<string, string>;
-      const chunks: string[] = [];
-      
-      // Sort chunks by index
-      const chunkKeys = Object.keys(chunksData).sort((a, b) => {
-        const aIdx = parseInt(a.replace("chunk_", ""));
-        const bIdx = parseInt(b.replace("chunk_", ""));
-        return aIdx - bIdx;
-      });
-      
-      for (const key of chunkKeys) {
-        chunks.push(chunksData[key]);
+      const cached = await getFromIndexedDB(cacheKey);
+      if (cached) {
+        setVideoCache(prev => ({ ...prev, [cacheKey]: cached }));
+        return cached;
       }
-      
-      if (chunks.length === 0) return null;
-      
-      // Combine chunks into full video
-      const fullVideo = chunks.join("").replace(/^data:[^;]+;base64,/, "");
-      
-      // Cache the result
-      setVideoCache(prev => ({ ...prev, [reelId]: fullVideo }));
-      return fullVideo;
-    } catch (err) {
-      console.error("Failed to load video chunks:", err);
-      return null;
+    } catch (e) {
+      console.warn("IndexedDB not available:", e);
     }
+    
+    // Fallback to RTDB chunks
+    try {
+      const chunksSnap = await get(ref(db, `reelChunks/${reel.id}`));
+      if (chunksSnap.exists()) {
+        const chunksData = chunksSnap.val() as Record<string, string>;
+        const chunks: string[] = [];
+        
+        const chunkKeys = Object.keys(chunksData).sort((a, b) => {
+          const aIdx = parseInt(a.replace("chunk_", ""));
+          const bIdx = parseInt(b.replace("chunk_", ""));
+          return aIdx - bIdx;
+        });
+        
+        for (const key of chunkKeys) {
+          chunks.push(chunksData[key]);
+        }
+        
+        if (chunks.length > 0) {
+          const fullVideo = chunks.join("");
+          // Save to IndexedDB for future use
+          saveToIndexedDB(cacheKey, fullVideo).catch(() => {});
+          setVideoCache(prev => ({ ...prev, [cacheKey]: fullVideo }));
+          return fullVideo;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load video from RTDB:", err);
+    }
+    
+    return null;
   };
 
   useEffect(() => {
     const reelsRef = ref(db, "reels");
-    onValue(reelsRef, async (snap) => {
+    onValue(reelsRef, (snap) => {
       if (!snap.exists()) { setReels([]); setLoading(false); return; }
       const data = snap.val() as Record<string, Omit<Reel, "id">>;
       const list = Object.entries(data)
@@ -82,26 +99,33 @@ export default function Reels() {
           return b.createdAt - a.createdAt;
         });
       setReels(list);
-      
-      // Preload videos with chunks
-      for (const reel of list) {
-        if (reel.mediaType === "video" && reel.chunkCount && !videoCache[reel.id]) {
-          loadVideoFromChunks(reel.id);
-        }
-      }
-      
       setLoading(false);
     });
     return () => off(ref(db, "reels"));
   }, []);
 
-  // Get video URL (either direct or from chunks)
+  // Lazy load video when reel is visible
   const getVideoUrl = async (reel: Reel): Promise<string> => {
-    if (reel.mediaType === "video" && reel.chunkCount && !reel.videoUrl?.startsWith("data:")) {
-      const video = await loadVideoFromChunks(reel.id);
-      return video || "";
-    }
-    return reel.videoUrl || reel.image || "";
+    if (reel.mediaType !== "video") return "";
+    
+    const cacheKey = `reel_${reel.id}`;
+    
+    // Already cached
+    if (videoCache[cacheKey]) return videoCache[cacheKey];
+    
+    // Already loading
+    if (loadingVideos.has(cacheKey)) return "";
+    
+    // Start loading
+    setLoadingVideos(prev => new Set(prev).add(cacheKey));
+    const video = await loadVideo(reel);
+    setLoadingVideos(prev => {
+      const next = new Set(prev);
+      next.delete(cacheKey);
+      return next;
+    });
+    
+    return video || reel.videoUrl || "";
   };
 
   const handleLike = useCallback(async (reel: Reel) => {

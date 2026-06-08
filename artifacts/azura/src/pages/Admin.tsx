@@ -4,7 +4,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
 import { swalSuccess, swalError, swalConfirm, swalLoading, swalClose } from "@/lib/swal";
-import { fileToChunks, getChunksSizeMB } from "@/lib/chunkedVideo";
+import { fileToChunks, getChunksSizeMB, saveToIndexedDB } from "@/lib/chunkedVideo";
 import { encryptKey } from "@/lib/crypto";
 import {
   BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
@@ -453,11 +453,9 @@ export default function Admin() {
     
     try {
       const r = push(ref(db, "reels"));
-      const reelId = r.key;
+      const reelId = r.key!;
       
-      if (!reelId) throw new Error("Failed to create reel");
-      
-      // Save reel metadata first
+      // Save reel metadata first (without video data for faster save)
       await set(r, {
         image: newReel.image,
         caption: newReel.caption,
@@ -468,14 +466,19 @@ export default function Admin() {
         mediaType: newReel.mediaType,
         videoUrl: newReel.videoUrl || "",
         chunkCount: newReel.chunkCount || 0,
+        hasLocalCache: true, // Flag to indicate local cache exists
       });
       
-      // If video has chunks, save them separately
+      // If video has chunks, save to IndexedDB first, then RTDB
       if (newReel.videoChunks && newReel.videoChunks.length > 0) {
-        const chunksRef = ref(db, `reelChunks/${reelId}`);
+        // Save to IndexedDB (faster, reduces RTDB load)
+        const fullVideo = newReel.videoChunks.join("");
+        await saveToIndexedDB(`reel_${reelId}`, fullVideo);
         
-        // Save chunks in batches of 10 to avoid overwhelming RTDB
-        const batchSize = 10;
+        // Then save to RTDB in smaller batches
+        const chunksRef = ref(db, `reelChunks/${reelId}`);
+        const batchSize = 5; // Smaller batches for faster upload
+        
         for (let i = 0; i < newReel.videoChunks.length; i += batchSize) {
           const batch: Record<string, string> = {};
           const end = Math.min(i + batchSize, newReel.videoChunks.length);
@@ -485,10 +488,14 @@ export default function Admin() {
           }
           
           await update(chunksRef, batch);
-          setUploadProgress(Math.round(((i + batchSize) / newReel.videoChunks.length) * 100));
+          setUploadProgress(Math.round(((i + batchSize) / newReel.videoChunks.length) * 90));
         }
+      } else if (newReel.mediaType === "video" && newReel.videoUrl) {
+        // Small video - save to IndexedDB as backup
+        await saveToIndexedDB(`reel_${reelId}`, newReel.videoUrl);
       }
       
+      setUploadProgress(100);
       swalSuccess(tr("Reel created!", "تم إنشاء المنشور!"));
       setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" });
     } catch (err) {

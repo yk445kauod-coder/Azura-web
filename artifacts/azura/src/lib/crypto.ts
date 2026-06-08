@@ -87,7 +87,7 @@ IMPORTANT INSTRUCTIONS:
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile", // Using more capable model
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: enhancedSystem },
         ...groqHistory,
@@ -106,7 +106,7 @@ IMPORTANT INSTRUCTIONS:
       throw new Error("Rate limit exceeded. Please try again in a moment.");
     }
     if (err.includes("invalid") || err.includes("api_key")) {
-      throw new Error("Invalid API key. Please check your Egyntronic key in Admin settings.");
+      throw new Error("Invalid API key. Please check your Egytronic key in Admin settings.");
     }
     throw new Error("AI service error. Please try again.");
   }

@@ -48,7 +48,7 @@ export default function AIBarista() {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
-  const [geminiKey, setGeminiKey] = useState("");
+  const [egyKey, setEgyKey] = useState("");
   const [ttsEnabled, setTtsEnabled] = useState(() => localStorage.getItem("azura-tts") === "true");
   const [speaking, setSpeaking] = useState(false);
 
@@ -90,16 +90,16 @@ export default function AIBarista() {
         const storedKey = data.geminiKey as string;
         
         if (!storedKey) {
-          setGeminiKey("");
+          setEgyKey("");
         } else {
           const decrypted = decryptKey(storedKey);
           if (decrypted && isValidApiKey(decrypted)) {
-            setGeminiKey(decrypted);
+            setEgyKey(decrypted);
           } else if (isValidApiKey(storedKey)) {
-            setGeminiKey(storedKey);
+            setEgyKey(storedKey);
           } else {
-            console.error("Invalid API key format");
-            setGeminiKey("");
+            console.error("Invalid Egytronic API key format");
+            setEgyKey("");
           }
         }
         setAiEnabled(data.aiEnabled !== false);
@@ -185,7 +185,7 @@ export default function AIBarista() {
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled || !geminiKey) {
+    if (!aiEnabled || !egyKey) {
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
@@ -209,7 +209,7 @@ export default function AIBarista() {
         parts: [{ text: m.content }],
       }));
 
-      const content = await chatWithAI(geminiKey, text, history, buildSystemPrompt());
+      const content = await chatWithAI(egyKey, text, history, buildSystemPrompt());
       const { text: parsed, suggestedItem } = parseMessage(content);
       
       const aiMsg: Message = {

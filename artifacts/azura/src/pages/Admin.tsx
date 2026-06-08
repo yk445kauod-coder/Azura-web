@@ -478,7 +478,7 @@ export default function Admin() {
     { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",   ar: "التقارير"   },
     { id: "broadcast",  icon: <Megaphone size={14}/>,     en: "Broadcast", ar: "إشعارات"   },
     { id: "reels",      icon: <Film size={14}/>,          en: "Reels",     ar: "ريلز"       },
-    { id: "api",        icon: <Key size={14}/>,           en: "Egyntronic",  ar: "إيجينترونيك" },
+    { id: "api",        icon: <Key size={14}/>,           en: "Egytronic",  ar: "إيچترونيك" },
     { id: "system",    icon: <Settings size={14}/>,       en: "System",    ar: "النظام"     },
   ];
 
@@ -1355,18 +1355,18 @@ export default function Admin() {
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-5">
               <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("Egyntronic AI Gateway","بوابة إيجينترونيك للذكاء الاصطناعي")}
+                <Key size={18} className="text-primary"/> {tr("Egytronic AI Gateway","بوابة Egytronic للذكاء الاصطناعي")}
               </h3>
 
-              {/* Egyntronic API Key */}
+              {/* Egytronic API Key */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("Egyntronic API Key","مفتاح API إيجينترونيك")}</label>
+                <label className="text-sm font-semibold text-foreground">{tr("Egytronic API Key","مفتاح API Egytronic")}</label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
                       type={showApiKey ? "text" : "password"}
                       className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your Groq API key (gsk_...)","أدخل مفتاح Groq API (gsk_...)")}
+                      placeholder={tr("Enter your Egytronic API key (gsk_...)","أدخل مفتاح Egytronic API (gsk_...)")}
                       value={apiSettings.geminiKey}
                       onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
                     />
@@ -1401,7 +1401,7 @@ export default function Admin() {
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${apiSettings.geminiKey ? "bg-green-500" : "bg-amber-500"}`}/>
                   <span className="text-xs font-medium">
-                    {apiSettings.geminiKey ? tr("Egyntronic Gateway configured","بوابة إيجينترونيك مُعدّة") : tr("Egyntronic Gateway not configured","بوابة إيجينترونيك غير مُعدّة")}
+                    {apiSettings.geminiKey ? tr("Egytronic Gateway configured","بوابة Egytronic مُعدّة") : tr("Egytronic Gateway not configured","بوابة Egytronic غير مُعدّة")}
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">

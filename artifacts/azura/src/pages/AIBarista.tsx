@@ -3,7 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useBarista } from "@/contexts/BaristaContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { decryptKey, isValidApiKey, chatWithAI, textToSpeech } from "@/lib/crypto";
+import { decryptKey, isValidApiKey, chatWithAI, textToSpeech, playAudioFromUrl } from "@/lib/crypto";
 import { Send, Plus, RefreshCw, Volume2, VolumeX } from "lucide-react";
 
 interface Message {
@@ -54,6 +54,7 @@ export default function AIBarista() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const toggleTTS = () => {
     const next = !ttsEnabled;
@@ -64,9 +65,21 @@ export default function AIBarista() {
   const speak = useCallback(async (text: string) => {
     if (!ttsEnabled) return;
     setSpeaking(true);
-    await textToSpeech(text);
-    setSpeaking(false);
-  }, [ttsEnabled]);
+    try {
+      const audioUrl = await textToSpeech(text, lang === "ar" ? "ar" : "en");
+      if (audioUrl) {
+        audioRef.current?.pause();
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        audio.onended = () => setSpeaking(false);
+        audio.onerror = () => setSpeaking(false);
+        await audio.play();
+      }
+    } catch (err) {
+      console.error("TTS error:", err);
+      setSpeaking(false);
+    }
+  }, [ttsEnabled, lang]);
 
   // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {

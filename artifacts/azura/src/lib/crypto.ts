@@ -115,60 +115,59 @@ IMPORTANT INSTRUCTIONS:
   return data.choices?.[0]?.message?.content || "";
 }
 
-// ── Free TTS using Edge TTS API ─────────────────────────────────────
-// High quality, completely free, no API key needed
-export async function textToSpeech(text: string): Promise<string> {
-  // Edge TTS uses WebSocket, so we use a free proxy service
-  // Or we can use the edge-tts npm package approach
-  
-  // For client-side, we'll use a free TTS API that works without auth
-  // Using one of the free tiers or a proxy
-  
+// ── Free TTS using Pollinations API ─────────────────────────────────────
+// Completely free, no API key needed, high quality voices
+export async function textToSpeech(text: string, lang: string = "en"): Promise<string> {
   try {
-    // Try using a free TTS service
-    const response = await fetch("https://api.loudverse.com/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text: text,
-        voice: "en-US-Neural", // or ar-SA
-      }),
-    });
+    // Use Pollinations TTS - free, no auth needed
+    // Voice selection: 'af_heart' (female), 'af_bella' (female), 'af_nicole' (female)
+    // 'am_adam' (male), 'am_michael' (male)
+    // For Arabic, use a voice that can handle Arabic or fallback to English
     
-    if (response.ok) {
-      const data = await response.json();
-      return data.audio || "";
-    }
-  } catch {
-    // Fall through to next option
+    const voiceMap: Record<string, string> = {
+      'en': 'af_bella', // English female
+      'ar': 'af_heart', // Arabic female (works for both)
+    };
+    
+    const voice = voiceMap[lang] || 'af_bella';
+    const encodedText = encodeURIComponent(text);
+    const url = `https://api.pollen.store/tts?text=${encodedText}&voice=${voice}&model=chat`;
+    
+    // Return the URL for audio playback
+    return url;
+  } catch (err) {
+    console.error("TTS error:", err);
+    return "";
   }
-  
-  // Fallback: Use browser's native TTS with enhanced settings
-  return new Promise((resolve) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      
-      // Try to get a better voice
-      const voices = speechSynthesis.getVoices();
-      const preferred = voices.find(v => v.lang.includes('en') && v.name.includes('Neural')) 
-                     || voices.find(v => v.lang.includes('en-US'));
-      if (preferred) utterance.voice = preferred;
-      
-      utterance.onend = () => resolve("");
-      utterance.onerror = () => resolve("");
-      speechSynthesis.speak(utterance);
-    } else {
-      resolve("");
-    }
-  });
 }
 
-// Alternative: Direct Edge TTS via proxy (for production)
-export async function edgeTextToSpeech(text: string, lang: string = "en-US"): Promise<string> {
-  // This would use Edge TTS API through a CORS proxy
-  // For now, returning empty to use fallback
-  return "";
+// Alternative: Use browser TTS as fallback
+export function browserTTS(text: string, lang: string = "en-US") {
+  if (!('speechSynthesis' in window)) return;
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  
+  // Try to find best voice
+  const voices = speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.lang.includes(lang.split('-')[0])) 
+                  || voices.find(v => v.name.includes('Natural'))
+                  || voices[0];
+  if (preferred) utterance.voice = preferred;
+  
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utterance);
+}
+
+// Play audio from URL (for Pollinations)
+export function playAudioFromUrl(url: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio();
+    audio.src = url;
+    audio.onended = () => resolve();
+    audio.onerror = () => reject(new Error("Audio playback failed"));
+    audio.play().catch(reject);
+  });
 }

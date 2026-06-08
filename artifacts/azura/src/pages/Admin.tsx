@@ -77,12 +77,16 @@ const CATS = ["coffee", "beverages", "food", "desserts"] as const;
 const BLANK_ITEM = { name: "", nameAr: "", description: "", price: "", category: "coffee", image: "" };
 const BLANK_BROADCAST = { title: "", titleAr: "", message: "", messageAr: "", type: "info" as const, emoji: "📢" };
 
-function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
+function normalizeItem(id: string, raw: Record<string, unknown>, category?: string): MenuItem {
   return {
-    id, name: String(raw.name || raw.nameEn || ""), nameAr: String(raw.nameAr || ""),
+    id, 
+    name: String(raw.name || raw.nameEn || id), 
+    nameAr: String(raw.nameAr || ""),
     description: String(raw.description || raw.descEn || ""),
-    price: Number(raw.price) || 0, category: String(raw.category || "coffee"),
-    available: raw.available !== false, image: String(raw.image || raw.img || ""),
+    price: Number(raw.price) || 0, 
+    category: String(raw.category || category || "coffee"),
+    available: raw.available !== false, 
+    image: String(raw.image || raw.img || ""),
   };
 }
 
@@ -196,14 +200,18 @@ export default function Admin() {
       if (!snap.exists()) return;
       const data = snap.val() as Record<string, Record<string, unknown>>;
       const result: MenuItem[] = [];
-      Object.entries(data).forEach(([key, val]) => {
+      Object.entries(data).forEach(([category, val]) => {
         if (typeof val !== "object" || !val) return;
         const v = val as Record<string, unknown>;
-        if (v.price !== undefined || v.name !== undefined || v.nameEn !== undefined) {
-          result.push(normalizeItem(key, v));
+        // Check if it's a direct item (has price/name)
+        if (v.price !== undefined || v.name !== undefined) {
+          result.push(normalizeItem(category, v, category));
         } else {
-          Object.entries(v).forEach(([sid, sv]) => {
-            if (typeof sv === "object" && sv) result.push(normalizeItem(sid, sv as Record<string, unknown>));
+          // It's a sub-object with items
+          Object.entries(v).forEach(([itemId, itemData]) => {
+            if (typeof itemData === "object" && itemData) {
+              result.push(normalizeItem(itemId, itemData as Record<string, unknown>, category));
+            }
           });
         }
       });
@@ -299,7 +307,40 @@ export default function Admin() {
   const toggleAvail = (item: MenuItem) => update(ref(db, `menu/${item.category}/${item.id}`), { available: !item.available });
   const deleteItem = async (item: MenuItem) => {
     if (!confirm(tr(`Delete "${item.name}"?`, `حذف "${item.nameAr || item.name}"؟`))) return;
-    await remove(ref(db, `menu/${item.category}/${item.id}`));
+    try {
+      // Try direct path first
+      await remove(ref(db, `menu/${item.category}/${item.id}`));
+    } catch {
+      // Try alternate path structure
+      await remove(ref(db, `menu/${item.id}`));
+    }
+  };
+  
+  // Edit item inline
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const startEdit = (item: MenuItem) => setEditingItem({ ...item });
+  const cancelEdit = () => setEditingItem(null);
+  const saveEdit = async () => {
+    if (!editingItem) return;
+    try {
+      await update(ref(db, `menu/${editingItem.category}/${editingItem.id}`), {
+        name: editingItem.name,
+        nameAr: editingItem.nameAr,
+        description: editingItem.description,
+        price: editingItem.price,
+        image: editingItem.image,
+      });
+    } catch {
+      // Try alternate path
+      await update(ref(db, `menu/${editingItem.id}`), {
+        name: editingItem.name,
+        nameAr: editingItem.nameAr,
+        description: editingItem.description,
+        price: editingItem.price,
+        image: editingItem.image,
+      });
+    }
+    setEditingItem(null);
   };
   const handleImageUpload = async (file: File) => {
     setUploading(true);
@@ -744,29 +785,85 @@ export default function Admin() {
             {menuItems.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">{tr("No menu items","لا توجد عناصر")}</p>}
             <div className="space-y-2">
               {menuItems.map((item) => (
-                <div key={item.id} className={`card rounded-xl p-3 flex items-center gap-3 transition-opacity ${!item.available ? "opacity-55" : ""}`}>
-                  <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xl">{item.category === "coffee" ? "☕" : item.category === "desserts" ? "🍰" : item.category === "beverages" ? "🧃" : "🥗"}</div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-secondary font-bold">{item.price} {tr("EGP","ج.م")}</p>
-                    <span className={`badge px-1.5 py-0.5 text-[10px] mt-0.5 ${item.available ? "status-ready" : "status-cancelled"}`}>
-                      {item.available ? tr("Available","متاح") : tr("Hidden","مخفي")}
-                    </span>
-                  </div>
-                  <div className="flex gap-1 flex-shrink-0">
-                    <button onClick={() => toggleAvail(item)} className="btn-icon w-8 h-8 text-primary">
-                      {item.available ? <ToggleRight size={16}/> : <ToggleLeft size={16}/>}
-                    </button>
-                    <button onClick={() => deleteItem(item)} className="btn-icon w-8 h-8 text-destructive/70 hover:text-destructive">
-                      <Trash2 size={14}/>
-                    </button>
-                  </div>
+                <div key={item.id} className={`card rounded-xl p-3 transition-opacity ${!item.available ? "opacity-55" : ""}`}>
+                  {/* Editing Mode */}
+                  {editingItem?.id === item.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          className={inp}
+                          value={editingItem.name}
+                          onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                          placeholder="Name (EN)"
+                        />
+                        <input
+                          className={inp}
+                          value={editingItem.nameAr}
+                          onChange={(e) => setEditingItem({ ...editingItem, nameAr: e.target.value })}
+                          placeholder="Name (AR)"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="number"
+                          className={inp}
+                          value={editingItem.price}
+                          onChange={(e) => setEditingItem({ ...editingItem, price: Number(e.target.value) })}
+                          placeholder="Price"
+                        />
+                        <input
+                          className={inp}
+                          value={editingItem.image}
+                          onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
+                          placeholder="Image URL"
+                        />
+                      </div>
+                      <textarea
+                        className={`${inp} min-h-[50px] resize-none`}
+                        value={editingItem.description}
+                        onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                        placeholder="Description"
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={saveEdit} className="btn-primary flex-1 py-2 rounded-lg text-sm flex items-center justify-center gap-1">
+                          <Save size={14}/> {tr("Save","حفظ")}
+                        </button>
+                        <button onClick={cancelEdit} className="btn-ghost flex-1 py-2 rounded-lg text-sm">
+                          {tr("Cancel","إلغاء")}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* View Mode */
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xl">{item.category === "coffee" ? "☕" : item.category === "desserts" ? "🍰" : item.category === "beverages" ? "🧃" : "🥗"}</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
+                        {item.nameAr && <p className="text-xs text-muted-foreground truncate">{item.nameAr}</p>}
+                        <p className="text-xs text-secondary font-bold">{item.price} {tr("EGP","ج.م")}</p>
+                        <span className={`badge px-1.5 py-0.5 text-[10px] mt-0.5 ${item.available ? "status-ready" : "status-cancelled"}`}>
+                          {item.available ? tr("Available","متاح") : tr("Hidden","مخفي")}
+                        </span>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button onClick={() => startEdit(item)} className="btn-icon w-8 h-8 text-primary hover:bg-primary/10">
+                          <Edit3 size={14}/>
+                        </button>
+                        <button onClick={() => toggleAvail(item)} className="btn-icon w-8 h-8 text-primary">
+                          {item.available ? <ToggleRight size={16}/> : <ToggleLeft size={16}/>}
+                        </button>
+                        <button onClick={() => deleteItem(item)} className="btn-icon w-8 h-8 text-destructive/70 hover:text-destructive">
+                          <Trash2 size={14}/>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { db, ref, onValue, off, update, set, push, remove } from "@/lib/firebase";
+import { db, ref, onValue, off, update, set, push, remove, get } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
@@ -9,10 +9,11 @@ import {
   TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2, ToggleLeft, ToggleRight,
   Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
+  RotateCcw, Download, Archive, UploadCloud, Trash, Edit3, Save,
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api";
+type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -415,6 +416,7 @@ export default function Admin() {
     { id: "broadcast",  icon: <Megaphone size={14}/>,     en: "Broadcast", ar: "إشعارات"   },
     { id: "reels",      icon: <Film size={14}/>,          en: "Reels",     ar: "ريلز"       },
     { id: "api",        icon: <Key size={14}/>,           en: "Egyntronic",  ar: "إيجينترونيك" },
+    { id: "system",    icon: <Settings size={14}/>,       en: "System",    ar: "النظام"     },
   ];
 
   return (
@@ -1128,7 +1130,285 @@ export default function Admin() {
             </div>
           </div>
         )}
+
+        {/* ━━━ SYSTEM TAB ━━━ */}
+        {tab === "system" && (
+          <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
+        )}
       </div>
+    </div>
+  );
+}
+
+// System Management Component
+function SystemTab({ tr, db, ref, set, remove, push, get }: {
+  tr: (en: string, ar: string) => string;
+  db: any; ref: any; set: any; remove: any; push: any; get: any;
+}) {
+  const [backups, setBackups] = useState<{ id: string; name: string; date: number; size: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<string>("");
+  const [editingOrder, setEditingOrder] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
+
+  // Load backups list
+  useEffect(() => {
+    const unsub = onValue(ref(db, "backups"), (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, any>;
+        const list = Object.entries(data).map(([id, v]: [string, any]) => ({
+          id,
+          name: v.name || "Backup",
+          date: v.createdAt || Date.now(),
+          size: v.size || "0 KB",
+        }));
+        setBackups(list.sort((a, b) => b.date - a.date));
+      } else {
+        setBackups([]);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Load orders for editing
+  useEffect(() => {
+    const unsub = onValue(ref(db, "orders"), (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, any>;
+        const list = Object.entries(data).map(([id, v]: [string, any]) => ({ id, ...v }));
+        setOrders(list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const createBackup = async () => {
+    setLoading(true);
+    try {
+      const snapshot: Record<string, any> = {};
+      
+      // Collect all data
+      const paths = ["menu", "orders", "users", "staff", "ai-config", "api-settings", "broadcasts", "reels", "feedback", "suggestions"];
+      for (const path of paths) {
+        const snap = await get(ref(db, path));
+        if (snap.exists()) snapshot[path] = snap.val();
+      }
+
+      const backupData = {
+        data: snapshot,
+        createdAt: Date.now(),
+        name: `Backup ${new Date().toLocaleString()}`,
+        size: `${Math.round(JSON.stringify(snapshot).length / 1024)} KB`,
+      };
+
+      // Save to Firebase
+      const backupRef = push(ref(db, "backups"));
+      await set(backupRef, backupData);
+
+      // Download to device
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `azura-backup-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      alert(tr("Backup created and downloaded!", "تم إنشاء النسخة الاحتياطية وت-download!"));
+    } catch (err) {
+      console.error(err);
+      alert(tr("Failed to create backup", "فشل في إنشاء النسخة الاحتياطية"));
+    }
+    setLoading(false);
+  };
+
+  const restoreBackup = async (backupId: string) => {
+    if (!confirm(tr("Restore this backup? Current data will be overwritten.", "استعادة هذه النسخة؟ البيانات الحالية سيتم استبدالها."))) return;
+    
+    setLoading(true);
+    try {
+      const snap = await get(ref(db, `backups/${backupId}/data`));
+      if (!snap.exists()) throw new Error("Backup not found");
+      
+      const data = snap.val() as Record<string, any>;
+      
+      // Restore each path
+      for (const [path, content] of Object.entries(data)) {
+        await set(ref(db, path), content);
+      }
+
+      alert(tr("Backup restored successfully!", "تم استعادة النسخة بنجاح!"));
+    } catch (err) {
+      console.error(err);
+      alert(tr("Failed to restore backup", "فشل في استعادة النسخة"));
+    }
+    setLoading(false);
+  };
+
+  const resetSystem = async () => {
+    setLoading(true);
+    try {
+      // Create final backup before reset
+      await createBackup();
+
+      // Clear all data paths
+      const paths = ["menu", "orders", "users", "staff", "ai-config", "api-settings", "broadcasts", "reels", "feedback", "suggestions", "conversations", "notifications"];
+      for (const path of paths) {
+        await remove(ref(db, path));
+      }
+
+      alert(tr("System reset complete! A backup was saved to your device.", "تم إعادة تعيين النظام! تم حفظ نسخة احتياطية على جهازك."));
+    } catch (err) {
+      console.error(err);
+      alert(tr("Failed to reset system", "فشل في إعادة تعيين النظام"));
+    }
+    setLoading(false);
+    setShowConfirm(false);
+  };
+
+  const deleteBackup = async (id: string) => {
+    if (!confirm(tr("Delete this backup?", "حذف هذه النسخة؟"))) return;
+    await remove(ref(db, `backups/${id}`));
+  };
+
+  const updateOrder = async (orderId: string, updates: any) => {
+    await update(ref(db, `orders/${orderId}`), updates);
+    setEditingOrder(null);
+  };
+
+  return (
+    <div className="space-y-6 page-enter">
+      {/* Backup Section */}
+      <div className="card-elevated rounded-2xl p-5 space-y-4">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <Archive size={18} className="text-primary"/> {tr("Backup & Restore","النسخ الاحتياطي والاستعادة")}
+        </h3>
+
+        <button onClick={createBackup} disabled={loading}
+          className="btn-primary w-full py-3 rounded-xl flex items-center justify-center gap-2">
+          <Download size={16}/> {loading ? tr("Creating...", "جاري الإنشاء...") : tr("Create New Backup","إنشاء نسخة احتياطية جديدة")}
+        </button>
+
+        <div className="space-y-2">
+          <p className="text-sm font-semibold">{tr("Available Backups","النسخ الاحتياطية المتاحة")}</p>
+          {backups.length === 0 && (
+            <p className="text-muted-foreground text-sm">{tr("No backups yet","لا توجد نسخ احتياطية بعد")}</p>
+          )}
+          {backups.map((b) => (
+            <div key={b.id} className="card rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">{b.name}</p>
+                <p className="text-xs text-muted-foreground">{new Date(b.date).toLocaleString()} • {b.size}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => restoreBackup(b.id)} className="btn-ghost text-primary px-3 py-1 rounded-lg text-sm">
+                  <UploadCloud size={14}/> {tr("Restore","استعادة")}
+                </button>
+                <button onClick={() => deleteBackup(b.id)} className="btn-ghost text-destructive px-3 py-1 rounded-lg text-sm">
+                  <Trash2 size={14}/>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Edit Orders Section */}
+      <div className="card-elevated rounded-2xl p-5 space-y-4">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <Edit3 size={18} className="text-primary"/> {tr("Edit Orders","تعديل الطلبات")}
+        </h3>
+
+        {orders.length === 0 && (
+          <p className="text-muted-foreground text-sm">{tr("No orders yet","لا توجد طلبات بعد")}</p>
+        )}
+
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {orders.map((order) => (
+            <div key={order.id} className="card rounded-xl p-4">
+              {editingOrder?.id === order.id ? (
+                <div className="space-y-3">
+                  <input
+                    className={inp}
+                    value={editingOrder.tableNumber || ""}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, tableNumber: e.target.value })}
+                    placeholder={tr("Table Number", "رقم الطاولة")}
+                  />
+                  <select
+                    className={inp}
+                    value={editingOrder.status || ""}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, status: e.target.value })}
+                  >
+                    <option value="pending">{tr("Pending", "انتظار")}</option>
+                    <option value="preparing">{tr("Preparing", "يُحضَّر")}</option>
+                    <option value="ready">{tr("Ready", "جاهز")}</option>
+                    <option value="delivered">{tr("Delivered", "اتسلم")}</option>
+                    <option value="cancelled">{tr("Cancelled", "اتلغى")}</option>
+                  </select>
+                  <div className="flex gap-2">
+                    <button onClick={() => updateOrder(order.id, editingOrder)} className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-1">
+                      <Save size={14}/> {tr("Save", "حفظ")}
+                    </button>
+                    <button onClick={() => setEditingOrder(null)} className="btn-ghost px-4 py-2 rounded-lg text-sm">
+                      {tr("Cancel", "إلغاء")}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-sm">#{order.orderId?.slice(-6) || order.id}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Table", "طاولة")} {order.tableNumber} • {order.total} EGP
+                    </p>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${STATUS_META[order.status]?.cls || "bg-muted"}`}>
+                      {STATUS_META[order.status]?.ar || order.status}
+                    </span>
+                  </div>
+                  <button onClick={() => setEditingOrder(order)} className="btn-icon w-8 h-8 text-primary">
+                    <Edit3 size={14}/>
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Reset System */}
+      <div className="card-elevated rounded-2xl p-5 space-y-4 border-2 border-destructive/20">
+        <h3 className="font-bold text-destructive flex items-center gap-2">
+          <RotateCcw size={18}/> {tr("Reset System","إعادة تعيين النظام")}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {tr("This will delete all data (menu, orders, users, etc.) and create a backup first.", "سيتم حذف جميع البيانات (القائمة، الطلبات، المستخدمين، إلخ) وإنشاء نسخة احتياطية أولاً.")}
+        </p>
+        <button onClick={() => { setShowConfirm(true); setConfirmAction("reset"); }}
+          className="w-full py-3 rounded-xl bg-destructive text-white font-bold flex items-center justify-center gap-2 hover:bg-destructive/90">
+          <RotateCcw size={16}/> {tr("Reset Everything","إعادة تعيين كل شيء")}
+        </button>
+      </div>
+
+      {/* Confirm Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="card-elevated rounded-2xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="font-bold text-lg text-destructive">{tr("Confirm Action","تأكيد العملية")}</h3>
+            <p className="text-sm">{tr("Are you sure? This action cannot be undone.","هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.")}</p>
+            <div className="flex gap-3">
+              <button onClick={() => { if (confirmAction === "reset") resetSystem(); setShowConfirm(false); }}
+                className="flex-1 py-2 rounded-xl bg-destructive text-white font-bold">
+                {tr("Yes, Reset","نعم، أعيد التعيين")}
+              </button>
+              <button onClick={() => setShowConfirm(false)}
+                className="flex-1 py-2 rounded-xl bg-muted font-bold">
+                {tr("Cancel","إلغاء")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

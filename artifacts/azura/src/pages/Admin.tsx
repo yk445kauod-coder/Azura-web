@@ -10,11 +10,11 @@ import {
   Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Trash, Edit3, Save,
-  Video, Monitor,
+  Video,
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "pos";
+type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -162,16 +162,6 @@ export default function Admin() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [savingApiKey, setSavingApiKey] = useState(false);
 
-  // POS settings
-  const [posSettings, setPosSettings] = useState({
-    enabled: true,
-    maxTables: 24,
-  });
-  const [posCart, setPosCart] = useState<{ item: MenuItem; qty: number }[]>([]);
-  const [posTable, setPosTable] = useState(1);
-  const [posNotes, setPosNotes] = useState("");
-  const [posProcessing, setPosProcessing] = useState(false);
-
   // Homepage Banner settings
   const [bannerContent, setBannerContent] = useState("");
   const [bannerBgColor, setBannerBgColor] = useState("#FF6B35");
@@ -238,15 +228,23 @@ export default function Admin() {
       Object.entries(data).forEach(([key, val]) => {
         if (!val || typeof val !== "object") return;
         const v = val as Record<string, unknown>;
-        // Has createdAt or total → it's a direct Order (old flat format)
-        if (v.createdAt !== undefined || v.total !== undefined || v.orderId !== undefined) {
+        
+        // Check if it's a direct order (old flat format) vs nested orders
+        // Direct orders have string orderId and might have items directly
+        // Nested orders have items nested inside
+        if (v.items && Array.isArray(v.items)) {
+          // This is a direct order with items array
           allOrders.push({ ...(v as unknown as Order), orderId: (v.orderId as string) || key });
         } else {
-          // New format: key = userId, val = map of orders
+          // This is a map of orders (new format: key = userId, val = map of orders)
           Object.entries(v).forEach(([orderId, order]) => {
             if (order && typeof order === "object") {
-              const o = order as Order;
-              allOrders.push({ ...o, userId: key, orderId: o.orderId || orderId });
+              const o = order as Record<string, unknown>;
+              allOrders.push({ 
+                ...(o as unknown as Order), 
+                userId: key, 
+                orderId: (o.orderId as string) || orderId 
+              });
             }
           });
         }
@@ -331,18 +329,8 @@ export default function Admin() {
       });
     });
 
-    // POS Settings
-    onValue(ref(db, "pos-settings"), (snap) => {
-      if (!snap.exists()) return;
-      const data = snap.val() as Record<string, unknown>;
-      setPosSettings({
-        enabled: data.enabled !== false,
-        maxTables: (data.maxTables as number) || 24,
-      });
-    });
-
     return () => {
-      ["orders","menu","feedback","suggestions","support-chat","broadcast","reels","api-settings","pos-settings"].forEach((p) => off(ref(db, p)));
+      ["orders","menu","feedback","suggestions","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -369,8 +357,13 @@ export default function Admin() {
 
   // ── Order helpers ─────────────────────────────────────────────
   const setOrderStatus = (order: Order, status: string) => {
-    if (order.userId) update(ref(db, `orders/${order.userId}/${order.orderId}`), { status });
-    else update(ref(db, `orders/${order.orderId}`), { status });
+    // For per-user orders, update at /orders/{userId}/{orderId}
+    // For flat orders, update at /orders/{orderId}
+    if (order.userId) {
+      update(ref(db, `orders/${order.userId}/${order.orderId}`), { status });
+    } else {
+      update(ref(db, `orders/${order.orderId}`), { status });
+    }
   };
 
   // ── Menu helpers ──────────────────────────────────────────────
@@ -550,7 +543,6 @@ export default function Admin() {
     { id: "reels",      icon: <Film size={14}/>,          en: "Reels",     ar: "ريلز"       },
     { id: "api",        icon: <Key size={14}/>,           en: "Egytronic",  ar: "إيچترونيك" },
     { id: "system",    icon: <Settings size={14}/>,       en: "System",    ar: "النظام"     },
-    { id: "pos",       icon: <Monitor size={14}/>,        en: "POS",       ar: "الكاشير"    },
   ];
 
   return (
@@ -1550,9 +1542,6 @@ export default function Admin() {
         {tab === "system" && (
           <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
         )}
-        {tab === "pos" && (
-          <POSTab tr={tr} lang={lang} db={db} ref={ref} set={set} push={push} menuItems={menuItems} posSettings={posSettings} posCart={posCart} posTable={posTable} posNotes={posNotes} posProcessing={posProcessing} setPosSettings={setPosSettings} setPosCart={setPosCart} setPosTable={setPosTable} setPosNotes={setPosNotes} setPosProcessing={setPosProcessing} />
-        )}
       </div>
     </div>
   );
@@ -1826,304 +1815,6 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
               <button onClick={() => setShowConfirm(false)}
                 className="flex-1 py-2 rounded-xl bg-muted font-bold">
                 {tr("Cancel","إلغاء")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-// POS Tab Component
-function POSTab({ tr, lang, db, ref, set, push, menuItems, posSettings, posCart, posTable, posNotes, posProcessing, setPosSettings, setPosCart, setPosTable, setPosNotes, setPosProcessing }: {
-  tr: (en: string, ar: string) => string;
-  lang: "en" | "ar";
-  db: any; ref: any; set: any; push: any;
-  menuItems: MenuItem[];
-  posSettings: { enabled: boolean; maxTables: number };
-  posCart: { item: MenuItem; qty: number }[];
-  posTable: number;
-  posNotes: string;
-  posProcessing: boolean;
-  setPosSettings: (s: any) => void;
-  setPosCart: (c: any) => void;
-  setPosTable: (t: number) => void;
-  setPosNotes: (n: string) => void;
-  setPosProcessing: (p: boolean) => void;
-}) {
-  const [selectedCategory, setSelectedCategory] = useState("coffee");
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [editingMaxTables, setEditingMaxTables] = useState(false);
-  const [tempMaxTables, setTempMaxTables] = useState(posSettings.maxTables);
-
-  const categories = ["coffee", "beverages", "food", "desserts", "snacks"];
-  const categoryLabels: Record<string, { en: string; ar: string; emoji: string }> = {
-    coffee: { en: "Coffee", ar: "قهوة", emoji: "☕" },
-    beverages: { en: "Beverages", ar: "مشروبات", emoji: "🧃" },
-    food: { en: "Food", ar: "طعام", emoji: "🍔" },
-    desserts: { en: "Desserts", ar: "حلويات", emoji: "🍰" },
-    snacks: { en: "Snacks", ar: "مقبلات", emoji: "🍿" },
-  };
-
-  const filteredItems = menuItems.filter((item) => item.category === selectedCategory && item.available !== false);
-  const cartTotal = posCart.reduce((sum, c) => sum + c.item.price * c.qty, 0);
-
-  const addToCart = (item: MenuItem) => {
-    const existing = posCart.find((c) => c.item.id === item.id);
-    if (existing) {
-      setPosCart(posCart.map((c) => c.item.id === item.id ? { ...c, qty: c.qty + 1 } : c));
-    } else {
-      setPosCart([...posCart, { item, qty: 1 }]);
-    }
-  };
-
-  const updateQty = (itemId: string, delta: number) => {
-    const cart = posCart.map((c) => c.item.id === itemId ? { ...c, qty: Math.max(0, c.qty + delta) } : c).filter((c) => c.qty > 0);
-    setPosCart(cart);
-  };
-
-  const clearCart = () => {
-    if (posCart.length > 0 && !confirm(tr("Clear cart?", "مسح السلة؟"))) return;
-    setPosCart([]);
-    setPosNotes("");
-  };
-
-  const placeOrder = async () => {
-    if (posCart.length === 0) {
-      alert(tr("Cart is empty!", "السلة فارغة!"));
-      return;
-    }
-    setPosProcessing(true);
-    try {
-      const orderId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-      const orderData = {
-        orderId,
-        tableNumber: posTable.toString(),
-        userName: "POS",
-        userId: "pos-terminal",
-        items: posCart.map((c) => ({
-          name: c.item.name,
-          nameAr: c.item.nameAr || c.item.name,
-          quantity: c.qty,
-          price: c.item.price,
-          subtotal: c.item.price * c.qty,
-        })),
-        notes: posNotes,
-        total: cartTotal,
-        status: "pending",
-        createdAt: Date.now(),
-        source: "pos",
-      };
-      await push(ref(db, "orders/pos-terminal"), orderData);
-      setPosCart([]);
-      setPosNotes("");
-      alert(tr("Order placed successfully!", "تم إرسال الطلب بنجاح!"));
-    } catch (err) {
-      console.error(err);
-      alert(tr("Failed to place order", "فشل في إرسال الطلب"));
-    }
-    setPosProcessing(false);
-  };
-
-  const savePosEnabled = async (enabled: boolean) => {
-    setSavingSettings(true);
-    try {
-      await set(ref(db, "pos-settings"), { ...posSettings, enabled });
-      setPosSettings({ ...posSettings, enabled });
-    } catch (err) {
-      console.error(err);
-    }
-    setSavingSettings(false);
-  };
-
-  const saveMaxTables = async () => {
-    if (tempMaxTables < 1 || tempMaxTables > 100) {
-      alert(tr("Max tables must be 1-100", "عدد الطاولات يجب أن يكون 1-100"));
-      return;
-    }
-    setSavingSettings(true);
-    try {
-      await set(ref(db, "pos-settings"), { ...posSettings, maxTables: tempMaxTables });
-      setPosSettings({ ...posSettings, maxTables: tempMaxTables });
-      setEditingMaxTables(false);
-    } catch (err) {
-      console.error(err);
-    }
-    setSavingSettings(false);
-  };
-
-  return (
-    <div className="p-4 space-y-4">
-      {/* POS Settings */}
-      <div className="card-elevated rounded-2xl p-4 space-y-4">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <Monitor size={18} className="text-primary" />
-          {tr("POS System Settings","إعدادات الكاشير")}
-        </h3>
-
-        {/* Enable/Disable Toggle */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-sm">{tr("Enable POS Mode","تفعيل وضع الكاشير")}</p>
-            <p className="text-xs text-muted-foreground">{tr("Show POS button on client page","إظهار زر الكاشير في صفحة العميل")}</p>
-          </div>
-          <button
-            onClick={() => savePosEnabled(!posSettings.enabled)}
-            disabled={savingSettings}
-            className={`w-14 h-8 rounded-full relative transition-colors ${posSettings.enabled ? "bg-green-500" : "bg-muted"}`}
-          >
-            <div className={`w-6 h-6 rounded-full bg-white shadow-sm absolute top-1 transition-all ${posSettings.enabled ? "translate-x-7" : "translate-x-1"}`}/>
-          </button>
-        </div>
-
-        {/* Max Tables */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-sm">{tr("Max Tables","أقصى عدد طاولات")}</p>
-            <p className="text-xs text-muted-foreground">{tr("Set the number of tables in your cafe","حدد عدد الطاولات في كافيه")}</p>
-          </div>
-          {editingMaxTables ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                max="100"
-                value={tempMaxTables}
-                onChange={(e) => setTempMaxTables(parseInt(e.target.value) || 1)}
-                className="input-field px-3 py-1.5 w-16 text-center rounded-lg"
-              />
-              <button onClick={saveMaxTables} className="btn-icon w-8 h-8 bg-green-500 text-white">
-                <Check size={14} />
-              </button>
-              <button onClick={() => { setEditingMaxTables(false); setTempMaxTables(posSettings.maxTables); }} className="btn-icon w-8 h-8 bg-muted">
-                <X size={14} />
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => { setEditingMaxTables(true); setTempMaxTables(posSettings.maxTables); }} className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-sm">
-              {posSettings.maxTables} {tr("tables","طاولة")}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* POS Interface */}
-      {posSettings.enabled && (
-        <div className="card-elevated rounded-2xl overflow-hidden">
-          {/* Table Selection */}
-          <div className="p-4 border-b bg-muted/30">
-            <div className="flex items-center gap-3">
-              <span className="font-semibold text-sm">{tr("Table","طاولة")}:</span>
-              <div className="flex gap-1.5 flex-wrap">
-                {Array.from({ length: posSettings.maxTables }, (_, i) => i + 1).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setPosTable(t)}
-                    className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
-                      posTable === t ? "bg-primary text-primary-foreground" : "bg-white hover:bg-muted"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Category Tabs */}
-          <div className="flex overflow-x-auto scroll-hide border-b">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`flex-1 min-w-[80px] py-3 px-2 text-center transition-all ${
-                  selectedCategory === cat ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                }`}
-              >
-                <span className="text-lg">{categoryLabels[cat]?.emoji}</span>
-                <p className="text-[10px] mt-0.5">{lang === "ar" ? categoryLabels[cat]?.ar : categoryLabels[cat]?.en}</p>
-              </button>
-            ))}
-          </div>
-
-          {/* Menu Items Grid */}
-          <div className="grid grid-cols-3 gap-2 p-3 max-h-[300px] overflow-y-auto">
-            {filteredItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => addToCart(item)}
-                className="bg-white rounded-xl p-2 text-center hover:shadow-md transition-all active:scale-95"
-              >
-                <div className="w-full h-12 rounded-lg overflow-hidden mb-1.5 bg-muted">
-                  {item.image ? (
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl">
-                      {categoryLabels[item.category]?.emoji || "🍽️"}
-                    </div>
-                  )}
-                </div>
-                <p className="text-[10px] font-semibold leading-tight line-clamp-2">{lang === "ar" ? (item.nameAr || item.name) : item.name}</p>
-                <p className="text-primary font-bold text-xs mt-0.5">{item.price} {tr("EGP","ج.م")}</p>
-              </button>
-            ))}
-          </div>
-
-          {/* Cart Summary */}
-          <div className="p-4 border-t bg-muted/30 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="font-semibold">{tr("Cart","السلة")} ({posCart.length})</span>
-              <button onClick={clearCart} className="text-xs text-destructive hover:underline">
-                {tr("Clear","مسح")}
-              </button>
-            </div>
-
-            {posCart.length > 0 ? (
-              <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                {posCart.map((c) => (
-                  <div key={c.item.id} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2">
-                    <span className="flex-1 text-xs truncate">{lang === "ar" ? (c.item.nameAr || c.item.name) : c.item.name}</span>
-                    <div className="flex items-center gap-1.5">
-                      <button onClick={() => updateQty(c.item.id, -1)} className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center text-xs font-bold">-</button>
-                      <span className="text-xs font-bold w-5 text-center">{c.qty}</span>
-                      <button onClick={() => updateQty(c.item.id, 1)} className="w-6 h-6 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">+</button>
-                    </div>
-                    <span className="text-xs font-semibold w-12 text-right">{c.item.price * c.qty}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground text-center py-2">{tr("Tap items to add to cart","انقر على العناصر لإضافتها للسلة")}</p>
-            )}
-
-            {/* Notes */}
-            <textarea
-              className="input-field px-3 py-2 text-xs w-full rounded-xl resize-none"
-              placeholder={tr("Order notes...","ملاحظات الطلب...")}
-              value={posNotes}
-              onChange={(e) => setPosNotes(e.target.value)}
-              rows={2}
-            />
-
-            {/* Total & Place Order */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs text-muted-foreground">{tr("Total","الإجمالي")}</span>
-                <p className="font-bold text-lg text-primary">{cartTotal} {tr("EGP","ج.م")}</p>
-              </div>
-              <button
-                onClick={placeOrder}
-                disabled={posProcessing || posCart.length === 0}
-                className="px-6 py-3 bg-green-500 text-white rounded-xl font-bold text-sm disabled:opacity-50 flex items-center gap-2"
-              >
-                {posProcessing ? (
-                  <>{tr("Processing...","جاري...")}</>
-                ) : (
-                  <>
-                    <Send size={14} />
-                    {tr("Place Order","إرسال الطلب")}
-                  </>
-                )}
               </button>
             </div>
           </div>

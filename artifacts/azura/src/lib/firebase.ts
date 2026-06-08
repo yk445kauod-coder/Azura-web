@@ -21,22 +21,14 @@ import {
   update,
   remove,
 } from "firebase/database";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBr0a3R8wTSJ3qAPEuRRDosP7seMZK6iPQ",
   authDomain: "azura-cafe-55897.firebaseapp.com",
   databaseURL: "https://azura-cafe-55897-default-rtdb.firebaseio.com",
   projectId: "azura-cafe-55897",
-  storageBucket: "azura-cafe-55897.firebasestorage.app",
   messagingSenderId: "183645729963",
   appId: "1:183645729963:web:0240db967365a56af033ee",
-  measurementId: "G-S24DCSXJF9",
 };
 
 /*
@@ -75,11 +67,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const authInstance = getAuth(app);
 const dbInstance = getDatabase(app);
-const storageInstance = getStorage(app);
 
 export const auth = authInstance;
 export const db = dbInstance;
-export const storage = storageInstance;
 export const googleProvider = new GoogleAuthProvider();
 
 // Ensure db is always defined
@@ -102,9 +92,6 @@ export {
   off,
   update,
   remove,
-  storageRef,
-  uploadBytes,
-  getDownloadURL,
 };
 
 export type { User };

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { db, ref, onValue, off, update, set, push, remove, get, storage, storageRef, uploadBytes, getDownloadURL } from "@/lib/firebase";
+import { db, ref, onValue, off, update, set, push, remove, get } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
@@ -1347,10 +1347,10 @@ export default function Admin() {
                   </>
                 )}
 
-                {/* Video Upload */}
+                {/* Video Upload - stored as base64 in RTDB */}
                 {newReel.mediaType === 'video' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">{tr("Upload Video (stored in Firebase)","ارفع فيديو (مخزن في Firebase)")}</label>
+                    <label className="text-sm font-semibold">{tr("Upload Video (base64 in RTDB)","ارفع فيديو (base64 في RTDB)")}</label>
                     <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
                       <input
                         type="file"
@@ -1361,9 +1361,9 @@ export default function Admin() {
                           const file = e.target.files?.[0];
                           if (!file) return;
                           
-                          // Check file size (limit to 50MB for Firebase)
-                          if (file.size > 50 * 1024 * 1024) {
-                            swalError(tr("Video too large. Max 50MB.", "الفيديو كبير جداً. الحد الأقصى 50 ميجابايت."));
+                          // Check file size (limit to 10MB for RTDB base64)
+                          if (file.size > 10 * 1024 * 1024) {
+                            swalError(tr("Video too large. Max 10MB for RTDB storage.", "الفيديو كبير جداً. الحد الأقصى 10 ميجابايت."));
                             return;
                           }
                           
@@ -1371,15 +1371,19 @@ export default function Admin() {
                           setUploadProgress(0);
                           
                           try {
-                            // Upload to Firebase Storage
-                            const fileName = `reels/${Date.now()}_${file.name}`;
-                            const fileRef = storageRef(storage, fileName);
+                            // Convert to base64 for RTDB storage
+                            const base64 = await new Promise<string>((resolve, reject) => {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const result = reader.result as string;
+                                setUploadProgress(50);
+                                resolve(result);
+                              };
+                              reader.onerror = reject;
+                              reader.readAsDataURL(file);
+                            });
                             
-                            // For progress tracking, we need to use a different approach
-                            const snapshot = await uploadBytes(fileRef, file);
-                            const downloadURL = await getDownloadURL(snapshot.ref);
-                            
-                            setNewReel({ ...newReel, videoUrl: downloadURL, image: downloadURL }); // Use video URL as image for preview
+                            setNewReel({ ...newReel, videoUrl: base64, image: base64 });
                             setUploadProgress(100);
                           } catch (err) {
                             console.error(err);
@@ -1391,13 +1395,14 @@ export default function Admin() {
                       <label htmlFor="reel-video-upload" className="cursor-pointer">
                         <Video size={24} className="mx-auto text-muted-foreground mb-2"/>
                         <p className="text-xs text-muted-foreground">
-                          {uploading ? `${tr("Uploading...", "جاري الرفع...")} ${uploadProgress}%` : tr("Click to upload video (max 50MB)", "انقر لرفع فيديو (حد أقصى 50 ميجابايت)")}
+                          {uploading ? `${tr("Processing...", "جاري المعالجة...")} ${uploadProgress}%` : tr("Click to upload video (max 10MB)", "انقر لرفع فيديو (حد أقصى 10 ميجابايت)")}
                         </p>
                         {newReel.videoUrl && (
                           <video src={newReel.videoUrl} className="w-24 h-24 object-cover rounded-lg mx-auto mt-2" controls />
                         )}
                       </label>
                     </div>
+                    <p className="text-xs text-muted-foreground">⚠️ {tr("Videos stored as base64 in RTDB. Keep under 10MB.","الفيديوهات مخزنة كـ base64 في RTDB. احتفظ بها أقل من 10 ميجابايت.")}</p>
                   </div>
                 )}
 

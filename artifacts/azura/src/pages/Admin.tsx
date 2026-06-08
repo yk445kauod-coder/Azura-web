@@ -1083,7 +1083,7 @@ export default function Admin() {
                     <input
                       type={showApiKey ? "text" : "password"}
                       className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your Egyntronic API key","أدخل مفتاح API إيجينترونيك")}
+                      placeholder={tr("Enter your Groq API key (gsk_...)","أدخل مفتاح Groq API (gsk_...)")}
                       value={apiSettings.geminiKey}
                       onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
                     />
@@ -1092,7 +1092,7 @@ export default function Admin() {
                     </button>
                   </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">{tr("Get your Egyntronic API key from your provider","احصل على مفتاح API من مزود الخدمة")}</p>
+                <p className="text-[11px] text-muted-foreground">{tr("Get free key at console.groq.com","احصل على مفتاح مجاني من console.groq.com")}</p>
               </div>
 
               {/* AI Toggle */}

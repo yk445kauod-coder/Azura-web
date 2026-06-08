@@ -45,53 +45,58 @@ export function decryptKey(encrypted: string): string {
 // Check if key looks valid (basic validation)
 export function isValidApiKey(key: string): boolean {
   if (!key) return false;
-  // Gemini API keys are typically 30+ characters
-  // New format: AQ.xxx or AIza...
-  return key.length >= 30 && (key.startsWith("AIza") || key.startsWith("AQ."));
+  // Groq keys start with gsk_
+  // Gemini keys: AIza... or AQ...
+  return key.length >= 30 && (key.startsWith("gsk_") || key.startsWith("AIza") || key.startsWith("AQ."));
 }
 
 // ── AI Chat ─────────────────────────────────────────────────
-// Using gemini-2.0-flash-lite for higher free tier limits
+// Using Groq API - free tier with 14,400 requests/day (llama-3.1-8b-instant)
 export async function chatWithAI(
   apiKey: string,
   message: string,
   history: Array<{ role: string; parts: Array<{ text: string }> }>,
   systemPrompt: string
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+  const url = "https://api.groq.com/openai/v1/chat/completions";
   
+  // Convert history to Groq format
+  const groqHistory = history.map((h) => ({
+    role: h.role === 'model' ? 'assistant' : 'user',
+    content: h.parts[0]?.text || "",
+  }));
+
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
     body: JSON.stringify({
-      contents: [
-        ...history.map((h) => ({
-          role: h.role === 'model' ? 'model' : 'user',
-          parts: h.parts,
-        })),
-        { role: 'user', parts: [{ text: message }] },
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...groqHistory,
+        { role: "user", content: message }
       ],
-      systemInstruction: {
-        parts: [{ text: systemPrompt }]
-      }
+      temperature: 0.7,
+      max_tokens: 500,
     }),
   });
 
   if (!res.ok) {
     const err = await res.text();
-    console.error("Gemini API error:", err);
+    console.error("Groq API error:", err);
     
-    // Check for quota errors
-    if (err.includes("429") || err.includes("RESOURCE_EXHAUSTED") || err.includes("quota")) {
-      throw new Error("API quota exceeded. Please try again later or add a new API key in Admin settings.");
+    if (err.includes("429") || err.includes("rate_limit")) {
+      throw new Error("Rate limit exceeded. Please try again in a moment.");
     }
-    // Check for invalid key
-    if (err.includes("API_KEY_INVALID") || err.includes("Bad Request")) {
-      throw new Error("Invalid API key. Please check your Gemini API key in Admin settings.");
+    if (err.includes("invalid") || err.includes("api_key")) {
+      throw new Error("Invalid API key. Please check your Egyntronic key in Admin settings.");
     }
     throw new Error("AI service error. Please try again.");
   }
   
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  return data.choices?.[0]?.message?.content || "";
 }

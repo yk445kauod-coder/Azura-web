@@ -222,8 +222,9 @@ export default function Admin() {
     // Orders: handle both old flat format and new per-user nested format
     const ordersRef = ref(db, "orders");
     onValue(ordersRef, (snap) => {
-      if (!snap.exists()) return;
+      if (!snap.exists()) { console.log("No orders found"); return; }
       const data = snap.val() as Record<string, unknown>;
+      console.log("Raw orders data keys:", Object.keys(data));
       const allOrders: Order[] = [];
       Object.entries(data).forEach(([key, val]) => {
         if (!val || typeof val !== "object") return;
@@ -250,7 +251,8 @@ export default function Admin() {
         }
       });
       allOrders.sort((a, b) => b.createdAt - a.createdAt);
-      console.log("Loaded orders:", allOrders.length, allOrders.map(o => ({orderId: o.orderId, userId: o.userId, status: o.status})));
+      console.log("Processed orders:", allOrders.length);
+      allOrders.forEach((o, i) => console.log(`  [${i}] orderId=${o.orderId}, userId=${o.userId}, status=${o.status}`));
       setOrders(allOrders);
     });
 

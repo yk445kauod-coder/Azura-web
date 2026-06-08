@@ -159,7 +159,7 @@ export async function textToSpeech(text: string, lang: string = "en"): Promise<s
     };
     
     const voice = voiceMap[lang] || 'af_bella';
-    const encodedText = encodeURIComponent(text);
+    const encodedText = encodeURIComponent(text.slice(0, 200)); // Limit text length
     const url = `https://api.pollen.store/tts?text=${encodedText}&voice=${voice}&model=chat`;
     
     // Return the URL for audio playback

@@ -172,6 +172,56 @@ export default function Admin() {
   const [posNotes, setPosNotes] = useState("");
   const [posProcessing, setPosProcessing] = useState(false);
 
+  // Homepage Banner settings
+  const [bannerContent, setBannerContent] = useState("");
+  const [bannerBgColor, setBannerBgColor] = useState("#FF6B35");
+  const [bannerTextColor, setBannerTextColor] = useState("#FFFFFF");
+  const [bannerEnabled, setBannerEnabled] = useState(false);
+  const [bannerPreview, setBannerPreview] = useState(false);
+  const [savingBanner, setSavingBanner] = useState(false);
+
+  // Load banner from Firebase
+  useEffect(() => {
+    const bannerRef = ref(db, "homepage-banner");
+    onValue(bannerRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as { content: string; bgColor: string; textColor: string; enabled: boolean };
+        setBannerContent(data.content || "");
+        setBannerBgColor(data.bgColor || "#FF6B35");
+        setBannerTextColor(data.textColor || "#FFFFFF");
+        setBannerEnabled(data.enabled !== false);
+      }
+    });
+    return () => off(ref(db, "homepage-banner"));
+  }, [authed]);
+
+  const saveBanner = async () => {
+    setSavingBanner(true);
+    setBannerPreview(true);
+    try {
+      await set(ref(db, "homepage-banner"), {
+        content: bannerContent,
+        bgColor: bannerBgColor,
+        textColor: bannerTextColor,
+        enabled: bannerEnabled,
+      });
+      setTimeout(() => setBannerPreview(false), 2000);
+    } catch (err) {
+      console.error(err);
+    }
+    setSavingBanner(false);
+  };
+
+  const saveBannerEnabled = async (enabled: boolean) => {
+    setBannerEnabled(enabled);
+    await set(ref(db, "homepage-banner"), {
+      content: bannerContent,
+      bgColor: bannerBgColor,
+      textColor: bannerTextColor,
+      enabled,
+    });
+  };
+
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const inp = "input-field px-3 py-2.5 text-sm";
 
@@ -1150,6 +1200,69 @@ export default function Admin() {
                 className="btn-primary w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                 <Send size={14}/> {sendingBroadcast ? tr("Sending…","جاري الإرسال…") : tr("Send to All Users","أرسل للجميع")}
               </button>
+            </div>
+
+            {/* Homepage Banner Editor */}
+            <div className="card-elevated rounded-2xl p-4 space-y-3">
+              <h3 className="font-bold text-foreground flex items-center gap-2">
+                <Pin size={16} className="text-primary"/> {tr("Homepage Banner","بانر الصفحة الرئيسية")}
+              </h3>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-muted-foreground">{tr("Banner Content (HTML allowed)","محتوى البانر (يدعم HTML)")}</label>
+                <textarea 
+                  rows={3} 
+                  className={`${inp} resize-none font-mono text-xs`} 
+                  placeholder={tr("e.g. 🎉 Happy Hour! 50% off until 8 PM","مثال: 🎉 ساعة سعيدة! خصم 50% حتي 8 مساءً")}
+                  value={bannerContent}
+                  onChange={(e) => setBannerContent(e.target.value)}
+                />
+                <p className="text-[10px] text-muted-foreground">{tr("HTML tags supported: <b>, <strong>, <a href=...>, <br>, <em>","تدعم: <b>, <strong>, <a href=...>, <br>, <em>")}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground">{tr("Background Color","لون الخلفية")}</label>
+                  <input 
+                    type="color" 
+                    value={bannerBgColor}
+                    onChange={(e) => setBannerBgColor(e.target.value)}
+                    className="w-full h-10 rounded-lg cursor-pointer"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground">{tr("Text Color","لون النص")}</label>
+                  <input 
+                    type="color" 
+                    value={bannerTextColor}
+                    onChange={(e) => setBannerTextColor(e.target.value)}
+                    className="w-full h-10 rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold">{tr("Enable","تفعيل")}</span>
+                  <button
+                    onClick={() => saveBannerEnabled(!bannerEnabled)}
+                    className={`w-12 h-6 rounded-full relative transition-colors ${bannerEnabled ? "bg-green-500" : "bg-muted"}`}
+                  >
+                    <div className={`w-5 h-5 rounded-full bg-white shadow-sm absolute top-0.5 transition-all ${bannerEnabled ? "translate-x-6" : "translate-x-0.5"}`}/>
+                  </button>
+                </div>
+                <button 
+                  onClick={saveBanner}
+                  disabled={savingBanner}
+                  className="btn-primary py-2 px-4 rounded-xl text-sm font-bold flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Save size={14}/> {tr("Save Banner","حفظ البانر")}
+                </button>
+              </div>
+              {bannerPreview && (
+                <div 
+                  className="p-3 rounded-xl text-center text-sm font-semibold"
+                  style={{ background: bannerBgColor, color: bannerTextColor }}
+                  dangerouslySetInnerHTML={{ __html: bannerContent }}
+                />
+              )}
             </div>
 
             {/* Past broadcasts */}

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBarista } from "@/contexts/BaristaContext";
-import { Globe, Coffee, Sparkles } from "lucide-react";
+import { db, ref, onValue, off } from "@/lib/firebase";
+import { Globe, Coffee, Sparkles, X } from "lucide-react";
 import { type Lang } from "@/lib/i18n";
 
 type Screen = "intro" | "main" | "guest" | "login" | "register";
@@ -32,6 +33,22 @@ export default function Welcome() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
+  
+  // Homepage Banner
+  const [banner, setBanner] = useState<{ content: string; bgColor: string; textColor: string; enabled: boolean } | null>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // Load banner from Firebase
+  useEffect(() => {
+    const bannerRef = ref(db, "homepage-banner");
+    onValue(bannerRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as { content: string; bgColor: string; textColor: string; enabled: boolean };
+        if (data.enabled) setBanner(data);
+      }
+    });
+    return () => off(bannerRef);
+  }, []);
 
   // Show intro for 2.2s then slide to main
   useEffect(() => {
@@ -168,6 +185,25 @@ export default function Welcome() {
           </button>
         ))}
       </div>
+
+      {/* Homepage Banner */}
+      {banner && !bannerDismissed && (
+        <div 
+          className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between"
+          style={{ background: banner.bgColor || "#FF6B35", color: banner.textColor || "#fff" }}
+        >
+          <div 
+            className="flex-1 text-center text-sm font-semibold"
+            dangerouslySetInnerHTML={{ __html: banner.content }}
+          />
+          <button 
+            onClick={() => setBannerDismissed(true)}
+            className="ml-3 p-1 hover:opacity-70 transition-opacity"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {/* ── MAIN ── */}
       {screen === "main" && (

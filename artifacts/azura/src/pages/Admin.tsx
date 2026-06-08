@@ -1551,7 +1551,7 @@ export default function Admin() {
           <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
         )}
         {tab === "pos" && (
-          <POSTab tr={tr} db={db} ref={ref} set={set} push={push} menuItems={menuItems} posSettings={posSettings} posCart={posCart} posTable={posTable} posNotes={posNotes} posProcessing={posProcessing} setPosSettings={setPosSettings} setPosCart={setPosCart} setPosTable={setPosTable} setPosNotes={setPosNotes} setPosProcessing={setPosProcessing} />
+          <POSTab tr={tr} lang={lang} db={db} ref={ref} set={set} push={push} menuItems={menuItems} posSettings={posSettings} posCart={posCart} posTable={posTable} posNotes={posNotes} posProcessing={posProcessing} setPosSettings={setPosSettings} setPosCart={setPosCart} setPosTable={setPosTable} setPosNotes={setPosNotes} setPosProcessing={setPosProcessing} />
         )}
       </div>
     </div>
@@ -1607,7 +1607,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
       const snapshot: Record<string, any> = {};
       
       // Collect all data
-      const paths = ["menu", "orders", "users", "staff", "ai-config", "api-settings", "broadcasts", "reels", "feedback", "suggestions"];
+      const paths = ["menu", "orders", "users", "staff", "ai-config", "api-settings", "broadcast", "reels", "feedback", "suggestions", "pos-settings", "homepage-banner"];
       for (const path of paths) {
         const snap = await get(ref(db, path));
         if (snap.exists()) snapshot[path] = snap.val();
@@ -1671,7 +1671,11 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
       await createBackup();
 
       // Clear all data paths
-      const paths = ["menu", "orders", "users", "staff", "ai-config", "api-settings", "broadcasts", "reels", "feedback", "suggestions", "conversations", "notifications"];
+      const paths = [
+        "menu", "orders", "users", "staff", "ai-config", "api-settings", 
+        "broadcast", "reels", "feedback", "suggestions", "conversations", 
+        "notifications", "pos-settings", "homepage-banner", "backups"
+      ];
       for (const path of paths) {
         await remove(ref(db, path));
       }
@@ -1831,8 +1835,9 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
   );
 }
 // POS Tab Component
-function POSTab({ tr, db, ref, set, push, menuItems, posSettings, posCart, posTable, posNotes, posProcessing, setPosSettings, setPosCart, setPosTable, setPosNotes, setPosProcessing }: {
+function POSTab({ tr, lang, db, ref, set, push, menuItems, posSettings, posCart, posTable, posNotes, posProcessing, setPosSettings, setPosCart, setPosTable, setPosNotes, setPosProcessing }: {
   tr: (en: string, ar: string) => string;
+  lang: "en" | "ar";
   db: any; ref: any; set: any; push: any;
   menuItems: MenuItem[];
   posSettings: { enabled: boolean; maxTables: number };

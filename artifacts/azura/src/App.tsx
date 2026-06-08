@@ -15,8 +15,9 @@ import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
 import Suggest from "@/pages/Suggest";
 import NotFound from "@/pages/not-found";
+import TipOverlay from "@/components/TipOverlay";
 import { seedMenuIfEmpty } from "@/lib/firebase";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +30,16 @@ const queryClient = new QueryClient({
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const [showTip, setShowTip] = useState(false);
   useEffect(() => { seedMenuIfEmpty().catch(() => {}); }, []);
+  
+  // Show tip overlay for new users who haven't seen it
+  useEffect(() => {
+    if (user && !localStorage.getItem("azura_tip_seen")) {
+      const timer = setTimeout(() => setShowTip(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -49,28 +59,31 @@ function AppRoutes() {
   }
 
   return (
-    <Switch>
-      <Route path="/admin" component={Admin} />
-      {!user ? (
-        <Route component={Welcome} />
-      ) : (
-        <Route>
-          <Layout>
-            <Switch>
-              <Route path="/" component={Menu} />
-              <Route path="/menu" component={Menu} />
-              <Route path="/barista" component={AIBarista} />
-              <Route path="/cart" component={Cart} />
-              <Route path="/orders" component={Orders} />
-              <Route path="/reels" component={Reels} />
-              <Route path="/suggest" component={Suggest} />
-              <Route path="/profile" component={Profile} />
-              <Route component={NotFound} />
-            </Switch>
-          </Layout>
-        </Route>
-      )}
-    </Switch>
+    <>
+      <Switch>
+        <Route path="/admin" component={Admin} />
+        {!user ? (
+          <Route component={Welcome} />
+        ) : (
+          <Route>
+            <Layout>
+              <Switch>
+                <Route path="/" component={Menu} />
+                <Route path="/menu" component={Menu} />
+                <Route path="/barista" component={AIBarista} />
+                <Route path="/cart" component={Cart} />
+                <Route path="/orders" component={Orders} />
+                <Route path="/reels" component={Reels} />
+                <Route path="/suggest" component={Suggest} />
+                <Route path="/profile" component={Profile} />
+                <Route component={NotFound} />
+              </Switch>
+            </Layout>
+          </Route>
+        )}
+      </Switch>
+      {showTip && <TipOverlay onComplete={() => setShowTip(false)} />}
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, push, set } from "@/lib/firebase";
-import { Lightbulb, AlertTriangle, Send, CheckCircle, ImageIcon, Upload } from "lucide-react";
+import { Lightbulb, AlertTriangle, Send, CheckCircle, Upload, Sparkles, MessageSquare } from "lucide-react";
 import { compressToBase64 } from "@/lib/imageUtils";
 
 export default function Suggest() {
@@ -20,11 +20,11 @@ export default function Suggest() {
   const [reportDesc, setReportDesc] = useState("");
 
   const categories = [
-    { id: "coffee", en: "Coffee ☕", ar: "قهوة ☕" },
-    { id: "desserts", en: "Desserts 🍰", ar: "حلويات 🍰" },
-    { id: "beverages", en: "Beverages 🧃", ar: "مشروبات 🧃" },
-    { id: "food", en: "Food 🍔", ar: "طعام 🍔" },
-    { id: "snacks", en: "Snacks 🍿", ar: "مقبلات 🍿" },
+    { id: "coffee", en: "Coffee", ar: "قهوة", icon: "☕" },
+    { id: "desserts", en: "Desserts", ar: "حلويات", icon: "🍰" },
+    { id: "beverages", en: "Beverages", ar: "مشروبات", icon: "🧃" },
+    { id: "food", en: "Food", ar: "طعام", icon: "🍔" },
+    { id: "snacks", en: "Snacks", ar: "مقبلات", icon: "🍿" },
   ];
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,24 +97,26 @@ export default function Suggest() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4" dir={isRTL ? "rtl" : "ltr"}>
-        <div className="card-elevated rounded-2xl p-8 text-center max-w-sm w-full space-y-4">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle size={32} className="text-green-600" />
+        <div className="card-elevated rounded-3xl p-8 text-center max-w-sm w-full space-y-5">
+          <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+            <CheckCircle size={40} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">
-            {type === "suggest" 
-              ? tr("Thank you for your suggestion!", "شكراً على اقتراحك!")
-              : tr("Thank you for your report!", "شكراً على بلاغك!")
-            }
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            {type === "suggest"
-              ? tr("We'll review your suggestion and add it if possible.", "سنراجع اقتراحك ونضيفه إن أمكن.")
-              : tr("We'll look into this issue and fix it.", "سنتحقق من هذه المشكلة ونصلحها.")
-            }
-          </p>
-          <button onClick={resetForm} className="btn-primary w-full py-3 rounded-xl">
-            {tr("Submit Another", "إرسال آخر")}
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-foreground">
+              {type === "suggest" 
+                ? tr("Got it! 🎉", "تم接收! 🎉")
+                : tr("Got it! 📋", "تم接收! 📋")
+              }
+            </h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {type === "suggest"
+                ? tr("Your idea is with our team. We'll consider adding it to the menu!", "فكرتك عند فريقنا. هندرس اضافتها للقائمة!")
+                : tr("We'll take a look and fix it as soon as possible.", "هنشوف المشكلة ونصلحها بأسرع وقت.")
+              }
+            </p>
+          </div>
+          <button onClick={resetForm} className="btn-primary w-full py-3.5 rounded-xl font-semibold">
+            {tr("Share another idea", "شارك فكرة تانية")}
           </button>
         </div>
       </div>
@@ -122,141 +124,149 @@ export default function Suggest() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-background pb-24" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8 rounded-b-3xl">
-        <h1 className="text-2xl font-bold">{tr("Suggest & Report","اقترح وأبلغ")}</h1>
-        <p className="text-primary-foreground/80 text-sm mt-1">{tr("Help us improve your experience","ساعدنا في تحسين تجربتك")}</p>
+      <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white p-6 pb-16">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur">
+            <Sparkles size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{tr("Your Ideas","أفكارك")}</h1>
+            <p className="text-white/80 text-sm mt-0.5">{tr("Suggest items or report issues","اقترح عناصر أو ابلغ عن مشاكل")}</p>
+          </div>
+        </div>
       </div>
 
-      {/* Type Toggle */}
-      <div className="px-4 -mt-4">
-        <div className="card rounded-2xl p-2 flex gap-2">
+      {/* Type Toggle - Floating Card */}
+      <div className="px-4 -mt-10">
+        <div className="card-elevated rounded-2xl p-1.5 flex shadow-xl">
           <button
             onClick={() => setType("suggest")}
-            className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-all ${
-              type === "suggest" ? "btn-primary" : "bg-muted text-muted-foreground"
+            className={`flex-1 py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 font-semibold transition-all ${
+              type === "suggest" 
+                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
-            <Lightbulb size={18} /> {tr("Suggest Item","اقترح عنصر")}
+            <Lightbulb size={18} /> 
+            <span className="text-sm">{tr("Suggest","اقترح")}</span>
           </button>
           <button
             onClick={() => setType("report")}
-            className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-all ${
-              type === "report" ? "btn-primary" : "bg-muted text-muted-foreground"
+            className={`flex-1 py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 font-semibold transition-all ${
+              type === "report" 
+                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
-            <AlertTriangle size={18} /> {tr("Report Issue","أبلغ عن مشكلة")}
+            <MessageSquare size={18} /> 
+            <span className="text-sm">{tr("Feedback","رأي")}</span>
           </button>
         </div>
       </div>
 
       {/* Form */}
-      <div className="px-4 mt-4 space-y-4">
+      <div className="px-4 mt-6 space-y-5">
         {type === "suggest" ? (
           <>
-            {/* Item Name */}
-            <div className="card-elevated rounded-2xl p-4 space-y-3">
-              <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Lightbulb size={18} className="text-primary" /> {tr("What would you like to see?","ماذا تحب تشوف؟")}
-              </h3>
+            {/* Suggest Form */}
+            <div className="card-elevated rounded-2xl p-5 space-y-5">
+              <div className="flex items-center gap-2 text-amber-600">
+                <Sparkles size={18} />
+                <span className="font-semibold text-sm">{tr("What would you like to see on our menu?","إيه اللي تحب تشوفه في قائمتنا؟")}</span>
+              </div>
               
-              <div className="space-y-2">
-                <label className="text-sm font-semibold">{tr("Item Name (English)","اسم العنصر (إنجليزي)")}</label>
-                <input
-                  type="text"
-                  className="input-field px-4 py-3 w-full"
-                  placeholder={tr("e.g. Nutella Frappuccino","مثال: نوتيلا فرابتشينو")}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold">{tr("Item Name (Arabic)","اسم العنصر (عربي)")}</label>
-                <input
-                  type="text"
-                  className="input-field px-4 py-3 w-full"
-                  placeholder={tr("مثال: نوتيلا فرابتشينو","مثال: نوتيلا فرابتشينو")}
-                  value={nameAr}
-                  onChange={(e) => setNameAr(e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold">{tr("Category","الفئة")}</label>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setCategory(cat.id)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                        category === cat.id 
-                          ? "bg-primary text-primary-foreground" 
-                          : "bg-muted text-muted-foreground hover:bg-primary/10"
-                      }`}
-                    >
-                      {lang === "ar" ? cat.ar : cat.en}
-                    </button>
-                  ))}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{tr("Item Name","اسم العنصر")}</label>
+                  <input
+                    type="text"
+                    className="input-field px-4 py-3.5 w-full rounded-xl text-base"
+                    placeholder={tr("What do you have in mind?","إيه اللي في بالك؟")}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-semibold">{tr("Description (optional)","الوصف (اختياري)")}</label>
-                <textarea
-                  className="input-field px-4 py-3 w-full min-h-[80px] resize-none"
-                  placeholder={tr("Describe the item...","صف العنصر...")}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold">{tr("Image (optional)","الصورة (اختياري)")}</label>
-                {image ? (
-                  <div className="relative w-full h-32 rounded-xl overflow-hidden">
-                    <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                    <button 
-                      onClick={() => setImage("")}
-                      className="absolute top-2 right-2 btn-icon w-8 h-8 bg-destructive text-white"
-                    >
-                      ✕
-                    </button>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{tr("Category","الفئة")}</label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setCategory(cat.id)}
+                        className={`py-3 rounded-xl text-center transition-all ${
+                          category === cat.id 
+                            ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md" 
+                            : "bg-muted text-muted-foreground hover:bg-amber-100"
+                        }`}
+                      >
+                        <span className="text-lg">{cat.icon}</span>
+                      </button>
+                    ))}
                   </div>
-                ) : (
-                  <label className="border-2 border-dashed border-muted rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors block">
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                    <Upload size={24} className="mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground">
-                      {uploading ? tr("Uploading...", "جاري الرفع...") : tr("Click to upload image", "انقر لرفع صورة")}
-                    </p>
-                  </label>
-                )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{tr("Details (optional)","التفاصيل (اختياري)")}</label>
+                  <textarea
+                    className="input-field px-4 py-3 w-full min-h-[70px] resize-none rounded-xl"
+                    placeholder={tr("Describe it! Size, taste, ingredients...","صفه! الحجم، الطعم، المكونات...")}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{tr("Picture (optional)","صورة (اختياري)")}</label>
+                  {image ? (
+                    <div className="relative w-full h-28 rounded-xl overflow-hidden border-2 border-amber-200">
+                      <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => setImage("")}
+                        className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed border-amber-200 rounded-xl p-5 text-center cursor-pointer hover:border-amber-400 hover:bg-amber-50/50 transition-all block">
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                      <Upload size={22} className="mx-auto text-amber-400 mb-2" />
+                      <p className="text-xs text-muted-foreground">
+                        {uploading ? tr("Compressing...","جاري الضغط...") : tr("Add a photo of the item","ضيف صورة للعنصر")}
+                      </p>
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
           </>
         ) : (
           <>
-            {/* Report Issue */}
-            <div className="card-elevated rounded-2xl p-4 space-y-3">
-              <h3 className="font-bold text-foreground flex items-center gap-2">
-                <AlertTriangle size={18} className="text-destructive" /> {tr("What's the issue?","إيه المشكلة؟")}
-              </h3>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-semibold">{tr("Describe the problem","صف المشكلة")}</label>
-                <textarea
-                  className="input-field px-4 py-3 w-full min-h-[120px] resize-none"
-                  placeholder={tr("e.g. The wifi isn't working, or there's a missing item from the menu...","مثال: الواي فاي مش شغاله، أو فيه عنصر ناقص من القائمة...")}
-                  value={reportDesc}
-                  onChange={(e) => setReportDesc(e.target.value)}
-                />
+            {/* Report/Feedback Form */}
+            <div className="card-elevated rounded-2xl p-5 space-y-5">
+              <div className="flex items-center gap-2 text-amber-600">
+                <MessageSquare size={18} />
+                <span className="font-semibold text-sm">{tr("Tell us what's on your mind","قولنا إيه اللي في بالك")}</span>
               </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{tr("Your Feedback","رأييك")}</label>
+                  <textarea
+                    className="input-field px-4 py-3.5 w-full min-h-[140px] resize-none rounded-xl text-base"
+                    placeholder={tr("Missing something? Wrong price? Slow service? Just tell us!","في حاجة ناقصة؟ سعر غلط؟ خدمة بطيئة؟ قولنا بس!")}
+                    value={reportDesc}
+                    onChange={(e) => setReportDesc(e.target.value)}
+                  />
+                </div>
 
-              <div className="bg-amber-50 rounded-xl p-3 text-sm text-amber-800">
-                <p>💡 {tr("Common issues: missing items, wrong prices, technical problems, slow service.","المشاكل الشائعة: عناصر ناقصة، أسعار غلط، مشاكل تقنية، خدمة بطيئة.")}</p>
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 text-sm text-amber-800 space-y-1">
+                  <p className="font-semibold">💡 {tr("We read every message!","بنقرأ كل رسالة!")}</p>
+                  <p className="text-amber-700/80 text-xs">{tr("From missing items to wrong prices, we want to know.","من عناصر ناقصة لحد أسعار غلط، عايزين نعرف.")}</p>
+                </div>
               </div>
             </div>
           </>
@@ -266,13 +276,17 @@ export default function Suggest() {
         <button
           onClick={handleSubmit}
           disabled={submitting || (type === "suggest" && !name.trim()) || (type === "report" && !reportDesc.trim())}
-          className="btn-primary w-full py-4 rounded-xl text-base font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
         >
           {submitting ? (
-            <>{tr("Sending...","جاري الإرسال...")}</>
+            <>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
+              {tr("Sending...","جاري الإرسال...")}
+            </>
           ) : (
             <>
-              <Send size={18} /> {tr("Submit","إرسال")}
+              <Send size={18} /> 
+              {type === "suggest" ? tr("Send Suggestion","ابعت الاقتراح") : tr("Send Feedback","ابعت الراي")}
             </>
           )}
         </button>

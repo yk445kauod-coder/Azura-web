@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
-import { db, ref, onValue, off, push, set } from "@/lib/firebase";
+import { db, ref, onValue, off, push, set, update } from "@/lib/firebase";
 import { Link } from "wouter";
-import { Package, Star, X } from "lucide-react";
+import { Package, Star, X, Clock } from "lucide-react";
 
 interface OrderItem {
   id: string; name: string; nameAr: string;
@@ -22,6 +22,13 @@ const STATUS_META: Record<string, { en: string; ar: string; emoji: string; cls: 
   ready:     { en: "Ready! 🎉", ar: "جاهز! 🎉",    emoji: "✅", cls: "status-ready"     },
   delivered: { en: "Delivered", ar: "اتسلم",        emoji: "🎊", cls: "status-delivered" },
   cancelled: { en: "Cancelled", ar: "اتلغى",        emoji: "❌", cls: "status-cancelled" },
+};
+
+// Can cancel if order is pending and within 5 minutes
+const canCancelOrder = (order: Order) => {
+  if (order.status !== "pending") return false;
+  const minutesPassed = (Date.now() - order.createdAt) / (1000 * 60);
+  return minutesPassed <= 5;
 };
 
 function FeedbackModal({ orderId, onClose, lang, userName, userId }: { orderId: string; onClose: () => void; lang: "en" | "ar"; userName: string; userId: string }) {
@@ -88,7 +95,23 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedbackOrder, setFeedbackOrder] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<string | null>(null);
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
+
+  const cancelOrder = async (order: Order) => {
+    if (!user) return;
+    const minsLeft = Math.ceil(5 - (Date.now() - order.createdAt) / (1000 * 60));
+    if (!confirm(tr(`Cancel this order? You have ${minsLeft} minute(s) left.`, `إلغاء الطلب؟ باقي ${minsLeft} دقيقة.`))) return;
+    
+    setCancelling(order.orderId);
+    try {
+      await update(ref(db, `orders/${user.uid}/${order.orderId}`), { status: "cancelled" });
+    } catch (err) {
+      console.error(err);
+      alert(tr("Failed to cancel", "فشل في الإلغاء"));
+    }
+    setCancelling(null);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -132,6 +155,8 @@ export default function Orders() {
       <div className="space-y-3">
         {orders.map((order) => {
           const sm = STATUS_META[order.status];
+          const cancelable = canCancelOrder(order);
+          const minsLeft = cancelable ? Math.ceil(5 - (Date.now() - order.createdAt) / (1000 * 60)) : 0;
           return (
             <details key={order.orderId} className="card rounded-2xl overflow-hidden group">
               <summary className="p-4 flex items-center gap-3 cursor-pointer list-none select-none">
@@ -159,11 +184,23 @@ export default function Orders() {
                 {order.notes && <p className="text-xs italic text-muted-foreground">📝 {order.notes}</p>}
                 <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid rgba(93,62,35,0.07)" }}>
                   <span className="font-bold text-foreground">{tr("Total","الإجمالي")}: <span className="text-primary">{order.total} {tr("EGP","ج.م")}</span></span>
-                  {order.status === "delivered" && (
-                    <button onClick={() => setFeedbackOrder(order.orderId)} className="flex items-center gap-1 text-xs font-bold text-yellow-600 hover:text-yellow-700 transition-colors">
-                      <Star size={13} className="fill-yellow-400 text-yellow-400" /> {tr("Rate","قيّم")}
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {cancelable && (
+                      <button 
+                        onClick={() => cancelOrder(order)}
+                        disabled={cancelling === order.orderId}
+                        className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-600 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
+                      >
+                        <Clock size={12} />
+                        {cancelling === order.orderId ? tr("Cancelling...","جاري الإلغاء...") : tr(`Cancel (${minsLeft}m)`,`إلغاء (${minsLeft}د)`)}
+                      </button>
+                    )}
+                    {order.status === "delivered" && (
+                      <button onClick={() => setFeedbackOrder(order.orderId)} className="flex items-center gap-1 text-xs font-bold text-yellow-600 hover:text-yellow-700 transition-colors">
+                        <Star size={13} className="fill-yellow-400 text-yellow-400" /> {tr("Rate","قيّم")}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </details>

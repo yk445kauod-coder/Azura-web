@@ -13,6 +13,7 @@ const NAV = [
   { path: "/cart",    emoji: "🛒", label: { en: "Cart",    ar: "سلتي"     }, cart: true },
   { path: "/orders",  emoji: "📋", label: { en: "Orders",  ar: "طلباتي"   } },
   { path: "/reels",   emoji: "🎬", label: { en: "Reels",   ar: "ريلز"     } },
+  { path: "/suggest", emoji: "💡", label: { en: "Suggest", ar: "اقترح"    } },
   { path: "/profile", emoji: "👤", label: { en: "Profile", ar: "حسابي"    } },
 ];
 

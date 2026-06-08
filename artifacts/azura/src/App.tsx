@@ -13,6 +13,7 @@ import Profile from "@/pages/Profile";
 import Orders from "@/pages/Orders";
 import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
+import Suggest from "@/pages/Suggest";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty } from "@/lib/firebase";
 import { useEffect } from "react";
@@ -62,6 +63,7 @@ function AppRoutes() {
               <Route path="/cart" component={Cart} />
               <Route path="/orders" component={Orders} />
               <Route path="/reels" component={Reels} />
+              <Route path="/suggest" component={Suggest} />
               <Route path="/profile" component={Profile} />
               <Route component={NotFound} />
             </Switch>

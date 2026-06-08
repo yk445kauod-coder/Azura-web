@@ -21,6 +21,12 @@ import {
   update,
   remove,
 } from "firebase/database";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBr0a3R8wTSJ3qAPEuRRDosP7seMZK6iPQ",
@@ -69,9 +75,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const authInstance = getAuth(app);
 const dbInstance = getDatabase(app);
+const storageInstance = getStorage(app);
 
 export const auth = authInstance;
 export const db = dbInstance;
+export const storage = storageInstance;
 export const googleProvider = new GoogleAuthProvider();
 
 // Ensure db is always defined
@@ -94,6 +102,9 @@ export {
   off,
   update,
   remove,
+  storageRef,
+  uploadBytes,
+  getDownloadURL,
 };
 
 export type { User };

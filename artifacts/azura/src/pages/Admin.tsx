@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { db, ref, onValue, off, update, set, push, remove, get } from "@/lib/firebase";
+import { db, ref, onValue, off, update, set, push, remove, get, storage, storageRef, uploadBytes, getDownloadURL } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
@@ -10,6 +10,7 @@ import {
   Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Trash, Edit3, Save,
+  Video,
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
@@ -139,7 +140,8 @@ export default function Admin() {
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
   // Reels form
-  const [newReel, setNewReel] = useState({ image: "", caption: "", captionAr: "" });
+  const [newReel, setNewReel] = useState({ image: "", caption: "", captionAr: "", mediaType: "image" as "image" | "video", videoUrl: "" });
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Orders filter
   const [orderFilter, setOrderFilter] = useState("all");
@@ -355,8 +357,10 @@ export default function Admin() {
       likes: 0,
       createdAt: Date.now(),
       authorName: "Admin",
+      mediaType: newReel.mediaType,
+      videoUrl: newReel.videoUrl || "",
     });
-    setNewReel({ image: "", caption: "", captionAr: "" });
+    setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" });
     setUploading(false);
   };
   const togglePin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
@@ -1059,52 +1063,125 @@ export default function Admin() {
               </h3>
               
               <div className="space-y-3">
-                {/* Image URL Input */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">{tr("Image URL","رابط الصورة")}</label>
-                  <input
-                    type="text"
-                    className={inp}
-                    placeholder={tr("Paste image URL or upload below","الصق رابط الصورة أو ارفع من الأسفل")}
-                    value={newReel.image}
-                    onChange={(e) => setNewReel({ ...newReel, image: e.target.value })}
-                  />
+                {/* Media Type Toggle */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setNewReel({ ...newReel, mediaType: 'image' })}
+                    className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-colors ${newReel.mediaType === 'image' ? 'btn-primary' : 'bg-muted'}`}
+                  >
+                    <ImageIcon size={16} className="inline mr-1"/> {tr("Image","صورة")}
+                  </button>
+                  <button
+                    onClick={() => setNewReel({ ...newReel, mediaType: 'video' })}
+                    className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-colors ${newReel.mediaType === 'video' ? 'btn-primary' : 'bg-muted'}`}
+                  >
+                    <Video size={16} className="inline mr-1"/> {tr("Video","فيديو")}
+                  </button>
                 </div>
 
                 {/* Image Upload */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">{tr("Or Upload Image","أو ارفع صورة")}</label>
-                  <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      id="reel-upload"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setUploading(true);
-                        try {
-                          const base64 = await compressToBase64(file);
-                          setNewReel({ ...newReel, image: base64 });
-                        } catch (err) {
-                          console.error(err);
-                          alert(tr("Failed to upload image", "فشل في رفع الصورة"));
-                        }
-                        setUploading(false);
-                      }}
-                    />
-                    <label htmlFor="reel-upload" className="cursor-pointer">
-                      <ImageIcon size={24} className="mx-auto text-muted-foreground mb-2"/>
-                      <p className="text-xs text-muted-foreground">
-                        {uploading ? tr("Uploading...", "جاري الرفع...") : tr("Click to upload image", "انقر لرفع صورة")}
-                      </p>
-                      {newReel.image && newReel.image.startsWith("data:") && (
-                        <img src={newReel.image} className="w-16 h-16 object-cover rounded-lg mx-auto mt-2"/>
-                      )}
-                    </label>
+                {newReel.mediaType === 'image' && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold">{tr("Image URL","رابط الصورة")}</label>
+                      <input
+                        type="text"
+                        className={inp}
+                        placeholder={tr("Paste image URL or upload below","الصق رابط الصورة أو ارفع من الأسفل")}
+                        value={newReel.image}
+                        onChange={(e) => setNewReel({ ...newReel, image: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold">{tr("Or Upload Image","أو ارفع صورة")}</label>
+                      <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          id="reel-upload"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setUploading(true);
+                            try {
+                              const base64 = await compressToBase64(file);
+                              setNewReel({ ...newReel, image: base64 });
+                            } catch (err) {
+                              console.error(err);
+                              alert(tr("Failed to upload image", "فشل في رفع الصورة"));
+                            }
+                            setUploading(false);
+                          }}
+                        />
+                        <label htmlFor="reel-upload" className="cursor-pointer">
+                          <ImageIcon size={24} className="mx-auto text-muted-foreground mb-2"/>
+                          <p className="text-xs text-muted-foreground">
+                            {uploading ? tr("Uploading...", "جاري الرفع...") : tr("Click to upload image", "انقر لرفع صورة")}
+                          </p>
+                          {newReel.image && newReel.image.startsWith("data:") && (
+                            <img src={newReel.image} className="w-16 h-16 object-cover rounded-lg mx-auto mt-2"/>
+                          )}
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Video Upload */}
+                {newReel.mediaType === 'video' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">{tr("Upload Video (stored in Firebase)","ارفع فيديو (مخزن في Firebase)")}</label>
+                    <div className="border-2 border-dashed border-muted rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        id="reel-video-upload"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          
+                          // Check file size (limit to 50MB for Firebase)
+                          if (file.size > 50 * 1024 * 1024) {
+                            alert(tr("Video too large. Max 50MB.", "الفيديو كبير جداً. الحد الأقصى 50 ميجابايت."));
+                            return;
+                          }
+                          
+                          setUploading(true);
+                          setUploadProgress(0);
+                          
+                          try {
+                            // Upload to Firebase Storage
+                            const fileName = `reels/${Date.now()}_${file.name}`;
+                            const fileRef = storageRef(storage, fileName);
+                            
+                            // For progress tracking, we need to use a different approach
+                            const snapshot = await uploadBytes(fileRef, file);
+                            const downloadURL = await getDownloadURL(snapshot.ref);
+                            
+                            setNewReel({ ...newReel, videoUrl: downloadURL, image: downloadURL }); // Use video URL as image for preview
+                            setUploadProgress(100);
+                          } catch (err) {
+                            console.error(err);
+                            alert(tr("Failed to upload video", "فشل في رفع الفيديو"));
+                          }
+                          setUploading(false);
+                        }}
+                      />
+                      <label htmlFor="reel-video-upload" className="cursor-pointer">
+                        <Video size={24} className="mx-auto text-muted-foreground mb-2"/>
+                        <p className="text-xs text-muted-foreground">
+                          {uploading ? `${tr("Uploading...", "جاري الرفع...")} ${uploadProgress}%` : tr("Click to upload video (max 50MB)", "انقر لرفع فيديو (حد أقصى 50 ميجابايت)")}
+                        </p>
+                        {newReel.videoUrl && (
+                          <video src={newReel.videoUrl} className="w-24 h-24 object-cover rounded-lg mx-auto mt-2" controls />
+                        )}
+                      </label>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* English Caption */}
                 <div className="space-y-2">

@@ -1,12 +1,10 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useBarista } from "@/contexts/BaristaContext";
-import { useTTS } from "@/hooks/useTTS";
-import { useSTT } from "@/hooks/useSTT";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
-import { Send, Mic, MicOff, Volume2, VolumeX, Plus, RefreshCw } from "lucide-react";
+import { Send, Plus, RefreshCw } from "lucide-react";
 
 interface Message {
   id: string;
@@ -43,8 +41,6 @@ export default function AIBarista() {
   const { addItem } = useCart();
   const { baristaName, baristaAvatar, persona } = useBarista();
 
-  const { enabled: ttsEnabled, toggle: toggleTTS, speak, speaking, setApiKey: setTtsApiKey } = useTTS(lang, persona);
-
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,11 +53,6 @@ export default function AIBarista() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Update TTS API key when it changes
-  useEffect(() => {
-    setTtsApiKey(geminiKey);
-  }, [geminiKey, setTtsApiKey]);
-
   // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {
     const apiRef = ref(db, "api-settings");
@@ -73,13 +64,10 @@ export default function AIBarista() {
         if (!storedKey) {
           setGeminiKey("");
         } else {
-          // Try to decrypt - if fails, use as-is
           const decrypted = decryptKey(storedKey);
-          // Validate the key
           if (decrypted && isValidApiKey(decrypted)) {
             setGeminiKey(decrypted);
           } else if (isValidApiKey(storedKey)) {
-            // Plain text key
             setGeminiKey(storedKey);
           } else {
             console.error("Invalid API key format");
@@ -91,11 +79,6 @@ export default function AIBarista() {
     });
     return () => unsubscribe();
   }, []);
-
-  const handleSTTResult = useCallback((text: string) => {
-    setInput((prev) => prev ? `${prev} ${text}` : text);
-  }, []);
-  const { listening, supported: sttSupported, start: startSTT, stop: stopSTT } = useSTT(lang, handleSTTResult);
 
   // Load menu items
   useEffect(() => {
@@ -138,8 +121,7 @@ export default function AIBarista() {
       : `Hi! I'm ${baristaName}, your barista at Azura! ☕ What can I get you today?`;
     setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
     setGreeted(true);
-    if (ttsEnabled) setTimeout(() => speak(greeting), 600);
-  }, [menuItems.length, lang, greeted]);
+  }, [menuItems.length, lang, greeted, baristaName]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -151,7 +133,6 @@ export default function AIBarista() {
   };
 
   const parseMessage = (raw: string) => {
-    // 1. Extract SUGGEST tag if present
     const m = raw.match(/\[SUGGEST:([^:\]]+)(?::(\d+))?\]/);
     let suggestedItem: MenuItem | undefined;
     let text = raw;
@@ -160,11 +141,8 @@ export default function AIBarista() {
       suggestedItem = menuItems.find((i) => i.id === itemId);
       text = raw.replace(m[0], "");
     }
-    // 2. Strip ALL remaining [TAG:...] internal markers
     text = text.replace(/\[[A-Z_]+:[^\]]*\]/g, "");
-    // 3. Strip any accidental markdown code fences or JSON leakage
     text = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "");
-    // 4. Collapse multiple blank lines
     text = text.replace(/\n{3,}/g, "\n\n").trim();
     return { text, suggestedItem };
   };
@@ -214,7 +192,6 @@ export default function AIBarista() {
         } : undefined,
       };
       setMessages((p) => [...p, aiMsg]);
-      if (ttsEnabled) speak(parsed);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : 'Unknown error';
       const err: Message = {
@@ -250,14 +227,9 @@ export default function AIBarista() {
               {lang === "ar" ? "باريستا أزورا · متصل الآن" : "Azura Barista · Online"}
             </p>
           </div>
-          <div className="flex gap-1.5">
-            <button onClick={toggleTTS} className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
-              {ttsEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
-            </button>
-            <button onClick={() => { setMessages([]); setGreeted(false); }} className="btn-icon w-8 h-8 text-muted-foreground hover:text-foreground">
-              <RefreshCw size={13} />
-            </button>
-          </div>
+          <button onClick={() => { setMessages([]); setGreeted(false); }} className="btn-icon w-8 h-8 text-muted-foreground hover:text-foreground">
+            <RefreshCw size={13} />
+          </button>
         </div>
       </div>
 
@@ -334,19 +306,6 @@ export default function AIBarista() {
       {/* Input */}
       <div className="px-4 pb-3 pt-2 flex-shrink-0">
         <div className="card rounded-2xl flex items-end gap-2 p-2">
-          {sttSupported && (
-            <button
-              onPointerDown={startSTT}
-              onPointerUp={stopSTT}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
-                listening
-                  ? "bg-red-500 text-white"
-                  : "btn-ghost text-muted-foreground hover:text-primary"
-              }`}
-            >
-              {listening ? <MicOff size={16} /> : <Mic size={16} />}
-            </button>
-          )}
           <textarea
             ref={inputRef}
             rows={1}
@@ -372,11 +331,6 @@ export default function AIBarista() {
             <Send size={15} />
           </button>
         </div>
-        {speaking && (
-          <p className="text-center text-[10px] text-muted-foreground mt-1">
-            🔊 {lang === "ar" ? "جاري الكلام..." : "Speaking..."}
-          </p>
-        )}
       </div>
     </div>
   );

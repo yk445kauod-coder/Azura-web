@@ -85,35 +85,3 @@ export async function chatWithAI(
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
-
-// ── TTS (Text-to-Speech) ─────────────────────────────────────
-export async function textToSpeech(apiKey: string, text: string): Promise<string> {
-  // Use Gemini 2.0 Flash Experimental for TTS
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
-  
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{ text: `Speak this clearly: ${text}` }]
-      }],
-      generationConfig: {
-        responseModalities: ["TEXT", "AUDIO"]
-      }
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("TTS API error:", err);
-    throw new Error("TTS service error");
-  }
-  
-  const data = await res.json();
-  const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  
-  if (!audioData) throw new Error("No audio generated");
-  
-  return audioData;
-}

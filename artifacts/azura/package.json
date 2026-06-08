@@ -71,8 +71,6 @@
     "zod": "^3.25.76"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "firebase": "^12.14.0",
-    "markdown-it": "^14.2.0"
+    "firebase": "^12.14.0"
   }
 }

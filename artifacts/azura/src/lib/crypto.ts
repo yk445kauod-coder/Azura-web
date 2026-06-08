@@ -79,7 +79,16 @@ export async function chatWithAI(
   if (!res.ok) {
     const err = await res.text();
     console.error("Gemini API error:", err);
-    throw new Error("AI service error");
+    
+    // Check for quota errors
+    if (err.includes("429") || err.includes("RESOURCE_EXHAUSTED") || err.includes("quota")) {
+      throw new Error("API quota exceeded. Please try again later or add a new API key in Admin settings.");
+    }
+    // Check for invalid key
+    if (err.includes("API_KEY_INVALID") || err.includes("Bad Request")) {
+      throw new Error("Invalid API key. Please check your Gemini API key in Admin settings.");
+    }
+    throw new Error("AI service error. Please try again.");
   }
   
   const data = await res.json();

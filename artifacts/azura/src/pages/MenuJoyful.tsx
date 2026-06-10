@@ -157,20 +157,19 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
   return (
     <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
-      {/* Full Background Image - Super Blurred & VERY Dark */}
+      {/* Full Background Image - Clear & Visible */}
       {hasValidImage ? (
         <div className="absolute inset-0">
-          {/* Blurred background - MUCH darker */}
+          {/* Clear image background */}
           <img 
             src={item.image} 
             alt="" 
-            className="w-full h-full object-cover blur-3xl scale-140 brightness-[0.08] sepia-[0.3] hue-rotate-[10deg]"
+            className="w-full h-full object-cover"
             onError={() => setImageError(true)}
           />
-          {/* Heavy dark gradients for eye comfort */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-black/80" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />
+          {/* Subtle dark gradient only at edges for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
         </div>
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>
@@ -473,16 +472,16 @@ export default function Menu() {
         </div>
       </div>
 
-      {/* Custom Bottom Nav - Pure White Glass */}
+      {/* Custom Bottom Nav - Liquid Glass Effect */}
       <nav className="fixed bottom-0 inset-x-0 z-50 px-2 pb-2">
         <div 
           className="mx-3 rounded-2xl overflow-hidden"
           style={{ 
-            background: "rgba(255,255,255,0.95)",
-            backdropFilter: "blur(24px) saturate(200%)",
-            WebkitBackdropFilter: "blur(24px) saturate(200%)",
-            boxShadow: "0 -8px 40px rgba(0,0,0,0.2), 0 -4px 16px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,1)",
-            border: "0.5px solid rgba(255,255,255,0.9)"
+            background: "rgba(255,255,255,0.40)",
+            backdropFilter: "blur(32px) saturate(250%)",
+            WebkitBackdropFilter: "blur(32px) saturate(250%)",
+            boxShadow: "0 -12px 60px rgba(0,0,0,0.25), 0 -6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.05)",
+            border: "1px solid rgba(255,255,255,0.60)"
           }}
         >
           <div className="flex items-center justify-around py-2 px-1">

@@ -471,7 +471,7 @@ export default function Menu() {
         ref={scrollRef}
         onScroll={handleScroll}
         className="h-full w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
-        style={{ paddingTop: "180px", paddingBottom: "100px" }}
+        style={{ paddingTop: "180px", paddingBottom: "40px" }}
       >
         {displayedItems.length === 0 && filteredItems.length === 0 ? (
           <div className="h-screen flex items-center justify-center">
@@ -516,54 +516,6 @@ export default function Menu() {
           <span className="text-white/60 text-[10px]">{displayedItems.length}/{filteredItems.length}</span>
         </div>
       </div>
-
-      {/* Custom Bottom Nav - Liquid Glass Effect */}
-      <nav className="fixed bottom-0 inset-x-0 z-50 px-2 pb-2">
-        <div 
-          className="mx-3 rounded-2xl overflow-hidden"
-          style={{ 
-            background: "rgba(255,255,255,0.40)",
-            backdropFilter: "blur(32px) saturate(250%)",
-            WebkitBackdropFilter: "blur(32px) saturate(250%)",
-            boxShadow: "0 -12px 60px rgba(0,0,0,0.25), 0 -6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.05)",
-            border: "1px solid rgba(255,255,255,0.60)"
-          }}
-        >
-          <div className="flex items-center justify-around py-2 px-1">
-            <Link href="/barista">
-              <button className="flex flex-col items-center gap-1 px-4 py-2">
-                <Sparkles size={22} className="text-gray-500" />
-                <span className="text-[10px] font-medium text-gray-500">{lang === "ar" ? "المساعد" : "AI"}</span>
-              </button>
-            </Link>
-            <Link href="/menu">
-              <button className="flex flex-col items-center gap-1 px-4 py-2">
-                <div className="p-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg">
-                  <Home size={20} className="text-white" />
-                </div>
-                <span className="text-[10px] font-bold text-pink-600">{lang === "ar" ? "القائمة" : "Menu"}</span>
-              </button>
-            </Link>
-            <Link href="/cart">
-              <button className="flex flex-col items-center gap-1 px-4 py-2 relative">
-                <ShoppingCart size={22} className="text-gray-500" />
-                <span className="text-[10px] font-medium text-gray-500">{lang === "ar" ? "السلة" : "Cart"}</span>
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 right-2 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white bg-red-500">
-                    {totalItems > 99 ? "99+" : totalItems}
-                  </span>
-                )}
-              </button>
-            </Link>
-            <Link href="/orders">
-              <button className="flex flex-col items-center gap-1 px-4 py-2">
-                <ClipboardList size={22} className="text-gray-500" />
-                <span className="text-[10px] font-medium text-gray-500">{lang === "ar" ? "الطلبات" : "Orders"}</span>
-              </button>
-            </Link>
-          </div>
-        </div>
-      </nav>
     </div>
   );
 }

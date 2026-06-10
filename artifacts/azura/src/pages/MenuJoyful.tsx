@@ -184,16 +184,26 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-6">
-        {/* Greeting */}
-        <div className="text-center mb-2">
-          <p className="text-white/80 text-sm font-medium animate-pulse">{greeting(lang)}</p>
+        {/* Header with Greeting + Add Button */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-left">
+            <p className="text-white/60 text-xs">{greeting(lang)}</p>
+          </div>
+          
+          {/* Add Button in Header */}
+          <JoyfulButton 
+            onAdd={() => onAdd(item)} 
+            justAdded={added} 
+            inCart={inCart} 
+            qty={qty}
+          />
         </div>
 
         {/* Category Badge */}
         <div className="flex justify-center mb-4">
           <span className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-md text-white text-sm font-bold flex items-center gap-2 shadow-lg">
             <span className="text-xl">{theme.emoji}</span>
-            {CATS.find(c => c.id === item.category)?.emoji} {lang === "ar" ? CATS.find(c => c.id === item.category)?.ar : CATS.find(c => c.id === item.category)?.en}
+            {lang === "ar" ? CATS.find(c => c.id === item.category)?.ar : CATS.find(c => c.id === item.category)?.en}
           </span>
         </div>
 
@@ -238,7 +248,7 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
         </div>
 
         {/* Price Tag */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <div className="relative">
             <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl blur-md opacity-75" />
             <div className="relative bg-gradient-to-r from-yellow-400 to-orange-500 px-8 py-3 rounded-2xl shadow-xl">
@@ -248,18 +258,8 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
           </div>
         </div>
 
-        {/* Add Button */}
-        <div className="flex justify-center pb-8">
-          <JoyfulButton 
-            onAdd={() => onAdd(item)} 
-            justAdded={added} 
-            inCart={inCart} 
-            qty={qty}
-          />
-        </div>
-
         {/* Swipe hint */}
-        <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center text-white/50">
+        <div className="flex flex-col items-center text-white/50 mb-4">
           <div className="animate-bounce">
             <ChevronDown size={28} />
           </div>

@@ -38,17 +38,17 @@ const CATS = [
   { id: "shisha", emoji: "💨", en: "Shisha", ar: "شيشة" },
 ];
 
-const CAT_THEMES: Record<string, { bg: string; accent: string; emoji: string; particle: string }> = {
-  food:       { bg: "from-orange-500 via-amber-500 to-yellow-500", accent: "text-orange-600", emoji: "🍽️", particle: "✨" },
-  sandwiches: { bg: "from-pink-500 via-rose-500 to-red-500", accent: "text-pink-600", emoji: "🥪", particle: "💕" },
-  mains:      { bg: "from-emerald-500 via-green-500 to-teal-500", accent: "text-emerald-600", emoji: "🍖", particle: "🌟" },
-  burgers:    { bg: "from-yellow-500 via-amber-500 to-orange-500", accent: "text-yellow-600", emoji: "🍔", particle: "🔥" },
-  hot_drinks: { bg: "from-amber-600 via-orange-500 to-red-500", accent: "text-amber-600", emoji: "☕", particle: "💫" },
-  cold_drinks:{ bg: "from-cyan-500 via-blue-500 to-indigo-500", accent: "text-cyan-600", emoji: "🧊", particle: "❄️" },
-  fresh:      { bg: "from-lime-500 via-green-500 to-emerald-500", accent: "text-lime-600", emoji: "🍹", particle: "🌿" },
-  milkshake:  { bg: "from-pink-400 via-fuchsia-500 to-purple-500", accent: "text-pink-500", emoji: "🥛", particle: "🩷" },
-  desserts:   { bg: "from-violet-500 via-purple-500 to-fuchsia-500", accent: "text-violet-600", emoji: "🍰", particle: "💜" },
-  shisha:     { bg: "from-indigo-500 via-purple-500 to-pink-500", accent: "text-indigo-600", emoji: "💨", particle: "🌬️" },
+const CAT_THEMES: Record<string, { emoji: string; particle: string }> = {
+  food:       { emoji: "🍽️", particle: "✨" },
+  sandwiches: { emoji: "🥪", particle: "💕" },
+  mains:      { emoji: "🍖", particle: "🌟" },
+  burgers:    { emoji: "🍔", particle: "🔥" },
+  hot_drinks: { emoji: "☕", particle: "💫" },
+  cold_drinks:{ emoji: "🧊", particle: "❄️" },
+  fresh:      { emoji: "🍹", particle: "🌿" },
+  milkshake:  { emoji: "🥛", particle: "🩷" },
+  desserts:   { emoji: "🍰", particle: "💜" },
+  shisha:     { emoji: "💨", particle: "🌬️" },
 };
 
 function StarRating({ item }: { item: MenuItem }) {
@@ -97,20 +97,11 @@ function HeroAddButton({ onAdd, justAdded, inCart, qty }: {
   );
 }
 
-// Cinematic Placeholder with Item Name
-function CinematicPlaceholder({ name, category }: { name: string; category: string }) {
-  const theme = CAT_THEMES[category] || CAT_THEMES.food;
+// Dark Simple Placeholder
+function CinematicPlaceholder({ name }: { name: string; category: string }) {
   return (
-    <div className={`w-full h-full bg-gradient-to-br ${theme.bg} flex items-center justify-center relative overflow-hidden`}>
-      {/* Cinematic name display */}
-      <div className="text-center z-10">
-        <p className="text-white/90 text-2xl font-bold drop-shadow-lg" style={{ textShadow: "0 4px 20px rgba(0,0,0,0.8)" }}>
-          {name}
-        </p>
-        <p className="text-white/60 text-sm mt-2">{theme.emoji}</p>
-      </div>
-      {/* Animated shimmer effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+    <div className="w-full h-full bg-black flex items-center justify-center">
+      <p className="text-gray-500 text-lg font-medium">{name}</p>
     </div>
   );
 }
@@ -142,7 +133,7 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-transparent" />
         </div>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="absolute inset-0 bg-black">
           <CinematicPlaceholder name={name} category={item.category} />
         </div>
       )}
@@ -169,8 +160,8 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
                 </div>
               </div>
             ) : (
-              <div className="w-56 h-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
-                <CinematicPlaceholder name={name} category={item.category} />
+              <div className="w-56 h-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 bg-black flex items-center justify-center">
+                <p className="text-gray-500 text-base font-medium">{name}</p>
               </div>
             )}
           </div>

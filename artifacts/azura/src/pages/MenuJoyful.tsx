@@ -78,54 +78,6 @@ function Particles() {
   );
 }
 
-// Joyful Add Button - Fixed
-function JoyfulButton({ onAdd, justAdded, inCart, qty }: {
-  onAdd: () => void; justAdded: boolean; inCart: boolean; qty: number;
-}) {
-  // Button shows check when justAdded (just clicked), otherwise shows plus
-  // If in cart with qty > 1, show quantity badge next to button
-  const showCheck = justAdded;
-  
-  return (
-    <div className="flex items-center gap-3">
-      {/* Quantity Badge - shown separately when in cart */}
-      {inCart && qty > 1 && !justAdded && (
-        <div className="bg-white/20 backdrop-blur-md rounded-full px-4 py-2 shadow-lg">
-          <span className="text-white font-bold">{qty}x</span>
-        </div>
-      )}
-      
-      {/* Main Add Button */}
-      <button
-        onClick={onAdd}
-        className={`relative w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
-          showCheck
-            ? "bg-gradient-to-r from-green-400 to-emerald-500 scale-110 shadow-green-500/50" 
-            : inCart 
-              ? "bg-gradient-to-r from-amber-400 to-yellow-500 scale-105 shadow-amber-500/50"
-              : "bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-110 active:scale-95 shadow-purple-500/50 hover:shadow-2xl"
-        }`}
-      >
-        {showCheck ? (
-          <Check size={28} strokeWidth={3} className="text-white" />
-        ) : (
-          <Plus size={28} strokeWidth={2.5} className="text-white" />
-        )}
-        
-        {/* Pulse ring on click */}
-        {showCheck && (
-          <div className="absolute inset-0 rounded-full bg-green-400/40 animate-ping" />
-        )}
-      </button>
-      
-      {/* In Cart indicator - small dot */}
-      {inCart && !showCheck && (
-        <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
-      )}
-    </div>
-  );
-}
-
 function greeting(lang: "en" | "ar") {
   const h = new Date().getHours();
   if (h < 12) return lang === "ar" ? "صباح الخير ☀️" : "Good Morning ☀️";
@@ -153,7 +105,39 @@ function StarRating({ item }: { item: MenuItem }) {
   );
 }
 
-// Joyful Item Card
+// Hero Add Button - Big & Prominent
+function HeroAddButton({ onAdd, justAdded, inCart, qty }: {
+  onAdd: () => void; justAdded: boolean; inCart: boolean; qty: number;
+}) {
+  const baseClasses = "w-full py-4 px-8 rounded-2xl font-bold text-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl";
+  
+  if (justAdded) {
+    return (
+      <button onClick={onAdd} className={`${baseClasses} bg-gradient-to-r from-green-500 to-emerald-600 text-white scale-105`}>
+        <Check size={28} strokeWidth={3} />
+        <span>Added to Cart!</span>
+      </button>
+    );
+  }
+  
+  if (inCart) {
+    return (
+      <button onClick={onAdd} className={`${baseClasses} bg-gradient-to-r from-amber-500 to-orange-500 text-white`}>
+        <Plus size={24} />
+        <span>Add Another ({qty} in cart)</span>
+      </button>
+    );
+  }
+  
+  return (
+    <button onClick={onAdd} className={`${baseClasses} bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 text-white hover:scale-[1.02] active:scale-[0.98] shadow-pink-500/50 hover:shadow-pink-500/70`}>
+      <Plus size={28} />
+      <span>Add to Cart</span>
+    </button>
+  );
+}
+
+// Joyful Item Card - Reel Style
 function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
   item: MenuItem; lang: "en" | "ar";
   onAdd: (item: MenuItem) => void;
@@ -169,78 +153,65 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
   return (
     <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
-      {/* Full Background Image with Blur & Shading */}
+      {/* Full Background Image - Super Blurred & Dark */}
       {item.image ? (
         <div className="absolute inset-0">
           {/* Blurred background */}
           <img 
             src={item.image} 
             alt="" 
-            className="w-full h-full object-cover blur-2xl scale-125 brightness-50 sepia-10 hue-rotate-10" 
+            className="w-full h-full object-cover blur-3xl scale-130 brightness-30" 
           />
-          {/* Gradient overlays for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+          {/* Multiple dark gradients for eye comfort */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
         </div>
       ) : (
-        /* Fallback gradient if no image */
         <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>
           <Particles />
         </div>
       )}
 
-      {/* Content */}
+      {/* Content - Centered Layout */}
       <div className="relative z-10 flex flex-col h-full p-6">
-        {/* Header with Greeting + Add Button */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-left">
-            <p className="text-white/60 text-xs">{greeting(lang)}</p>
-          </div>
-          
-          {/* Add Button in Header */}
-          <JoyfulButton 
-            onAdd={() => onAdd(item)} 
-            justAdded={added} 
-            inCart={inCart} 
-            qty={qty}
-          />
-        </div>
-
-        {/* Category Badge */}
+        {/* Top Bar - Category */}
         <div className="flex justify-center mb-4">
-          <span className="px-4 py-2 rounded-full bg-white/15 backdrop-blur-md text-white text-sm font-bold flex items-center gap-2 shadow-lg border border-white/10">
+          <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-sm font-bold flex items-center gap-2 shadow-lg">
             <span className="text-xl">{theme.emoji}</span>
             {lang === "ar" ? CATS.find(c => c.id === item.category)?.ar : CATS.find(c => c.id === item.category)?.en}
           </span>
         </div>
 
-        {/* Main Image - smaller and centered below */}
-        <div className="flex-1 flex items-center justify-center py-4">
+        {/* Main Image - Hero Size */}
+        <div className="flex-1 flex items-center justify-center">
           <div className="relative">
             {item.image ? (
-              <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform hover:scale-105 transition-transform duration-500">
+              <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
                 <img src={item.image} alt={name} className="w-full h-full object-cover" />
                 
-                {/* Overlay for depth */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 
-                {/* Category emoji badge */}
-                <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl shadow-lg border-2 border-white">
-                  {theme.emoji}
+                {/* Emoji badge on image */}
+                <div className="absolute -bottom-3 -right-3 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl shadow-xl border-4 border-white">
+                  {theme.particle}
                 </div>
               </div>
             ) : (
-              <div className="w-56 h-56 md:w-64 md:h-64 rounded-3xl bg-white/15 backdrop-blur-md flex items-center justify-center border-4 border-white/20">
-                <span className="text-7xl">{theme.emoji}</span>
+              <div className="w-72 h-72 md:w-80 md:h-80 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center border-4 border-white/20">
+                <span className="text-8xl">{theme.emoji}</span>
               </div>
             )}
+            
+            {/* Glowing ring behind image */}
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-xl -z-10" />
           </div>
         </div>
 
         {/* Item Info */}
         <div className="text-center mb-4 space-y-2">
-          <h2 className="text-white text-3xl font-bold drop-shadow-lg" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="text-white text-4xl font-bold drop-shadow-lg" style={{ fontFamily: "Georgia, serif" }}>
             {name}
           </h2>
           
@@ -248,27 +219,34 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
           <StarRating item={item} />
           
           {desc && (
-            <p className="text-white/70 text-sm max-w-xs mx-auto">{desc}</p>
+            <p className="text-white/60 text-sm max-w-xs mx-auto">{desc}</p>
           )}
         </div>
 
-        {/* Price Tag */}
-        <div className="flex justify-center mb-6">
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl blur-md opacity-75" />
-            <div className="relative bg-gradient-to-r from-yellow-400 to-orange-500 px-8 py-3 rounded-2xl shadow-xl">
-              <span className="text-white text-4xl font-bold drop-shadow-lg">{item.price}</span>
-              <span className="text-white/90 text-xl ml-2 font-bold">LE</span>
-            </div>
+        {/* Price */}
+        <div className="flex justify-center mb-4">
+          <div className="bg-gradient-to-r from-yellow-400 to-amber-500 px-8 py-2 rounded-full shadow-lg">
+            <span className="text-white text-3xl font-bold">{item.price}</span>
+            <span className="text-white/80 text-lg ml-2 font-bold">LE</span>
           </div>
         </div>
 
+        {/* HERO Add Button - Big at bottom */}
+        <div className="mb-4">
+          <HeroAddButton 
+            onAdd={() => onAdd(item)} 
+            justAdded={added} 
+            inCart={inCart} 
+            qty={qty}
+          />
+        </div>
+
         {/* Swipe hint */}
-        <div className="flex flex-col items-center text-white/40">
+        <div className="flex flex-col items-center text-white/30">
           <div className="animate-bounce">
             <ChevronDown size={24} />
           </div>
-          <span className="text-xs mt-1 font-medium">Swipe for more 🎉</span>
+          <span className="text-xs mt-1">Swipe for more</span>
         </div>
       </div>
     </div>

@@ -10,13 +10,6 @@
         "name"
       ]
     },
-    "menu_by_category": {
-      ".read": true,
-      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
-      ".indexOn": [
-        "$value"
-      ]
-    },
     "reels": {
       ".read": true,
       ".write": "auth != null && root.child('admins').child(auth.uid).exists()",

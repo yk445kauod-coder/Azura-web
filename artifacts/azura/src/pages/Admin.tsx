@@ -1009,11 +1009,18 @@ export default function Admin() {
                     </div>
                   ) : (
                     <div className="p-3 space-y-2">
-                      <label className="flex items-center justify-center gap-2 cursor-pointer rounded-lg py-3 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-muted/30 transition-colors">
-                        <Upload size={16}/>
-                        {uploading ? tr("Compressing…","جاري الضغط…") : tr("Upload & Compress","رفع وضغط")}
-                        <input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }}/>
-                      </label>
+                      <div className="flex gap-2">
+                        <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer rounded-lg py-2.5 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-muted/30 transition-colors border border-dashed border-border">
+                          <Upload size={14}/>
+                          {uploading ? "..." : "Upload"}
+                          <input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }}/>
+                        </label>
+                        <input 
+                          className="flex-1 px-3 py-2 rounded-lg text-xs border border-border bg-background"
+                          placeholder="Or paste URL"
+                          onChange={(e) => setNewItem((p) => ({...p, image: e.target.value}))}
+                        />
+                      </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <hr className="flex-1 border-border"/> <span>{tr("or sample","أو نموذج")}</span> <hr className="flex-1 border-border"/>
                       </div>
@@ -1074,13 +1081,52 @@ export default function Admin() {
                           onChange={(e) => setEditingItem({ ...editingItem, price: Number(e.target.value) })}
                           placeholder="Price"
                         />
-                        <input
+                        <select
                           className={inp}
-                          value={editingItem.image}
-                          onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
-                          placeholder="Image URL"
-                        />
+                          value={editingItem.category}
+                          onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                        >
+                          {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
                       </div>
+                      
+                      {/* Image Section */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground">{tr("Image", "الصورة")}</label>
+                        {editingItem.image && (
+                          <div className="relative rounded-lg overflow-hidden">
+                            <img src={editingItem.image} alt="preview" className="w-full h-24 object-cover" onError={(e) => { (e.target as HTMLImageElement).src = ""; }} />
+                            <button 
+                              onClick={() => setEditingItem({ ...editingItem, image: "" })} 
+                              className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <input
+                            className={`${inp} flex-1`}
+                            value={editingItem.image}
+                            onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
+                            placeholder="Or paste image URL here"
+                          />
+                          <label className="btn-secondary px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1 text-sm">
+                            <Upload size={14} />
+                            <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              try {
+                                const base64 = await compressToBase64(file);
+                                const kbSize = Math.round(base64.length * 0.75 / 1024);
+                                setEditingItem({ ...editingItem, image: base64 });
+                                alert(`Image: ${kbSize} KB (${kbSize > 200 ? '⚠️ Large' : '✓ OK'})`);
+                              } catch (err) { alert("Failed to compress image"); }
+                            }} />
+                          </label>
+                        </div>
+                      </div>
+                      
                       <textarea
                         className={`${inp} min-h-[50px] resize-none`}
                         value={editingItem.description}

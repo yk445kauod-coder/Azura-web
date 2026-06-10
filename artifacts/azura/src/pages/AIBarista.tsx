@@ -191,14 +191,14 @@ export default function AIBarista() {
     return () => { off(ref(db, "menu")); off(ref(db, "ai-config")); };
   }, [lang]);
 
-  // Initial greeting
+  // Initial greeting (don't auto-speak - wait for user interaction)
   useEffect(() => {
     if (menuItems.length === 0 || greeted) return;
     const greeting = `Hi! I'm ${baristaName}! What can I get for you today? I can help you order multiple items - just tell me what you'd like!`;
     setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
     setGreeted(true);
-    setTimeout(() => speak(greeting), 800);
-  }, [menuItems.length, lang, greeted, baristaName, speak]);
+    // Don't auto-speak on greeting - TTS requires user interaction
+  }, [menuItems.length, lang, greeted, baristaName]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 

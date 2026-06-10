@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { fullMenuData } from "./fullMenu";
 import {
   getAuth,
   signInAnonymously,
@@ -101,53 +102,8 @@ export async function seedMenuIfEmpty() {
   const snap = await get(menuRef);
   if (snap.exists()) return;
 
-  const menuData = {
-    coffee: {
-      "espresso": { name: "Espresso", nameAr: "إسبريسو", description: "Rich & bold single shot", descriptionAr: "شوت إسبريسو غني وقوي", price: 35, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&q=80" },
-      "cappuccino": { name: "Cappuccino", nameAr: "كابتشينو", description: "Espresso with steamed milk foam", descriptionAr: "إسبريسو مع رغوة الحليب", price: 65, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&q=80" },
-      "latte": { name: "Latte", nameAr: "لاتيه", description: "Smooth espresso with steamed milk", descriptionAr: "إسبريسو ناعم مع الحليب", price: 70, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1561882468-9110d70d8f4d?w=400&q=80" },
-      "turkish": { name: "Turkish Coffee", nameAr: "قهوة تركية", description: "Traditional Egyptian-style coffee", descriptionAr: "قهوة على الطريقة المصرية التقليدية", price: 40, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1578374173713-b8e700b4f5f9?w=400&q=80" },
-      "cold-brew": { name: "Cold Brew", nameAr: "كولد برو", description: "Slow-steeped cold coffee", descriptionAr: "قهوة باردة تُنقع ببطء", price: 75, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=80" },
-      "mocha": { name: "Mocha", nameAr: "موكا", description: "Chocolate espresso delight", descriptionAr: "إسبريسو بالشوكولاتة اللذيذة", price: 75, category: "coffee", available: true, image: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4f?w=400&q=80" },
-    },
-    beverages: {
-      "matcha": { name: "Matcha Latte", nameAr: "ماتشا لاتيه", description: "Japanese green tea with milk", descriptionAr: "شاي أخضر ياباني مع الحليب", price: 80, category: "beverages", available: true, image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&q=80" },
-      "hibiscus": { name: "Hibiscus Tea", nameAr: "كركديه", description: "Egyptian rose-hip iced tea", descriptionAr: "كركديه مصري مثلج", price: 45, category: "beverages", available: true, image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80" },
-      "mint-tea": { name: "Mint Tea", nameAr: "شاي بالنعناع", description: "Fresh mint herbal infusion", descriptionAr: "نقيع نعناع طازج", price: 40, category: "beverages", available: true, image: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=400&q=80" },
-      "fresh-juice": { name: "Fresh Orange Juice", nameAr: "عصير برتقال طازج", description: "Freshly squeezed orange", descriptionAr: "برتقال معصور طازج", price: 60, category: "beverages", available: true, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80" },
-    },
-    food: {
-      "croissant": { name: "Butter Croissant", nameAr: "كروسان زبدة", description: "Flaky, buttery French pastry", descriptionAr: "معجنات فرنسية هشة بالزبدة", price: 55, category: "food", available: true, image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&q=80" },
-      "avocado-toast": { name: "Avocado Toast", nameAr: "توست أفوكادو", description: "Sourdough with smashed avocado", descriptionAr: "خبز بالحامض مع الأفوكادو المهروس", price: 95, category: "food", available: true, image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=400&q=80" },
-      "eggs-benedict": { name: "Eggs Benedict", nameAr: "بيض بنديكت", description: "Poached eggs with hollandaise", descriptionAr: "بيض مسلوق مع صوص هولنديز", price: 110, category: "food", available: true, image: "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=400&q=80" },
-      "club-sandwich": { name: "Club Sandwich", nameAr: "كلوب سندوتش", description: "Classic triple decker sandwich", descriptionAr: "ساندوتش كلاسيكي ثلاثي الطوابق", price: 120, category: "food", available: true, image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&q=80" },
-    },
-    desserts: {
-      "tiramisu": { name: "Tiramisu", nameAr: "تيراميسو", description: "Classic Italian coffee dessert", descriptionAr: "تيراميسو إيطالي كلاسيكي", price: 85, category: "desserts", available: true, image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&q=80" },
-      "cheesecake": { name: "Cheesecake", nameAr: "تشيزكيك", description: "Creamy New York cheesecake", descriptionAr: "تشيزكيك نيويورك كريمي", price: 90, category: "desserts", available: true, image: "https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=400&q=80" },
-      "kunafa": { name: "Kunafa", nameAr: "كنافة", description: "Traditional Egyptian cheese pastry", descriptionAr: "كنافة مصرية تقليدية", price: 75, category: "desserts", available: true, image: "https://images.unsplash.com/photo-1579888944880-d98341245702?w=400&q=80" },
-      "baklava": { name: "Baklava", nameAr: "بقلاوة", description: "Honey & pistachio layers", descriptionAr: "طبقات العسل والفستق الحلبي", price: 65, category: "desserts", available: true, image: "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=400&q=80" },
-    },
-    shisha: {
-      "double-apple": { name: "Double Apple", nameAr: "تفاحتين", description: "Classic Egyptian shisha with sweet apple flavor", descriptionAr: "شيشة مصرية كلاسيكية بنكهة التفاح الحلو", price: 120, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "grape-mint": { name: "Grape Mint", nameAr: "عنب نعناع", description: "Refreshing grape with cool mint blend", descriptionAr: "عنب منعش مع مزيج النعناع البارد", price: 130, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "mint-tea": { name: "Mint Tea Shisha", nameAr: "شيشة شاي نعناع", description: "Unique mint tea flavor, Egyptian style", descriptionAr: "نكهة شاي النعناع الفريدة على الطريقة المصرية", price: 125, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "lemon-mint": { name: "Lemon Mint", nameAr: "ليمون نعناع", description: "Tangy lemon with refreshing mint", descriptionAr: "ليمون حامض مع نعناع منعش", price: 130, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "watermelon": { name: "Watermelon", nameAr: "بطيخ", description: "Sweet summer watermelon flavor", descriptionAr: "نكهة البطيخ الصيفي الحلو", price: 125, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "mango": { name: "Mango", nameAr: "مانجو", description: "Tropical mango explosion", descriptionAr: "انفجار المانجو الاستوائية", price: 135, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "orange": { name: "Orange", nameAr: "برتقال", description: "Fresh citrus orange flavor", descriptionAr: "نكهة البرتقال الحمضية الطازجة", price: 125, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "berry-mix": { name: "Berry Mix", nameAr: "مزيج التوت", description: "Mixed berries with sweet finish", descriptionAr: "توت مشكل بنهاية حلوة", price: 140, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "gum": { name: "Gum", nameAr: "لبان", description: "Chewing gum flavor with cool sensation", descriptionAr: "نكهة اللبان مع شعور بارد", price: 130, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "chocolate-mint": { name: "Chocolate Mint", nameAr: "شوكولاتة نعناع", description: "Rich chocolate with cool mint", descriptionAr: "شوكولاتة غنية مع نعناع بارد", price: 140, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "vienna": { name: "Vienna", nameAr: "فيينا", description: "Creamy caramel vanilla mix", descriptionAr: "مزيج الكارميل والفانيليا الكريمي", price: 145, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "dessert": { name: "Dessert", nameAr: "ديسرت", description: "Sweet dessert flavor with cream", descriptionAr: "نكهة حلوى حلوة مع الكريمة", price: 140, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "hazelnut": { name: "Hazelnut", nameAr: "هازيلنات", description: "Nutty hazelnut with sweet notes", descriptionAr: "هازيلنت بطعم المكسرات مع لمسة حلوة", price: 135, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "pineapple": { name: "Pineapple", nameAr: "أناناس", description: "Tropical pineapple freshness", descriptionAr: "انتعاش الأناناس الاستوائي", price: 130, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-      "blueberry": { name: "Blueberry", nameAr: "توت أزرق", description: "Sweet blueberry flavor", descriptionAr: "نكهة التوت الأزرق الحلوة", price: 140, category: "shisha", available: true, image: "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=400" },
-    },
-  };
-
-  await set(ref(db, "menu"), menuData);
+  // Use the full menu from db_menu.json
+  await set(ref(db, "menu"), fullMenuData);
 
   const staffData = {
     "ahmed": { name: "Ahmed Hassan", nameAr: "أحمد حسن", role: "Head Barista", roleAr: "كبير الباريستا", bio: "10 years of coffee expertise, champion of Egyptian barista competitions.", bioAr: "10 سنوات من الخبرة في القهوة، بطل مسابقات الباريستا المصرية.", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80" },

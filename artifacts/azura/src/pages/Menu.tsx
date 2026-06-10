@@ -26,20 +26,34 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 }
 
 const CATS = [
-  { id: "all",       emoji: "🍽️", en: "All",      ar: "الكل"      },
-  { id: "coffee",    emoji: "☕",  en: "Coffee",   ar: "قهوة"      },
-  { id: "beverages", emoji: "🧃",  en: "Drinks",   ar: "مشروبات"   },
-  { id: "food",      emoji: "🥗",  en: "Food",     ar: "أكل"       },
-  { id: "desserts",  emoji: "🍰",  en: "Desserts", ar: "حلويات"    },
-  { id: "shisha",    emoji: "💨",  en: "Shisha",   ar: "شيشة"      },
+  { id: "all",        emoji: "🍽️", en: "All",      ar: "الكل"       },
+  { id: "food",       emoji: "🍴",  en: "Food",    ar: "طعام"       },
+  { id: "sandwiches", emoji: "🥪",  en: "Sandwich", ar: "ساندوتش"   },
+  { id: "mains",      emoji: "🍖",  en: "Mains",   ar: "أطباق"      },
+  { id: "burgers",    emoji: "🍔",  en: "Burgers", ar: "برجر"       },
+  { id: "hot_drinks", emoji: "☕",  en: "Hot",     ar: "ساخن"       },
+  { id: "cold_drinks",emoji: "🥤",  en: "Cold",    ar: "بارد"       },
+  { id: "fresh",      emoji: "🍹",  en: "Fresh",    ar: "طازج"       },
+  { id: "milkshake",  emoji: "🥛",  en: "Shakes",   ar: "شيك"        },
+  { id: "desserts",   emoji: "🍰",  en: "Sweets",   ar: "حلويات"     },
+  { id: "extras",     emoji: "➕",  en: "Extras",   ar: "إضافات"     },
+  { id: "drinks",     emoji: "🥤",  en: "Drinks",   ar: "مشروبات"    },
+  { id: "shisha",     emoji: "💨",  en: "Shisha",   ar: "شيشة"       },
 ];
 
 const FALLBACK: Record<string, string> = {
-  coffee:    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80",
-  beverages: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80",
-  food:      "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=500&q=80",
-  desserts:  "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80",
-  shisha:    "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=500",
+  food:       "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=500&q=80",
+  sandwiches: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80",
+  mains:      "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80",
+  burgers:    "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
+  hot_drinks: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80",
+  cold_drinks:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80",
+  fresh:      "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=500&q=80",
+  milkshake:  "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80",
+  desserts:   "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80",
+  extras:     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80",
+  drinks:     "https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=500&q=80",
+  shisha:     "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=500",
 };
 
 const SHISHA_EXAMPLES = [

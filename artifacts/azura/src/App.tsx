@@ -6,7 +6,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { BaristaProvider } from "@/contexts/BaristaContext";
 import Layout from "@/components/Layout";
 import Welcome from "@/pages/Welcome";
-import Menu from "@/pages/Menu";
+import Menu from "@/pages/MenuDeluxe";
 import AIBarista from "@/pages/AIBarista";
 import Cart from "@/pages/Cart";
 import Profile from "@/pages/Profile";

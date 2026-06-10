@@ -940,12 +940,13 @@ export default function Admin() {
         )}
 
         {/* ━━━ MENU ━━━ */}
-        {tab === "menu" && (() => {
-            const itemsWithoutImages = menuItems.filter((i: MenuItem) => !i.image);
-            return (
+        {tab === "menu" && (
           <div className="space-y-3 page-enter">
             {/* Alert for items without images */}
-            {itemsWithoutImages.length > 0 && (
+            {(() => {
+              const itemsWithoutImages = menuItems.filter((i: MenuItem) => !i.image);
+              if (itemsWithoutImages.length === 0) return null;
+              return (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">⚠️</span>
@@ -975,7 +976,8 @@ export default function Admin() {
                   </div>
                 </div>
               </div>
-            )}
+              );
+            })()}
             <button onClick={() => setAdding(!adding)} className="btn-primary w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
               <Plus size={16}/> {tr("Add Menu Item","إضافة عنصر")}
             </button>
@@ -1137,8 +1139,6 @@ export default function Admin() {
               ))}
             </div>
           </div>
-            );
-          })()}
         )}
 
         {/* ━━━ CHAT ━━━ */}

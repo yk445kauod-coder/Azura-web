@@ -940,8 +940,42 @@ export default function Admin() {
         )}
 
         {/* ━━━ MENU ━━━ */}
-        {tab === "menu" && (
+        {tab === "menu" && (() => {
+            const itemsWithoutImages = menuItems.filter((i: MenuItem) => !i.image);
+            return (
           <div className="space-y-3 page-enter">
+            {/* Alert for items without images */}
+            {itemsWithoutImages.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">⚠️</span>
+                  <div className="flex-1">
+                    <p className="font-bold text-amber-800 text-sm">
+                      {itemsWithoutImages.length} items need photos!
+                    </p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      Add images to improve menu appearance. Tap item to edit.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {itemsWithoutImages.slice(0, 5).map((item: MenuItem) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setEditingItem(item)}
+                          className="px-3 py-1 bg-amber-100 hover:bg-amber-200 rounded-full text-xs font-medium text-amber-800 transition-colors"
+                        >
+                          📷 {item.name}
+                        </button>
+                      ))}
+                      {itemsWithoutImages.length > 5 && (
+                        <span className="px-3 py-1 bg-amber-100 rounded-full text-xs text-amber-700">
+                          +{itemsWithoutImages.length - 5} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <button onClick={() => setAdding(!adding)} className="btn-primary w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
               <Plus size={16}/> {tr("Add Menu Item","إضافة عنصر")}
             </button>
@@ -1063,20 +1097,28 @@ export default function Admin() {
                   ) : (
                     /* View Mode */
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-muted relative">
                         {item.image ? (
                           <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xl">{item.category === "coffee" ? "☕" : item.category === "desserts" ? "🍰" : item.category === "beverages" ? "🧃" : item.category === "shisha" ? "💨" : "🥗"}</div>
+                          <div className="w-full h-full flex items-center justify-center bg-black text-white text-xs font-medium p-1 text-center">{item.name.substring(0, 10)}</div>
+                        )}
+                        {!item.image && (
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[8px]">!</span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
                         {item.nameAr && <p className="text-xs text-muted-foreground truncate">{item.nameAr}</p>}
                         <p className="text-xs text-secondary font-bold">{item.price} {tr("EGP","ج.م")}</p>
-                        <span className={`badge px-1.5 py-0.5 text-[10px] mt-0.5 ${item.available ? "status-ready" : "status-cancelled"}`}>
-                          {item.available ? tr("Available","متاح") : tr("Hidden","مخفي")}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`badge px-1.5 py-0.5 text-[10px] ${item.available ? "status-ready" : "status-cancelled"}`}>
+                            {item.available ? tr("Available","متاح") : tr("Hidden","مخفي")}
+                          </span>
+                          {!item.image && (
+                            <span className="badge bg-red-100 text-red-700 px-1.5 py-0.5 text-[10px]">⚠️ No Image</span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
                         <button onClick={() => startEdit(item)} className="btn-icon w-8 h-8 text-primary hover:bg-primary/10">
@@ -1095,6 +1137,8 @@ export default function Admin() {
               ))}
             </div>
           </div>
+            );
+          })()}
         )}
 
         {/* ━━━ CHAT ━━━ */}

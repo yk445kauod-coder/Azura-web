@@ -97,11 +97,11 @@ function HeroAddButton({ onAdd, justAdded, inCart, qty }: {
   );
 }
 
-// Dark Simple Placeholder
+// Dark Placeholder with White Text
 function CinematicPlaceholder({ name }: { name: string; category: string }) {
   return (
     <div className="w-full h-full bg-black flex items-center justify-center">
-      <p className="text-gray-500 text-lg font-medium">{name}</p>
+      <p className="text-white text-base font-medium">{name}</p>
     </div>
   );
 }
@@ -161,7 +161,7 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
               </div>
             ) : (
               <div className="w-56 h-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 bg-black flex items-center justify-center">
-                <p className="text-gray-500 text-base font-medium">{name}</p>
+                <p className="text-white text-base font-medium">{name}</p>
               </div>
             )}
           </div>

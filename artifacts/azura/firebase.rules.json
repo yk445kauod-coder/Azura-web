@@ -3,18 +3,30 @@
     "menu": {
       ".read": true,
       ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
-      ".indexOn": ["category", "available", "price"]
+      ".indexOn": [
+        "category",
+        "available",
+        "price",
+        "name"
+      ]
     },
-    "menu_by_category": {
+    "reels": {
       ".read": true,
-      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".indexOn": [
+        "createdAt",
+        "pinned",
+        "likes"
+      ]
     },
     "orders": {
-      "$orderId": {
-        ".read": "auth != null && (data.child('userId').val() === auth.uid || root.child('admins').child(auth.uid).exists())",
-        ".write": "auth != null"
-      },
-      ".indexOn": ["userId", "status", "createdAt"]
+      ".read": "auth != null && (data.child('userId').val() === auth.uid || root.child('admins').child(auth.uid).exists())",
+      ".write": "auth != null",
+      ".indexOn": [
+        "userId",
+        "status",
+        "createdAt"
+      ]
     },
     "users": {
       "$uid": {
@@ -22,23 +34,37 @@
         ".write": "$uid === auth.uid"
       }
     },
-    "staff": { 
-      ".read": true, 
-      ".write": "root.child('admins').child(auth.uid).exists()" 
+    "broadcast": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).exists()"
     },
-    "ai-config": { 
-      ".read": true, 
-      ".write": "root.child('admins').child(auth.uid).exists()" 
+    "admins": {
+      ".read": "root.child('admins').child(auth.uid).exists()",
+      ".write": false
+    },
+    "support-chat": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('admins').child(auth.uid).exists()",
+        ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists()"
+      }
+    },
+    "suggestions": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "feedback": {
+      ".read": "root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null"
+    },
+    "reelChunks": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).exists()"
     },
     "notifications": {
       "$uid": {
         ".read": "$uid === auth.uid",
-        ".write": "root.child('admins').child(auth.uid).exists() || $uid === auth.uid"
+        ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists()"
       }
-    },
-    "conversations": {
-      "$uid": { ".read": "$uid === auth.uid", ".write": "$uid === auth.uid" }
-    },
-    "admins": { ".read": "root.child('admins').child(auth.uid).exists()", ".write": false }
+    }
   }
 }

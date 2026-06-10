@@ -187,13 +187,13 @@ export default function AIBarista() {
     const menuCtx = menuItems.slice(0, 40)
       .map((i) => `- ${i.name}: ${i.price} EGP [ID:${i.id}] [${i.category}]`)
       .join("\n");
-    return `${systemPrompt || `You are ${baristaName}, a ${persona === "female" ? "female" : "male"} AI barista at Azura Cafe, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and helpful. 
+    return `${systemPrompt || `You are ${baristaName}, an AI barista at Azura Cafe, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and helpful.
 
-You can recommend multiple items at once using [ADD_ITEMS:id1,id2,id3] format. 
-You can suggest combinations using [ADD_ITEMS:item_id1,item_id2].
+You can recommend multiple items at once using [ADD_ALL:id1,id2,id3] format to add all items at once. 
+When suggesting a combo or multiple items user might like, use [ADD_ALL:item_id1,item_id2,item_id3] to add all suggested items together.
 You can help users order anything on the menu.
-When user wants to add items, always use [ADD_ITEMS:...] format with actual item IDs from the menu.
-You can process complex orders like "I'll have a latte and a croissant" - extract both items and add them.
+When user wants to add items, use [ADD_ALL:...] format with actual item IDs from the menu to add all at once.
+You can process complex orders like "I'll have a latte and a croissant" - extract both items and add them using [ADD_ALL:...].
 Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\nMenu:\n${menuCtx}`;
   };
 
@@ -201,9 +201,29 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
     let text = raw;
     let suggestedItems: SuggestedItem[] = [];
     
-    // Check for [ADD_ITEMS:id1,id2,id3] pattern (multiple items)
+    // Check for [ADD_ALL:id1,id2,id3] pattern (add all items at once)
+    const allMatch = text.match(/\[ADD_ALL:([^\]]+)\]/);
+    if (allMatch) {
+      const ids = allMatch[1].split(",").map(id => id.trim());
+      ids.forEach(id => {
+        const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
+        if (item && !suggestedItems.find(s => s.id === item.id)) {
+          suggestedItems.push({
+            id: item.id,
+            name: item.name,
+            nameAr: item.nameAr,
+            price: item.price,
+            image: item.image,
+            category: item.category,
+          });
+        }
+      });
+      text = text.replace(allMatch[0], "");
+    }
+    
+    // Check for [ADD_ITEMS:id1,id2,id3] pattern (multiple items - backwards compat)
     const multiMatch = text.match(/\[ADD_ITEMS:([^\]]+)\]/);
-    if (multiMatch) {
+    if (multiMatch && suggestedItems.length === 0) {
       const ids = multiMatch[1].split(",").map(id => id.trim());
       ids.forEach(id => {
         const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
@@ -306,6 +326,16 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
     clearAddedAnimation(item.id);
   };
 
+  const handleAddAllItems = (items: SuggestedItem[]) => {
+    items.forEach((item, index) => {
+      setTimeout(() => {
+        addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
+        setAddedItems(prev => new Set(prev).add(item.id));
+        clearAddedAnimation(item.id);
+      }, index * 150);
+    });
+  };
+
   const quickPrompts = [
     "What's your best coffee?",
     "Something sweet!",
@@ -379,9 +409,18 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
               {msg.suggestedItems && msg.suggestedItems.length > 0 && (
                 <div className="space-y-2">
                   {msg.suggestedItems.length > 1 && (
-                    <p className="text-xs font-bold text-primary px-1">
-                      Adding {msg.suggestedItems.length} items to your order
-                    </p>
+                    <div className="flex items-center justify-between px-1">
+                      <p className="text-xs font-bold text-primary">
+                        {msg.suggestedItems.length} items suggested
+                      </p>
+                      <button
+                        onClick={() => handleAddAllItems(msg.suggestedItems!)}
+                        className="text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105"
+                        style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
+                      >
+                        <Plus size={12} /> Add All
+                      </button>
+                    </div>
                   )}
                   {msg.suggestedItems.map((item) => {
                     const isAdded = addedItems.has(item.id);
@@ -416,6 +455,11 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
                       </div>
                     );
                   })}
+                  {msg.suggestedItems.length > 1 && (
+                    <p className="text-[10px] text-muted-foreground text-center px-1">
+                      Tap individual items or "Add All" to add everything
+                    </p>
+                  )}
                 </div>
               )}
             </div>

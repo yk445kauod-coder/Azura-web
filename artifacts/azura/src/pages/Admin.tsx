@@ -126,6 +126,17 @@ export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem("azura-admin") === "true");
   const [pinErr, setPinErr] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
+  
+  // Landing page state - only show once per device
+  const [showLanding, setShowLanding] = useState(() => {
+    const shown = localStorage.getItem("azura-admin-landing-shown");
+    return shown !== "true";
+  });
+  
+  const dismissLanding = () => {
+    localStorage.setItem("azura-admin-landing-shown", "true");
+    setShowLanding(false);
+  };
 
   // Data
   const [orders, setOrders]       = useState<Order[]>([]);
@@ -645,6 +656,94 @@ export default function Admin() {
 
       {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-4 pb-8">
+
+        {/* ━━━ AMAZING LANDING PAGE ━━━ */}
+        {showLanding && (
+          <div className="relative overflow-hidden rounded-3xl mb-6" style={{ 
+            background: "linear-gradient(135deg, hsl(35, 80%, 35%) 0%, hsl(25, 80%, 45%) 50%, hsl(15, 70%, 40%) 100%)",
+            boxShadow: "0 20px 60px rgba(93, 62, 35, 0.4)" 
+          }}>
+            {/* Animated background elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-white/10 animate-pulse" />
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/5" style={{ animation: "float 6s ease-in-out infinite" }} />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-white/5" style={{ animation: "pulse 4s ease-in-out infinite" }} />
+            </div>
+            
+            {/* Decorative elements */}
+            <div className="absolute top-4 right-4 text-4xl opacity-20">☕</div>
+            <div className="absolute bottom-4 left-4 text-3xl opacity-20">✨</div>
+            <div className="absolute top-4 left-8 text-2xl opacity-10">🍰</div>
+            
+            <div className="relative p-6 text-white text-center">
+              {/* Welcome Badge */}
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-4">
+                <span className="text-sm">👑</span>
+                <span className="text-xs font-bold">{tr("Welcome, Admin!", "أهلاً يا مدير!")}</span>
+              </div>
+              
+              {/* Main Title */}
+              <h2 className="text-2xl font-extrabold mb-2" style={{ fontFamily: "var(--font-heading)", textShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
+                {tr("Azura Admin Center", "مركز إدارة أزورا")}
+              </h2>
+              <p className="text-white/80 text-sm mb-4">
+                {tr("Complete control at your fingertips", "تحكم كامل بين يديك")}
+              </p>
+              
+              {/* Quick Stats Row */}
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
+                  <p className="text-2xl font-extrabold">{orders.length}</p>
+                  <p className="text-[10px] text-white/70">{tr("Total Orders", "إجمالي الطلبات")}</p>
+                </div>
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
+                  <p className="text-2xl font-extrabold">{menuItems.length}</p>
+                  <p className="text-[10px] text-white/70">{tr("Menu Items", "عناصر القائمة")}</p>
+                </div>
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
+                  <p className="text-2xl font-extrabold">{chats.length}</p>
+                  <p className="text-[10px] text-white/70">{tr("Active Chats", "محادثات نشطة")}</p>
+                </div>
+              </div>
+              
+              {/* Features List */}
+              <div className="text-left bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-5">
+                <p className="text-xs font-bold text-white/60 mb-3 uppercase tracking-wider">{tr("Your Superpowers", "قدراتك الخارقة")}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: "📊", label: tr("Analytics Dashboard", "لوحة التحليلات"), tab: "analytics" },
+                    { icon: "📦", label: tr("Inventory Control", "التحكم بالمخزون"), tab: "inventory" },
+                    { icon: "👥", label: tr("Staff Management", "إدارة الفريق"), tab: "staff" },
+                    { icon: "❤️", label: tr("Customer Insights", "رؤى العملاء"), tab: "customers" },
+                  ].map((f) => (
+                    <button 
+                      key={f.tab}
+                      onClick={() => { setTab(f.tab as Tab); dismissLanding(); }}
+                      className="flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 transition-all"
+                    >
+                      <span className="text-lg">{f.icon}</span>
+                      <span className="text-xs font-semibold text-white">{f.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Dismiss Button */}
+              <button 
+                onClick={dismissLanding}
+                className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl py-3 text-sm font-bold transition-all flex items-center justify-center gap-2"
+              >
+                <span>🚀</span>
+                {tr("Let's Get Started!", "هيا نبدأ!")}
+              </button>
+            </div>
+            
+            {/* Bottom wave decoration */}
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ 
+              background: "linear-gradient(to top, rgba(0,0,0,0.1), transparent)",
+            }} />
+          </div>
+        )}
 
         {/* ━━━ OVERVIEW ━━━ */}
         {tab === "overview" && (

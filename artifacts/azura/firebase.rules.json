@@ -45,6 +45,14 @@
       ".read": true,
       ".write": "root.child('admins').child(auth.uid).exists()"
     },
+    "ai-config": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).exists()"
+    },
+    "api-settings": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).exists()"
+    },
     "admins": {
       ".read": "root.child('admins').child(auth.uid).exists()",
       ".write": false

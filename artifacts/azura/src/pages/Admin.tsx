@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "staff" | "customers";
+type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "customers";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -615,7 +615,7 @@ export default function Admin() {
     { id: "reels",      icon: <Film size={14}/>,          en: "Reels",      ar: "ريلز"       },
     { id: "analytics",  icon: <TrendingUp size={14}/>,    en: "Analytics",  ar: "تحليلات"    },
     { id: "inventory",  icon: <Package size={14}/>,        en: "Inventory",  ar: "المخزون"    },
-    { id: "staff",      icon: <ChefHat size={14}/>,        en: "Staff",      ar: "الفريق"     },
+    
     { id: "customers",  icon: <Package size={14}/>,       en: "Customers",  ar: "العملاء"     },
     { id: "api",        icon: <Key size={14}/>,           en: "Egytronic",  ar: "إيچترونيك" },
     { id: "system",     icon: <Settings size={14}/>,      en: "System",     ar: "النظام"     },
@@ -713,7 +713,7 @@ export default function Admin() {
                   {[
                     { icon: "📊", label: tr("Analytics Dashboard", "لوحة التحليلات"), tab: "analytics" },
                     { icon: "📦", label: tr("Inventory Control", "التحكم بالمخزون"), tab: "inventory" },
-                    { icon: "👥", label: tr("Staff Management", "إدارة الفريق"), tab: "staff" },
+                    
                     { icon: "❤️", label: tr("Customer Insights", "رؤى العملاء"), tab: "customers" },
                   ].map((f) => (
                     <button 
@@ -1905,11 +1905,6 @@ export default function Admin() {
           <InventoryTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} />
         )}
 
-        {/* ━━━ STAFF TAB ━━━ */}
-        {tab === "staff" && (
-          <StaffTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
-        )}
-
         {/* ━━━ CUSTOMERS TAB ━━━ */}
         {tab === "customers" && (
           <CustomersTab orders={orders} tr={tr} />
@@ -1954,7 +1949,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
       const snapshot: Record<string, any> = {};
       
       // Collect all data
-      const paths = ["menu", "orders", "users", "staff", "ai-config", "api-settings", "broadcast", "reels", "feedback", "suggestions", "pos-settings", "homepage-banner"];
+      const paths = ["menu", "orders", "users", "ai-config", "api-settings", "broadcast", "reels", "feedback", "suggestions", "pos-settings", "homepage-banner"];
       for (const path of paths) {
         const snap = await get(ref(db, path));
         if (snap.exists()) snapshot[path] = snap.val();
@@ -2019,7 +2014,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
 
       // Clear all data paths
       const paths = [
-        "menu", "orders", "users", "staff", "ai-config", "api-settings", 
+        "menu", "orders", "users", "ai-config", "api-settings", 
         "broadcast", "reels", "feedback", "suggestions", "conversations", 
         "notifications", "pos-settings", "homepage-banner", "backups"
       ];
@@ -2393,113 +2388,6 @@ function InventoryTab({ tr, db, ref, set, remove, push }: {
                     <button onClick={() => updateQuantity(item.id, item, 1)} className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">+</button>
                   </div>
                   <button onClick={() => handleDelete(item.id)} className="text-destructive p-1"><Trash2 size={14} /></button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Staff Tab Component
-function StaffTab({ tr, db, ref, set, remove, push, get }: {
-  tr: (en: string, ar: string) => string;
-  db: any; ref: any; set: any; remove: any; push: any; get: any;
-}) {
-  const [staff, setStaff] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [newStaff, setNewStaff] = useState({ name: "", role: "barista", pin: "" });
-  
-  useEffect(() => {
-    const unsub = onValue(ref(db, "staff"), (snap) => {
-      if (snap.exists()) {
-        const data = snap.val() as Record<string, any>;
-        setStaff(Object.entries(data).map(([id, v]) => ({ id, ...v })));
-      } else {
-        setStaff([]);
-      }
-      setLoading(false);
-    });
-    return () => unsub();
-  }, []);
-  
-  const handleAdd = async () => {
-    if (!newStaff.name || !newStaff.pin) return;
-    const id = push(ref(db, "staff")).key;
-    await set(ref(db, `staff/${id}`), {
-      name: newStaff.name,
-      role: newStaff.role,
-      pin: newStaff.pin,
-      active: true,
-      createdAt: Date.now(),
-    });
-    setNewStaff({ name: "", role: "barista", pin: "" });
-    setShowAdd(false);
-  };
-  
-  const toggleActive = async (id: string, active: boolean) => {
-    await update(ref(db, `staff/${id}`), { active: !active });
-  };
-  
-  const handleDelete = async (id: string) => {
-    await remove(ref(db, `staff/${id}`));
-  };
-  
-  const roles = [
-    { value: "admin", label: "Admin", ar: "مدير" },
-    { value: "manager", label: "Manager", ar: "مدير فرع" },
-    { value: "barista", label: "Barista", ar: "بارستا" },
-    { value: "waiter", label: "Waiter", ar: "نادل" },
-    { value: "kitchen", label: "Kitchen", ar: "مطبخ" },
-  ];
-  
-  return (
-    <div className="space-y-6 page-enter">
-      <div className="card-elevated rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-foreground flex items-center gap-2">
-            <ChefHat size={18} className="text-primary"/> {tr("Staff Members","أعضاء الفريق")}
-          </h3>
-          <button onClick={() => setShowAdd(!showAdd)} className="btn-primary px-3 py-1.5 rounded-lg text-sm">
-            {showAdd ? tr("Cancel","إلغاء") : tr("+ Add Staff","+ إضافة")}
-          </button>
-        </div>
-        
-        {showAdd && (
-          <div className="space-y-3 p-4 bg-muted/30 rounded-xl">
-            <input className="input-field" placeholder={tr("Name","الاسم")} value={newStaff.name} onChange={(e) => setNewStaff((p) => ({ ...p, name: e.target.value }))} />
-            <input className="input-field" placeholder={tr("PIN Code","رمز الدخول")} type="password" value={newStaff.pin} onChange={(e) => setNewStaff((p) => ({ ...p, pin: e.target.value }))} />
-            <select className="input-field" value={newStaff.role} onChange={(e) => setNewStaff((p) => ({ ...p, role: e.target.value }))}>
-              {roles.map((r) => <option key={r.value} value={r.value}>{tr(r.label, r.ar)}</option>)}
-            </select>
-            <button onClick={handleAdd} className="btn-primary w-full py-2 rounded-lg">{tr("Add Staff Member","إضافة عضو")}</button>
-          </div>
-        )}
-        
-        {loading ? (
-          <div className="text-center py-8 text-muted-foreground">{tr("Loading...","جاري التحميل...")}</div>
-        ) : staff.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-4">{tr("No staff members","لا يوجد أعضاء فريق")}</p>
-        ) : (
-          <div className="space-y-2">
-            {staff.map((member) => {
-              const role = roles.find((r) => r.value === member.role);
-              return (
-                <div key={member.id} className="card rounded-xl p-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                    {member.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{tr(role?.label || member.role, role?.ar || member.role)}</p>
-                  </div>
-                  <button onClick={() => toggleActive(member.id, member.active)} className={`px-3 py-1 rounded-lg text-xs font-bold ${member.active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                    {member.active ? tr("Active","نشط") : tr("Inactive","غير نشط")}
-                  </button>
-                  <button onClick={() => handleDelete(member.id)} className="text-destructive p-1"><Trash2 size={14} /></button>
                 </div>
               );
             })}

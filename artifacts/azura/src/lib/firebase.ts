@@ -128,6 +128,23 @@ export async function seedMenuIfEmpty() {
       "kunafa": { name: "Kunafa", nameAr: "كنافة", description: "Traditional Egyptian cheese pastry", descriptionAr: "كنافة مصرية تقليدية", price: 75, category: "desserts", available: true, image: "https://images.unsplash.com/photo-1579888944880-d98341245702?w=400&q=80" },
       "baklava": { name: "Baklava", nameAr: "بقلاوة", description: "Honey & pistachio layers", descriptionAr: "طبقات العسل والفستق الحلبي", price: 65, category: "desserts", available: true, image: "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=400&q=80" },
     },
+    shisha: {
+      "double-apple": { name: "Double Apple", nameAr: "تفاحتين", description: "Classic Egyptian shisha with sweet apple flavor", descriptionAr: "شيشة مصرية كلاسيكية بنكهة التفاح الحلو", price: 120, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=400&q=80" },
+      "grape-mint": { name: "Grape Mint", nameAr: "عنب نعناع", description: "Refreshing grape with cool mint blend", descriptionAr: "عنب منعش مع مزيج النعناع البارد", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+      "mint-tea": { name: "Mint Tea Shisha", nameAr: "شيشة شاي نعناع", description: "Unique mint tea flavor, Egyptian style", descriptionAr: "نكهة شاي النعناع الفريدة على الطريقة المصرية", price: 125, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1605792657660-596af9009e82?w=400&q=80" },
+      "lemon-mint": { name: "Lemon Mint", nameAr: "ليمون نعناع", description: "Tangy lemon with refreshing mint", descriptionAr: "ليمون حامض مع نعناع منعش", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80" },
+      "watermelon": { name: "Watermelon", nameAr: "بطيخ", description: "Sweet summer watermelon flavor", descriptionAr: "نكهة البطيخ الصيفي الحلو", price: 125, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1563114773-84221bd62daa?w=400&q=80" },
+      "mango": { name: "Mango", nameAr: "مانجو", description: "Tropical mango explosion", descriptionAr: "انفجار المانجو الاستوائية", price: 135, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1550077423-83ede02c1e4b?w=400&q=80" },
+      "orange": { name: "Orange", nameAr: "برتقال", description: "Fresh citrus orange flavor", descriptionAr: "نكهة البرتقال الحمضية الطازجة", price: 125, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1557800636-894a64c1696f?w=400&q=80" },
+      "berry-mix": { name: "Berry Mix", nameAr: "مزيج التوت", description: "Mixed berries with sweet finish", descriptionAr: "توت مشكل بنهاية حلوة", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1563227812-0ea4c22e6ee8?w=400&q=80" },
+      "gum": { name: "Gum", nameAr: "لبان", description: "Chewing gum flavor with cool sensation", descriptionAr: "نكهة اللبان مع شعور بارد", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&q=80" },
+      "chocolate-mint": { name: "Chocolate Mint", nameAr: "شوكولاتة نعناع", description: "Rich chocolate with cool mint", descriptionAr: "شوكولاتة غنية مع نعناع بارد", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&q=80" },
+      "vienna": { name: "Vienna", nameAr: "فيينا", description: "Creamy caramel vanilla mix", descriptionAr: "مزيج الكارميل والفانيليا الكريمي", price: 145, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+      "dessert": { name: "Dessert", nameAr: "ديسرت", description: "Sweet dessert flavor with cream", descriptionAr: "نكهة حلوى حلوة مع الكريمة", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=400&q=80" },
+      "hazelnut": { name: "Hazelnut", nameAr: "هازيلنات", description: "Nutty hazelnut with sweet notes", descriptionAr: "هازيلنت بطعم المكسرات مع لمسة حلوة", price: 135, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+      "pineapple": { name: "Pineapple", nameAr: "أناناس", description: "Tropical pineapple freshness", descriptionAr: "انتعاش الأناناس الاستوائي", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1563227812-0ea4c22e6ee8?w=400&q=80" },
+      "blueberry": { name: "Blueberry", nameAr: "توت أزرق", description: "Sweet blueberry flavor", descriptionAr: "نكهة التوت الأزرق الحلوة", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&q=80" },
+    },
   };
 
   await set(ref(db, "menu"), menuData);
@@ -152,4 +169,28 @@ export async function seedMenuIfEmpty() {
   };
 
   await set(ref(db, "ai-config"), aiConfig);
+}
+
+// Function to add shisha items to existing menu
+export async function seedShishaItems() {
+  const menuRef = ref(db, "menu/shisha");
+  const shishaData = {
+    "double-apple": { name: "Double Apple", nameAr: "تفاحتين", description: "Classic Egyptian shisha with sweet apple flavor", descriptionAr: "شيشة مصرية كلاسيكية بنكهة التفاح الحلو", price: 120, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=400&q=80" },
+    "grape-mint": { name: "Grape Mint", nameAr: "عنب نعناع", description: "Refreshing grape with cool mint blend", descriptionAr: "عنب منعش مع مزيج النعناع البارد", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+    "mint-tea": { name: "Mint Tea Shisha", nameAr: "شيشة شاي نعناع", description: "Unique mint tea flavor, Egyptian style", descriptionAr: "نكهة شاي النعناع الفريدة على الطريقة المصرية", price: 125, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1605792657660-596af9009e82?w=400&q=80" },
+    "lemon-mint": { name: "Lemon Mint", nameAr: "ليمون نعناع", description: "Tangy lemon with refreshing mint", descriptionAr: "ليمون حامض مع نعناع منعش", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80" },
+    "watermelon": { name: "Watermelon", nameAr: "بطيخ", description: "Sweet summer watermelon flavor", descriptionAr: "نكهة البطيخ الصيفي الحلو", price: 125, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1563114773-84221bd62daa?w=400&q=80" },
+    "mango": { name: "Mango", nameAr: "مانجو", description: "Tropical mango explosion", descriptionAr: "انفجار المانجو الاستوائية", price: 135, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1550077423-83ede02c1e4b?w=400&q=80" },
+    "orange": { name: "Orange", nameAr: "برتقال", description: "Fresh citrus orange flavor", descriptionAr: "نكهة البرتقال الحمضية الطازجة", price: 125, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1557800636-894a64c1696f?w=400&q=80" },
+    "berry-mix": { name: "Berry Mix", nameAr: "مزيج التوت", description: "Mixed berries with sweet finish", descriptionAr: "توت مشكل بنهاية حلوة", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1563227812-0ea4c22e6ee8?w=400&q=80" },
+    "gum": { name: "Gum", nameAr: "لبان", description: "Chewing gum flavor with cool sensation", descriptionAr: "نكهة اللبان مع شعور بارد", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&q=80" },
+    "chocolate-mint": { name: "Chocolate Mint", nameAr: "شوكولاتة نعناع", description: "Rich chocolate with cool mint", descriptionAr: "شوكولاتة غنية مع نعناع بارد", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&q=80" },
+    "vienna": { name: "Vienna", nameAr: "فيينا", description: "Creamy caramel vanilla mix", descriptionAr: "مزيج الكارميل والفانيليا الكريمي", price: 145, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+    "dessert": { name: "Dessert", nameAr: "ديسرت", description: "Sweet dessert flavor with cream", descriptionAr: "نكهة حلوى حلوة مع الكريمة", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=400&q=80" },
+    "hazelnut": { name: "Hazelnut", nameAr: "هازيلنات", description: "Nutty hazelnut with sweet notes", descriptionAr: "هازيلنت بطعم المكسرات مع لمسة حلوة", price: 135, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+    "pineapple": { name: "Pineapple", nameAr: "أناناس", description: "Tropical pineapple freshness", descriptionAr: "انتعاش الأناناس الاستوائي", price: 130, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1563227812-0ea4c22e6ee8?w=400&q=80" },
+    "blueberry": { name: "Blueberry", nameAr: "توت أزرق", description: "Sweet blueberry flavor", descriptionAr: "نكهة التوت الأزرق الحلوة", price: 140, category: "shisha", available: true, image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&q=80" },
+  };
+  await set(menuRef, shishaData);
+  console.log("Shisha items added successfully!");
 }

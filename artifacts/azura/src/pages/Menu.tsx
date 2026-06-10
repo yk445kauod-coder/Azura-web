@@ -39,7 +39,7 @@ const FALLBACK: Record<string, string> = {
   beverages: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80",
   food:      "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=500&q=80",
   desserts:  "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80",
-  shisha:    "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=500&q=80",
+  shisha:    "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=500",
 };
 
 const SHISHA_EXAMPLES = [

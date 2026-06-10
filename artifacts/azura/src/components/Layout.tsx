@@ -136,15 +136,15 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Bottom Nav - Amazing iOS Style */}
       <nav className="fixed bottom-0 inset-x-0 z-40 px-1 pb-safe">
-        {/* Background blur container with glass effect */}
+        {/* Background blur container - Pure white glass, unaffected by bg */}
         <div 
           className="mx-3 mb-2 rounded-2xl overflow-hidden"
           style={{ 
-            background: "hsla(var(--card),0.90)",
-            backdropFilter: "blur(24px) saturate(180%)",
-            WebkitBackdropFilter: "blur(24px) saturate(180%)",
-            boxShadow: "0 -8px 40px rgba(61,32,18,0.15), 0 -4px 16px rgba(61,32,18,0.10), inset 0 0.5px 0 rgba(255,255,255,0.9)",
-            border: "0.5px solid rgba(93,62,35,0.06)"
+            background: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(24px) saturate(200%)",
+            WebkitBackdropFilter: "blur(24px) saturate(200%)",
+            boxShadow: "0 -8px 40px rgba(0,0,0,0.15), 0 -4px 16px rgba(0,0,0,0.08), inset 0 0.5px 0 rgba(255,255,255,1)",
+            border: "0.5px solid rgba(255,255,255,0.8)"
           }}
         >
           <div className="flex items-stretch justify-around py-2 px-1">

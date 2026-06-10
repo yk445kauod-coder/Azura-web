@@ -40,19 +40,19 @@ const CATS = [
 ];
 
 // Joyful colorful gradients
-const CAT_THEMES: Record<string, { bg: string; accent: string; emoji: string; particle: string }> = {
-  food:       { bg: "from-orange-500 via-amber-500 to-yellow-500", accent: "text-orange-600", emoji: "🍽️", particle: "✨" },
-  sandwiches: { bg: "from-pink-500 via-rose-500 to-red-500", accent: "text-pink-600", emoji: "🥪", particle: "💕" },
-  mains:      { bg: "from-emerald-500 via-green-500 to-teal-500", accent: "text-emerald-600", emoji: "🍖", particle: "🌟" },
-  burgers:    { bg: "from-yellow-500 via-amber-500 to-orange-500", accent: "text-yellow-600", emoji: "🍔", particle: "🔥" },
-  hot_drinks: { bg: "from-amber-600 via-orange-500 to-red-500", accent: "text-amber-600", emoji: "☕", particle: "💫" },
-  cold_drinks:{ bg: "from-cyan-500 via-blue-500 to-indigo-500", accent: "text-cyan-600", emoji: "🧊", particle: "❄️" },
-  fresh:      { bg: "from-lime-500 via-green-500 to-emerald-500", accent: "text-lime-600", emoji: "🍹", particle: "🌿" },
-  milkshake:  { bg: "from-pink-400 via-fuchsia-500 to-purple-500", accent: "text-pink-500", emoji: "🥛", particle: "🩷" },
-  desserts:   { bg: "from-violet-500 via-purple-500 to-fuchsia-500", accent: "text-violet-600", emoji: "🍰", particle: "💜" },
-  extras:     { bg: "from-gray-500 via-slate-500 to-zinc-500", accent: "text-gray-500", emoji: "➕", particle: "⚡" },
-  drinks:     { bg: "from-sky-500 via-blue-500 to-cyan-500", accent: "text-sky-600", emoji: "🥤", particle: "💧" },
-  shisha:     { bg: "from-indigo-500 via-purple-500 to-pink-500", accent: "text-indigo-600", emoji: "💨", particle: "🌬️" },
+const CAT_THEMES: Record<string, { bg: string; accent: string; emoji: string; particle: string; placeholder: string }> = {
+  food:       { bg: "from-orange-500 via-amber-500 to-yellow-500", accent: "text-orange-600", emoji: "🍽️", particle: "✨", placeholder: "🍽️" },
+  sandwiches: { bg: "from-pink-500 via-rose-500 to-red-500", accent: "text-pink-600", emoji: "🥪", particle: "💕", placeholder: "🥪" },
+  mains:      { bg: "from-emerald-500 via-green-500 to-teal-500", accent: "text-emerald-600", emoji: "🍖", particle: "🌟", placeholder: "🍖" },
+  burgers:    { bg: "from-yellow-500 via-amber-500 to-orange-500", accent: "text-yellow-600", emoji: "🍔", particle: "🔥", placeholder: "🍔" },
+  hot_drinks: { bg: "from-amber-600 via-orange-500 to-red-500", accent: "text-amber-600", emoji: "☕", particle: "💫", placeholder: "☕" },
+  cold_drinks:{ bg: "from-cyan-500 via-blue-500 to-indigo-500", accent: "text-cyan-600", emoji: "🧊", particle: "❄️", placeholder: "🥤" },
+  fresh:      { bg: "from-lime-500 via-green-500 to-emerald-500", accent: "text-lime-600", emoji: "🍹", particle: "🌿", placeholder: "🍹" },
+  milkshake:  { bg: "from-pink-400 via-fuchsia-500 to-purple-500", accent: "text-pink-500", emoji: "🥛", particle: "🩷", placeholder: "🥛" },
+  desserts:   { bg: "from-violet-500 via-purple-500 to-fuchsia-500", accent: "text-violet-600", emoji: "🍰", particle: "💜", placeholder: "🍰" },
+  extras:     { bg: "from-gray-500 via-slate-500 to-zinc-500", accent: "text-gray-500", emoji: "➕", particle: "⚡", placeholder: "➕" },
+  drinks:     { bg: "from-sky-500 via-blue-500 to-cyan-500", accent: "text-sky-600", emoji: "🥤", particle: "💧", placeholder: "🥤" },
+  shisha:     { bg: "from-indigo-500 via-purple-500 to-pink-500", accent: "text-indigo-600", emoji: "💨", particle: "🌬️", placeholder: "💨" },
 };
 
 // Floating particles
@@ -144,23 +144,28 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
   isInCart: (id: string) => boolean; getQty: (id: string) => number;
   justAdded: string | null;
 }) {
+  const [imageError, setImageError] = useState(false);
   const added = justAdded === item.id;
   const inCart = isInCart(item.id);
   const qty = getQty(item.id);
   const name = lang === "ar" ? item.nameAr : item.name;
   const desc = lang === "ar" ? item.descriptionAr : item.description;
   const theme = CAT_THEMES[item.category] || CAT_THEMES.food;
+  
+  // Use placeholder if no image or image error
+  const hasValidImage = item.image && !imageError;
 
   return (
     <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
       {/* Full Background Image - Super Blurred & Dark */}
-      {item.image ? (
+      {hasValidImage ? (
         <div className="absolute inset-0">
           {/* Blurred background */}
           <img 
             src={item.image} 
             alt="" 
-            className="w-full h-full object-cover blur-3xl scale-130 brightness-30" 
+            className="w-full h-full object-cover blur-3xl scale-130 brightness-30"
+            onError={() => setImageError(true)}
           />
           {/* Multiple dark gradients for eye comfort */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
@@ -186,9 +191,14 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
         {/* Main Image - Hero Size */}
         <div className="flex-1 flex items-center justify-center">
           <div className="relative">
-            {item.image ? (
+            {hasValidImage ? (
               <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
-                <img src={item.image} alt={name} className="w-full h-full object-cover" />
+                <img 
+                  src={item.image} 
+                  alt={name} 
+                  className="w-full h-full object-cover"
+                  onError={() => setImageError(true)}
+                />
                 
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -199,13 +209,18 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
                 </div>
               </div>
             ) : (
-              <div className="w-72 h-72 md:w-80 md:h-80 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center border-4 border-white/20">
-                <span className="text-8xl">{theme.emoji}</span>
+              /* Placeholder when no image */
+              <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md flex items-center justify-center border-4 border-white/20">
+                <span className="text-8xl drop-shadow-lg">{theme.placeholder}</span>
+                {/* Glowing ring */}
+                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-yellow-400/20 to-orange-500/20 blur-xl" />
               </div>
             )}
             
             {/* Glowing ring behind image */}
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-xl -z-10" />
+            {hasValidImage && (
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-xl -z-10" />
+            )}
           </div>
         </div>
 

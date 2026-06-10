@@ -78,51 +78,51 @@ function Particles() {
   );
 }
 
-// Joyful Add Button
-function JoyfulButton({ onAdd, added, inCart, qty }: {
-  onAdd: () => void; added: boolean; inCart: boolean; qty: number;
+// Joyful Add Button - Fixed
+function JoyfulButton({ onAdd, justAdded, inCart, qty }: {
+  onAdd: () => void; justAdded: boolean; inCart: boolean; qty: number;
 }) {
+  // Button shows check when justAdded (just clicked), otherwise shows plus
+  // If in cart with qty > 1, show quantity badge next to button
+  const showCheck = justAdded;
+  
   return (
-    <button
-      onClick={onAdd}
-      className={`relative w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
-        added 
-          ? "bg-gradient-to-r from-green-400 to-emerald-500 scale-125 animate-pulse" 
-          : inCart 
-            ? "bg-gradient-to-r from-yellow-400 to-orange-500 scale-110"
-            : "bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-110 active:scale-95 hover:shadow-2xl"
-      }`}
-    >
-      {added ? (
-        <Check size={28} strokeWidth={3} className="text-white animate-bounce" />
-      ) : (
-        <Plus size={28} strokeWidth={2.5} className="text-white" />
+    <div className="flex items-center gap-3">
+      {/* Quantity Badge - shown separately when in cart */}
+      {inCart && qty > 1 && !justAdded && (
+        <div className="bg-white/20 backdrop-blur-md rounded-full px-4 py-2 shadow-lg">
+          <span className="text-white font-bold">{qty}x</span>
+        </div>
       )}
       
-      {/* Joyful ripple effect on add */}
-      {added && (
-        <>
-          <div className="absolute inset-0 rounded-full bg-white/30 animate-ping" />
-          <div className="absolute -inset-2 rounded-full border-2 border-white/50 animate-ping" style={{ animationDelay: "0.2s" }} />
-        </>
-      )}
+      {/* Main Add Button */}
+      <button
+        onClick={onAdd}
+        className={`relative w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
+          showCheck
+            ? "bg-gradient-to-r from-green-400 to-emerald-500 scale-110 shadow-green-500/50" 
+            : inCart 
+              ? "bg-gradient-to-r from-amber-400 to-yellow-500 scale-105 shadow-amber-500/50"
+              : "bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-110 active:scale-95 shadow-purple-500/50 hover:shadow-2xl"
+        }`}
+      >
+        {showCheck ? (
+          <Check size={28} strokeWidth={3} className="text-white" />
+        ) : (
+          <Plus size={28} strokeWidth={2.5} className="text-white" />
+        )}
+        
+        {/* Pulse ring on click */}
+        {showCheck && (
+          <div className="absolute inset-0 rounded-full bg-green-400/40 animate-ping" />
+        )}
+      </button>
       
-      {/* Quantity badge */}
-      {inCart && !added && (
-        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-lg animate-bounce">
-          {qty}
-        </span>
+      {/* In Cart indicator - small dot */}
+      {inCart && !showCheck && (
+        <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
       )}
-      
-      {/* Sparkles around button */}
-      {added && (
-        <>
-          <span className="absolute -top-3 -left-1 text-lg animate-spin" style={{ animationDuration: "1s" }}>✨</span>
-          <span className="absolute -top-1 -right-3 text-lg animate-spin" style={{ animationDuration: "1.5s" }}>⭐</span>
-          <span className="absolute -bottom-2 -left-2 text-lg animate-spin" style={{ animationDuration: "0.8s" }}>💫</span>
-        </>
-      )}
-    </button>
+    </div>
   );
 }
 
@@ -252,7 +252,7 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
         <div className="flex justify-center pb-8">
           <JoyfulButton 
             onAdd={() => onAdd(item)} 
-            added={added} 
+            justAdded={added} 
             inCart={inCart} 
             qty={qty}
           />

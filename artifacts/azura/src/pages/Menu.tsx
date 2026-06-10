@@ -31,6 +31,7 @@ const CATS = [
   { id: "beverages", emoji: "🧃",  en: "Drinks",   ar: "مشروبات"   },
   { id: "food",      emoji: "🥗",  en: "Food",     ar: "أكل"       },
   { id: "desserts",  emoji: "🍰",  en: "Desserts", ar: "حلويات"    },
+  { id: "shisha",    emoji: "💨",  en: "Shisha",   ar: "شيشة"      },
 ];
 
 const FALLBACK: Record<string, string> = {
@@ -38,6 +39,7 @@ const FALLBACK: Record<string, string> = {
   beverages: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80",
   food:      "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=500&q=80",
   desserts:  "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80",
+  shisha:    "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=500&q=80",
 };
 
 function greeting(lang: "en" | "ar") {

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system";
+type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "staff" | "customers";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -74,9 +74,17 @@ const SAMPLE_IMAGES: Record<string, { url: string; label: string }[]> = {
     { url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=75", label: "Cupcake" },
     { url: "https://images.unsplash.com/photo-1464305795204-6f5bbfc7fb81?w=400&q=75", label: "Tart" },
   ],
+  shisha: [
+    { url: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=400&q=75", label: "Classic Hookah" },
+    { url: "https://images.unsplash.com/photo-1605792657660-596af9009f82?w=400&q=75", label: "Fruit Bowl" },
+    { url: "https://images.unsplash.com/photo-1582284540020-4a4c9b7f5b0c?w=400&q=75", label: "Two Hose" },
+    { url: "https://images.unsplash.com/photo-1568613802138-c97e4c3c2d18?w=400&q=75", label: "Premium Mix" },
+    { url: "https://images.unsplash.com/photo-1599422314077-f4dfdaa4cd09?w=400&q=75", label: "Mint Flavor" },
+    { url: "https://images.unsplash.com/photo-1606942318098-400e98a01f90?w=400&q=75", label: "Double Apple" },
+  ],
 };
 
-const CATS = ["coffee", "beverages", "food", "desserts"] as const;
+const CATS = ["coffee", "beverages", "food", "desserts", "shisha"] as const;
 const BLANK_ITEM = { name: "", nameAr: "", description: "", price: "", category: "coffee", image: "" };
 const BLANK_BROADCAST = { title: "", titleAr: "", message: "", messageAr: "", type: "info" as const, emoji: "📢" };
 
@@ -585,17 +593,21 @@ export default function Admin() {
   const unreadChats = chats.reduce((s, c) => s + (c.unreadAdmin || 0), 0);
 
   const TABS: { id: Tab; icon: React.ReactNode; en: string; ar: string; badge?: number }[] = [
-    { id: "overview",   icon: <BarChart3 size={14}/>,    en: "Overview",   ar: "الرئيسية"  },
-    { id: "orders",     icon: <Package size={14}/>,      en: "Orders",     ar: "الطلبات",   badge: pendingOrdersCount || 0 },
-    { id: "menu",       icon: <UtensilsCrossed size={14}/>, en: "Menu",    ar: "القائمة"    },
-    { id: "chat",       icon: <MessageCircle size={14}/>, en: "Chat",      ar: "الدردشة",   badge: unreadChats || 0 },
-    { id: "reviews",    icon: <Star size={14}/>,          en: "Reviews",   ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
-    { id: "ideas",      icon: <Lightbulb size={14}/>,     en: "Ideas",     ar: "الأفكار",   badge: ideas.filter((i) => i.status === "pending").length || 0 },
-    { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",   ar: "التقارير"   },
-    { id: "broadcast",  icon: <Megaphone size={14}/>,     en: "Broadcast", ar: "إشعارات"   },
-    { id: "reels",      icon: <Film size={14}/>,          en: "Reels",     ar: "ريلز"       },
+    { id: "overview",   icon: <BarChart3 size={14}/>,     en: "Overview",   ar: "الرئيسية"   },
+    { id: "orders",     icon: <Package size={14}/>,       en: "Orders",     ar: "الطلبات",   badge: pendingOrdersCount || 0 },
+    { id: "menu",       icon: <UtensilsCrossed size={14}/>, en: "Menu",     ar: "القائمة"    },
+    { id: "chat",       icon: <MessageCircle size={14}/>, en: "Chat",       ar: "الدردشة",   badge: unreadChats || 0 },
+    { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",    ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
+    { id: "ideas",      icon: <Lightbulb size={14}/>,     en: "Ideas",      ar: "الأفكار",   badge: ideas.filter((i) => i.status === "pending").length || 0 },
+    { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",    ar: "التقارير"   },
+    { id: "broadcast",  icon: <Megaphone size={14}/>,     en: "Broadcast",  ar: "إشعارات"    },
+    { id: "reels",      icon: <Film size={14}/>,          en: "Reels",      ar: "ريلز"       },
+    { id: "analytics",  icon: <TrendingUp size={14}/>,    en: "Analytics",  ar: "تحليلات"    },
+    { id: "inventory",  icon: <Package size={14}/>,        en: "Inventory",  ar: "المخزون"    },
+    { id: "staff",      icon: <ChefHat size={14}/>,        en: "Staff",      ar: "الفريق"     },
+    { id: "customers",  icon: <Package size={14}/>,       en: "Customers",  ar: "العملاء"     },
     { id: "api",        icon: <Key size={14}/>,           en: "Egytronic",  ar: "إيچترونيك" },
-    { id: "system",    icon: <Settings size={14}/>,       en: "System",    ar: "النظام"     },
+    { id: "system",     icon: <Settings size={14}/>,      en: "System",     ar: "النظام"     },
   ];
 
   return (
@@ -956,7 +968,7 @@ export default function Admin() {
                         {item.image ? (
                           <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xl">{item.category === "coffee" ? "☕" : item.category === "desserts" ? "🍰" : item.category === "beverages" ? "🧃" : "🥗"}</div>
+                          <div className="w-full h-full flex items-center justify-center text-xl">{item.category === "coffee" ? "☕" : item.category === "desserts" ? "🍰" : item.category === "beverages" ? "🧃" : item.category === "shisha" ? "💨" : "🥗"}</div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1693,6 +1705,26 @@ export default function Admin() {
         {tab === "system" && (
           <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
         )}
+
+        {/* ━━━ ANALYTICS TAB ━━━ */}
+        {tab === "analytics" && (
+          <AnalyticsTab orders={orders} menuItems={menuItems} feedback={feedback} tr={tr} />
+        )}
+
+        {/* ━━━ INVENTORY TAB ━━━ */}
+        {tab === "inventory" && (
+          <InventoryTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} />
+        )}
+
+        {/* ━━━ STAFF TAB ━━━ */}
+        {tab === "staff" && (
+          <StaffTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
+        )}
+
+        {/* ━━━ CUSTOMERS TAB ━━━ */}
+        {tab === "customers" && (
+          <CustomersTab orders={orders} tr={tr} />
+        )}
       </div>
     </div>
   );
@@ -1891,6 +1923,478 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Analytics Tab Component
+function AnalyticsTab({ orders, menuItems, feedback, tr }: {
+  orders: any[]; menuItems: any[]; feedback: any[]; tr: (en: string, ar: string) => string;
+}) {
+  // Calculate metrics
+  const today = new Date().toDateString();
+  const todayOrders = orders.filter((o) => new Date(o.createdAt).toDateString() === today);
+  const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  
+  const weekOrders = orders.filter((o) => {
+    const d = new Date(o.createdAt);
+    const now = new Date();
+    const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+    return diff <= 7;
+  });
+  const weekRevenue = weekOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  
+  const avgOrderValue = orders.length > 0 ? Math.round(orders.reduce((sum, o) => sum + (o.total || 0), 0) / orders.length) : 0;
+  
+  // Top items
+  const itemCounts: Record<string, number> = {};
+  orders.forEach((o) => {
+    (o.items || []).forEach((item: any) => {
+      itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
+    });
+  });
+  const topItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  
+  // Category breakdown
+  const catCounts: Record<string, number> = {};
+  menuItems.forEach((m) => {
+    catCounts[m.category] = (catCounts[m.category] || 0) + 1;
+  });
+  
+  // Status breakdown
+  const statusCounts: Record<string, number> = {};
+  orders.forEach((o) => {
+    statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
+  });
+  
+  // Hourly distribution
+  const hourlyOrders: number[] = Array(24).fill(0);
+  orders.forEach((o) => {
+    const h = new Date(o.createdAt).getHours();
+    hourlyOrders[h]++;
+  });
+  const peakHour = hourlyOrders.indexOf(Math.max(...hourlyOrders));
+  
+  // Rating stats
+  const ratings = feedback.map((f) => f.rating).filter(Boolean);
+  const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : "N/A";
+  
+  return (
+    <div className="space-y-6 page-enter">
+      {/* Revenue Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Today's Revenue","إيرادات اليوم")}</p>
+          <p className="text-2xl font-extrabold text-primary">{todayRevenue}</p>
+          <p className="text-xs text-muted-foreground">{todayOrders.length} {tr("orders","طلبات")}</p>
+        </div>
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Weekly Revenue","إيرادات الأسبوع")}</p>
+          <p className="text-2xl font-extrabold text-primary">{weekRevenue}</p>
+          <p className="text-xs text-muted-foreground">{weekOrders.length} {tr("orders","طلبات")}</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Avg Order Value","متوسط الطلب")}</p>
+          <p className="text-2xl font-extrabold text-primary">{avgOrderValue}</p>
+          <p className="text-xs text-muted-foreground">EGP</p>
+        </div>
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Avg Rating","التقييم المتوسط")}</p>
+          <p className="text-2xl font-extrabold text-primary">{avgRating} ⭐</p>
+          <p className="text-xs text-muted-foreground">{feedback.length} {tr("reviews","تقييمات")}</p>
+        </div>
+      </div>
+      
+      {/* Top Selling Items */}
+      <div className="card-elevated rounded-2xl p-5 space-y-3">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <TrendingUp size={18} className="text-primary"/> {tr("Top Selling Items","أفضل المنتجات مبيعاً")}
+        </h3>
+        {topItems.length === 0 ? (
+          <p className="text-muted-foreground text-sm">{tr("No sales data yet","لا توجد بيانات مبيعات بعد")}</p>
+        ) : (
+          <div className="space-y-2">
+            {topItems.map(([name, count], i) => (
+              <div key={name} className="flex items-center gap-3">
+                <span className="text-lg font-bold text-primary w-6">{i + 1}</span>
+                <span className="flex-1 text-sm font-medium truncate">{name}</span>
+                <span className="text-sm font-bold text-muted-foreground">{count}x</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      {/* Category Breakdown */}
+      <div className="card-elevated rounded-2xl p-5 space-y-3">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <Package size={18} className="text-primary"/> {tr("Menu Categories","فئات القائمة")}
+        </h3>
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(catCounts).map(([cat, count]) => (
+            <div key={cat} className="card rounded-xl p-3 flex items-center gap-2">
+              <span className="text-xl">
+                {cat === "coffee" ? "☕" : cat === "beverages" ? "🧃" : cat === "food" ? "🥗" : cat === "desserts" ? "🍰" : cat === "shisha" ? "💨" : "📦"}
+              </span>
+              <div>
+                <p className="text-sm font-semibold capitalize">{cat}</p>
+                <p className="text-xs text-muted-foreground">{count} {tr("items","عناصر")}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Order Status Distribution */}
+      <div className="card-elevated rounded-2xl p-5 space-y-3">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <BarChart3 size={18} className="text-primary"/> {tr("Order Status","حالة الطلبات")}
+        </h3>
+        <div className="space-y-2">
+          {[
+            { status: "pending", label: "Pending", ar: "انتظار", color: "#f59e0b" },
+            { status: "preparing", label: "Preparing", ar: "يُحضَّر", color: "#3b82f6" },
+            { status: "ready", label: "Ready", ar: "جاهز", color: "#22c55e" },
+            { status: "delivered", label: "Done", ar: "اتسلم", color: "#6b7280" },
+            { status: "cancelled", label: "Cancelled", ar: "اتلغى", color: "#ef4444" },
+          ].map((s) => (
+            <div key={s.status} className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full" style={{ background: s.color }} />
+              <span className="flex-1 text-sm font-medium">{tr(s.label, s.ar)}</span>
+              <span className="text-sm font-bold text-muted-foreground">{statusCounts[s.status] || 0}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Peak Hours */}
+      <div className="card-elevated rounded-2xl p-5 space-y-3">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <Clock size={18} className="text-primary"/> {tr("Peak Hour","ساعة الذروة")}
+        </h3>
+        <p className="text-sm">{tr("Most orders come around", "معظم الطلبات تأتي حول")}</p>
+        <p className="text-2xl font-extrabold text-primary">{peakHour}:00 - {peakHour + 1}:00</p>
+        <p className="text-xs text-muted-foreground">{hourlyOrders[peakHour]} {tr("orders","طلبات")}</p>
+      </div>
+    </div>
+  );
+}
+
+// Inventory Tab Component
+function InventoryTab({ tr, db, ref, set, remove, push }: {
+  tr: (en: string, ar: string) => string;
+  db: any; ref: any; set: any; remove: any; push: any;
+}) {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newItem, setNewItem] = useState({ name: "", category: "supplies", quantity: "", unit: "pcs", alertLevel: "10", price: "" });
+  
+  useEffect(() => {
+    const unsub = onValue(ref(db, "inventory"), (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, any>;
+        setItems(Object.entries(data).map(([id, v]) => ({ id, ...v })));
+      } else {
+        setItems([]);
+      }
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+  
+  const handleAdd = async () => {
+    if (!newItem.name) return;
+    const id = push(ref(db, "inventory")).key;
+    await set(ref(db, `inventory/${id}`), {
+      name: newItem.name,
+      category: newItem.category,
+      quantity: Number(newItem.quantity) || 0,
+      unit: newItem.unit,
+      alertLevel: Number(newItem.alertLevel) || 10,
+      price: Number(newItem.price) || 0,
+      updatedAt: Date.now(),
+    });
+    setNewItem({ name: "", category: "supplies", quantity: "", unit: "pcs", alertLevel: "10", price: "" });
+    setShowAdd(false);
+  };
+  
+  const handleDelete = async (id: string) => {
+    await remove(ref(db, `inventory/${id}`));
+  };
+  
+  const updateQuantity = async (id: string, item: any, delta: number) => {
+    const newQty = Math.max(0, (item.quantity || 0) + delta);
+    await update(ref(db, `inventory/${id}`), { quantity: newQty, updatedAt: Date.now() });
+  };
+  
+  const lowStock = items.filter((i) => (i.quantity || 0) <= (i.alertLevel || 10));
+  
+  return (
+    <div className="space-y-6 page-enter">
+      {/* Low Stock Alert */}
+      {lowStock.length > 0 && (
+        <div className="card-elevated rounded-2xl p-4 border-2 border-amber-500/30">
+          <h3 className="font-bold text-amber-600 flex items-center gap-2 mb-3">
+            ⚠️ {tr("Low Stock Alert","تنبيه المخزون المنخفض")}
+          </h3>
+          <div className="space-y-2">
+            {lowStock.map((item) => (
+              <div key={item.id} className="flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2">
+                <span className="text-sm font-medium">{item.name}</span>
+                <span className="text-xs font-bold text-amber-600">{item.quantity} {item.unit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Add Item */}
+      <div className="card-elevated rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-foreground flex items-center gap-2">
+            <Package size={18} className="text-primary"/> {tr("Inventory Items","عناصر المخزون")}
+          </h3>
+          <button onClick={() => setShowAdd(!showAdd)} className="btn-primary px-3 py-1.5 rounded-lg text-sm">
+            {showAdd ? tr("Cancel","إلغاء") : tr("+ Add Item","+ إضافة")}
+          </button>
+        </div>
+        
+        {showAdd && (
+          <div className="space-y-3 p-4 bg-muted/30 rounded-xl">
+            <input className="input-field" placeholder={tr("Item name","اسم العنصر")} value={newItem.name} onChange={(e) => setNewItem((p) => ({ ...p, name: e.target.value }))} />
+            <div className="grid grid-cols-2 gap-2">
+              <input className="input-field" type="number" placeholder={tr("Quantity","الكمية")} value={newItem.quantity} onChange={(e) => setNewItem((p) => ({ ...p, quantity: e.target.value }))} />
+              <input className="input-field" placeholder={tr("Unit","الوحدة")} value={newItem.unit} onChange={(e) => setNewItem((p) => ({ ...p, unit: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input className="input-field" type="number" placeholder={tr("Alert level","مستوى التنبيه")} value={newItem.alertLevel} onChange={(e) => setNewItem((p) => ({ ...p, alertLevel: e.target.value }))} />
+              <input className="input-field" type="number" placeholder={tr("Price","السعر")} value={newItem.price} onChange={(e) => setNewItem((p) => ({ ...p, price: e.target.value }))} />
+            </div>
+            <select className="input-field" value={newItem.category} onChange={(e) => setNewItem((p) => ({ ...p, category: e.target.value }))}>
+              <option value="supplies">Supplies</option>
+              <option value="ingredients">Ingredients</option>
+              <option value="packaging">Packaging</option>
+              <option value="equipment">Equipment</option>
+            </select>
+            <button onClick={handleAdd} className="btn-primary w-full py-2 rounded-lg">{tr("Add Item","إضافة العنصر")}</button>
+          </div>
+        )}
+        
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">{tr("Loading...","جاري التحميل...")}</div>
+        ) : items.length === 0 ? (
+          <p className="text-muted-foreground text-sm text-center py-4">{tr("No inventory items","لا توجد عناصر مخزون")}</p>
+        ) : (
+          <div className="space-y-2">
+            {items.map((item) => {
+              const isLow = (item.quantity || 0) <= (item.alertLevel || 10);
+              return (
+                <div key={item.id} className={`card rounded-xl p-3 flex items-center gap-3 ${isLow ? "border border-amber-500/30 bg-amber-50/30" : ""}`}>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">{item.quantity} {item.unit} • {tr(item.category, item.category)}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => updateQuantity(item.id, item, -1)} className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-sm font-bold hover:bg-muted/80">−</button>
+                    <span className="w-10 text-center font-bold text-sm">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, item, 1)} className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">+</button>
+                  </div>
+                  <button onClick={() => handleDelete(item.id)} className="text-destructive p-1"><Trash2 size={14} /></button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Staff Tab Component
+function StaffTab({ tr, db, ref, set, remove, push, get }: {
+  tr: (en: string, ar: string) => string;
+  db: any; ref: any; set: any; remove: any; push: any; get: any;
+}) {
+  const [staff, setStaff] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newStaff, setNewStaff] = useState({ name: "", role: "barista", pin: "" });
+  
+  useEffect(() => {
+    const unsub = onValue(ref(db, "staff"), (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, any>;
+        setStaff(Object.entries(data).map(([id, v]) => ({ id, ...v })));
+      } else {
+        setStaff([]);
+      }
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+  
+  const handleAdd = async () => {
+    if (!newStaff.name || !newStaff.pin) return;
+    const id = push(ref(db, "staff")).key;
+    await set(ref(db, `staff/${id}`), {
+      name: newStaff.name,
+      role: newStaff.role,
+      pin: newStaff.pin,
+      active: true,
+      createdAt: Date.now(),
+    });
+    setNewStaff({ name: "", role: "barista", pin: "" });
+    setShowAdd(false);
+  };
+  
+  const toggleActive = async (id: string, active: boolean) => {
+    await update(ref(db, `staff/${id}`), { active: !active });
+  };
+  
+  const handleDelete = async (id: string) => {
+    await remove(ref(db, `staff/${id}`));
+  };
+  
+  const roles = [
+    { value: "admin", label: "Admin", ar: "مدير" },
+    { value: "manager", label: "Manager", ar: "مدير فرع" },
+    { value: "barista", label: "Barista", ar: "بارستا" },
+    { value: "waiter", label: "Waiter", ar: "نادل" },
+    { value: "kitchen", label: "Kitchen", ar: "مطبخ" },
+  ];
+  
+  return (
+    <div className="space-y-6 page-enter">
+      <div className="card-elevated rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-foreground flex items-center gap-2">
+            <ChefHat size={18} className="text-primary"/> {tr("Staff Members","أعضاء الفريق")}
+          </h3>
+          <button onClick={() => setShowAdd(!showAdd)} className="btn-primary px-3 py-1.5 rounded-lg text-sm">
+            {showAdd ? tr("Cancel","إلغاء") : tr("+ Add Staff","+ إضافة")}
+          </button>
+        </div>
+        
+        {showAdd && (
+          <div className="space-y-3 p-4 bg-muted/30 rounded-xl">
+            <input className="input-field" placeholder={tr("Name","الاسم")} value={newStaff.name} onChange={(e) => setNewStaff((p) => ({ ...p, name: e.target.value }))} />
+            <input className="input-field" placeholder={tr("PIN Code","رمز الدخول")} type="password" value={newStaff.pin} onChange={(e) => setNewStaff((p) => ({ ...p, pin: e.target.value }))} />
+            <select className="input-field" value={newStaff.role} onChange={(e) => setNewStaff((p) => ({ ...p, role: e.target.value }))}>
+              {roles.map((r) => <option key={r.value} value={r.value}>{tr(r.label, r.ar)}</option>)}
+            </select>
+            <button onClick={handleAdd} className="btn-primary w-full py-2 rounded-lg">{tr("Add Staff Member","إضافة عضو")}</button>
+          </div>
+        )}
+        
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">{tr("Loading...","جاري التحميل...")}</div>
+        ) : staff.length === 0 ? (
+          <p className="text-muted-foreground text-sm text-center py-4">{tr("No staff members","لا يوجد أعضاء فريق")}</p>
+        ) : (
+          <div className="space-y-2">
+            {staff.map((member) => {
+              const role = roles.find((r) => r.value === member.role);
+              return (
+                <div key={member.id} className="card rounded-xl p-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                    {member.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{member.name}</p>
+                    <p className="text-xs text-muted-foreground">{tr(role?.label || member.role, role?.ar || member.role)}</p>
+                  </div>
+                  <button onClick={() => toggleActive(member.id, member.active)} className={`px-3 py-1 rounded-lg text-xs font-bold ${member.active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                    {member.active ? tr("Active","نشط") : tr("Inactive","غير نشط")}
+                  </button>
+                  <button onClick={() => handleDelete(member.id)} className="text-destructive p-1"><Trash2 size={14} /></button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Customers Tab Component
+function CustomersTab({ orders, tr }: {
+  orders: any[]; tr: (en: string, ar: string) => string;
+}) {
+  // Extract unique customers
+  const customerMap: Record<string, { name: string; orders: number; totalSpent: number; lastOrder: number }> = {};
+  
+  orders.forEach((o) => {
+    const key = o.userId || o.userName;
+    if (!customerMap[key]) {
+      customerMap[key] = { name: o.userName, orders: 0, totalSpent: 0, lastOrder: 0 };
+    }
+    customerMap[key].orders++;
+    customerMap[key].totalSpent += o.total || 0;
+    customerMap[key].lastOrder = Math.max(customerMap[key].lastOrder, o.createdAt || 0);
+  });
+  
+  const customers = Object.entries(customerMap)
+    .map(([id, data]) => ({ id, ...data }))
+    .sort((a, b) => b.totalSpent - a.totalSpent);
+  
+  const totalCustomers = customers.length;
+  const totalRevenue = customers.reduce((sum, c) => sum + c.totalSpent, 0);
+  const avgSpent = totalCustomers > 0 ? Math.round(totalRevenue / totalCustomers) : 0;
+  
+  return (
+    <div className="space-y-6 page-enter">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Total Customers","إجمالي العملاء")}</p>
+          <p className="text-2xl font-extrabold text-primary">{totalCustomers}</p>
+        </div>
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Total Revenue","إجمالي الإيرادات")}</p>
+          <p className="text-2xl font-extrabold text-primary">{totalRevenue}</p>
+        </div>
+        <div className="card-elevated rounded-2xl p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">{tr("Avg Spent","متوسط الصرف")}</p>
+          <p className="text-2xl font-extrabold text-primary">{avgSpent}</p>
+        </div>
+      </div>
+      
+      {/* Customer List */}
+      <div className="card-elevated rounded-2xl p-5 space-y-3">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <Package size={18} className="text-primary"/> {tr("Customer List","قائمة العملاء")}
+        </h3>
+        
+        {customers.length === 0 ? (
+          <p className="text-muted-foreground text-sm text-center py-4">{tr("No customer data yet","لا توجد بيانات عملاء بعد")}</p>
+        ) : (
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {customers.map((customer, i) => (
+              <div key={customer.id} className="card rounded-xl p-3 flex items-center gap-3">
+                <span className="text-lg font-bold text-muted-foreground w-6">#{i + 1}</span>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  {customer.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{customer.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {customer.orders} {tr("orders","طلبات")} • {new Date(customer.lastOrder).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-primary">{customer.totalSpent}</p>
+                  <p className="text-xs text-muted-foreground">EGP</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

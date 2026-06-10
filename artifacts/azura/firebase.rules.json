@@ -18,6 +18,14 @@
         "likes"
       ]
     },
+    "ratings": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "rating",
+        "createdAt"
+      ]
+    },
     "orders": {
       ".read": true,
       ".write": true,

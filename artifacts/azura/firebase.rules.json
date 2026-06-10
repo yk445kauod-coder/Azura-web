@@ -1,0 +1,44 @@
+{
+  "rules": {
+    "menu": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".indexOn": ["category", "available", "price"]
+    },
+    "menu_by_category": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    "orders": {
+      "$orderId": {
+        ".read": "auth != null && (data.child('userId').val() === auth.uid || root.child('admins').child(auth.uid).exists())",
+        ".write": "auth != null"
+      },
+      ".indexOn": ["userId", "status", "createdAt"]
+    },
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('admins').child(auth.uid).exists()",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "staff": { 
+      ".read": true, 
+      ".write": "root.child('admins').child(auth.uid).exists()" 
+    },
+    "ai-config": { 
+      ".read": true, 
+      ".write": "root.child('admins').child(auth.uid).exists()" 
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "root.child('admins').child(auth.uid).exists() || $uid === auth.uid"
+      }
+    },
+    "conversations": {
+      "$uid": { ".read": "$uid === auth.uid", ".write": "$uid === auth.uid" }
+    },
+    "admins": { ".read": "root.child('admins').child(auth.uid).exists()", ".write": false }
+  }
+}

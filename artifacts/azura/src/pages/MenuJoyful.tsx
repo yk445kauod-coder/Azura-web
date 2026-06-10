@@ -273,13 +273,18 @@ export default function Menu() {
   const [, navigate] = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<MenuItem[]>([]);
+  const [allItems, setAllItems] = useState<MenuItem[]>([]);
+  const [displayedItems, setDisplayedItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cat, setCat] = useState("all");
   const [search, setSearch] = useState("");
   const [justAdded, setJustAdded] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const BATCH_SIZE = 20;
 
+  // Load menu from Firebase - only once
   useEffect(() => {
     const menuRef = ref(db, "menu");
     onValue(menuRef, (snap) => {
@@ -298,34 +303,64 @@ export default function Menu() {
           });
         }
       });
-      setItems(result);
+      setAllItems(result);
+      // Load first batch
+      setDisplayedItems(result.slice(0, BATCH_SIZE));
+      setHasMore(result.length > BATCH_SIZE);
       setLoading(false);
     });
     return () => off(ref(db, "menu"));
   }, []);
 
+  // Filter items based on category and search
   const filteredItems = useMemo(() => {
-    let result = items.filter(i => i.available);
+    let result = allItems.filter(i => i.available);
     if (cat !== "all") result = result.filter(i => i.category === cat);
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(i => i.name.toLowerCase().includes(q) || i.nameAr.includes(q));
     }
     return result;
-  }, [items, cat, search]);
+  }, [allItems, cat, search]);
+
+  // Combined scroll handler - load more + update index
+  const handleScroll = () => {
+    // Update progress index
+    if (!scrollRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    const newIndex = Math.round(scrollTop / window.innerHeight);
+    setCurrentIndex(Math.min(newIndex, displayedItems.length - 1));
+    
+    // Load more when 80% scrolled
+    if (hasMore && !loading && scrollTop + clientHeight >= scrollHeight * 0.8) {
+      setDisplayedItems(prev => {
+        const nextBatch = filteredItems.slice(prev.length, prev.length + BATCH_SIZE);
+        if (nextBatch.length === 0) {
+          setHasMore(false);
+          return prev;
+        }
+        if (prev.length + nextBatch.length >= filteredItems.length) {
+          setHasMore(false);
+        }
+        return [...prev, ...nextBatch];
+      });
+    }
+  };
+
+  // Reset displayed items when filter changes
+  useEffect(() => {
+    setDisplayedItems(filteredItems.slice(0, BATCH_SIZE));
+    setHasMore(filteredItems.length > BATCH_SIZE);
+    setCurrentIndex(0);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [cat, search, filteredItems.length]);
 
   const handleAdd = (item: MenuItem) => {
     addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
     setJustAdded(item.id);
     setTimeout(() => setJustAdded(null), 1500);
-  };
-
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const scrollTop = scrollRef.current.scrollTop;
-    const itemHeight = window.innerHeight;
-    const newIndex = Math.round(scrollTop / itemHeight);
-    setCurrentIndex(newIndex);
   };
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
@@ -435,7 +470,7 @@ export default function Menu() {
         className="h-full w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
         style={{ paddingTop: "180px", paddingBottom: "100px" }}
       >
-        {filteredItems.length === 0 ? (
+        {displayedItems.length === 0 && filteredItems.length === 0 ? (
           <div className="h-screen flex items-center justify-center">
             <div className="text-center">
               <p className="text-8xl mb-4 animate-bounce">🔍</p>
@@ -444,17 +479,24 @@ export default function Menu() {
             </div>
           </div>
         ) : (
-          filteredItems.map((item) => (
-            <JoyfulItem
-              key={item.id}
-              item={item}
-              lang={lang as "en" | "ar"}
-              onAdd={handleAdd}
-              isInCart={isInCart}
-              getQty={getQty}
-              justAdded={justAdded}
-            />
-          ))
+          <>
+            {displayedItems.map((item) => (
+              <JoyfulItem
+                key={item.id}
+                item={item}
+                lang={lang as "en" | "ar"}
+                onAdd={handleAdd}
+                isInCart={isInCart}
+                getQty={getQty}
+                justAdded={justAdded}
+              />
+            ))}
+            {hasMore && (
+              <div className="h-20 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -465,10 +507,10 @@ export default function Menu() {
           <div className="w-1 h-32 bg-white/20 rounded-full overflow-hidden">
             <div 
               className="w-full bg-gradient-to-b from-pink-500 to-purple-500 rounded-full transition-all duration-300"
-              style={{ height: `${((currentIndex + 1) / filteredItems.length) * 100}%` }}
+              style={{ height: displayedItems.length > 0 ? `${((currentIndex + 1) / displayedItems.length) * 100}%` : '0%' }}
             />
           </div>
-          <span className="text-white/60 text-[10px]">{filteredItems.length}</span>
+          <span className="text-white/60 text-[10px]">{displayedItems.length}/{filteredItems.length}</span>
         </div>
       </div>
 

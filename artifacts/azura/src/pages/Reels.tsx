@@ -1,235 +1,194 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect, useRef } from "react";
 import { useLang } from "@/contexts/LanguageContext";
-import { db, ref, onValue, off, update } from "@/lib/firebase";
-import { Heart, Share2 } from "lucide-react";
-import { swalInfo } from "@/lib/swal";
-import { parseVideoUrl, type VideoProvider } from "@/lib/videoProviders";
+import { Heart, Share2, Play, ChevronDown, Volume2, VolumeX } from "lucide-react";
+import { Link } from "wouter";
 
-interface Reel {
+interface ReelSlide {
   id: string;
   image: string;
-  caption: string;
-  captionAr: string;
-  likes: number;
-  likedBy: Record<string, boolean>;
-  createdAt: number;
-  authorName: string;
-  pinned?: boolean;
-  videoUrl?: string;
-  videoProvider?: VideoProvider;
+  title: string;
+  titleAr: string;
+  subtitle: string;
+  subtitleAr: string;
+  emoji: string;
 }
 
+const APP_REELS: ReelSlide[] = [
+  {
+    id: "welcome",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80",
+    title: "Welcome to Azura Cafe",
+    titleAr: "مرحباً بكم في كافيه أزورا",
+    subtitle: "Your favorite spot for delicious food & drinks",
+    subtitleAr: "وجهتك المفضلة للطعام والمشروبات اللذيذة",
+    emoji: "🎉"
+  },
+  {
+    id: "menu",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",
+    title: "Browse Our Menu",
+    titleAr: "تصفح قائمتنا",
+    subtitle: "Swipe through 200+ items • Food • Drinks • Desserts",
+    subtitleAr: "مرر بين 200+ صنف • طعام • مشروبات • حلويات",
+    emoji: "📱"
+  },
+  {
+    id: "order",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+    title: "Order Easily",
+    titleAr: "اطلب بسهولة",
+    subtitle: "Add to cart • Check out • Done!",
+    subtitleAr: "أضف للسلة • ادفع • خلاص!",
+    emoji: "🛒"
+  },
+  {
+    id: "ai",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80",
+    title: "AI Assistant",
+    titleAr: "المساعد الذكي",
+    subtitle: "Ask for recommendations • Get personalized suggestions",
+    subtitleAr: "اسأل عن توصيات • احصل على اقتراحات شخصية",
+    emoji: "🤖"
+  },
+  {
+    id: "track",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+    title: "Track Your Order",
+    titleAr: "تابع طلبك",
+    subtitle: "Real-time updates • Know when it's ready",
+    subtitleAr: "تحديثات مباشرة • اعرف متى يجهز",
+    emoji: "📍"
+  },
+  {
+    id: "shisha",
+    image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=800&q=80",
+    title: "Shisha Time?",
+    titleAr: "وقت الشيشة؟",
+    subtitle: "Choose from premium flavors • Relax & enjoy",
+    subtitleAr: "اختر من النكهات الفاخرة • استرخ واستمتع",
+    emoji: "💨"
+  },
+  {
+    id: "desserts",
+    image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800&q=80",
+    title: "Sweet Treats",
+    titleAr: "حلويات لذيذة",
+    subtitle: "Cakes • Crepes • Pancakes • And more!",
+    subtitleAr: "كيك • كريب • بان كيك والمزيد!",
+    emoji: "🍰"
+  },
+  {
+    id: "start",
+    image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80",
+    title: "Let's Go!",
+    titleAr: "يلا نبدأ!",
+    subtitle: "Tap Menu to start exploring",
+    subtitleAr: "اضغط على القائمة وابدأ الاستكشاف",
+    emoji: "☕"
+  },
+];
+
 export default function Reels() {
-  const { user } = useAuth();
   const { lang } = useLang();
-  const [reels, setReels] = useState<Reel[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [heartPop, setHeartPop] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [muted, setMuted] = useState(true);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  // Simple load - no complex video handling
   useEffect(() => {
-    setLoading(true);
-    const reelsRef = ref(db, "reels");
-    const unsub = onValue(reelsRef, (snap) => {
-      if (!snap.exists()) { setReels([]); setLoading(false); return; }
-      const data = snap.val() as Record<string, Omit<Reel, "id">>;
-      const list = Object.entries(data)
-        .map(([id, r]) => ({ id, ...r }))
-        .sort((a, b) => {
-          if (a.pinned && !b.pinned) return -1;
-          if (!a.pinned && b.pinned) return 1;
-          return b.createdAt - a.createdAt;
-        });
-      setReels(list);
-      setLoading(false);
-    }, (err) => {
-      console.error("Reels load error:", err);
-      setLoading(false);
-    });
-    return () => { try { off(reelsRef); } catch {} };
+    const el = scrollRef.current;
+    if (!el) return;
+    
+    const handleScroll = () => {
+      const index = Math.round(el.scrollTop / window.innerHeight);
+      setCurrentIndex(index);
+    };
+    
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLike = useCallback(async (reel: Reel) => {
-    if (!user) return;
-    const liked = reel.likedBy?.[user.uid];
-    const newLikes = liked ? Math.max(0, reel.likes - 1) : reel.likes + 1;
-    const likedBy = { ...(reel.likedBy || {}) };
-    if (liked) delete likedBy[user.uid];
-    else likedBy[user.uid] = true;
-    try {
-      await update(ref(db, `reels/${reel.id}`), { likes: newLikes, likedBy });
-    } catch (e) { console.error("Like error:", e); }
-    if (!liked) {
-      setHeartPop(reel.id);
-      setTimeout(() => setHeartPop(null), 700);
-    }
-  }, [user]);
-
-  const handleShare = async (reel: Reel) => {
-    const text = lang === "ar" ? (reel.captionAr || reel.caption) : reel.caption;
-    if (navigator.share) {
-      try { await navigator.share({ title: "Azura Cafe", text, url: window.location.href }); } 
-      catch { /* cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
-      swalInfo(tr("Link copied!", "تم نسخ الرابط!"));
-    }
-  };
-
-  const lastTap = useRef<Record<string, number>>({});
-  const onTapImage = (reel: Reel) => {
-    const now = Date.now();
-    const last = lastTap.current[reel.id] || 0;
-    if (now - last < 300) { handleLike(reel); lastTap.current[reel.id] = 0; }
-    else lastTap.current[reel.id] = now;
-  };
-
-  const openVideo = (reel: Reel) => {
-    if (!reel.videoUrl) return;
-    
-    // Handle YouTube embeds
-    if (reel.videoProvider === "youtube" || reel.videoUrl.includes("youtube")) {
-      const match = reel.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-      if (match) {
-        window.open(`https://www.youtube.com/embed/${match[1]}?autoplay=1`, "_blank", "noopener,noreferrer");
-        return;
-      }
-    }
-    
-    // Handle Google Drive
-    if (reel.videoProvider === "google_drive" || reel.videoUrl.includes("drive.google")) {
-      const fileMatch = reel.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-      if (fileMatch) {
-        window.open(`https://drive.google.com/file/d/${fileMatch[1]}/preview`, "_blank", "noopener,noreferrer");
-        return;
-      }
-    }
-    
-    // Default: open URL
-    window.open(reel.videoUrl, "_blank", "noopener,noreferrer");
-  };
-
-  // Get embed URL for iframe
-  const getEmbedUrl = (reel: Reel): string => {
-    if (!reel.videoUrl) return "";
-    
-    if (reel.videoProvider === "youtube") {
-      const match = reel.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-      if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
-    }
-    
-    if (reel.videoProvider === "google_drive") {
-      const fileMatch = reel.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-      if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
-    }
-    
-    // Auto-detect provider
-    const parsed = parseVideoUrl(reel.videoUrl);
-    if (parsed.provider === "youtube") {
-      return `https://www.youtube.com/embed/${parsed.id}?autoplay=1`;
-    }
-    
-    return reel.videoUrl;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">{tr("Loading reels...", "جاري تحميل الريلز...")}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (reels.length === 0) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-6xl mb-4">🎬</p>
-          <p className="text-lg font-bold text-foreground mb-2">{tr("No reels yet", "لا توجد ريليز بعد")}</p>
-          <p className="text-sm text-muted-foreground">{tr("Check back soon!", "تراجع لاحقاً!")}</p>
-        </div>
-      </div>
-    );
-  }
+  const reel = APP_REELS[currentIndex];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-2">
-        {reels.map((reel) => {
-          const liked = user && reel.likedBy?.[user.uid];
+    <div className="h-screen w-full fixed inset-0 bg-black">
+      {/* Vertical Scroll */}
+      <div 
+        ref={scrollRef}
+        className="h-full w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
+      >
+        {APP_REELS.map((slide, index) => {
+          const isActive = index === currentIndex;
+          
           return (
             <div 
-              key={reel.id} 
-              className="relative aspect-square rounded-xl overflow-hidden bg-muted cursor-pointer group"
-              onClick={() => onTapImage(reel)}
+              key={slide.id}
+              className="h-screen w-full snap-start flex flex-col relative overflow-hidden"
             >
-              {/* Image */}
-              <img 
-                src={reel.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80"} 
-                alt={reel.caption}
-                className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80"; }}
-              />
-              
-              {/* Video indicator */}
-              {reel.videoUrl && (
-                <button 
-                  onClick={(e) => { e.stopPropagation(); openVideo(reel); }}
-                  className="absolute inset-0 flex items-center justify-center bg-black/30"
-                >
-                  <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-                    <div className="w-0 h-0 border-l-[14px] border-l-primary border-y-[8px] border-y-transparent ml-1" />
-                  </div>
-                </button>
-              )}
-              
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="flex items-center gap-4 text-white">
-                  <div className="flex items-center gap-1">
-                    <Heart size={18} className={liked ? "fill-red-500 text-red-500" : ""} />
-                    <span className="text-sm font-bold">{reel.likes || 0}</span>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); handleShare(reel); }} className="hover:scale-110 transition-transform">
-                    <Share2 size={18} />
-                  </button>
-                </div>
+              {/* Background Image */}
+              <div className="absolute inset-0">
+                <img 
+                  src={slide.image} 
+                  alt=""
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80"; }}
+                />
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/80" />
               </div>
-              
-              {/* Heart pop animation */}
-              {heartPop === reel.id && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <Heart size={64} className="fill-red-500 text-red-500 animate-heart-pop" />
-                </div>
-              )}
-              
-              {/* Pinned indicator */}
-              {reel.pinned && (
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full">
-                  📌 {tr("Pinned", "مثبت")}
-                </div>
-              )}
+
+              {/* Content */}
+              <div className="relative z-10 flex flex-col h-full p-6 items-center justify-center text-center">
+                {/* Emoji */}
+                <div className="text-6xl mb-6 animate-bounce">{slide.emoji}</div>
+                
+                {/* Title */}
+                <h2 className="text-white text-3xl font-bold mb-4" style={{ fontFamily: "Georgia, serif" }}>
+                  {tr(slide.title, slide.titleAr)}
+                </h2>
+                
+                {/* Subtitle */}
+                <p className="text-white/80 text-lg max-w-md">
+                  {tr(slide.subtitle, slide.subtitleAr)}
+                </p>
+
+                {/* CTA for last slide */}
+                {slide.id === "start" && (
+                  <Link href="/menu">
+                    <button className="mt-8 px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl text-white font-bold text-lg shadow-xl hover:scale-105 transition-transform">
+                      {tr("Explore Menu 🍽️", "استكشف القائمة 🍽️")}
+                    </button>
+                  </Link>
+                )}
+              </div>
+
+              {/* Progress dots */}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20">
+                {APP_REELS.map((_, i) => (
+                  <div 
+                    key={i}
+                    className={`w-2 h-2 rounded-full transition-all ${i === currentIndex ? "bg-white h-6" : "bg-white/30"}`}
+                  />
+                ))}
+              </div>
+
+              {/* Swipe hint */}
+              <div className="absolute bottom-20 inset-x-0 flex flex-col items-center text-white/50 z-20">
+                <span className="text-xs mb-1">{tr("Swipe up", "اسحب لأعلى")}</span>
+                <div className="animate-bounce"><ChevronDown size={20} /></div>
+              </div>
+
+              {/* Counter */}
+              <div className="absolute top-4 right-4 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-sm font-bold z-20">
+                {currentIndex + 1}/{APP_REELS.length}
+              </div>
             </div>
           );
         })}
       </div>
-      
-      <style>{`
-        @keyframes heart-pop {
-          0% { transform: scale(0); opacity: 1; }
-          50% { transform: scale(1.3); }
-          100% { transform: scale(1); opacity: 0; }
-        }
-        .animate-heart-pop {
-          animation: heart-pop 0.7s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 }

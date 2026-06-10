@@ -5,80 +5,33 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { X, ShoppingCart } from "lucide-react";
-
-// Colorful emoji-style SVG icons for navigation
-const NavIcons = {
-  menu: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      <circle cx="6" cy="6" r="2" fill="#8B4513"/>
-      <circle cx="18" cy="6" r="2" fill="#D2691E"/>
-      <path d="M5 5c1.5-1 3-1 5-1s3.5 0 5 1" stroke="#8B4513" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    </svg>
-  ),
-  barista: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="10" width="16" height="10" rx="2" fill="#6B7280"/>
-      <rect x="6" y="12" width="12" height="6" rx="1" fill="#374151"/>
-      <path d="M8 10V8a4 4 0 018 0v2" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="12" cy="5" r="3" fill="#818CF8"/>
-      <circle cx="12" cy="5" r="1.5" fill="#C4B5FD"/>
-      <path d="M9 2h6" stroke="#818CF8" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-  cart: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M6 6h15l-1.5 9H7.5L6 6z" fill="#F59E0B"/>
-      <path d="M6 6L5 3H2" stroke="#D97706" strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="9" cy="20" r="2" fill="#D97706"/>
-      <circle cx="18" cy="20" r="2" fill="#D97706"/>
-      <rect x="9" y="10" width="6" height="4" rx="1" fill="#FEF3C7"/>
-    </svg>
-  ),
-  orders: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="3" width="16" height="18" rx="2" fill="#10B981"/>
-      <rect x="7" y="6" width="10" height="2" rx="1" fill="#A7F3D0"/>
-      <rect x="7" y="10" width="8" height="1.5" rx="0.5" fill="#A7F3D0"/>
-      <rect x="7" y="13" width="10" height="1.5" rx="0.5" fill="#A7F3D0"/>
-      <rect x="7" y="16" width="6" height="1.5" rx="0.5" fill="#A7F3D0"/>
-      <path d="M4 3l2 3h12l2-3" fill="#059669"/>
-    </svg>
-  ),
-  reels: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="4" width="20" height="16" rx="3" fill="#EC4899"/>
-      <polygon points="10,8 10,16 16,12" fill="white"/>
-      <rect x="5" y="7" width="2" height="10" rx="1" fill="#F472B6"/>
-      <rect x="17" y="7" width="2" height="10" rx="1" fill="#F472B6"/>
-    </svg>
-  ),
-  support: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 21c5.5 0 10-4.5 10-10S17.5 1 12 1 2 5.5 2 11c0 2.5 1 4.8 2.5 6.5L3 21l3.5-1.5C7.8 19.2 9.8 20 12 20z" fill="#3B82F6"/>
-      <circle cx="12" cy="11" r="4" fill="#93C5FD"/>
-      <circle cx="9" cy="9" r="1" fill="#1E40AF"/>
-      <circle cx="15" cy="9" r="1" fill="#1E40AF"/>
-      <path d="M9 13c1 1 2.5 1.5 3 1.5s2-0.5 3-1.5" stroke="#1E40AF" strokeWidth="1" strokeLinecap="round" fill="none"/>
-    </svg>
-  ),
-  profile: (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="8" r="4" fill="#8B5CF6"/>
-      <path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="#A78BFA"/>
-      <circle cx="12" cy="8" r="2" fill="#C4B5FD"/>
-    </svg>
-  ),
-};
+import { 
+  HomeIcon, 
+  SparklesIcon, 
+  ClipboardDocumentListIcon, 
+  FilmIcon, 
+  ChatBubbleLeftRightIcon, 
+  UserIcon,
+  Cog6ToothIcon
+} from "@heroicons/react/24/outline";
+import { 
+  HomeIcon as HomeIconSolid, 
+  SparklesIcon as SparklesIconSolid, 
+  ClipboardDocumentListIcon as ClipboardIconSolid, 
+  FilmIcon as FilmIconSolid, 
+  ChatBubbleLeftRightIcon as ChatIconSolid, 
+  UserIcon as UserIconSolid,
+  Cog6ToothIcon as CogIconSolid
+} from "@heroicons/react/24/solid";
 
 const NAV = [
-  { path: "/menu",    key: "menu",    label: "Menu" },
-  { path: "/barista", key: "barista", label: "AI" },
-  { path: "/cart",    key: "cart",    label: "Cart", cart: true },
-  { path: "/orders",  key: "orders",  label: "Orders" },
-  { path: "/reels",   key: "reels",   label: "Reels" },
-  { path: "/support", key: "support", label: "Support" },
-  { path: "/profile", key: "profile", label: "Profile" },
+  { path: "/menu",    key: "menu",    label: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid },
+  { path: "/barista", key: "barista", label: "AI",      icon: SparklesIcon, iconActive: SparklesIconSolid },
+  { path: "/cart",    key: "cart",    label: "Cart",    icon: ShoppingCart, iconActive: ShoppingCart, cart: true },
+  { path: "/orders",  key: "orders",  label: "Orders",  icon: ClipboardDocumentListIcon, iconActive: ClipboardIconSolid },
+  { path: "/reels",   key: "reels",   label: "Reels",   icon: FilmIcon, iconActive: FilmIconSolid },
+  { path: "/support", key: "support", label: "Support", icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid },
+  { path: "/profile", key: "profile", label: "Profile", icon: UserIcon, iconActive: UserIconSolid },
 ];
 
 interface Broadcast {
@@ -188,14 +141,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           {NAV.map((item) => {
             const active = isActive(item.path);
             const badge = item.cart && totalItems > 0 ? totalItems : 0;
-            const Icon = NavIcons[item.key as keyof typeof NavIcons];
+            const Icon = active ? item.iconActive : item.icon;
             return (
               <Link key={item.path} href={item.path}>
                 <button className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl min-w-[44px] transition-all duration-200 ${active ? "bg-primary/10" : "hover:bg-muted/60"}`}>
                   <div className="relative">
-                    <div className={`${active ? "scale-110" : ""} transition-transform`} style={{ color: active ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}>
-                      {Icon}
-                    </div>
+                    <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"} ${active ? "scale-110" : ""} transition-transform`} />
                     {badge > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{badge}</span>
                     )}

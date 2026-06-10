@@ -61,7 +61,15 @@ export default function AIBarista() {
   const { baristaName, baristaAvatar, persona } = useBarista();
   const [, navigate] = useLocation();
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Load saved messages from localStorage for session memory
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const saved = localStorage.getItem("azura-chat-history");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -76,6 +84,17 @@ export default function AIBarista() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Save messages to localStorage for session memory
+  useEffect(() => {
+    try {
+      // Keep only last 50 messages to prevent localStorage overflow
+      const messagesToSave = messages.slice(-50);
+      localStorage.setItem("azura-chat-history", JSON.stringify(messagesToSave));
+    } catch (e) {
+      console.warn("Failed to save chat history:", e);
+    }
+  }, [messages]);
 
   const toggleTTS = () => {
     const next = !ttsEnabled;

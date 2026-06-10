@@ -114,17 +114,15 @@ export default function Welcome() {
         style={{ background: "radial-gradient(circle, hsl(35,65%,68%,0.28), transparent 70%)", transform: "translate(30%,-30%)" }} />
       <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full pointer-events-none"
         style={{ background: "radial-gradient(circle, hsl(22,55%,38%,0.18), transparent 70%)", transform: "translate(-30%,30%)" }} />
-      {/* Floating coffee cups */}
+      {/* Floating shapes */}
       {[
-        { emoji:"☕", x:"10%", y:"18%", s:0.7, d:"6s" },
-        { emoji:"🫖", x:"85%", y:"25%", s:0.6, d:"8s" },
-        { emoji:"🍰", x:"15%", y:"72%", s:0.55, d:"7s" },
-        { emoji:"✨", x:"80%", y:"70%", s:0.6, d:"5s" },
+        { shape: "circle", x:"10%", y:"18%", s:0.7, d:"6s" },
+        { shape: "circle", x:"85%", y:"25%", s:0.6, d:"8s" },
+        { shape: "circle", x:"15%", y:"72%", s:0.55, d:"7s" },
+        { shape: "circle", x:"80%", y:"70%", s:0.6, d:"5s" },
       ].map((b, i) => (
-        <div key={i} className="absolute pointer-events-none select-none"
-          style={{ left: b.x, top: b.y, fontSize: "1.6rem", opacity: 0.18, animation: `floatBob ${b.d} ease-in-out infinite`, transform: `scale(${b.s})`, animationDelay: `${i * 0.8}s` }}>
-          {b.emoji}
-        </div>
+        <div key={i} className="absolute pointer-events-none select-none rounded-full"
+          style={{ left: b.x, top: b.y, width: "1.5rem", height: "1.5rem", opacity: 0.1, background: "hsl(var(--primary))", animation: `floatBob ${b.d} ease-in-out infinite`, transform: `scale(${b.s})`, animationDelay: `${i * 0.8}s` }} />
       ))}
     </>
   );
@@ -157,7 +155,7 @@ export default function Welcome() {
           <h1 className="text-3xl font-extrabold text-primary mb-1 text-center" style={{ fontFamily: "var(--font-heading)", letterSpacing: "-0.02em" }}>
             {lang === "ar" ? "أزورا كافيه" : "Azura Cafe"}
           </h1>
-          <p className="text-sm text-secondary font-medium">{tr("Tivoli Dome, Alexandria ✨", "التيفولي دوم، الإسكندرية ✨")}</p>
+          <p className="text-sm text-secondary font-medium">{tr("Tivoli Dome, Alexandria", "التيفولي دوم، الإسكندرية")}</p>
           {/* Loading dots */}
           <div className="flex gap-1.5 mt-6">
             {[0,1,2].map((i) => (
@@ -221,7 +219,7 @@ export default function Welcome() {
               {tr("Welcome to Azura", "أهلاً بيك في أزورا")}
             </h1>
             <p className="text-sm text-secondary font-medium mt-1 text-center">
-              {tr("Your cozy corner in Alexandria ☕", "ركنك الدافي في الإسكندرية ☕")}
+              {tr("Your cozy corner in Alexandria", "ركنك الدافي في الإسكندرية")}
             </p>
           </div>
 
@@ -231,21 +229,26 @@ export default function Welcome() {
               <Sparkles size={10} /> {tr("Choose your AI barista", "اختار باريستاك الذكي")}
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {([
-                ["female", "👩‍🍳", tr("Zura", "زورا"), tr("She's warm & friendly", "دافية ومبتسمة دايماً")],
-                ["male",   "👨‍🍳", tr("Zure", "زور"),  tr("Cool & knowledgeable", "هادي ومتمكن")],
-              ] as const).map(([p, emoji, bname, desc]) => (
-                <button key={p} onClick={() => setPersona(p)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${persona === p ? "ring-2 ring-primary" : "hover:bg-muted/30"}`}
-                  style={persona === p ? { background: "hsl(var(--primary)/0.08)", boxShadow: "var(--shadow-sm)" } : {}}>
-                  <span className="text-3xl" style={{ filter: persona === p ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "" }}>{emoji}</span>
-                  <div className="text-center">
-                    <p className="font-extrabold text-sm text-primary">{bname}</p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">{desc}</p>
-                  </div>
-                  {persona === p && <div className="w-5 h-1 rounded-full" style={{ background: "hsl(var(--primary))" }} />}
-                </button>
-              ))}
+              <button onClick={() => setPersona("female")}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${persona === "female" ? "ring-2 ring-primary" : "hover:bg-muted/30"}`}
+                style={persona === "female" ? { background: "hsl(var(--primary)/0.08)", boxShadow: "var(--shadow-sm)" } : {}}>
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Zura&backgroundColor=b6e3f4&clothesColor=5d3e6e" alt="Zura" className="w-14 h-14 rounded-full" style={{ filter: persona === "female" ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "opacity(0.7)" }} />
+                <div className="text-center">
+                  <p className="font-extrabold text-sm text-primary">{tr("Zura", "زورا")}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{tr("Warm & friendly", "دافية ومبتسمة دايماً")}</p>
+                </div>
+                {persona === "female" && <div className="w-5 h-1 rounded-full" style={{ background: "hsl(var(--primary))" }} />}
+              </button>
+              <button onClick={() => setPersona("male")}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${persona === "male" ? "ring-2 ring-primary" : "hover:bg-muted/30"}`}
+                style={persona === "male" ? { background: "hsl(var(--primary)/0.08)", boxShadow: "var(--shadow-sm)" } : {}}>
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Zure&backgroundColor=c0aede&clothesColor=3d5a80" alt="Zure" className="w-14 h-14 rounded-full" style={{ filter: persona === "male" ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "opacity(0.7)" }} />
+                <div className="text-center">
+                  <p className="font-extrabold text-sm text-primary">{tr("Zure", "زور")}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{tr("Cool & knowledgeable", "هادي ومتمكن")}</p>
+                </div>
+                {persona === "male" && <div className="w-5 h-1 rounded-full" style={{ background: "hsl(var(--primary))" }} />}
+              </button>
             </div>
           </div>
 
@@ -273,7 +276,7 @@ export default function Welcome() {
 
           {/* Footer */}
           <p className="text-center text-[10px] text-muted-foreground mt-5">
-            {tr("Powered by AI · Made with ❤️ in Egypt", "بالذكاء الاصطناعي · صُنع بـ ❤️ في مصر")}
+            {tr("Powered by AI · Made in Egypt", "بالذكاء الاصطناعي · صُنع في مصر")}
           </p>
         </div>
       )}
@@ -311,7 +314,7 @@ export default function Welcome() {
         <div className="w-full max-w-xs page-enter">
           {back}
           <div className="card-elevated rounded-2xl p-6 space-y-3">
-            <h2 className="text-xl font-bold text-primary text-center" style={{ fontFamily: "var(--font-heading)" }}>{tr("Welcome back 👋", "أهلاً من جديد 👋")}</h2>
+            <h2 className="text-xl font-bold text-primary text-center" style={{ fontFamily: "var(--font-heading)" }}>{tr("Welcome back", "أهلاً من جديد")}</h2>
             <input type="email" className={inp} placeholder={tr("Email", "البريد الإلكتروني")} value={email} onChange={(e) => setEmail(e.target.value)} />
             <input type="password" className={inp} placeholder={tr("Password", "كلمة المرور")} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleLogin()} />
             {err}
@@ -330,7 +333,7 @@ export default function Welcome() {
         <div className="w-full max-w-xs page-enter">
           {back}
           <div className="card-elevated rounded-2xl p-6 space-y-3">
-            <h2 className="text-xl font-bold text-primary text-center" style={{ fontFamily: "var(--font-heading)" }}>{tr("Create Account ✨", "إنشاء حساب ✨")}</h2>
+            <h2 className="text-xl font-bold text-primary text-center" style={{ fontFamily: "var(--font-heading)" }}>{tr("Create Account", "إنشاء حساب")}</h2>
             <input type="text" className={inp} placeholder={tr("Full Name", "الاسم الكامل")} value={name} onChange={(e) => setName(e.target.value)} />
             <input type="email" className={inp} placeholder={tr("Email", "البريد الإلكتروني")} value={email} onChange={(e) => setEmail(e.target.value)} />
             <input type="password" className={inp} placeholder={tr("Password (min 6 chars)", "كلمة المرور (6 حروف)")} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleRegister()} />

@@ -175,7 +175,7 @@ export default function AIBarista() {
   // Initial greeting
   useEffect(() => {
     if (menuItems.length === 0 || greeted) return;
-    const greeting = `Hi! I'm ${baristaName}! ☕ What can I get for you today? I can help you order multiple items - just tell me what you'd like!`;
+    const greeting = `Hi! I'm ${baristaName}! What can I get for you today? I can help you order multiple items - just tell me what you'd like!`;
     setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
     setGreeted(true);
     setTimeout(() => speak(greeting), 800);
@@ -307,12 +307,12 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
   };
 
   const quickPrompts = [
-    "What's your best coffee? ☕",
-    "Something sweet! 🍰",
+    "What's your best coffee?",
+    "Something sweet!",
     "What's popular?",
-    "I want something cold 🧊",
+    "I want something cold",
     "Recommend a combo",
-    "I'm hungry! 🍽️"
+    "I'm hungry!"
   ];
 
   return (
@@ -380,7 +380,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
                 <div className="space-y-2">
                   {msg.suggestedItems.length > 1 && (
                     <p className="text-xs font-bold text-primary px-1">
-                      ✨ Adding {msg.suggestedItems.length} items to your order
+                      Adding {msg.suggestedItems.length} items to your order
                     </p>
                   )}
                   {msg.suggestedItems.map((item) => {
@@ -436,7 +436,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
         )}
         {speaking && (
           <p className="text-center text-[10px] text-muted-foreground animate-pulse">
-            🔊 Speaking...
+            Speaking...
           </p>
         )}
         <div ref={messagesEndRef} />

@@ -1,9 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLocation } from "wouter";
 import { Search, Plus, Check, Sparkles, ChevronRight } from "lucide-react";
+
+// Lazy load heavy components
+const SkeletonCard = lazy(() => import("./SkeletonCard"));
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
@@ -76,21 +79,7 @@ function greeting(lang: "en" | "ar") {
   return lang === "ar" ? "مساء النور! 🌙" : "Good evening! 🌙";
 }
 
-function SkeletonCard() {
-  return (
-    <div className="rounded-2xl overflow-hidden animate-pulse" style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-sm)" }}>
-      <div className="h-40 bg-muted/60" />
-      <div className="p-3 space-y-2">
-        <div className="h-3.5 bg-muted rounded-full w-3/4" />
-        <div className="h-3 bg-muted rounded-full w-1/2" />
-        <div className="flex items-center justify-between mt-3">
-          <div className="h-5 bg-muted rounded-full w-16" />
-          <div className="w-8 h-8 rounded-full bg-muted" />
-        </div>
-      </div>
-    </div>
-  );
-}
+// SkeletonCard is now lazy loaded
 
 export default function Menu() {
   const { lang, isRTL } = useLang();
@@ -105,6 +94,10 @@ export default function Menu() {
   const [visible, setVisible] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
+  // Memoized translation function
+  const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
+
+  // Memoized data processing
   useEffect(() => {
     const menuRef = ref(db, "menu");
     onValue(menuRef, (snap) => {
@@ -130,25 +123,33 @@ export default function Menu() {
     return () => off(ref(db, "menu"));
   }, []);
 
-  const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
+  // Memoized filtered items
+  const filtered = useMemo(() => {
+    return items.filter((item) => {
+      if (!item.available) return false;
+      if (cat !== "all" && item.category !== cat) return false;
+      const q = search.toLowerCase();
+      return !q || item.name.toLowerCase().includes(q) || item.nameAr.includes(q) || item.description.toLowerCase().includes(q);
+    });
+  }, [items, cat, search]);
 
-  const filtered = items.filter((item) => {
-    if (!item.available) return false;
-    if (cat !== "all" && item.category !== cat) return false;
-    const q = search.toLowerCase();
-    return !q || item.name.toLowerCase().includes(q) || item.nameAr.includes(q) || item.description.toLowerCase().includes(q);
-  });
+  // Memoized featured items
+  const featured = useMemo(() => {
+    return items.filter((i) => i.available && i.image).slice(0, 8);
+  }, [items]);
 
-  // Featured: first 6 available items with images
-  const featured = items.filter((i) => i.available && i.image).slice(0, 8);
+  // Memoized category counts
+  const catCount = useCallback((c: string) => {
+    if (c === "all") return items.filter((i) => i.available).length;
+    return items.filter((i) => i.available && i.category === c).length;
+  }, [items]);
 
-  const handleAdd = (item: MenuItem) => {
+  // Memoized add handler
+  const handleAdd = useCallback((item: MenuItem) => {
     addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
     setJustAdded(item.id);
     setTimeout(() => setJustAdded(null), 1400);
-  };
-
-  const catCount = (c: string) => c === "all" ? items.filter((i) => i.available).length : items.filter((i) => i.available && i.category === c).length;
+  }, [addItem]);
 
   return (
     <div className="max-w-2xl mx-auto pb-4" dir={isRTL ? "rtl" : "ltr"}>
@@ -258,9 +259,11 @@ export default function Menu() {
       {/* ── Main Grid ── */}
       <div className="px-4">
         {loading ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
-          </div>
+          <Suspense fallback={<div className="grid grid-cols-2 gap-3">{[...Array(6)].map((_, i) => <div key={i} className="h-48 rounded-2xl animate-pulse bg-muted/60" />)}</div>}>
+            <div className="grid grid-cols-2 gap-3">
+              {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          </Suspense>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-5xl mb-3">{search ? "🔍" : "☕"}</p>

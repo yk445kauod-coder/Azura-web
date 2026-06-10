@@ -33,15 +33,24 @@ const firebaseConfig = {
 };
 
 /*
-  Recommended Firebase RTDB Security Rules:
+  Recommended Firebase RTDB Security Rules with Performance Indexes:
   {
     "rules": {
-      "menu": { ".read": true, ".write": "auth != null && root.child('admins').child(auth.uid).exists()" },
+      "menu": { 
+        ".read": true, 
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+        ".indexOn": ["category", "available", "price"]
+      },
+      "menu_by_category": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+      },
       "orders": {
         "$orderId": {
           ".read": "auth != null && (data.child('userId').val() === auth.uid || root.child('admins').child(auth.uid).exists())",
           ".write": "auth != null"
-        }
+        },
+        ".indexOn": ["userId", "status", "createdAt"]
       },
       "users": {
         "$uid": {
@@ -63,6 +72,12 @@ const firebaseConfig = {
       "admins": { ".read": "root.child('admins').child(auth.uid).exists()", ".write": false }
     }
   }
+  
+  Performance Tips:
+  1. Use shallow queries for lists: ?shallow=true
+  2. Paginate large datasets with limitToFirst/last
+  3. Denormalize data for read-heavy operations
+  4. Use compound indexes for filtered queries
 */
 
 const app = initializeApp(firebaseConfig);

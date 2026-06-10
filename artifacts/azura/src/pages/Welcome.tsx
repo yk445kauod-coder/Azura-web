@@ -232,7 +232,7 @@ export default function Welcome() {
               <button onClick={() => setPersona("female")}
                 className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${persona === "female" ? "ring-2 ring-primary" : "hover:bg-muted/30"}`}
                 style={persona === "female" ? { background: "hsl(var(--primary)/0.08)", boxShadow: "var(--shadow-sm)" } : {}}>
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Zura&backgroundColor=b6e3f4&clothesColor=5d3e6e" alt="Zura" className="w-14 h-14 rounded-full" style={{ filter: persona === "female" ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "opacity(0.7)" }} />
+                <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Zura&backgroundColor=b6e3f4&clothColor=5d3e6e&mouthColor=ec4899&hairColor=7c3aed" alt="Zura" className="w-14 h-14 rounded-full" style={{ filter: persona === "female" ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "opacity(0.7)" }} />
                 <div className="text-center">
                   <p className="font-extrabold text-sm text-primary">{tr("Zura", "زورا")}</p>
                   <p className="text-[10px] text-muted-foreground leading-tight">{tr("Warm & friendly", "دافية ومبتسمة دايماً")}</p>

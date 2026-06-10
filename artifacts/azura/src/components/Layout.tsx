@@ -4,16 +4,16 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { X } from "lucide-react";
+import { X, Coffee, Bot, ShoppingCart, ClipboardList, Film, MessageCircle, User } from "lucide-react";
 
 const NAV = [
-  { path: "/menu",    emoji: "☕", label: "Menu" },
-  { path: "/barista", emoji: "🤖", label: "AI" },
-  { path: "/cart",    emoji: "🛒", label: "Cart", cart: true },
-  { path: "/orders",  emoji: "📋", label: "Orders" },
-  { path: "/reels",   emoji: "🎬", label: "Reels" },
-  { path: "/support", emoji: "💬", label: "Support" },
-  { path: "/profile", emoji: "👤", label: "Profile" },
+  { path: "/menu",    icon: Coffee,        label: "Menu" },
+  { path: "/barista", icon: Bot,           label: "AI" },
+  { path: "/cart",    icon: ShoppingCart,  label: "Cart", cart: true },
+  { path: "/orders",  icon: ClipboardList, label: "Orders" },
+  { path: "/reels",   icon: Film,          label: "Reels" },
+  { path: "/support", icon: MessageCircle, label: "Support" },
+  { path: "/profile", icon: User,          label: "Profile" },
 ];
 
 interface Broadcast {
@@ -86,7 +86,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
           <Link href="/cart">
             <button className="relative btn-icon w-9 h-9">
-              <span className="text-base">🛒</span>
+              <ShoppingCart size={18} />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center font-bold leading-none px-1">
                   {totalItems}
@@ -123,11 +123,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           {NAV.map((item) => {
             const active = isActive(item.path);
             const badge = item.cart && totalItems > 0 ? totalItems : 0;
+            const Icon = item.icon;
             return (
               <Link key={item.path} href={item.path}>
                 <button className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl min-w-[44px] transition-all duration-200 ${active ? "bg-primary/10" : "hover:bg-muted/60"}`}>
                   <div className="relative">
-                    <span className={`text-[18px] leading-none ${active ? "scale-110" : ""} inline-block transition-transform`}>{item.emoji}</span>
+                    <Icon size={18} className={`${active ? "text-primary" : "text-muted-foreground"} ${active ? "scale-110" : ""} transition-transform`} />
                     {badge > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{badge}</span>
                     )}

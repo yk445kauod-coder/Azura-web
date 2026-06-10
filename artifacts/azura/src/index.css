@@ -537,3 +537,23 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* Slide down animation */
+@keyframes slide-down {
+  0% { transform: translateY(-100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.5s ease-out forwards;
+}
+
+/* Progress bar animation */
+@keyframes progress-move {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.animate-progress {
+  animation: progress-move 8s linear infinite;
+}

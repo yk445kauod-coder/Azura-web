@@ -41,9 +41,20 @@ interface Broadcast {
 }
 
 const BROADCAST_TYPE_STYLE: Record<string, string> = {
-  info:  "bg-blue-50 border-blue-200 text-blue-800",
-  promo: "bg-amber-50 border-amber-200 text-amber-800",
-  alert: "bg-red-50 border-red-200 text-red-800",
+  info:  "bg-gradient-to-r from-purple-500 to-pink-500 border-white/30 text-white",
+  promo: "bg-gradient-to-r from-amber-500 to-orange-500 border-white/30 text-white",
+  alert: "bg-gradient-to-r from-red-500 to-pink-500 border-white/30 text-white",
+};
+
+const DEFAULT_BROADCAST: Broadcast = {
+  id: "welcome-new",
+  title: "✨ Welcome to NEW Azura App!",
+  titleAr: "✨ مرحباً بكم في تطبيق أزورا الجديد!",
+  message: "🎬 Check out our NEW Video Reels! Swipe through delicious dishes 🍽️",
+  messageAr: "🎬 شاهدREELs الجديدة! اسحب لرؤية الأطباق اللذيذة 🍽️",
+  type: "promo",
+  emoji: "🎉",
+  createdAt: Date.now(),
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -55,11 +66,18 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const isActive = (p: string) => location === p || (p === "/menu" && (location === "/" || location === ""));
 
-  // Listen for admin broadcasts
+  // Listen for admin broadcasts OR show default welcome
   useEffect(() => {
     const bRef = ref(db, "broadcast");
     onValue(bRef, (snap) => {
-      if (!snap.exists()) return;
+      if (!snap.exists()) {
+        // Show default welcome broadcast if none in Firebase
+        const readIds: string[] = JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
+        if (!readIds.includes("welcome-new")) {
+          setBroadcast(DEFAULT_BROADCAST);
+        }
+        return;
+      }
       const data = snap.val() as Record<string, Omit<Broadcast, "id">>;
       const readIds: string[] = JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
       const latest = Object.entries(data)
@@ -115,17 +133,36 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {/* Broadcast Banner */}
+      {/* Animated Broadcast Banner */}
       {broadcast && (
-        <div className={`mx-3 mt-2 rounded-xl px-3 py-2.5 flex items-start gap-2.5 border text-sm ${BROADCAST_TYPE_STYLE[broadcast.type] || BROADCAST_TYPE_STYLE.info}`}>
-          <span className="text-lg flex-shrink-0 leading-none mt-0.5">{broadcast.emoji || "📢"}</span>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-[13px] leading-tight">{lang === "ar" ? (broadcast.titleAr || broadcast.title) : broadcast.title}</p>
-            <p className="text-[11px] opacity-80 leading-snug mt-0.5">{lang === "ar" ? (broadcast.messageAr || broadcast.message) : broadcast.message}</p>
+        <div className={`mx-3 mt-2 rounded-2xl px-4 py-3 border text-sm overflow-hidden relative ${BROADCAST_TYPE_STYLE[broadcast.type] || BROADCAST_TYPE_STYLE.info} animate-slide-down`}>
+          {/* Animated sparkle emojis */}
+          <div className="absolute top-1 left-2 text-xs animate-pulse opacity-60">✨</div>
+          <div className="absolute top-2 right-4 text-xs animate-bounce" style={{ animationDelay: "0.3s" }}>⭐</div>
+          <div className="absolute bottom-1 right-8 text-xs animate-pulse" style={{ animationDelay: "0.6s" }}>💫</div>
+          
+          <div className="flex items-center gap-3">
+            <span className="text-2xl flex-shrink-0 animate-wiggle">{broadcast.emoji || "🎉"}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm leading-tight flex items-center gap-1">
+                {lang === "ar" ? (broadcast.titleAr || broadcast.title) : broadcast.title}
+              </p>
+              <p className="text-xs opacity-90 leading-snug mt-0.5 flex items-center gap-1">
+                {lang === "ar" ? (broadcast.messageAr || broadcast.message) : broadcast.message}
+              </p>
+            </div>
+            <button 
+              onClick={dismissBroadcast} 
+              className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-all hover:scale-110"
+            >
+              <X size={14} className="text-white" />
+            </button>
           </div>
-          <button onClick={dismissBroadcast} className="flex-shrink-0 opacity-60 hover:opacity-100 mt-0.5">
-            <X size={14} />
-          </button>
+          
+          {/* Animated progress bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/30">
+            <div className="h-full bg-white/80 animate-progress" style={{ width: "60%" }} />
+          </div>
         </div>
       )}
 

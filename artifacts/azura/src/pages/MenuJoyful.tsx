@@ -157,19 +157,20 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
   return (
     <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
-      {/* Full Background Image - Clear & Visible */}
+      {/* Full Background Image - Dark & Shaded */}
       {hasValidImage ? (
         <div className="absolute inset-0">
-          {/* Clear image background */}
+          {/* Dark overlay on image */}
           <img 
             src={item.image} 
             alt="" 
             className="w-full h-full object-cover"
             onError={() => setImageError(true)}
           />
-          {/* Subtle dark gradient only at edges for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
+          {/* Heavy dark shading for eye comfort */}
+          <div className="absolute inset-0 bg-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
         </div>
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>

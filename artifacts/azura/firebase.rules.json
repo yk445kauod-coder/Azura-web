@@ -3,19 +3,29 @@
     "menu": {
       ".read": true,
       ".write": true,
-      "$category": {
-        "$itemId": {
-          ".write": true
-        }
-      }
+      ".indexOn": [
+        "category",
+        "available",
+        "price"
+      ]
     },
     "reels": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      ".indexOn": [
+        "createdAt",
+        "pinned",
+        "likes"
+      ]
     },
     "orders": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      ".indexOn": [
+        "userId",
+        "status",
+        "createdAt"
+      ]
     },
     "users": {
       "$uid": {

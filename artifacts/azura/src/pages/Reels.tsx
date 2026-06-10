@@ -4,6 +4,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update } from "@/lib/firebase";
 import { Heart, Share2 } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
+import { parseVideoUrl, type VideoProvider } from "@/lib/videoProviders";
 
 interface Reel {
   id: string;
@@ -16,6 +17,7 @@ interface Reel {
   authorName: string;
   pinned?: boolean;
   videoUrl?: string;
+  videoProvider?: VideoProvider;
 }
 
 export default function Reels() {
@@ -86,7 +88,51 @@ export default function Reels() {
   };
 
   const openVideo = (reel: Reel) => {
-    if (reel.videoUrl) window.open(reel.videoUrl, "_blank", "noopener,noreferrer");
+    if (!reel.videoUrl) return;
+    
+    // Handle YouTube embeds
+    if (reel.videoProvider === "youtube" || reel.videoUrl.includes("youtube")) {
+      const match = reel.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+      if (match) {
+        window.open(`https://www.youtube.com/embed/${match[1]}?autoplay=1`, "_blank", "noopener,noreferrer");
+        return;
+      }
+    }
+    
+    // Handle Google Drive
+    if (reel.videoProvider === "google_drive" || reel.videoUrl.includes("drive.google")) {
+      const fileMatch = reel.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileMatch) {
+        window.open(`https://drive.google.com/file/d/${fileMatch[1]}/preview`, "_blank", "noopener,noreferrer");
+        return;
+      }
+    }
+    
+    // Default: open URL
+    window.open(reel.videoUrl, "_blank", "noopener,noreferrer");
+  };
+
+  // Get embed URL for iframe
+  const getEmbedUrl = (reel: Reel): string => {
+    if (!reel.videoUrl) return "";
+    
+    if (reel.videoProvider === "youtube") {
+      const match = reel.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+      if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
+    }
+    
+    if (reel.videoProvider === "google_drive") {
+      const fileMatch = reel.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
+    }
+    
+    // Auto-detect provider
+    const parsed = parseVideoUrl(reel.videoUrl);
+    if (parsed.provider === "youtube") {
+      return `https://www.youtube.com/embed/${parsed.id}?autoplay=1`;
+    }
+    
+    return reel.videoUrl;
   };
 
   if (loading) {

@@ -25,13 +25,13 @@ import {
 } from "@heroicons/react/24/solid";
 
 const NAV = [
-  { path: "/menu",    key: "menu",    label: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid },
-  { path: "/barista", key: "barista", label: "AI",      icon: SparklesIcon, iconActive: SparklesIconSolid },
-  { path: "/cart",    key: "cart",    label: "Cart",    icon: ShoppingCart, iconActive: ShoppingCart, cart: true },
-  { path: "/orders",  key: "orders",  label: "Orders",  icon: ClipboardDocumentListIcon, iconActive: ClipboardIconSolid },
-  { path: "/reels",   key: "reels",   label: "Reels",   icon: FilmIcon, iconActive: FilmIconSolid },
-  { path: "/support", key: "support", label: "Support", icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid },
-  { path: "/profile", key: "profile", label: "Profile", icon: UserIcon, iconActive: UserIconSolid },
+  { path: "/menu",    key: "menu",    label: "القائمة",      labelEn: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid },
+  { path: "/barista", key: "barista", label: "المساعد",      labelEn: "AI",       icon: SparklesIcon, iconActive: SparklesIconSolid },
+  { path: "/cart",    key: "cart",    label: "السلة",        labelEn: "Cart",     icon: ShoppingCart, iconActive: ShoppingCart, cart: true },
+  { path: "/orders",  key: "orders",  label: "الطلبات",      labelEn: "Orders",   icon: ClipboardDocumentListIcon, iconActive: ClipboardIconSolid },
+  { path: "/reels",   key: "reels",   label: "الفيديو",       labelEn: "Reels",    icon: FilmIcon, iconActive: FilmIconSolid },
+  { path: "/support", key: "support", label: "الدعم",        labelEn: "Support",  icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid },
+  { path: "/profile", key: "profile", label: "حسابي",        labelEn: "Profile",  icon: UserIcon, iconActive: UserIconSolid },
 ];
 
 interface Broadcast {
@@ -136,80 +136,82 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Bottom Nav - Amazing iOS Style */}
       <nav className="fixed bottom-0 inset-x-0 z-40 px-1 pb-safe">
-        {/* Background blur container */}
+        {/* Background blur container with glass effect */}
         <div 
           className="mx-3 mb-2 rounded-2xl overflow-hidden"
           style={{ 
-            background: "hsla(var(--card),0.92)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-            boxShadow: "0 -4px 30px rgba(61,32,18,0.12), 0 -2px 10px rgba(61,32,18,0.08), inset 0 0.5px 0 rgba(255,255,255,0.8)",
-            border: "0.5px solid rgba(93,62,35,0.08)"
+            background: "hsla(var(--card),0.90)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+            boxShadow: "0 -8px 40px rgba(61,32,18,0.15), 0 -4px 16px rgba(61,32,18,0.10), inset 0 0.5px 0 rgba(255,255,255,0.9)",
+            border: "0.5px solid rgba(93,62,35,0.06)"
           }}
         >
-          <div className="flex items-stretch justify-around py-1.5 px-1">
-            {NAV.map((item) => {
+          <div className="flex items-stretch justify-around py-2 px-1">
+            {NAV.map((item, index) => {
               const active = isActive(item.path);
               const badge = item.cart && totalItems > 0 ? totalItems : 0;
               const Icon = active ? item.iconActive : item.icon;
+              const displayLabel = lang === "ar" ? item.label : item.labelEn;
               
               return (
                 <Link key={item.path} href={item.path} className="flex-1">
                   <button 
                     className={`
-                      relative flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 w-full
+                      relative flex flex-col items-center justify-center gap-1 px-1 py-1.5 w-full
                       transition-all duration-300 ease-out
-                      ${active ? "scale-100" : "hover:scale-105 active:scale-95"}
+                      ${active ? "" : "hover:scale-[1.08] active:scale-[0.92]"}
                     `}
                   >
-                    {/* Active indicator bar */}
+                    {/* Active indicator pill */}
                     {active && (
                       <div 
-                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
+                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full"
                         style={{ 
-                          background: "linear-gradient(90deg, hsl(22,55%,30%), hsl(22,55%,20%))",
-                          boxShadow: "0 2px 8px rgba(93,62,35,0.4)"
+                          background: "linear-gradient(180deg, hsl(22,55%,28%), hsl(22,55%,18%))",
+                          boxShadow: "0 3px 10px rgba(93,62,35,0.5), 0 1px 3px rgba(93,62,35,0.3)"
                         }}
                       />
                     )}
                     
-                    {/* Icon container */}
+                    {/* Icon container with dynamic background */}
                     <div className="relative">
                       <div 
                         className={`
-                          p-1.5 rounded-xl transition-all duration-300
+                          p-1.5 rounded-xl transition-all duration-300 ease-out
                           ${active 
-                            ? "bg-primary/15 shadow-md" 
-                            : "bg-transparent hover:bg-muted/50 active:bg-muted/70"
+                            ? "bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg ring-2 ring-primary/20" 
+                            : "bg-transparent hover:bg-muted/60 active:bg-muted/80"
                           }
                         `}
                       >
                         <Icon 
                           className={`
-                            w-5 h-5 transition-all duration-300
+                            w-5 h-5 transition-all duration-300 ease-out
                             ${active 
-                              ? "text-primary scale-110 drop-shadow-sm" 
-                              : "text-muted-foreground"
+                              ? "text-primary scale-110 drop-shadow-md" 
+                              : "text-muted-foreground group-hover:text-foreground"
                             }
                           `} 
                         />
                       </div>
                       
-                      {/* Badge */}
+                      {/* Animated badge */}
                       {badge > 0 && (
                         <span 
-                          className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-spring-bounce"
+                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-lg"
                           style={{ 
-                            background: "linear-gradient(135deg, hsl(22,55%,30%), hsl(22,55%,18%))",
-                            boxShadow: "0 2px 6px rgba(93,62,35,0.4)"
+                            background: "linear-gradient(135deg, hsl(22,55%,25%), hsl(22,55%,15%))",
+                            boxShadow: "0 3px 8px rgba(93,62,35,0.5)",
+                            animation: "badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
                           }}
                         >
-                          {badge}
+                          {badge > 99 ? "99+" : badge}
                         </span>
                       )}
                     </div>
                     
-                    {/* Label */}
+                    {/* Label with active highlight */}
                     <span 
                       className={`
                         text-[10px] font-semibold leading-none tracking-wide transition-all duration-300
@@ -219,7 +221,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         }
                       `}
                     >
-                      {item.label}
+                      {displayLabel}
                     </span>
                   </button>
                 </Link>

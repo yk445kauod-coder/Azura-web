@@ -42,6 +42,19 @@ const FALLBACK: Record<string, string> = {
   shisha:    "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=500&q=80",
 };
 
+const SHISHA_EXAMPLES = [
+  { name: "Classic Hookah", price: 80, desc: "Traditional tobacco with authentic flavor" },
+  { name: "Double Apple", price: 90, desc: "Sweet & tangy apple flavor" },
+  { name: "Mint Chill", price: 85, desc: "Cool refreshing mint" },
+  { name: "Fruit Mix", price: 95, desc: "Blend of tropical fruits" },
+  { name: "Grape Mint", price: 90, desc: "Grape with cooling mint" },
+  { name: "Berry Blast", price: 95, desc: "Mixed berry sensation" },
+  { name: "Lemon Mint", price: 85, desc: "Citrus with fresh mint" },
+  { name: "Watermelon Fresh", price: 90, desc: "Sweet summer watermelon" },
+  { name: "Two Hose Sharing", price: 150, desc: "Share with a friend - two hoses" },
+  { name: "Premium Mix Bowl", price: 120, desc: "Mix of two flavors in one bowl" },
+];
+
 function greeting(lang: "en" | "ar") {
   const h = new Date().getHours();
   if (h < 12) return lang === "ar" ? "صباح الخير! ☀️" : "Good morning! ☀️";
@@ -207,14 +220,14 @@ export default function Menu() {
                 >
                   <img
                     src={item.image || FALLBACK[item.category] || FALLBACK.coffee}
-                    alt={lang === "ar" ? item.nameAr : item.name}
+                    alt={item.name}
                     className="w-full h-24 object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK[item.category] || FALLBACK.coffee; }}
                   />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)" }} />
                   <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <p className="text-white text-[11px] font-bold leading-tight line-clamp-1">{lang === "ar" ? (item.nameAr || item.name) : item.name}</p>
-                    <p className="text-white/80 text-[10px] font-semibold">{item.price} {lang === "ar" ? "ج.م" : "EGP"}</p>
+                    <p className="text-white text-[11px] font-bold leading-tight line-clamp-1">{item.name}</p>
+                    <p className="text-white/80 text-[10px] font-semibold">{item.price} EGP</p>
                   </div>
                   <div className={`absolute top-1.5 ${isRTL ? "left-1.5" : "right-1.5"} w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${added ? "scale-90" : ""}`}
                     style={{ background: added ? "#22c55e" : "rgba(255,255,255,0.9)", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}>
@@ -264,7 +277,7 @@ export default function Menu() {
                   <div className="relative overflow-hidden bg-muted" style={{ paddingTop: "68%" }}>
                     <img
                       src={imgSrc}
-                      alt={lang === "ar" ? item.nameAr : item.name}
+                      alt={item.name}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK[item.category] || FALLBACK.coffee; }}
                       loading="lazy"
@@ -272,7 +285,7 @@ export default function Menu() {
                     {/* Category badge */}
                     <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white/90"
                       style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}>
-                      {CATS.find((c) => c.id === item.category)?.emoji} {lang === "ar" ? CATS.find((c) => c.id === item.category)?.ar : CATS.find((c) => c.id === item.category)?.en}
+                      {CATS.find((c) => c.id === item.category)?.emoji} {CATS.find((c) => c.id === item.category)?.en}
                     </span>
                     {/* Cart qty badge */}
                     {inCart && qty > 0 && (
@@ -286,11 +299,11 @@ export default function Menu() {
                   {/* Info */}
                   <div className="p-3 flex flex-col flex-1">
                     <h3 className="font-bold text-sm text-foreground leading-tight mb-0.5">
-                      {lang === "ar" ? (item.nameAr || item.name) : item.name}
+                      {item.name}
                     </h3>
-                    {(item.description || item.descriptionAr) && (
+                    {item.description && (
                       <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2 flex-1 mb-2">
-                        {lang === "ar" ? (item.descriptionAr || item.description) : item.description}
+                        {item.description}
                       </p>
                     )}
                     <div className="flex items-center justify-between mt-auto pt-1">

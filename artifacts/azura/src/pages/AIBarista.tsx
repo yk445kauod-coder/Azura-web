@@ -2,16 +2,22 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useBarista } from "@/contexts/BaristaContext";
+import { useLocation } from "wouter";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI, textToSpeech, playAudioFromUrl } from "@/lib/crypto";
-import { Send, Plus, RefreshCw, Volume2, VolumeX } from "lucide-react";
+import { Send, Plus, RefreshCw, Volume2, VolumeX, ShoppingCart, ArrowLeft, Check } from "lucide-react";
+
+interface SuggestedItem {
+  id: string; name: string; nameAr: string; price: number; image: string; category: string;
+}
 
 interface Message {
   id: string;
   role: "user" | "ai";
   content: string;
   timestamp: number;
-  suggestedItem?: { id: string; name: string; nameAr: string; price: number; image: string; category: string };
+  suggestedItems?: SuggestedItem[];
+  action?: "add_to_cart" | "view_menu" | "checkout";
 }
 
 interface RawMenuItem {
@@ -36,10 +42,24 @@ function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
   };
 }
 
+// Simple markdown-like renderer
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-sm font-bold mt-2 mb-1">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-base font-bold mt-2 mb-1">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-lg font-bold mt-2 mb-1">$1</h1>')
+    .replace(/^- (.*$)/gm, '<li class="ml-4">$1</li>')
+    .replace(/\n/g, '<br/>');
+}
+
 export default function AIBarista() {
   const { lang, isRTL } = useLang();
-  const { addItem } = useCart();
+  const { addItem, totalItems } = useCart();
   const { baristaName, baristaAvatar, persona } = useBarista();
+  const [, navigate] = useLocation();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -51,6 +71,7 @@ export default function AIBarista() {
   const [egyKey, setEgyKey] = useState("");
   const [ttsEnabled, setTtsEnabled] = useState(() => localStorage.getItem("azura-tts") === "true");
   const [speaking, setSpeaking] = useState(false);
+  const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -60,6 +81,16 @@ export default function AIBarista() {
     const next = !ttsEnabled;
     setTtsEnabled(next);
     localStorage.setItem("azura-tts", String(next));
+  };
+
+  const clearAddedAnimation = (id: string) => {
+    setTimeout(() => {
+      setAddedItems(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 1500);
   };
 
   const speak = useCallback(async (text: string) => {
@@ -144,9 +175,7 @@ export default function AIBarista() {
   // Initial greeting
   useEffect(() => {
     if (menuItems.length === 0 || greeted) return;
-    const greeting = lang === "ar"
-      ? `أهلاً! أنا ${baristaName}، باريستاك في أزورا ☕ إيه اللي تحب تطلبه النهارده؟`
-      : `Hi! I'm ${baristaName}! ☕ What can I get for you today?`;
+    const greeting = `Hi! I'm ${baristaName}! ☕ What can I get for you today? I can help you order multiple items - just tell me what you'd like!`;
     setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
     setGreeted(true);
     setTimeout(() => speak(greeting), 800);
@@ -155,22 +184,59 @@ export default function AIBarista() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const buildSystemPrompt = () => {
-    const menuCtx = menuItems.slice(0, 30)
-      .map((i) => `- ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}]`)
+    const menuCtx = menuItems.slice(0, 40)
+      .map((i) => `- ${i.name}: ${i.price} EGP [ID:${i.id}] [${i.category}]`)
       .join("\n");
-    return `${systemPrompt || `You are ${baristaName}, a ${persona === "female" ? "female" : "male"} AI barista at Azura Cafe, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and concise. Egyptian Arabic when user writes in Arabic. When recommending items, end with [ADD_ITEM:item_id].`}\n\nMenu:\n${menuCtx}`;
+    return `${systemPrompt || `You are ${baristaName}, a ${persona === "female" ? "female" : "male"} AI barista at Azura Cafe, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and helpful. 
+
+You can recommend multiple items at once using [ADD_ITEMS:id1,id2,id3] format. 
+You can suggest combinations using [ADD_ITEMS:item_id1,item_id2].
+You can help users order anything on the menu.
+When user wants to add items, always use [ADD_ITEMS:...] format with actual item IDs from the menu.
+You can process complex orders like "I'll have a latte and a croissant" - extract both items and add them.
+Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\nMenu:\n${menuCtx}`;
   };
 
   const parseMessage = (raw: string) => {
-    // Check for [ADD_ITEM:item_id] pattern
-    const m = raw.match(/\[ADD_ITEM:([^\]]+)\]/);
-    let suggestedItem: MenuItem | undefined;
     let text = raw;
+    let suggestedItems: SuggestedItem[] = [];
     
-    if (m) {
-      const itemId = m[1].trim();
-      suggestedItem = menuItems.find((i) => i.id === itemId || i.name.toLowerCase().includes(itemId.toLowerCase()));
-      text = raw.replace(m[0], "");
+    // Check for [ADD_ITEMS:id1,id2,id3] pattern (multiple items)
+    const multiMatch = text.match(/\[ADD_ITEMS:([^\]]+)\]/);
+    if (multiMatch) {
+      const ids = multiMatch[1].split(",").map(id => id.trim());
+      ids.forEach(id => {
+        const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
+        if (item && !suggestedItems.find(s => s.id === item.id)) {
+          suggestedItems.push({
+            id: item.id,
+            name: item.name,
+            nameAr: item.nameAr,
+            price: item.price,
+            image: item.image,
+            category: item.category,
+          });
+        }
+      });
+      text = text.replace(multiMatch[0], "");
+    }
+    
+    // Check for single [ADD_ITEM:item_id] pattern (backwards compatibility)
+    const singleMatch = text.match(/\[ADD_ITEM:([^\]]+)\]/);
+    if (singleMatch && suggestedItems.length === 0) {
+      const id = singleMatch[1].trim();
+      const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
+      if (item) {
+        suggestedItems.push({
+          id: item.id,
+          name: item.name,
+          nameAr: item.nameAr,
+          price: item.price,
+          image: item.image,
+          category: item.category,
+        });
+      }
+      text = text.replace(singleMatch[0], "");
     }
     
     // Clean up any remaining markers
@@ -178,7 +244,7 @@ export default function AIBarista() {
     text = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "");
     text = text.replace(/\n{3,}/g, "\n\n").trim();
     
-    return { text, suggestedItem };
+    return { text, suggestedItems };
   };
 
   const sendMessage = async (msgText?: string) => {
@@ -189,9 +255,7 @@ export default function AIBarista() {
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
-        content: lang === "ar" 
-          ? "عذراً، خدمة الذكاء الاصطناعي غير مُفعّلة حالياً. تواصل مع الإدارة." 
-          : "Sorry, AI service is currently disabled. Please contact admin.",
+        content: "Sorry, AI service is currently disabled. Please contact admin.",
         timestamp: Date.now(),
       };
       setMessages((p) => [...p, err]);
@@ -204,27 +268,20 @@ export default function AIBarista() {
     setLoading(true);
     
     try {
-      const history = messages.slice(-8).map((m) => ({
+      const history = messages.slice(-10).map((m) => ({
         role: m.role === "ai" ? "model" : "user",
         parts: [{ text: m.content }],
       }));
 
       const content = await chatWithAI(egyKey, text, history, buildSystemPrompt());
-      const { text: parsed, suggestedItem } = parseMessage(content);
+      const { text: parsed, suggestedItems } = parseMessage(content);
       
       const aiMsg: Message = {
         id: `a${Date.now()}`,
         role: "ai",
         content: parsed,
         timestamp: Date.now(),
-        suggestedItem: suggestedItem ? {
-          id: suggestedItem.id,
-          name: suggestedItem.name,
-          nameAr: suggestedItem.nameAr,
-          price: suggestedItem.price,
-          image: suggestedItem.image,
-          category: suggestedItem.category,
-        } : undefined,
+        suggestedItems: suggestedItems.length > 0 ? suggestedItems : undefined,
       };
       setMessages((p) => [...p, aiMsg]);
       
@@ -235,9 +292,7 @@ export default function AIBarista() {
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
-        content: lang === "ar" 
-          ? `عذراً، في مشكلة: ${errMsg}` 
-          : `Sorry, something went wrong: ${errMsg}`,
+        content: `Sorry, something went wrong: ${errMsg}`,
         timestamp: Date.now(),
       };
       setMessages((p) => [...p, err]);
@@ -245,26 +300,45 @@ export default function AIBarista() {
     setLoading(false);
   };
 
-  const quickPrompts =
-    lang === "ar"
-      ? ["إيه الأحسن عندكم؟ ☕", "أنصحني بقهوة", "عندكم إيه حلو؟ 🍰", "هاتلي حاجة بارده 🧊"]
-      : ["What's your best coffee? ☕", "Something sweet! 🍰", "What's popular?", "I want something cold 🧊"];
+  const handleAddItem = (item: SuggestedItem) => {
+    addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
+    setAddedItems(prev => new Set(prev).add(item.id));
+    clearAddedAnimation(item.id);
+  };
+
+  const quickPrompts = [
+    "What's your best coffee? ☕",
+    "Something sweet! 🍰",
+    "What's popular?",
+    "I want something cold 🧊",
+    "Recommend a combo",
+    "I'm hungry! 🍽️"
+  ];
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-7.5rem)] max-w-2xl mx-auto" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="flex flex-col h-[calc(100dvh-7.5rem)] max-w-2xl mx-auto">
       {/* Header */}
       <div className="px-4 pt-3 pb-2 flex-shrink-0">
         <div className="card rounded-2xl px-3 py-2.5 flex items-center gap-3">
+          <button onClick={() => navigate("/menu")} className="btn-icon w-8 h-8">
+            <ArrowLeft size={16} />
+          </button>
           <div className="relative flex-shrink-0">
             <img src={baristaAvatar} alt={baristaName} className="w-11 h-11 rounded-full object-cover object-top" style={{ boxShadow: "var(--shadow-sm)" }} />
             <span className="badge-online absolute -bottom-0.5 -right-0.5" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-primary text-sm leading-tight">{baristaName}</p>
-            <p className="text-[11px] text-muted-foreground">
-              {lang === "ar" ? "باريستا أزورا · متصل الآن" : "Azura Barista · Online"}
-            </p>
+            <p className="text-[11px] text-muted-foreground">Azura Barista · Online</p>
           </div>
+          {totalItems > 0 && (
+            <button onClick={() => navigate("/cart")} className="relative btn-icon w-9 h-9">
+              <ShoppingCart size={18} />
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                {totalItems}
+              </span>
+            </button>
+          )}
           <div className="flex gap-1.5">
             <button onClick={toggleTTS} className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
               {ttsEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
@@ -291,40 +365,57 @@ export default function AIBarista() {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex items-end gap-2 ${
-              msg.role === "user"
-                ? (isRTL ? "justify-start" : "justify-end")
-                : (isRTL ? "justify-end" : "justify-start")
-            }`}
+            className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "ai" && (
               <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0 mb-1" />
             )}
-            <div className="max-w-[80%] space-y-2">
-              <div className={`px-3.5 py-2.5 text-sm leading-relaxed ${msg.role === "user" ? "bubble-user" : "bubble-ai"}`}>
-                <p className="whitespace-pre-wrap">{msg.content}</p>
+            <div className="max-w-[85%] space-y-2">
+              <div className={`px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "bubble-user" : "bubble-ai"}`}>
+                <p className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }} />
               </div>
-              {msg.suggestedItem && (
-                <div className="card rounded-xl p-2.5 flex items-center gap-2.5 cursor-pointer hover:shadow-md transition-shadow" onClick={() => addItem({ ...msg.suggestedItem! })}>
-                  <img
-                    src={msg.suggestedItem.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
-                    alt={msg.suggestedItem.name}
-                    className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                    onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-primary truncate">
-                      {lang === "ar" ? (msg.suggestedItem.nameAr || msg.suggestedItem.name) : msg.suggestedItem.name}
+              
+              {/* Multiple item suggestions */}
+              {msg.suggestedItems && msg.suggestedItems.length > 0 && (
+                <div className="space-y-2">
+                  {msg.suggestedItems.length > 1 && (
+                    <p className="text-xs font-bold text-primary px-1">
+                      ✨ Adding {msg.suggestedItems.length} items to your order
                     </p>
-                    <p className="text-xs text-muted-foreground">{msg.suggestedItem.price} {lang === "ar" ? "ج.م" : "EGP"}</p>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); addItem({ ...msg.suggestedItem! }); }}
-                    className="btn-primary w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center"
-                    style={{ padding: 0 }}
-                  >
-                    <Plus size={13} />
-                  </button>
+                  )}
+                  {msg.suggestedItems.map((item) => {
+                    const isAdded = addedItems.has(item.id);
+                    return (
+                      <div 
+                        key={item.id} 
+                        className={`card rounded-xl p-3 flex items-center gap-3 cursor-pointer transition-all ${
+                          isAdded ? "bg-green-50 border border-green-200" : "hover:shadow-md"
+                        }`} 
+                        onClick={() => handleAddItem(item)}
+                      >
+                        <img
+                          src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
+                          alt={item.name}
+                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-primary truncate">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">{item.price} EGP</p>
+                          <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleAddItem(item); }}
+                          className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+                            isAdded ? "bg-green-500" : "btn-primary"
+                          }`}
+                          style={isAdded ? { background: "#22c55e" } : { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
+                        >
+                          {isAdded ? <Check size={16} className="text-white" /> : <Plus size={16} className="text-white" />}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -332,7 +423,7 @@ export default function AIBarista() {
         ))}
 
         {loading && (
-          <div className={`flex items-end gap-2 ${isRTL ? "justify-end" : "justify-start"}`}>
+          <div className="flex items-end gap-2">
             <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" />
             <div className="bubble-ai px-4 py-3">
               <div className="flex gap-1.5 items-center">
@@ -345,7 +436,7 @@ export default function AIBarista() {
         )}
         {speaking && (
           <p className="text-center text-[10px] text-muted-foreground animate-pulse">
-            🔊 {lang === "ar" ? "جاري الكلام..." : "Speaking..."}
+            🔊 Speaking...
           </p>
         )}
         <div ref={messagesEndRef} />
@@ -364,17 +455,16 @@ export default function AIBarista() {
               e.target.style.height = `${Math.min(e.target.scrollHeight, 96)}px`;
             }}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder={lang === "ar" ? "اكتب رسالة..." : "Type a message..."}
+            placeholder="What would you like to order?..."
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[36px] py-2 px-1"
-            dir={isRTL ? "rtl" : "ltr"}
           />
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || loading}
             className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
-              input.trim() && !loading ? "btn-primary" : "text-muted-foreground opacity-40"
+              input.trim() && !loading ? "" : "opacity-40"
             }`}
-            style={input.trim() && !loading ? { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", boxShadow: "var(--shadow-primary)" } : {}}
+            style={input.trim() && !loading ? { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" } : { background: "hsl(var(--muted))" }}
           >
             <Send size={15} />
           </button>

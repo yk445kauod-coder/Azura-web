@@ -4,17 +4,16 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import SupportChatWidget from "@/components/SupportChatWidget";
 import { X } from "lucide-react";
 
 const NAV = [
-  { path: "/menu",    emoji: "☕", label: { en: "Menu",    ar: "القائمة"  } },
-  { path: "/barista", emoji: "🤖", label: { en: "AI",      ar: "الذكي"    } },
-  { path: "/cart",    emoji: "🛒", label: { en: "Cart",    ar: "سلتي"     }, cart: true },
-  { path: "/orders",  emoji: "📋", label: { en: "Orders",  ar: "طلباتي"   } },
-  { path: "/reels",   emoji: "🎬", label: { en: "Reels",   ar: "ريلز"     } },
-  { path: "/suggest", emoji: "💡", label: { en: "Suggest", ar: "اقترح"    } },
-  { path: "/profile", emoji: "👤", label: { en: "Profile", ar: "حسابي"    } },
+  { path: "/menu",    emoji: "☕", label: "Menu" },
+  { path: "/barista", emoji: "🤖", label: "AI" },
+  { path: "/cart",    emoji: "🛒", label: "Cart", cart: true },
+  { path: "/orders",  emoji: "📋", label: "Orders" },
+  { path: "/reels",   emoji: "🎬", label: "Reels" },
+  { path: "/support", emoji: "💬", label: "Support" },
+  { path: "/profile", emoji: "👤", label: "Profile" },
 ];
 
 interface Broadcast {
@@ -71,10 +70,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             <img src="/logo.jpg" alt="Azura" className="w-9 h-9 rounded-full object-cover" style={{ boxShadow: "var(--shadow-sm)" }} />
             <div>
               <h1 className="text-sm font-bold text-primary leading-tight" style={{ fontFamily: "var(--font-heading)" }}>
-                {lang === "ar" ? "أزورا كافيه" : "Azura Cafe"}
+                Azura Cafe
               </h1>
               <p className="text-[10px] text-muted-foreground leading-none">
-                {lang === "ar" ? "التيفولي دوم، الإسكندرية" : "Tivoli Dome, Alexandria"}
+                Tivoli Dome, Alexandria
               </p>
             </div>
           </div>
@@ -82,7 +81,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-2">
           {profile?.tableNumber && (
             <span className="text-[11px] font-bold text-primary px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--muted))", boxShadow: "var(--shadow-xs)" }}>
-              {lang === "ar" ? `طاولة ${profile.tableNumber}` : `Table ${profile.tableNumber}`}
+              Table {profile.tableNumber}
             </span>
           )}
           <Link href="/cart">
@@ -117,9 +116,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="page-enter">{children}</div>
       </main>
 
-      {/* Support Chat */}
-      <SupportChatWidget />
-
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 inset-x-0 z-40 px-2 pb-safe"
         style={{ background: "hsla(var(--card),0.95)", backdropFilter: "blur(12px)", borderTop: "1px solid rgba(93,62,35,0.08)", boxShadow: "0 -4px 16px rgba(61,32,18,0.08)" }}>
@@ -137,7 +133,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     )}
                   </div>
                   <span className={`text-[9px] font-semibold leading-none transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
-                    {item.label[lang]}
+                    {item.label}
                   </span>
                 </button>
               </Link>

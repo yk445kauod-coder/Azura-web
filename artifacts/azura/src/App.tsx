@@ -14,6 +14,7 @@ import Orders from "@/pages/Orders";
 import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
 import Suggest from "@/pages/Suggest";
+import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
 import TipOverlay from "@/components/TipOverlay";
 import { seedMenuIfEmpty } from "@/lib/firebase";
@@ -74,6 +75,7 @@ function AppRoutes() {
                 <Route path="/cart" component={Cart} />
                 <Route path="/orders" component={Orders} />
                 <Route path="/reels" component={Reels} />
+                <Route path="/support" component={SupportChat} />
                 <Route path="/suggest" component={Suggest} />
                 <Route path="/profile" component={Profile} />
                 <Route component={NotFound} />

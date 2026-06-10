@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { db, ref, push, set, onValue, off, update } from "@/lib/firebase";
-import { ArrowLeft, Send, Phone, Mail, Clock } from "lucide-react";
+import { ArrowLeft, Send, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 
 interface ChatMsg {
   id: string;
@@ -156,7 +156,7 @@ export default function SupportChat() {
         {msgs.length === 0 && (
           <div className="text-center py-12">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <span className="text-4xl">👋</span>
+              <MessageCircle size={32} className="text-primary" />
             </div>
             <h3 className="font-bold text-primary text-lg mb-2">{tr("Welcome to Support!", "أهلاً بك في الدعم!")}</h3>
             <p className="text-sm text-muted-foreground max-w-xs mx-auto">

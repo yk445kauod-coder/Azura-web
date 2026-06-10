@@ -168,17 +168,25 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
   const theme = CAT_THEMES[item.category] || CAT_THEMES.food;
 
   return (
-    <div className={`h-screen w-full snap-start flex flex-col relative overflow-hidden`}>
-      {/* Joyful gradient background */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>
-        <Particles />
-      </div>
-      
-      {/* Background Image with overlay */}
-      {item.image && (
+    <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
+      {/* Full Background Image with Blur & Shading */}
+      {item.image ? (
         <div className="absolute inset-0">
-          <img src={item.image} alt={name} className="w-full h-full object-cover opacity-25 blur-sm scale-110" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          {/* Blurred background */}
+          <img 
+            src={item.image} 
+            alt="" 
+            className="w-full h-full object-cover blur-2xl scale-125 brightness-50 sepia-10 hue-rotate-10" 
+          />
+          {/* Gradient overlays for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+        </div>
+      ) : (
+        /* Fallback gradient if no image */
+        <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>
+          <Particles />
         </div>
       )}
 
@@ -201,41 +209,38 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
         {/* Category Badge */}
         <div className="flex justify-center mb-4">
-          <span className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-md text-white text-sm font-bold flex items-center gap-2 shadow-lg">
+          <span className="px-4 py-2 rounded-full bg-white/15 backdrop-blur-md text-white text-sm font-bold flex items-center gap-2 shadow-lg border border-white/10">
             <span className="text-xl">{theme.emoji}</span>
             {lang === "ar" ? CATS.find(c => c.id === item.category)?.ar : CATS.find(c => c.id === item.category)?.en}
           </span>
         </div>
 
-        {/* Main Image */}
+        {/* Main Image - smaller and centered below */}
         <div className="flex-1 flex items-center justify-center py-4">
           <div className="relative">
-            {/* Glow effect */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg} rounded-3xl blur-2xl opacity-50 scale-110`} />
-            
             {item.image ? (
-              <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/30 transform hover:scale-105 transition-transform duration-500">
+              <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform hover:scale-105 transition-transform duration-500">
                 <img src={item.image} alt={name} className="w-full h-full object-cover" />
                 
-                {/* Joyful overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                {/* Overlay for depth */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                 
-                {/* Item emoji badge */}
-                <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center text-2xl shadow-lg">
-                  {theme.particle}
+                {/* Category emoji badge */}
+                <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl shadow-lg border-2 border-white">
+                  {theme.emoji}
                 </div>
               </div>
             ) : (
-              <div className="w-72 h-72 md:w-80 md:h-80 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center border-4 border-white/30">
-                <span className="text-8xl">{theme.emoji}</span>
+              <div className="w-56 h-56 md:w-64 md:h-64 rounded-3xl bg-white/15 backdrop-blur-md flex items-center justify-center border-4 border-white/20">
+                <span className="text-7xl">{theme.emoji}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Item Info */}
-        <div className="text-center mb-4">
-          <h2 className="text-white text-3xl font-bold mb-2 drop-shadow-lg" style={{ fontFamily: "Georgia, serif" }}>
+        <div className="text-center mb-4 space-y-2">
+          <h2 className="text-white text-3xl font-bold drop-shadow-lg" style={{ fontFamily: "Georgia, serif" }}>
             {name}
           </h2>
           
@@ -243,12 +248,12 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
           <StarRating item={item} />
           
           {desc && (
-            <p className="text-white/80 text-sm mt-2 max-w-xs mx-auto">{desc}</p>
+            <p className="text-white/70 text-sm max-w-xs mx-auto">{desc}</p>
           )}
         </div>
 
         {/* Price Tag */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-6">
           <div className="relative">
             <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl blur-md opacity-75" />
             <div className="relative bg-gradient-to-r from-yellow-400 to-orange-500 px-8 py-3 rounded-2xl shadow-xl">
@@ -259,9 +264,9 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
         </div>
 
         {/* Swipe hint */}
-        <div className="flex flex-col items-center text-white/50 mb-4">
+        <div className="flex flex-col items-center text-white/40">
           <div className="animate-bounce">
-            <ChevronDown size={28} />
+            <ChevronDown size={24} />
           </div>
           <span className="text-xs mt-1 font-medium">Swipe for more 🎉</span>
         </div>

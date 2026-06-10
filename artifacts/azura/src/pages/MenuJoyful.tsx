@@ -38,88 +38,80 @@ const CATS = [
   { id: "shisha", emoji: "💨", en: "Shisha", ar: "شيشة" },
 ];
 
-const CAT_THEMES: Record<string, { bg: string; accent: string; emoji: string; particle: string; placeholder: string }> = {
-  food:       { bg: "from-orange-500 via-amber-500 to-yellow-500", accent: "text-orange-600", emoji: "🍽️", particle: "✨", placeholder: "🍽️" },
-  sandwiches: { bg: "from-pink-500 via-rose-500 to-red-500", accent: "text-pink-600", emoji: "🥪", particle: "💕", placeholder: "🥪" },
-  mains:      { bg: "from-emerald-500 via-green-500 to-teal-500", accent: "text-emerald-600", emoji: "🍖", particle: "🌟", placeholder: "🍖" },
-  burgers:    { bg: "from-yellow-500 via-amber-500 to-orange-500", accent: "text-yellow-600", emoji: "🍔", particle: "🔥", placeholder: "🍔" },
-  hot_drinks: { bg: "from-amber-600 via-orange-500 to-red-500", accent: "text-amber-600", emoji: "☕", particle: "💫", placeholder: "☕" },
-  cold_drinks:{ bg: "from-cyan-500 via-blue-500 to-indigo-500", accent: "text-cyan-600", emoji: "🧊", particle: "❄️", placeholder: "🥤" },
-  fresh:      { bg: "from-lime-500 via-green-500 to-emerald-500", accent: "text-lime-600", emoji: "🍹", particle: "🌿", placeholder: "🍹" },
-  milkshake:  { bg: "from-pink-400 via-fuchsia-500 to-purple-500", accent: "text-pink-500", emoji: "🥛", particle: "🩷", placeholder: "🥛" },
-  desserts:   { bg: "from-violet-500 via-purple-500 to-fuchsia-500", accent: "text-violet-600", emoji: "🍰", particle: "💜", placeholder: "🍰" },
-  shisha:     { bg: "from-indigo-500 via-purple-500 to-pink-500", accent: "text-indigo-600", emoji: "💨", particle: "🌬️", placeholder: "💨" },
+const CAT_THEMES: Record<string, { bg: string; accent: string; emoji: string; particle: string }> = {
+  food:       { bg: "from-orange-500 via-amber-500 to-yellow-500", accent: "text-orange-600", emoji: "🍽️", particle: "✨" },
+  sandwiches: { bg: "from-pink-500 via-rose-500 to-red-500", accent: "text-pink-600", emoji: "🥪", particle: "💕" },
+  mains:      { bg: "from-emerald-500 via-green-500 to-teal-500", accent: "text-emerald-600", emoji: "🍖", particle: "🌟" },
+  burgers:    { bg: "from-yellow-500 via-amber-500 to-orange-500", accent: "text-yellow-600", emoji: "🍔", particle: "🔥" },
+  hot_drinks: { bg: "from-amber-600 via-orange-500 to-red-500", accent: "text-amber-600", emoji: "☕", particle: "💫" },
+  cold_drinks:{ bg: "from-cyan-500 via-blue-500 to-indigo-500", accent: "text-cyan-600", emoji: "🧊", particle: "❄️" },
+  fresh:      { bg: "from-lime-500 via-green-500 to-emerald-500", accent: "text-lime-600", emoji: "🍹", particle: "🌿" },
+  milkshake:  { bg: "from-pink-400 via-fuchsia-500 to-purple-500", accent: "text-pink-500", emoji: "🥛", particle: "🩷" },
+  desserts:   { bg: "from-violet-500 via-purple-500 to-fuchsia-500", accent: "text-violet-600", emoji: "🍰", particle: "💜" },
+  shisha:     { bg: "from-indigo-500 via-purple-500 to-pink-500", accent: "text-indigo-600", emoji: "💨", particle: "🌬️" },
 };
 
-// Floating particles
-function Particles() {
-  const emojis = ["✨", "⭐", "💫", "🌟", "💕", "🔥"];
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {emojis.map((emoji, i) => (
-        <div
-          key={i}
-          className="absolute text-2xl animate-float"
-          style={{
-            left: `${10 + i * 15}%`,
-            top: `${20 + (i % 3) * 25}%`,
-            animationDelay: `${i * 0.5}s`,
-            opacity: 0.3,
-          }}
-        >
-          {emoji}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Star Rating
 function StarRating({ item }: { item: MenuItem }) {
   const rating = Number(item.price) > 200 ? 4.5 : Number(item.price) > 100 ? 4 : 3.5;
   return (
     <div className="flex items-center justify-center gap-1">
       {[1,2,3,4,5].map(i => (
-        <Star
-          key={i}
-          size={16}
-          className={i <= Math.floor(rating) ? "text-yellow-400 fill-yellow-400" : i - 0.5 <= rating ? "text-yellow-400/50" : "text-white/30"}
-        />
+        <Star key={i} size={14} className={i <= Math.floor(rating) ? "text-yellow-400 fill-yellow-400" : "text-white/30"} />
       ))}
-      <span className="text-white/60 text-xs ml-1">{rating}</span>
     </div>
   );
 }
 
-// Hero Add Button
+// Hero White Add Button
 function HeroAddButton({ onAdd, justAdded, inCart, qty }: {
   onAdd: () => void; justAdded: boolean; inCart: boolean; qty: number;
 }) {
   const getBg = () => {
-    if (justAdded) return "from-green-500 to-emerald-500";
-    if (inCart) return "from-amber-500 to-orange-500";
-    return "from-pink-500 via-rose-500 to-red-500";
+    if (justAdded) return "bg-gradient-to-r from-green-500 to-emerald-500";
+    if (inCart) return "bg-gradient-to-r from-amber-500 to-orange-500";
+    return "bg-white";
   };
-  
   const getText = () => {
     if (justAdded) return "✅ Added!";
-    if (inCart) return `+ Add Another (${qty} in cart)`;
+    if (inCart) return `+ Add Another (${qty})`;
     return "🛒 Add to Cart";
+  };
+  const getTextColor = () => {
+    if (justAdded || inCart) return "text-white";
+    return "text-gray-800";
   };
 
   return (
     <button
       onClick={onAdd}
       className={`
-        w-full py-4 rounded-2xl font-bold text-lg
-        bg-gradient-to-r ${getBg()}
-        shadow-xl hover:scale-[1.02] active:scale-[0.98]
+        w-full py-5 rounded-2xl font-bold text-xl
+        ${getBg()} ${getTextColor()}
+        shadow-2xl hover:scale-[1.02] active:scale-[0.98]
         transition-all duration-300
         ${justAdded ? "animate-pulse" : ""}
       `}
     >
       {getText()}
     </button>
+  );
+}
+
+// Cinematic Placeholder with Item Name
+function CinematicPlaceholder({ name, category }: { name: string; category: string }) {
+  const theme = CAT_THEMES[category] || CAT_THEMES.food;
+  return (
+    <div className={`w-full h-full bg-gradient-to-br ${theme.bg} flex items-center justify-center relative overflow-hidden`}>
+      {/* Cinematic name display */}
+      <div className="text-center z-10">
+        <p className="text-white/90 text-2xl font-bold drop-shadow-lg" style={{ textShadow: "0 4px 20px rgba(0,0,0,0.8)" }}>
+          {name}
+        </p>
+        <p className="text-white/60 text-sm mt-2">{theme.emoji}</p>
+      </div>
+      {/* Animated shimmer effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+    </div>
   );
 }
 
@@ -141,31 +133,26 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
   return (
     <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
-      {/* Full Background Image - Semi Blur + Dark Shaded */}
+      {/* Background */}
       {hasValidImage ? (
         <div className="absolute inset-0">
-          <img 
-            src={item.image} 
-            alt="" 
-            className="w-full h-full object-cover blur-xl scale-110"
-            onError={() => setImageError(true)}
-          />
+          <img src={item.image} alt="" className="w-full h-full object-cover blur-xl scale-110" onError={() => setImageError(true)} />
           <div className="absolute inset-0 bg-black/60" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-transparent" />
         </div>
       ) : (
-        <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>
-          <Particles />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800">
+          <CinematicPlaceholder name={name} category={item.category} />
         </div>
       )}
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-4">
         {/* Category Badge */}
-        <div className="flex justify-center mb-3">
-          <span className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-sm font-bold flex items-center gap-2">
-            <span className="text-lg">{theme.emoji}</span>
+        <div className="flex justify-center mb-2">
+          <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-xs font-bold flex items-center gap-1">
+            <span>{theme.emoji}</span>
             {lang === "ar" ? CATS.find(c => c.id === item.category)?.ar : CATS.find(c => c.id === item.category)?.en}
           </span>
         </div>
@@ -174,43 +161,44 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
         <div className="flex-1 flex items-center justify-center">
           <div className="relative">
             {hasValidImage ? (
-              <div className="relative w-64 h-64 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
+              <div className="relative w-56 h-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
                 <img src={item.image} alt={name} className="w-full h-full object-cover" onError={() => setImageError(true)} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute -bottom-3 -right-3 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl shadow-xl border-4 border-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-xl shadow-xl border-3 border-white">
                   {theme.particle}
                 </div>
               </div>
             ) : (
-              <div className="w-64 h-64 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center border-4 border-white/20">
-                <span className="text-7xl">{theme.placeholder}</span>
+              <div className="w-56 h-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
+                <CinematicPlaceholder name={name} category={item.category} />
               </div>
             )}
           </div>
         </div>
 
         {/* Info */}
-        <div className="text-center mb-3">
-          <h2 className="text-white text-3xl font-bold drop-shadow-lg" style={{ fontFamily: "Georgia, serif" }}>{name}</h2>
+        <div className="text-center mb-2">
+          <h2 className="text-white text-2xl font-bold drop-shadow-lg" style={{ fontFamily: "Georgia, serif" }}>{name}</h2>
           <StarRating item={item} />
-          {desc && <p className="text-white/60 text-sm max-w-xs mx-auto mt-1">{desc}</p>}
+          {desc && <p className="text-white/60 text-xs max-w-xs mx-auto mt-1">{desc}</p>}
         </div>
 
         {/* Price */}
         <div className="flex justify-center mb-3">
-          <div className="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-1.5 rounded-full shadow-lg">
-            <span className="text-white text-2xl font-bold">{item.price}</span>
-            <span className="text-white/80 text-sm ml-1 font-bold">LE</span>
+          <div className="bg-gradient-to-r from-yellow-400 to-amber-500 px-5 py-1 rounded-full shadow-lg">
+            <span className="text-white text-xl font-bold">{item.price}</span>
+            <span className="text-white/80 text-xs ml-1 font-bold">LE</span>
           </div>
         </div>
 
-        {/* Hero Button */}
-        <HeroAddButton onAdd={() => onAdd(item)} justAdded={added} inCart={inCart} qty={qty} />
+        {/* Hero Add Button - ABOVE nav bar with padding */}
+        <div className="pb-24">
+          <HeroAddButton onAdd={() => onAdd(item)} justAdded={added} inCart={inCart} qty={qty} />
+        </div>
 
         {/* Swipe hint */}
-        <div className="flex flex-col items-center text-white/30 mt-2">
-          <div className="animate-bounce"><ChevronDown size={20} /></div>
-          <span className="text-xs">Swipe</span>
+        <div className="flex flex-col items-center text-white/30">
+          <div className="animate-bounce"><ChevronDown size={18} /></div>
         </div>
       </div>
     </div>
@@ -289,8 +277,8 @@ export default function Menu() {
     return (
       <div className="h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center">
         <div className="text-center text-white">
-          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-lg font-bold">Loading menu...</p>
+          <div className="w-14 h-14 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-lg font-bold">Loading...</p>
         </div>
       </div>
     );
@@ -323,7 +311,7 @@ export default function Menu() {
           ))}
           {cat !== "all" && (
             <button onClick={() => { setCat("all"); setSearch(""); }} className="px-3 py-1.5 rounded-full text-xs font-bold bg-red-500 text-white flex-shrink-0">
-              <X size={12} className="inline mr-1" /> {tr("Clear", "مسح")}
+              <X size={12} className="inline mr-1" />
             </button>
           )}
         </div>
@@ -332,7 +320,7 @@ export default function Menu() {
       {/* Items Counter */}
       <div className="fixed top-4 right-16 z-40">
         <span className="px-2 py-1 rounded-full bg-white/20 text-white text-xs backdrop-blur-md">
-          {filteredItems.length} items
+          {filteredItems.length}
         </span>
       </div>
 
@@ -341,13 +329,13 @@ export default function Menu() {
         ref={scrollRef}
         onScroll={handleScroll}
         className="h-full w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
-        style={{ paddingTop: "160px", paddingBottom: "80px" }}
+        style={{ paddingTop: "160px" }}
       >
         {filteredItems.length === 0 ? (
           <div className="h-screen flex items-center justify-center">
             <div className="text-center text-white">
-              <p className="text-6xl mb-4">🔍</p>
-              <p className="text-xl font-bold">No items found</p>
+              <p className="text-5xl mb-3">🔍</p>
+              <p className="text-lg font-bold">No items found</p>
             </div>
           </div>
         ) : (
@@ -366,13 +354,13 @@ export default function Menu() {
       </div>
 
       {/* Progress */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden md:block">
-        <div className="bg-white/10 backdrop-blur-md rounded-full px-2 py-3 flex flex-col items-center">
-          <span className="text-white text-xs font-bold">{currentIndex + 1}</span>
-          <div className="w-1 h-24 bg-white/20 rounded-full overflow-hidden my-1">
-            <div className="w-full bg-gradient-to-b from-pink-500 to-purple-500 rounded-full transition-all" style={{ height: `${((currentIndex + 1) / filteredItems.length) * 100}%` }} />
+      <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 hidden md:block">
+        <div className="bg-white/10 backdrop-blur-md rounded-full px-1.5 py-2 flex flex-col items-center">
+          <span className="text-white text-[10px] font-bold">{currentIndex + 1}</span>
+          <div className="w-0.5 h-20 bg-white/20 rounded-full overflow-hidden my-1">
+            <div className="w-full bg-gradient-to-b from-pink-500 to-purple-500 rounded-full transition-all" style={{ height: `${((currentIndex + 1) / Math.max(filteredItems.length, 1)) * 100}%` }} />
           </div>
-          <span className="text-white/60 text-[10px]">{filteredItems.length}</span>
+          <span className="text-white/60 text-[9px]">{filteredItems.length}</span>
         </div>
       </div>
     </div>

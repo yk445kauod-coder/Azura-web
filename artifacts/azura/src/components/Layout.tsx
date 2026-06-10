@@ -134,30 +134,98 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="page-enter">{children}</div>
       </main>
 
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 inset-x-0 z-40 px-2 pb-safe"
-        style={{ background: "hsla(var(--card),0.95)", backdropFilter: "blur(12px)", borderTop: "1px solid rgba(93,62,35,0.08)", boxShadow: "0 -4px 16px rgba(61,32,18,0.08)" }}>
-        <div className="max-w-lg mx-auto flex items-center justify-around py-2">
-          {NAV.map((item) => {
-            const active = isActive(item.path);
-            const badge = item.cart && totalItems > 0 ? totalItems : 0;
-            const Icon = active ? item.iconActive : item.icon;
-            return (
-              <Link key={item.path} href={item.path}>
-                <button className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl min-w-[44px] transition-all duration-200 ${active ? "bg-primary/10" : "hover:bg-muted/60"}`}>
-                  <div className="relative">
-                    <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"} ${active ? "scale-110" : ""} transition-transform`} />
-                    {badge > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{badge}</span>
+      {/* Bottom Nav - Amazing iOS Style */}
+      <nav className="fixed bottom-0 inset-x-0 z-40 px-1 pb-safe">
+        {/* Background blur container */}
+        <div 
+          className="mx-3 mb-2 rounded-2xl overflow-hidden"
+          style={{ 
+            background: "hsla(var(--card),0.92)",
+            backdropFilter: "blur(20px) saturate(180%)",
+            WebkitBackdropFilter: "blur(20px) saturate(180%)",
+            boxShadow: "0 -4px 30px rgba(61,32,18,0.12), 0 -2px 10px rgba(61,32,18,0.08), inset 0 0.5px 0 rgba(255,255,255,0.8)",
+            border: "0.5px solid rgba(93,62,35,0.08)"
+          }}
+        >
+          <div className="flex items-stretch justify-around py-1.5 px-1">
+            {NAV.map((item) => {
+              const active = isActive(item.path);
+              const badge = item.cart && totalItems > 0 ? totalItems : 0;
+              const Icon = active ? item.iconActive : item.icon;
+              
+              return (
+                <Link key={item.path} href={item.path} className="flex-1">
+                  <button 
+                    className={`
+                      relative flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 w-full
+                      transition-all duration-300 ease-out
+                      ${active ? "scale-100" : "hover:scale-105 active:scale-95"}
+                    `}
+                  >
+                    {/* Active indicator bar */}
+                    {active && (
+                      <div 
+                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
+                        style={{ 
+                          background: "linear-gradient(90deg, hsl(22,55%,30%), hsl(22,55%,20%))",
+                          boxShadow: "0 2px 8px rgba(93,62,35,0.4)"
+                        }}
+                      />
                     )}
-                  </div>
-                  <span className={`text-[9px] font-semibold leading-none transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
-                    {item.label}
-                  </span>
-                </button>
-              </Link>
-            );
-          })}
+                    
+                    {/* Icon container */}
+                    <div className="relative">
+                      <div 
+                        className={`
+                          p-1.5 rounded-xl transition-all duration-300
+                          ${active 
+                            ? "bg-primary/15 shadow-md" 
+                            : "bg-transparent hover:bg-muted/50 active:bg-muted/70"
+                          }
+                        `}
+                      >
+                        <Icon 
+                          className={`
+                            w-5 h-5 transition-all duration-300
+                            ${active 
+                              ? "text-primary scale-110 drop-shadow-sm" 
+                              : "text-muted-foreground"
+                            }
+                          `} 
+                        />
+                      </div>
+                      
+                      {/* Badge */}
+                      {badge > 0 && (
+                        <span 
+                          className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-spring-bounce"
+                          style={{ 
+                            background: "linear-gradient(135deg, hsl(22,55%,30%), hsl(22,55%,18%))",
+                            boxShadow: "0 2px 6px rgba(93,62,35,0.4)"
+                          }}
+                        >
+                          {badge}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Label */}
+                    <span 
+                      className={`
+                        text-[10px] font-semibold leading-none tracking-wide transition-all duration-300
+                        ${active 
+                          ? "text-primary font-bold" 
+                          : "text-muted-foreground"
+                        }
+                      `}
+                    >
+                      {item.label}
+                    </span>
+                  </button>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </nav>
     </div>

@@ -157,20 +157,20 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
   return (
     <div className="h-screen w-full snap-start flex flex-col relative overflow-hidden">
-      {/* Full Background Image - Super Blurred & Dark */}
+      {/* Full Background Image - Super Blurred & VERY Dark */}
       {hasValidImage ? (
         <div className="absolute inset-0">
-          {/* Blurred background */}
+          {/* Blurred background - MUCH darker */}
           <img 
             src={item.image} 
             alt="" 
-            className="w-full h-full object-cover blur-3xl scale-130 brightness-30"
+            className="w-full h-full object-cover blur-3xl scale-140 brightness-[0.08] sepia-[0.3] hue-rotate-[10deg]"
             onError={() => setImageError(true)}
           />
-          {/* Multiple dark gradients for eye comfort */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+          {/* Heavy dark gradients for eye comfort */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />
         </div>
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`}>
@@ -403,12 +403,12 @@ export default function Menu() {
 
       {/* Category Pills */}
       <div className="fixed top-40 left-0 right-0 z-40 px-4">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {CATS.map((c) => (
             <button
               key={c.id}
               onClick={() => setCat(c.id)}
-              className={`px-4 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 shadow-lg ${
+              className={`px-4 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 shadow-lg flex-shrink-0 ${
                 cat === c.id
                   ? "bg-white text-gray-800 scale-105"
                   : "bg-white/20 backdrop-blur-md text-white hover:bg-white/30 hover:scale-105"
@@ -417,6 +417,15 @@ export default function Menu() {
               {c.emoji} {lang === "ar" ? c.ar : c.en}
             </button>
           ))}
+          {/* Clear Filter Button - shown when filter is active */}
+          {cat !== "all" && (
+            <button
+              onClick={() => { setCat("all"); setSearch(""); }}
+              className="px-4 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 shadow-lg bg-red-500 text-white flex-shrink-0 flex items-center gap-2"
+            >
+              <X size={16} /> {tr("Clear", "مسح")}
+            </button>
+          )}
         </div>
       </div>
 

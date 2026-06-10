@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
-import { useLocation } from "wouter";
-import { Plus, Check, ChevronDown, Sparkles, X, Heart, Star, Flame } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Plus, Check, ChevronDown, Sparkles, X, Heart, Star, Flame, Home, ShoppingCart, ClipboardList } from "lucide-react";
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
@@ -270,7 +270,7 @@ function JoyfulItem({ item, lang, onAdd, isInCart, getQty, justAdded }: {
 
 export default function Menu() {
   const { lang, isRTL } = useLang();
-  const { addItem, isInCart, getQty } = useCart();
+  const { addItem, isInCart, getQty, totalItems } = useCart();
   const [, navigate] = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -434,7 +434,7 @@ export default function Menu() {
         ref={scrollRef}
         onScroll={handleScroll}
         className="h-full w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
-        style={{ paddingTop: "180px", paddingBottom: "40px" }}
+        style={{ paddingTop: "180px", paddingBottom: "100px" }}
       >
         {filteredItems.length === 0 ? (
           <div className="h-screen flex items-center justify-center">
@@ -460,7 +460,7 @@ export default function Menu() {
       </div>
 
       {/* Joyful Progress */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40">
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden md:block">
         <div className="flex flex-col items-center gap-1 bg-white/10 backdrop-blur-md rounded-full px-2 py-4">
           <span className="text-white text-xs font-bold">{currentIndex + 1}</span>
           <div className="w-1 h-32 bg-white/20 rounded-full overflow-hidden">
@@ -472,6 +472,54 @@ export default function Menu() {
           <span className="text-white/60 text-[10px]">{filteredItems.length}</span>
         </div>
       </div>
+
+      {/* Custom Bottom Nav - Pure White Glass */}
+      <nav className="fixed bottom-0 inset-x-0 z-50 px-2 pb-2">
+        <div 
+          className="mx-3 rounded-2xl overflow-hidden"
+          style={{ 
+            background: "rgba(255,255,255,0.95)",
+            backdropFilter: "blur(24px) saturate(200%)",
+            WebkitBackdropFilter: "blur(24px) saturate(200%)",
+            boxShadow: "0 -8px 40px rgba(0,0,0,0.2), 0 -4px 16px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,1)",
+            border: "0.5px solid rgba(255,255,255,0.9)"
+          }}
+        >
+          <div className="flex items-center justify-around py-2 px-1">
+            <Link href="/barista">
+              <button className="flex flex-col items-center gap-1 px-4 py-2">
+                <Sparkles size={22} className="text-gray-500" />
+                <span className="text-[10px] font-medium text-gray-500">{lang === "ar" ? "المساعد" : "AI"}</span>
+              </button>
+            </Link>
+            <Link href="/menu">
+              <button className="flex flex-col items-center gap-1 px-4 py-2">
+                <div className="p-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg">
+                  <Home size={20} className="text-white" />
+                </div>
+                <span className="text-[10px] font-bold text-pink-600">{lang === "ar" ? "القائمة" : "Menu"}</span>
+              </button>
+            </Link>
+            <Link href="/cart">
+              <button className="flex flex-col items-center gap-1 px-4 py-2 relative">
+                <ShoppingCart size={22} className="text-gray-500" />
+                <span className="text-[10px] font-medium text-gray-500">{lang === "ar" ? "السلة" : "Cart"}</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 right-2 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white bg-red-500">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
+              </button>
+            </Link>
+            <Link href="/orders">
+              <button className="flex flex-col items-center gap-1 px-4 py-2">
+                <ClipboardList size={22} className="text-gray-500" />
+                <span className="text-[10px] font-medium text-gray-500">{lang === "ar" ? "الطلبات" : "Orders"}</span>
+              </button>
+            </Link>
+          </div>
+        </div>
+      </nav>
     </div>
   );
 }

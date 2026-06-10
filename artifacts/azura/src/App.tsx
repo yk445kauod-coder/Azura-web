@@ -67,20 +67,26 @@ function AppRoutes() {
           <Route component={Welcome} />
         ) : (
           <Route>
-            <Layout>
-              <Switch>
-                <Route path="/" component={Menu} />
-                <Route path="/menu" component={Menu} />
-                <Route path="/barista" component={AIBarista} />
-                <Route path="/cart" component={Cart} />
-                <Route path="/orders" component={Orders} />
-                <Route path="/reels" component={Reels} />
-                <Route path="/support" component={SupportChat} />
-                <Route path="/suggest" component={Suggest} />
-                <Route path="/profile" component={Profile} />
-                <Route component={NotFound} />
-              </Switch>
-            </Layout>
+            <Switch>
+              {/* Menu - Full screen, no Layout wrapper */}
+              <Route path="/" component={Menu} />
+              <Route path="/menu" component={Menu} />
+              {/* Other pages with Layout */}
+              <Route>
+                <Layout>
+                  <Switch>
+                    <Route path="/barista" component={AIBarista} />
+                    <Route path="/cart" component={Cart} />
+                    <Route path="/orders" component={Orders} />
+                    <Route path="/reels" component={Reels} />
+                    <Route path="/support" component={SupportChat} />
+                    <Route path="/suggest" component={Suggest} />
+                    <Route path="/profile" component={Profile} />
+                    <Route component={NotFound} />
+                  </Switch>
+                </Layout>
+              </Route>
+            </Switch>
           </Route>
         )}
       </Switch>

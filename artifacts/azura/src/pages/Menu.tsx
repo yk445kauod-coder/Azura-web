@@ -8,49 +8,70 @@ import { Search, Plus, Check, Sparkles, ChevronRight } from "lucide-react";
 // Lazy load heavy components
 const SkeletonCard = lazy(() => import("./SkeletonCard"));
 
-// Lazy Image Component with Intersection Observer
+// Lazy Image Component with Intersection Observer - Optimized
 function LazyImage({ src, alt, className, fallback }: { src: string; alt: string; className?: string; fallback: string }) {
   const [loaded, setLoaded] = useState(false);
   const [inView, setInView] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(fallback);
+  const [error, setError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+    
+    observerRef.current = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setInView(true);
-          observer.disconnect();
+          observerRef.current?.disconnect();
         }
       },
-      { rootMargin: "100px", threshold: 0 }
+      { rootMargin: "200px 0px", threshold: 0 }
     );
-    if (imgRef.current) observer.observe(imgRef.current);
-    return () => observer.disconnect();
+    
+    if (imgRef.current) {
+      observerRef.current.observe(imgRef.current);
+    }
+    
+    return () => observerRef.current?.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || !src || error) return;
+    
     const img = new Image();
     img.src = src;
     img.onload = () => {
-      setCurrentSrc(src);
+      setLoaded(true);
+      setError(false);
+    };
+    img.onerror = () => {
+      setError(true);
       setLoaded(true);
     };
-    img.onerror = () => setLoaded(true);
-  }, [inView, src]);
+    
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [inView, src, error]);
+
+  const displaySrc = error ? fallback : (inView && src ? src : fallback);
 
   return (
     <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
+      <img
+        src={displaySrc}
+        alt={alt}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        loading="lazy"
+        decoding="async"
+      />
       {!loaded && (
         <div className="absolute inset-0 bg-muted animate-pulse" />
       )}
-      <img
-        src={inView ? currentSrc : fallback}
-        alt={alt}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-        onError={(e) => { (e.target as HTMLImageElement).src = fallback; }}
-      />
     </div>
   );
 }
@@ -90,6 +111,22 @@ const CATS = [
   { id: "drinks",     emoji: "🥤",  en: "Drinks",   ar: "مشروبات"    },
   { id: "shisha",     emoji: "💨",  en: "Shisha",   ar: "شيشة"       },
 ];
+
+// Category alias mapping for matching
+const CAT_ALIASES: Record<string, string[]> = {
+  'food': ['food', 'mains', 'sandwiches'],
+  'sandwiches': ['sandwich', 'sandwiches'],
+  'mains': ['main', 'mains', 'entrees'],
+  'burgers': ['burger', 'burgers'],
+  'hot_drinks': ['hot', 'hot_drinks', 'coffee', 'tea', 'hot_drinks'],
+  'cold_drinks': ['cold', 'cold_drinks', 'cold_drink'],
+  'fresh': ['fresh', 'juice', 'fresh_juice'],
+  'milkshake': ['milkshake', 'shake', 'milkshakes'],
+  'desserts': ['dessert', 'desserts', 'sweet', 'sweets'],
+  'extras': ['extra', 'extras', 'side', 'sides'],
+  'drinks': ['drink', 'drinks', 'beverage'],
+  'shisha': ['shisha', 'hookah', 'sheesha'],
+};
 
 const FALLBACK: Record<string, string> = {
   food:       "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=500&q=80",
@@ -170,15 +207,45 @@ export default function Menu() {
     return () => off(ref(db, "menu"));
   }, []);
 
-  // Memoized filtered items
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Category matching helper
+  const matchesCategory = (itemCat: string, filterCat: string): boolean => {
+    if (filterCat === "all") return true;
+    if (itemCat === filterCat) return true;
+    // Check aliases
+    const aliases = CAT_ALIASES[filterCat];
+    if (aliases) {
+      return aliases.some(alias => 
+        itemCat.toLowerCase().includes(alias) || 
+        alias.includes(itemCat.toLowerCase())
+      );
+    }
+    return false;
+  };
+
+  // Memoized filtered items - optimized with debounced search
   const filtered = useMemo(() => {
+    if (!debouncedSearch && cat === "all") {
+      return items.filter((item) => item.available);
+    }
     return items.filter((item) => {
       if (!item.available) return false;
-      if (cat !== "all" && item.category !== cat) return false;
-      const q = search.toLowerCase();
-      return !q || item.name.toLowerCase().includes(q) || item.nameAr.includes(q) || item.description.toLowerCase().includes(q);
+      if (!matchesCategory(item.category, cat)) return false;
+      if (debouncedSearch) {
+        const q = debouncedSearch.toLowerCase();
+        return item.name.toLowerCase().includes(q) || 
+               item.nameAr.includes(q) || 
+               item.description.toLowerCase().includes(q);
+      }
+      return true;
     });
-  }, [items, cat, search]);
+  }, [items, cat, debouncedSearch]);
 
   // Memoized featured items
   const featured = useMemo(() => {

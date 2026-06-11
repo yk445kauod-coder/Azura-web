@@ -8,6 +8,53 @@ import { Search, Plus, Check, Sparkles, ChevronRight } from "lucide-react";
 // Lazy load heavy components
 const SkeletonCard = lazy(() => import("./SkeletonCard"));
 
+// Lazy Image Component with Intersection Observer
+function LazyImage({ src, alt, className, fallback }: { src: string; alt: string; className?: string; fallback: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(fallback);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "100px", threshold: 0 }
+    );
+    if (imgRef.current) observer.observe(imgRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return;
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      setCurrentSrc(src);
+      setLoaded(true);
+    };
+    img.onerror = () => setLoaded(true);
+  }, [inView, src]);
+
+  return (
+    <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
+      {!loaded && (
+        <div className="absolute inset-0 bg-muted animate-pulse" />
+      )}
+      <img
+        src={inView ? currentSrc : fallback}
+        alt={alt}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        onError={(e) => { (e.target as HTMLImageElement).src = fallback; }}
+      />
+    </div>
+  );
+}
+
 interface MenuItem {
   id: string; name: string; nameAr: string;
   description: string; descriptionAr: string;
@@ -233,11 +280,11 @@ export default function Menu() {
                   style={{ boxShadow: "var(--shadow-md)" }}
                   onClick={() => handleAdd(item)}
                 >
-                  <img
+                  <LazyImage
                     src={item.image || FALLBACK[item.category] || FALLBACK.coffee}
                     alt={item.name}
-                    className="w-full h-24 object-cover transition-transform duration-300 group-hover:scale-105"
-                    onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK[item.category] || FALLBACK.coffee; }}
+                    className="w-full h-24"
+                    fallback={FALLBACK[item.category] || FALLBACK.coffee}
                   />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)" }} />
                   <div className="absolute bottom-0 left-0 right-0 p-2">
@@ -290,14 +337,13 @@ export default function Menu() {
                     transition: `opacity 0.35s ease ${idx * 40}ms, transform 0.35s ease ${idx * 40}ms, box-shadow 0.2s ease`,
                   }}
                 >
-                  {/* Image */}
+                  {/* Image - Lazy loaded */}
                   <div className="relative overflow-hidden bg-muted" style={{ paddingTop: "68%" }}>
-                    <img
+                    <LazyImage
                       src={imgSrc}
                       alt={item.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK[item.category] || FALLBACK.coffee; }}
-                      loading="lazy"
+                      className="absolute inset-0 w-full h-full"
+                      fallback={FALLBACK[item.category] || FALLBACK.coffee}
                     />
                     {/* Category badge */}
                     <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white/90"

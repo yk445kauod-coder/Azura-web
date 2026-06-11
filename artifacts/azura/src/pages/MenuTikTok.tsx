@@ -5,6 +5,50 @@ import { useCart } from "@/contexts/CartContext";
 import { useLocation } from "wouter";
 import { Plus, Check, ChevronDown, Sparkles, X } from "lucide-react";
 
+// Lazy Image Component with Intersection Observer
+function LazyImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [inView, setInView] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px", threshold: 0 }
+    );
+    if (imgRef.current) observer.observe(imgRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView || !src) return;
+    const img = new Image();
+    img.src = src;
+    img.onload = () => setLoaded(true);
+    img.onerror = () => setLoaded(true);
+  }, [inView, src]);
+
+  return (
+    <div ref={imgRef} className={`relative ${className}`}>
+      {!loaded && (
+        <div className="absolute inset-0 bg-white/10 animate-pulse" />
+      )}
+      {inView && (
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        />
+      )}
+    </div>
+  );
+}
+
 interface MenuItem {
   id: string; name: string; nameAr: string;
   description: string; descriptionAr: string;
@@ -78,13 +122,13 @@ function TikTokItem({ item, lang, isRTL, onAdd, isInCart, getQty, justAdded }: {
 
   return (
     <div className={`h-screen w-full snap-start flex flex-col relative bg-gradient-to-br ${gradient}`}>
-      {/* Background Image */}
+      {/* Background Image - Lazy */}
       {item.image && (
         <div className="absolute inset-0">
-          <img 
+          <LazyImage 
             src={item.image} 
             alt={name}
-            className="w-full h-full object-cover opacity-30 blur-sm scale-110"
+            className="w-full h-full"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
@@ -111,15 +155,15 @@ function TikTokItem({ item, lang, isRTL, onAdd, isInCart, getQty, justAdded }: {
           </button>
         </div>
 
-        {/* Center Image */}
+        {/* Center Image - Lazy */}
         <div className="flex-1 flex items-center justify-center py-8">
           <div className="relative">
             {item.image ? (
               <div className="w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
-                <img 
+                <LazyImage 
                   src={item.image} 
                   alt={name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
                 />
               </div>
             ) : (

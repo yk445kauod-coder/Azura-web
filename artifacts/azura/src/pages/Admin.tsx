@@ -1853,7 +1853,7 @@ export default function Admin() {
                     </button>
                   </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">{tr("Get free key at console.groq.com","احصل على مفتاح مجاني من console.groq.com")}</p>
+                
               </div>
 
               {/* AI Toggle */}

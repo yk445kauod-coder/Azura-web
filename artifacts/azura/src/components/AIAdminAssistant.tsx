@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { db, ref, onValue, off, push, set, get } from "@/lib/firebase";
+import { db, ref, get } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { 
-  Bot, Send, Loader2, Sparkles, BarChart3, TrendingUp, Users, 
-  Package, DollarSign, Clock, AlertCircle, Lightbulb, RefreshCw,
-  MessageSquare, CheckCircle, XCircle, ArrowUp, ArrowDown
+  Bot, Send, Loader2, Users, 
+  Package, DollarSign, RefreshCw,
+  XCircle, BookOpen, ExternalLink, Maximize2, Minimize2, FileText
 } from "lucide-react";
 
 interface AIMessage {
@@ -21,12 +21,24 @@ interface AnalyticsData {
   totalCustomers: number;
   ordersToday: number;
   revenueToday: number;
-  topItems: { name: string; count: number }[];
+  topItems: { name: string; nameAr?: string; count: number }[];
   ordersByStatus: Record<string, number>;
-  recentTrend: "up" | "down" | "stable";
-  peakHour: number;
   avgRating: number;
 }
+
+interface MenuItemData {
+  id: string;
+  name: string;
+  nameAr: string;
+  price: number;
+  category: string;
+  description?: string;
+}
+
+const CAFE_CONTEXT = {
+  name: "Azura Café & Restaurant",
+  location: "Tivoli Dome, Alexandria, Egypt",
+};
 
 export default function AIAdminAssistant() {
   const { lang } = useLang();
@@ -34,14 +46,21 @@ export default function AIAdminAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
+  const [showMenuViewer, setShowMenuViewer] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const menuViewerRef = useRef<HTMLDivElement>(null);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  // Load analytics data
   useEffect(() => {
-    loadAnalytics();
+    loadAllData();
   }, []);
+
+  const loadAllData = async () => {
+    await Promise.all([loadAnalytics(), loadMenuItems()]);
+  };
 
   const loadAnalytics = async () => {
     try {
@@ -71,38 +90,30 @@ export default function AIAdminAssistant() {
         feedback = Object.entries(data).map(([id, f]) => ({ id, ...(f as any) }));
       }
 
-      const now = Date.now();
       const today = new Date().setHours(0, 0, 0, 0);
       const ordersToday = orders.filter(o => (o.createdAt || 0) >= today);
       const revenueToday = ordersToday.reduce((sum, o) => sum + (o.total || 0), 0);
       
-      // Calculate top items
-      const itemCounts: Record<string, number> = {};
+      const itemCounts: Record<string, { name: string; nameAr?: string; count: number }> = {};
       orders.forEach(order => {
         (order.items || []).forEach((item: any) => {
-          itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
+          const key = item.name;
+          if (!itemCounts[key]) {
+            itemCounts[key] = { name: item.name, nameAr: item.nameAr, count: 0 };
+          }
+          itemCounts[key].count += item.quantity;
         });
       });
       const topItems = Object.entries(itemCounts)
-        .map(([name, count]) => ({ name, count }))
+        .map(([name, data]) => ({ name, nameAr: data.nameAr, count: data.count }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
+        .slice(0, 10);
 
-      // Calculate orders by status
       const ordersByStatus: Record<string, number> = {};
       orders.forEach(o => {
         ordersByStatus[o.status] = (ordersByStatus[o.status] || 0) + 1;
       });
 
-      // Calculate peak hour
-      const hourCounts: Record<number, number> = {};
-      orders.forEach(o => {
-        const hour = new Date(o.createdAt).getHours();
-        hourCounts[hour] = (hourCounts[hour] || 0) + 1;
-      });
-      const peakHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 12;
-
-      // Calculate avg rating
       const avgRating = feedback.length > 0 
         ? (feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length).toFixed(1)
         : "0.0";
@@ -116,8 +127,6 @@ export default function AIAdminAssistant() {
         revenueToday,
         topItems,
         ordersByStatus,
-        recentTrend: "up",
-        peakHour,
         avgRating: parseFloat(avgRating),
       });
     } catch (error) {
@@ -125,14 +134,98 @@ export default function AIAdminAssistant() {
     }
   };
 
-  // Initial welcome message
+  const loadMenuItems = async () => {
+    try {
+      const snap = await get(ref(db, "menu"));
+      if (snap.exists()) {
+        const data = snap.val();
+        const items: MenuItemData[] = [];
+        
+        Object.entries(data).forEach(([category, val]) => {
+          if (val && typeof val === "object") {
+            const firstItem = Object.values(val as object)[0] as any;
+            if (firstItem && (firstItem.price !== undefined || firstItem.name)) {
+              Object.entries(val as Record<string, any>).forEach(([id, item]) => {
+                if (item && typeof item === "object") {
+                  items.push({
+                    id,
+                    name: item.name || item.nameEn || id,
+                    nameAr: item.nameAr || "",
+                    price: item.price || 0,
+                    category: item.category || category,
+                    description: item.description || "",
+                  });
+                }
+              });
+            } else {
+              Object.entries(val as Record<string, any>).forEach(([subCat, subItems]) => {
+                if (subItems && typeof subItems === "object") {
+                  Object.entries(subItems as Record<string, any>).forEach(([id, item]) => {
+                    if (item && typeof item === "object") {
+                      items.push({
+                        id,
+                        name: item.name || item.nameEn || id,
+                        nameAr: item.nameAr || "",
+                        price: item.price || 0,
+                        category: item.category || subCat,
+                        description: item.description || "",
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          }
+        });
+        
+        setMenuItems(items);
+      }
+    } catch (error) {
+      console.error("Error loading menu:", error);
+    }
+  };
+
   useEffect(() => {
+    const welcomeMsg = lang === "ar" 
+      ? `🤖 أهلاً بك في مساعد أزورا الذكي!
+
+☕ ${CAFE_CONTEXT.name}
+📍 ${CAFE_CONTEXT.location}
+
+أستطيع مساعدتك في:
+
+📊 التحليلات - تقارير شاملة عن المبيعات والطلبات
+📦 الطلبات - متابعة حالة الطلبات
+👥 العملاء - معلومات العملاء والمبيعات
+💰 الإيرادات - تفاصيل الإيرادات والأرباح
+🍽️ القائمة - البحث في القائمة وأسعارها
+💡 اقتراحات - أفكار لتحسين الخدمة
+
+📖 عرض القائمة - افتح القائمة في نافذة جديدة
+
+اكتب سؤالك أو اطلب ما تحتاجه!`
+      : `🤖 Welcome to Azura AI Assistant!
+
+☕ ${CAFE_CONTEXT.name}
+📍 ${CAFE_CONTEXT.location}
+
+I can help you with:
+
+📊 Analytics - Comprehensive sales and order reports
+📦 Orders - Track order status
+👥 Customers - Customer and sales info
+💰 Revenue - Revenue and profit details
+🍽️ Menu - Search menu and prices
+💡 Suggestions - Ideas to improve service
+
+📖 View Menu - Open menu in new window
+
+Type your question or request what you need!`;
+    
     setMessages([{
       id: "welcome",
       role: "assistant",
-      content: lang === "ar" 
-        ? "مرحباً! أنا مساعدك الذكي في أزورا. يمكنني مساعدتك في:\n\n📊 **التحليلات**: اطلب تقارير عن المبيعات والطلبات\n📦 **الطلبات**: استعلم عن حالة الطلبات\n👥 **العملاء**: معلومات عن العملاء\n💡 **اقتراحات**: أفكار لتحسين الخدمة\n🔧 **إدارة**: أسئلة عن النظام\n\nكيف يمكنني مساعدتك اليوم؟"
-        : "Hello! I'm your AI assistant at Azura. I can help you with:\n\n📊 **Analytics**: Request sales and order reports\n📦 **Orders**: Query order status\n👥 **Customers**: Customer information\n💡 **Suggestions**: Ideas to improve service\n🔧 **Management**: System questions\n\nHow can I help you today?",
+      content: welcomeMsg,
       timestamp: Date.now(),
     }]);
   }, [lang]);
@@ -144,119 +237,141 @@ export default function AIAdminAssistant() {
   const generateResponse = async (userInput: string): Promise<string> => {
     const input = userInput.toLowerCase();
     
-    // Analytics queries
-    if (input.includes("analytics") || input.includes("report") || input.includes("تحليل") || input.includes("تقارير")) {
+    // Analytics & Revenue
+    if (input.includes("analytics") || input.includes("report") || input.includes("تحليل") || input.includes("تقارير") || input.includes("revenue") || input.includes("إيراد")) {
       if (!analytics) return tr("Loading analytics...", "جاري تحميل التحليلات...");
       return lang === "ar" 
-        ? `📊 **تقرير التحليلات**\n\n` +
-          `• إجمالي الطلبات: ${analytics.totalOrders}\n` +
-          `• إجمالي الإيرادات: ${analytics.totalRevenue} ج.م\n` +
-          `• متوسط قيمة الطلب: ${analytics.avgOrderValue} ج.م\n` +
-          `• عدد العملاء: ${analytics.totalCustomers}\n` +
-          `• طلبات اليوم: ${analytics.ordersToday}\n` +
-          `• إيرادات اليوم: ${analytics.revenueToday} ج.م\n` +
-          `• التقييم المتوسط: ${analytics.avgRating} ⭐\n` +
-          `• ساعة الذروة: ${analytics.peakHour}:00`
-        : `📊 **Analytics Report**\n\n` +
-          `• Total Orders: ${analytics.totalOrders}\n` +
-          `• Total Revenue: ${analytics.totalRevenue} EGP\n` +
-          `• Avg Order Value: ${analytics.avgOrderValue} EGP\n` +
-          `• Total Customers: ${analytics.totalCustomers}\n` +
-          `• Orders Today: ${analytics.ordersToday}\n` +
-          `• Revenue Today: ${analytics.revenueToday} EGP\n` +
-          `• Avg Rating: ${analytics.avgRating} ⭐\n` +
-          `• Peak Hour: ${analytics.peakHour}:00`;
-    }
+        ? `💰 تقرير الإيرادات
 
+• إجمالي الإيرادات: ${analytics.totalRevenue} ج.م
+• إيرادات اليوم: ${analytics.revenueToday} ج.م
+• متوسط قيمة الطلب: ${analytics.avgOrderValue} ج.م
+• عدد الطلبات الكلي: ${analytics.totalOrders}
+• الطلبات اليوم: ${analytics.ordersToday}`
+        : `💰 Revenue Report
+
+• Total Revenue: ${analytics.totalRevenue} EGP
+• Today's Revenue: ${analytics.revenueToday} EGP
+• Avg Order Value: ${analytics.avgOrderValue} EGP
+• Total Orders: ${analytics.totalOrders}
+• Orders Today: ${analytics.ordersToday}`;
+    }
+    
     // Top items
-    if (input.includes("top item") || input.includes("best seller") || input.includes("الأكثر مبيعاً")) {
-      if (!analytics || analytics.topItems.length === 0) return tr("No item data available.", "لا توجد بيانات عناصر.");
-      const itemsList = analytics.topItems.map((item, i) => `${i + 1}. ${item.name} - ${item.count} orders`).join("\n");
+    if (input.includes("top item") || input.includes("best seller") || input.includes("الأكثر") || input.includes("مبيع")) {
+      if (!analytics || analytics.topItems.length === 0) return tr("No sales data available yet.", "لا توجد بيانات مبيعات بعد.");
+      const itemsList = analytics.topItems.slice(0, 5).map((item, i) => 
+        `${i + 1}. ${item.name}${item.nameAr ? ` (${item.nameAr})` : ''} - ${item.count} orders`
+      ).join("\n");
       return lang === "ar" 
-        ? `🏆 **الأكثر مبيعاً**\n\n${itemsList}`
-        : `🏆 **Top Sellers**\n\n${itemsList}`;
-    }
+        ? `🏆 الأكثر مبيعاً
 
-    // Orders status
+${itemsList}`
+        : `🏆 Top Sellers
+
+${itemsList}`;
+    }
+    
+    // Order status
     if (input.includes("order status") || input.includes("pending") || input.includes("حالة الطلبات")) {
       if (!analytics) return tr("Loading...", "جاري التحميل...");
       const { ordersByStatus } = analytics;
       return lang === "ar"
-        ? `📦 **حالة الطلبات**\n\n` +
-          `• في الانتظار: ${ordersByStatus.pending || 0}\n` +
-          `• قيد التحضير: ${ordersByStatus.preparing || 0}\n` +
-          `• جاهز: ${ordersByStatus.ready || 0}\n` +
-          `• تم التسليم: ${ordersByStatus.delivered || 0}\n` +
-          `• ملغي: ${ordersByStatus.cancelled || 0}`
-        : `📦 **Order Status**\n\n` +
-          `• Pending: ${ordersByStatus.pending || 0}\n` +
-          `• Preparing: ${ordersByStatus.preparing || 0}\n` +
-          `• Ready: ${ordersByStatus.ready || 0}\n` +
-          `• Delivered: ${ordersByStatus.delivered || 0}\n` +
-          `• Cancelled: ${ordersByStatus.cancelled || 0}`;
-    }
+        ? `📦 حالة الطلبات
 
-    // Revenue
-    if (input.includes("revenue") || input.includes("إيراد")) {
-      if (!analytics) return tr("Loading...", "جاري التحميل...");
+• في الانتظار: ${ordersByStatus.pending || 0}
+• قيد التحضير: ${ordersByStatus.preparing || 0}
+• جاهز: ${ordersByStatus.ready || 0}
+• تم التسليم: ${ordersByStatus.delivered || 0}
+• ملغي: ${ordersByStatus.cancelled || 0}`
+        : `📦 Order Status
+
+• Pending: ${ordersByStatus.pending || 0}
+• Preparing: ${ordersByStatus.preparing || 0}
+• Ready: ${ordersByStatus.ready || 0}
+• Delivered: ${ordersByStatus.delivered || 0}
+• Cancelled: ${ordersByStatus.cancelled || 0}`;
+    }
+    
+    // Menu search
+    const searchTerm = userInput.toLowerCase();
+    const filteredItems = menuItems.filter(item => 
+      item.name.toLowerCase().includes(searchTerm) ||
+      (item.nameAr && item.nameAr.includes(searchTerm)) ||
+      item.category.toLowerCase().includes(searchTerm)
+    ).slice(0, 8);
+    
+    if (filteredItems.length > 0) {
+      const itemsList = filteredItems.map(item => 
+        `• ${item.name}${item.nameAr ? ` (${item.nameAr})` : ''} - ${item.price} EGP [${item.category}]`
+      ).join("\n");
       return lang === "ar"
-        ? `💰 **الإيرادات**\n\n` +
-          `• إجمالي الإيرادات: ${analytics.totalRevenue} ج.م\n` +
-          `• إيرادات اليوم: ${analytics.revenueToday} ج.م\n` +
-          `• متوسط قيمة الطلب: ${analytics.avgOrderValue} ج.م`
-        : `💰 **Revenue**\n\n` +
-          `• Total Revenue: ${analytics.totalRevenue} EGP\n` +
-          `• Today's Revenue: ${analytics.revenueToday} EGP\n` +
-          `• Avg Order Value: ${analytics.avgOrderValue} EGP`;
-    }
+        ? `🍽️ نتائج البحث (${filteredItems.length} عنصر)
 
+${itemsList}`
+        : `🍽️ Search Results (${filteredItems.length} items)
+
+${itemsList}`;
+    }
+    
     // Suggestions
     if (input.includes("suggest") || input.includes("idea") || input.includes("اقتراح") || input.includes("فكرة")) {
-      const suggestions = lang === "ar"
-        ? [
-            "💡 **اقتراحات للتحسين**",
-            "",
-            "1. **إضافة عروض يومية**: تقديم خصم يومي على عنصر معين",
-            "2. **برنامج ولاء**: نظام نقاط للعملاء المتكررين",
-            "3. **إشعارات ذكية**: تنبيهات عند جاهزية الطلب",
-            "4. **تحسين القائمة**: إضافة صور احترافية للأطباق",
-            "5. **تعاون مع الشركات**: عروض للشركات والمكاتب القريبة",
-          ]
-        : [
-            "💡 **Improvement Suggestions**",
-            "",
-            "1. **Daily Offers**: Discount on specific item daily",
-            "2. **Loyalty Program**: Points system for repeat customers",
-            "3. **Smart Notifications**: Alerts when order is ready",
-            "4. **Menu Improvement**: Professional photos for dishes",
-            "5. **Corporate Partnerships**: Offers for nearby offices",
-          ];
-      return suggestions.join("\n");
-    }
-
-    // Help
-    if (input.includes("help") || input.includes("مساعدة") || input.includes("ماذا")) {
       return lang === "ar"
-        ? `🤖 **أوامر يمكنني مساعدتك بها:**\n\n` +
-          `• اكتب "تحليلات" أو "تقارير" للحصول على تقرير شامل\n` +
-          `• اكتب "الأكثر مبيعاً" لمعرفة أفضل العناصر\n` +
-          `• اكتب "حالة الطلبات" لمعرفة عدد الطلبات بكل حالة\n` +
-          `• اكتب "الإيرادات" للحصول على تقرير الإيرادات\n` +
-          `• اكتب "اقتراحات" للحصول على أفكار للتحسين\n` +
-          `• اكتب أي سؤال وسأحاول مساعدتك!`
-        : `🤖 **Commands I can help with:**\n\n` +
-          `• Type "analytics" or "reports" for comprehensive report\n` +
-          `• Type "top items" to see best sellers\n` +
-          `• Type "order status" to see orders by status\n` +
-          `• Type "revenue" for revenue report\n` +
-          `• Type "suggestions" for improvement ideas\n` +
-          `• Ask any question and I'll try to help!`;
-    }
+        ? `💡 اقتراحات للتحسين
 
-    // Default response
+1. إضافة عروض يومية
+2. برنامج ولاء للعملاء
+3. إشعارات ذكية للطلبات
+4. تحسين القائمة بصور احترافية
+5. التعاون مع شركات قريبة`
+        : `💡 Improvement Suggestions
+
+1. Add daily special offers
+2. Loyalty program for customers
+3. Smart order notifications
+4. Improve menu with professional photos
+5. Partner with nearby businesses`;
+    }
+    
+    // Help
+    if (input.includes("help") || input.includes("مساعدة") || input.includes("ماذا") || input.includes("commands")) {
+      return lang === "ar"
+        ? `🤖 أوامري المتاحة:
+
+• "تحليلات" أو "تقارير" - تقرير شامل
+• "الأكثر مبيعاً" - أفضل العناصر
+• "حالة الطلبات" - الطلبات بالحالات
+• "الإيرادات" - تقرير الإيرادات
+• "[اسم العنصر]" - بحث في القائمة
+• "اقتراحات" - أفكار للتحسين
+• "عرض القائمة" - فتح القائمة`
+        : `🤖 Available Commands:
+
+• "analytics" or "reports" - Full report
+• "top items" - Best sellers
+• "order status" - Orders by status
+• "revenue" - Revenue report
+• "[item name]" - Search menu
+• "suggestions" - Improvement ideas
+• "show menu" - Open menu viewer`;
+    }
+    
+    // Default
     return lang === "ar"
-      ? `🤔 لم أفهم سؤالك تماماً. اكتب "مساعدة" لرؤية الأوامر المتاحة.`
-      : `🤔 I didn't quite understand your question. Type "help" to see available commands.`;
+      ? `🤔 يمكنني مساعدتك في:
+
+• تحليلات المبيعات والطلبات
+• البحث في القائمة وأسعارها
+• اقتراحات للتحسين
+
+اكتب "مساعدة" لرؤية جميع الأوامر.`
+      : `🤔 I can help you with:
+
+• Sales and order analytics
+• Menu and price information
+• Improvement suggestions
+
+Type "help" to see all available commands.`;
   };
 
   const handleSend = async () => {
@@ -282,6 +397,10 @@ export default function AIAdminAssistant() {
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, assistantMessage]);
+      
+      if (input.toLowerCase().includes("show menu") || input.toLowerCase().includes("عرض القائمة")) {
+        setShowMenuViewer(true);
+      }
     } catch (error) {
       console.error("AI Error:", error);
     } finally {
@@ -289,8 +408,26 @@ export default function AIAdminAssistant() {
     }
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      menuViewerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   return (
-    <div className="flex flex-col h-[500px] bg-background rounded-2xl border overflow-hidden">
+    <div className="flex flex-col h-[600px] bg-background rounded-2xl border overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-primary/10 to-transparent">
         <div className="flex items-center gap-2">
@@ -298,21 +435,77 @@ export default function AIAdminAssistant() {
             <Bot size={16} className="text-primary" />
           </div>
           <div>
-            <h3 className="font-bold text-sm">{tr("AI Assistant", "المساعد الذكي")}</h3>
-            <p className="text-[10px] text-muted-foreground">{tr("Powered by Azura AI", "مدعوم من أزورا AI")}</p>
+            <p className="font-bold text-sm">{tr("AI Assistant", "المساعد الذكي")}</p>
+            <p className="text-[10px] text-muted-foreground">{CAFE_CONTEXT.name}</p>
           </div>
         </div>
-        <button 
-          onClick={loadAnalytics}
-          className="p-2 hover:bg-muted rounded-lg transition-colors"
-          title={tr("Refresh Data", "تحديث البيانات")}
-        >
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-        </button>
+        <div className="flex gap-1">
+          <button 
+            onClick={() => setShowMenuViewer(!showMenuViewer)}
+            className={`p-2 hover:bg-muted rounded-lg transition-colors ${showMenuViewer ? 'bg-primary/10' : ''}`}
+            title={tr("View Menu", "عرض القائمة")}
+          >
+            <BookOpen size={14} className={showMenuViewer ? 'text-primary' : ''} />
+          </button>
+          <button 
+            onClick={loadAllData}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            title={tr("Refresh Data", "تحديث البيانات")}
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
       </div>
 
+      {/* Menu Viewer */}
+      {showMenuViewer && (
+        <div className="border-b bg-muted/30 p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <FileText size={14} className="text-primary" />
+              <span className="text-xs font-medium">{tr("Digital Menu", "القائمة الرقمية")}</span>
+            </div>
+            <div className="flex gap-1">
+              <a
+                href="https://azura-menu.pages.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                title={tr("Open in new tab", "فتح في نافذة جديدة")}
+              >
+                <ExternalLink size={12} />
+              </a>
+              <button 
+                onClick={toggleFullscreen}
+                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                title={isFullscreen ? tr("Exit fullscreen", "الخروج") : tr("Fullscreen", "ملء الشاشة")}
+              >
+                {isFullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+              </button>
+              <button 
+                onClick={() => setShowMenuViewer(false)}
+                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+              >
+                <XCircle size={12} />
+              </button>
+            </div>
+          </div>
+          <div 
+            ref={menuViewerRef}
+            className="w-full h-48 rounded-lg overflow-hidden border bg-white"
+          >
+            <iframe 
+              src="https://azura-menu.pages.dev" 
+              className="w-full h-full"
+              title={tr("Azura Menu", "قائمة أزورا")}
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
+
       {/* Analytics Quick View */}
-      {analytics && (
+      {analytics && !showMenuViewer && (
         <div className="px-4 py-2 border-b bg-muted/30">
           <div className="flex gap-3 overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-1 text-xs">
@@ -378,7 +571,7 @@ export default function AIAdminAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={tr("Ask me anything...", "اسألني أي شيء...")}
+            placeholder={tr("Ask me anything about Azura...", "اسألني أي شيء عن أزورا...")}
             className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-sm"
           />
           <button

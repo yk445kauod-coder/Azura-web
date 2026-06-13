@@ -13,11 +13,13 @@ import {
   Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Trash, Edit3, Save,
-  Video, AlertTriangle,
+  Video, AlertTriangle, Bot, LayoutDashboard,
 } from "lucide-react";
+import AIAdminAssistant from "@/components/AIAdminAssistant";
+import VisualPageBuilder from "@/components/VisualPageBuilder";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "customers";
+type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "customers" | "ai" | "builder";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -391,12 +393,67 @@ export default function Admin() {
   };
 
   // ── Order helpers ─────────────────────────────────────────────
-  const setOrderStatus = (order: Order, status: string) => {
-    if (order.userId) {
-      update(ref(db, `orders/${order.userId}/${order.orderId}`), { status });
+  const setOrderStatus = async (order: Order, status: string, cancelReason?: string) => {
+    const orderPath = order.userId ? `orders/${order.userId}/${order.orderId}` : `orders/${order.orderId}`;
+    
+    // If cancelling, require reason and notify user
+    if (status === "cancelled" && cancelReason) {
+      // Update order status
+      await update(ref(db, orderPath), { status, cancelReason, cancelledAt: Date.now(), cancelledBy: "admin" });
+      
+      // Send notification to user
+      if (order.userId) {
+        const notification = {
+          type: "order_cancelled",
+          title: lang === "ar" ? "تم إلغاء طلبك" : "Your order was cancelled",
+          message: lang === "ar" 
+            ? `تم إلغاء طلبك رقم #${order.orderId.slice(-5)}. السبب: ${cancelReason}`
+            : `Your order #${order.orderId.slice(-5)} was cancelled. Reason: ${cancelReason}`,
+          orderId: order.orderId,
+          createdAt: Date.now(),
+          read: false,
+        };
+        await push(ref(db, `notifications/${order.userId}`), notification);
+        
+        // Send message to support chat
+        const cancelMessage = lang === "ar"
+          ? `⚠️ تم إلغاء طلبك رقم #${order.orderId.slice(-5)}\n\n📋 السبب: ${cancelReason}\n\n💰 سيتم استرداد المبلغ إذا تم الدفع.\n\nلمزيد من الاستفسارات، تواصل معنا.`
+          : `⚠️ Your order #${order.orderId.slice(-5)} has been cancelled.\n\n📋 Reason: ${cancelReason}\n\n💰 Refund will be processed if payment was made.\n\nContact us for more info.`;
+        
+        await push(ref(db, `support-chat/${order.userId}/messages`), {
+          text: cancelMessage,
+          sender: "admin",
+          createdAt: Date.now(),
+          readByAdmin: true,
+          isSystem: true,
+        });
+        await update(ref(db, `support-chat/${order.userId}/meta`), {
+          lastMessage: cancelMessage.substring(0, 50),
+          lastAt: Date.now(),
+          unreadAdmin: 0,
+        });
+      }
     } else {
-      update(ref(db, `orders/${order.orderId}`), { status });
+      // Regular status update
+      await update(ref(db, orderPath), { status });
     }
+  };
+
+  // Show cancel dialog with reason
+  const showCancelDialog = async (order: Order) => {
+    const reason = window.prompt(lang === "ar" 
+      ? "أدخل سبب إلغاء الطلب (مطلوب):" 
+      : "Enter reason for cancellation (required):");
+    
+    if (!reason || reason.trim() === "") {
+      swalError(lang === "ar" ? "يجب إدخال سبب الإلغاء" : "Cancellation reason is required");
+      return;
+    }
+    
+    await setOrderStatus(order, "cancelled", reason.trim());
+    swalSuccess(lang === "ar" 
+      ? "تم إلغاء الطلب وإخطار العميل" 
+      : "Order cancelled and customer notified");
   };
 
   // ── Menu helpers ──────────────────────────────────────────────
@@ -629,6 +686,8 @@ export default function Admin() {
     { id: "reels",      icon: <Film size={14}/>,           en: "Reels",       ar: "ريلز"       },
     { id: "inventory",  icon: <Package size={14}/>,        en: "Inventory",   ar: "المخزون"    },
     { id: "customers",  icon: <Package size={14}/>,        en: "Customers",   ar: "العملاء"     },
+    { id: "ai",         icon: <Bot size={14}/>,             en: "AI Assistant", ar: "المساعد الذكي" },
+    { id: "builder",    icon: <LayoutDashboard size={14}/>, en: "Page Builder", ar: "منشئ الصفحات" },
     { id: "api",        icon: <Key size={14}/>,            en: "Egytronic",   ar: "إيچترونيك" },
     { id: "system",     icon: <Settings size={14}/>,       en: "System",      ar: "النظام"     },
   ];
@@ -937,9 +996,19 @@ export default function Admin() {
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {STATUS_FLOW.filter((s) => s !== o.status).map((s) => (
-                            <button key={s} onClick={() => setOrderStatus(o, s)} className={`chip text-[11px] ${STATUS_META[s]?.cls}`}>
-                              {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
-                            </button>
+                            s === "cancelled" ? (
+                              <button 
+                                key={s} 
+                                onClick={() => showCancelDialog(o)} 
+                                className={`chip text-[11px] ${STATUS_META[s]?.cls}`}
+                              >
+                                {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
+                              </button>
+                            ) : (
+                              <button key={s} onClick={() => setOrderStatus(o, s)} className={`chip text-[11px] ${STATUS_META[s]?.cls}`}>
+                                {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
+                              </button>
+                            )
                           ))}
                         </div>
                       </div>
@@ -1958,6 +2027,20 @@ export default function Admin() {
         {/* ━━━ CUSTOMERS TAB ━━━ */}
         {tab === "customers" && (
           <CustomersTab orders={orders} tr={tr} />
+        )}
+
+        {/* ━━━ AI ASSISTANT ━━━ */}
+        {tab === "ai" && (
+          <div className="page-enter">
+            <AIAdminAssistant />
+          </div>
+        )}
+
+        {/* ━━━ PAGE BUILDER ━━━ */}
+        {tab === "builder" && (
+          <div className="page-enter">
+            <VisualPageBuilder />
+          </div>
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 /**
  * Video URL Provider Parser
  * Extracts embeddable URLs from various video platforms with API and RSS support
+ * Enhanced with better Facebook and Instagram support
  */
 
 export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "rss" | "unknown";
@@ -13,6 +14,7 @@ export interface ParsedVideo {
   isEmbeddable: boolean;
   videoId?: string;
   apiEndpoint?: string;
+  downloadUrl?: string;
 }
 
 // RSS Feed Item for social media content
@@ -57,25 +59,39 @@ export function parseYouTube(url: string): ParsedVideo | null {
   return null;
 }
 
-// Instagram - Enhanced with API and oEmbed support
+// Instagram - Enhanced with multiple URL pattern support
 export function parseInstagram(url: string): ParsedVideo | null {
-  if (!url.includes("instagram.com")) return null;
+  if (!url.includes("instagram.com") && !url.includes("ddinstagram.com")) return null;
   
-  const reelMatch = url.match(/instagram\.com\/reel\/([a-zA-Z0-9_-]+)/);
-  const tvMatch = url.match(/instagram\.com\/tv\/([a-zA-Z0-9_-]+)/);
-  const postMatch = url.match(/instagram\.com\/p\/([a-zA-Z0-9_-]+)/);
-  const shareMatch = url.match(/instagram\.com\/share\/([a-zA-Z0-9_-]+)/);
+  // Match various Instagram URL patterns
+  const reelMatch = url.match(/(?:instagram\.com|ddinstagram\.com)\/reel\/([a-zA-Z0-9_-]+)/);
+  const tvMatch = url.match(/(?:instagram\.com|ddinstagram\.com)\/tv\/([a-zA-Z0-9_-]+)/);
+  const postMatch = url.match(/(?:instagram\.com|ddinstagram\.com)\/p\/([a-zA-Z0-9_-]+)/);
+  const shareMatch = url.match(/(?:instagram\.com|ddinstagram\.com)\/share\/([a-zA-Z0-9_-]+)/);
+  const reelsMatch = url.match(/\/reels\/([a-zA-Z0-9_-]+)/);
   
-  if (reelMatch || tvMatch) {
-    const shortCode = reelMatch ? reelMatch[1] : tvMatch[1];
+  if (reelMatch || reelsMatch) {
+    const shortCode = reelMatch ? reelMatch[1] : reelsMatch![1];
+    return {
+      provider: "instagram",
+      embedUrl: `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(url)}`,
+      thumbnail: `https://graph.instagram.com/${shortCode}/media?size=l&access_token=IGQVJ...`,
+      title: "Instagram Reel",
+      isEmbeddable: true,
+      videoId: shortCode,
+      apiEndpoint: `${INSTAGRAM_API_BASE}/${shortCode}?fields=thumbnail_url,media_url,permalink`,
+    };
+  }
+  
+  if (tvMatch) {
+    const shortCode = tvMatch[1];
     return {
       provider: "instagram",
       embedUrl: `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(url)}`,
       thumbnail: `https://graph.instagram.com/${shortCode}/media?size=l`,
-      title: "Instagram Reel/Video",
+      title: "Instagram TV",
       isEmbeddable: true,
       videoId: shortCode,
-      apiEndpoint: `${INSTAGRAM_API_BASE}/${shortCode}?fields=thumbnail_url,media_url,permalink`,
     };
   }
   
@@ -87,7 +103,18 @@ export function parseInstagram(url: string): ParsedVideo | null {
       title: "Instagram Post",
       isEmbeddable: true,
       videoId: postMatch[1],
-      apiEndpoint: `${INSTAGRAM_API_BASE}/${postMatch[1]}?fields=thumbnail_url,media_url,permalink`,
+    };
+  }
+  
+  if (shareMatch) {
+    const shortCode = shareMatch[1];
+    return {
+      provider: "instagram",
+      embedUrl: `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(url)}`,
+      thumbnail: "",
+      title: "Instagram Share",
+      isEmbeddable: true,
+      videoId: shortCode,
     };
   }
   
@@ -103,7 +130,8 @@ export function parseInstagram(url: string): ParsedVideo | null {
 // Instagram oEmbed (no auth required for public posts)
 export async function fetchInstagramOEmbed(url: string): Promise<{ thumbnail: string; title: string; html: string } | null> {
   try {
-    const oembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url)}`;
+    // Try Instagram's oEmbed endpoint first
+    const oembedUrl = `https://graph.facebook.com/v18.0/instagram_oembed?url=${encodeURIComponent(url)}&maxwidth=480&maxheight=480`;
     const response = await fetch(oembedUrl);
     if (response.ok) {
       const data = await response.json();
@@ -116,46 +144,93 @@ export async function fetchInstagramOEmbed(url: string): Promise<{ thumbnail: st
   } catch (e) {
     console.error("Instagram oEmbed error:", e);
   }
+  
+  // Fallback to noembed
+  try {
+    const oembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url)}`;
+    const response = await fetch(oembedUrl);
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        thumbnail: data.thumbnail_url || "",
+        title: data.title || "Instagram",
+        html: data.html || "",
+      };
+    }
+  } catch (e) {
+    console.error("Instagram noembed fallback error:", e);
+  }
   return null;
 }
 
-// Facebook - Enhanced with API and oEmbed support
+// Facebook - Enhanced with comprehensive URL pattern support
 export function parseFacebook(url: string): ParsedVideo | null {
-  if (!url.includes("facebook.com") && !url.includes("fb.watch") && !url.includes("fb.com")) return null;
+  if (!url.includes("facebook.com") && !url.includes("fb.watch") && !url.includes("fb.com") && !url.includes("fbcdn.net")) return null;
   
-  // Video URLs
+  // Video URLs - multiple patterns
   const videoMatch = url.match(/facebook\.com\/([a-zA-Z0-9.-]+)\/videos\/([a-zA-Z0-9]+)/);
   const reelMatch = url.match(/facebook\.com\/reel\/([a-zA-Z0-9]+)/);
   const watchMatch = url.match(/fb\.watch\/([a-zA-Z0-9_-]+)/);
   const postVideoMatch = url.match(/facebook\.com\/([a-zA-Z0-9.-]+)\/posts\/([a-zA-Z0-9]+)/);
+  const storyMatch = url.match(/facebook\.com\/stories\/([a-zA-Z0-9]+)/);
+  const videoIdMatch = url.match(/video_id=([a-zA-Z0-9]+)/);
+  const vMatch = url.match(/facebook\.com\/[^\/]+\/v\/([a-zA-Z0-9]+)/);
   
-  if (videoMatch || reelMatch || watchMatch) {
-    const videoId = videoMatch ? videoMatch[2] : (reelMatch ? reelMatch[1] : watchMatch ? watchMatch[1] : "");
+  // Extract video ID from various patterns
+  let videoId = "";
+  
+  if (videoIdMatch) {
+    videoId = videoIdMatch[1];
+  } else if (reelMatch) {
+    videoId = reelMatch[1];
+  } else if (watchMatch) {
+    videoId = watchMatch[1];
+  } else if (videoMatch) {
+    videoId = videoMatch[2];
+  } else if (vMatch) {
+    videoId = vMatch[1];
+  }
+  
+  if (videoId || reelMatch || watchMatch || videoMatch) {
     return {
       provider: "facebook",
-      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`,
-      thumbnail: `https://graph.facebook.com/${videoId}/picture`,
+      // Use Facebook's video embed player
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&mute=false`,
+      thumbnail: videoId ? `https://graph.facebook.com/${videoId}/picture` : "",
       title: "Facebook Video",
       isEmbeddable: true,
       videoId,
-      apiEndpoint: `${FACEBOOK_API_BASE}/${videoId}?fields=thumbnail_url,source`,
+      apiEndpoint: videoId ? `${FACEBOOK_API_BASE}/${videoId}?fields=thumbnail_url,source,title` : undefined,
+      downloadUrl: videoId ? `https://graph.facebook.com/${videoId}/thumbnails` : undefined,
     };
   }
   
+  // For story or other video formats
+  if (storyMatch || postVideoMatch) {
+    return {
+      provider: "facebook",
+      embedUrl: `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}`,
+      thumbnail: "",
+      title: "Facebook Story/Post",
+      isEmbeddable: true,
+    };
+  }
+  
+  // Generic Facebook URL - try to embed
   return {
     provider: "facebook",
     embedUrl: `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}`,
     thumbnail: "",
-    title: "Facebook Post",
+    title: "Facebook Content",
     isEmbeddable: true,
   };
 }
 
-// Facebook oEmbed (requires app token for video posts)
+// Facebook oEmbed
 export async function fetchFacebookOEmbed(url: string, accessToken?: string): Promise<{ thumbnail: string; title: string; html: string } | null> {
   try {
-    // Try public oEmbed endpoint
-    const oembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url)}`;
+    // Try Facebook's oEmbed endpoint
+    const oembedUrl = `https://graph.facebook.com/v18.0/oembed_video?url=${encodeURIComponent(url)}&access_token=${accessToken || ''}`;
     const response = await fetch(oembedUrl);
     if (response.ok) {
       const data = await response.json();
@@ -167,6 +242,22 @@ export async function fetchFacebookOEmbed(url: string, accessToken?: string): Pr
     }
   } catch (e) {
     console.error("Facebook oEmbed error:", e);
+  }
+  
+  // Fallback to noembed
+  try {
+    const oembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url)}`;
+    const response = await fetch(oembedUrl);
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        thumbnail: data.thumbnail_url || "",
+        title: data.title || "Facebook",
+        html: data.html || "",
+      };
+    }
+  } catch (e) {
+    console.error("Facebook noembed fallback error:", e);
   }
   return null;
 }

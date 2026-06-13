@@ -1,9 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
-import { db, ref, onValue, off, update, push } from "@/lib/firebase";
-import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star } from "lucide-react";
+import { db, ref, onValue, off, update, push, remove } from "@/lib/firebase";
+import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star, MoreHorizontal, Trash2, Reply, ThumbsUp } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
+
+interface Comment {
+  id: string;
+  text: string;
+  userName: string;
+  userId?: string;
+  createdAt: number;
+  likes?: number;
+  likedBy?: Record<string, boolean>;
+  parentId?: string;
+  replies?: Record<string, { id: string; text: string; userName: string; userId?: string; createdAt: number }>;
+}
 
 interface Reel {
   id: string;
@@ -17,7 +29,7 @@ interface Reel {
   pinned?: boolean;
   videoUrl?: string;
   videoProvider?: string;
-  comments?: Record<string, { text: string; userName: string; createdAt: number }>;
+  comments?: Record<string, Comment>;
 }
 
 interface Rating {
@@ -30,20 +42,24 @@ interface Rating {
 }
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
+const COMMENTS_PER_PAGE = 10;
 
 export default function Reels() {
   const { user } = useAuth();
-  const { lang } = useLang();
+  const { lang, isRTL } = useLang();
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<{ id: string; name: string } | null>(null);
   const [showRateModal, setShowRateModal] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [userComment, setUserComment] = useState("");
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hoverRating, setHoverRating] = useState(0);
+  const [commentPage, setCommentPage] = useState(0);
+  const [deletingComment, setDeletingComment] = useState<string | null>(null);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
@@ -84,6 +100,18 @@ export default function Reels() {
     ? (ratings.reduce((acc, r) => acc + r.rating, 0) / ratings.length).toFixed(1)
     : "0.0";
 
+  // Get comments as array with pagination
+  const getCommentsArray = useCallback(() => {
+    if (!currentReel?.comments) return [];
+    return Object.entries(currentReel.comments)
+      .map(([id, c]) => ({ id, ...c }))
+      .sort((a, b) => b.createdAt - a.createdAt);
+  }, [currentReel?.comments]);
+
+  const commentsArray = getCommentsArray();
+  const totalCommentPages = Math.ceil(commentsArray.length / COMMENTS_PER_PAGE);
+  const paginatedComments = commentsArray.slice(commentPage * COMMENTS_PER_PAGE, (commentPage + 1) * COMMENTS_PER_PAGE);
+
   const handleLike = async () => {
     if (!user || !currentReel) return;
     const newLikes = liked ? Math.max(0, currentReel.likes - 1) : currentReel.likes + 1;
@@ -99,10 +127,46 @@ export default function Reels() {
     const newComment = {
       text: comment.trim(),
       userName: user.displayName || "Guest",
-      createdAt: Date.now()
+      userId: user.uid,
+      createdAt: Date.now(),
+      likes: 0,
+      likedBy: {},
     };
     await push(commentsRef, newComment);
     setComment("");
+    setReplyingTo(null);
+    setCommentPage(0);
+  };
+
+  const handleReply = async (parentId: string) => {
+    if (!user || !currentReel || !comment.trim()) return;
+    const replyRef = ref(db, `reels/${currentReel.id}/comments/${parentId}/replies`);
+    const newReply = {
+      id: Date.now().toString(),
+      text: comment.trim(),
+      userName: user.displayName || "Guest",
+      userId: user.uid,
+      createdAt: Date.now(),
+    };
+    await push(replyRef, newReply);
+    setComment("");
+    setReplyingTo(null);
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!currentReel) return;
+    setDeletingComment(commentId);
+    await remove(ref(db, `reels/${currentReel.id}/comments/${commentId}`));
+    setDeletingComment(null);
+  };
+
+  const handleLikeComment = async (commentId: string, currentLikes: number, likedBy: Record<string, boolean> = {}) => {
+    if (!user || !currentReel) return;
+    const newLikes = likedBy[user.uid] ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+    const newLikedBy = { ...likedBy };
+    if (likedBy[user.uid]) delete newLikedBy[user.uid];
+    else newLikedBy[user.uid] = true;
+    await update(ref(db, `reels/${currentReel.id}/comments/${commentId}`), { likes: newLikes, likedBy: newLikedBy });
   };
 
   const handleRate = async () => {
@@ -123,6 +187,17 @@ export default function Reels() {
 
   const goNext = () => setCurrentIndex(prev => prev < reels.length - 1 ? prev + 1 : prev);
   const goPrev = () => setCurrentIndex(prev => prev > 0 ? prev - 1 : prev);
+
+  const formatTime = (timestamp: number) => {
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (mins < 1) return tr("Just now", "الآن");
+    if (mins < 60) return tr(`${mins}m ago`, `منذ ${mins}د`);
+    if (hours < 24) return tr(`${hours}h ago`, `منذ ${hours}س`);
+    return tr(`${days}d ago`, `منذ ${days}ي`);
+  };
 
   if (loading) {
     return (
@@ -181,15 +256,15 @@ export default function Reels() {
           <button onClick={handleLike} className="flex flex-col items-center">
             <Heart 
               size={32} 
-              className={`${liked ? "fill-red-500 text-red-500" : "text-white"} transition-all`} 
+              className={`${liked ? "fill-red-500 text-red-500" : "text-white"} transition-all transform hover:scale-110`} 
             />
             <span className="text-white text-xs mt-1">{currentReel.likes || 0}</span>
           </button>
           
-          <button onClick={() => setShowComments(!showComments)} className="flex flex-col items-center">
+          <button onClick={() => { setShowComments(!showComments); setCommentPage(0); }} className="flex flex-col items-center">
             <MessageCircle size={32} className="text-white" />
             <span className="text-white text-xs mt-1">
-              {Object.keys(currentReel.comments || {}).length}
+              {commentsArray.length}
             </span>
           </button>
           
@@ -202,10 +277,10 @@ export default function Reels() {
         {/* Navigation */}
         {reels.length > 1 && (
           <>
-            <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 text-white/80 hover:text-white">
+            <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 text-white/80 hover:text-white transition-colors">
               <ChevronLeft size={32} />
             </button>
-            <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white/80 hover:text-white">
+            <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white/80 hover:text-white transition-colors">
               <ChevronRight size={32} />
             </button>
           </>
@@ -216,7 +291,7 @@ export default function Reels() {
           {reels.map((_, i) => (
             <div 
               key={i} 
-              className={`h-1 flex-1 rounded-full ${i === currentIndex ? "bg-white" : "bg-white/30"}`}
+              className={`h-1 flex-1 rounded-full transition-all ${i === currentIndex ? "bg-white" : "bg-white/30"}`}
             />
           ))}
         </div>
@@ -228,34 +303,133 @@ export default function Reels() {
           <div className="flex-1" onClick={() => setShowComments(false)} />
           <div className="w-full max-w-md bg-background h-full overflow-hidden flex flex-col">
             <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-bold">{tr("Comments", "التعليقات")}</h3>
+              <h3 className="font-bold">{tr("Comments", "التعليقات")} ({commentsArray.length})</h3>
               <button onClick={() => setShowComments(false)}><X size={20} /></button>
             </div>
             
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {Object.entries(currentReel.comments || {}).length === 0 ? (
+              {paginatedComments.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">{tr("No comments yet", "لا توجد تعليقات")}</p>
               ) : (
-                Object.entries(currentReel.comments || {}).map(([id, c]) => (
-                  <div key={id} className="bg-muted rounded-xl p-3">
-                    <p className="font-semibold text-sm">{c.userName}</p>
-                    <p className="text-sm mt-1">{c.text}</p>
-                  </div>
-                ))
+                <>
+                  {paginatedComments.map((c) => {
+                    const commentLiked = user && c.likedBy?.[user.uid];
+                    return (
+                      <div key={c.id} className="bg-muted/50 rounded-xl p-3 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                            {c.userName?.charAt(0).toUpperCase() || "?"}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-sm">{c.userName}</span>
+                              <span className="text-[10px] text-muted-foreground">{formatTime(c.createdAt)}</span>
+                            </div>
+                            <p className="text-sm mt-0.5">{c.text}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <button 
+                                onClick={() => handleLikeComment(c.id, c.likes || 0, c.likedBy || {})}
+                                className={`flex items-center gap-1 text-xs transition-colors ${commentLiked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
+                              >
+                                <ThumbsUp size={12} className={commentLiked ? "fill-current" : ""} />
+                                {c.likes || 0}
+                              </button>
+                              {user && (
+                                <button 
+                                  onClick={() => setReplyingTo({ id: c.id, name: c.userName })}
+                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  <Reply size={12} />
+                                  {tr("Reply", "رد")}
+                                </button>
+                              )}
+                              {user?.uid === c.userId && (
+                                <button 
+                                  onClick={() => handleDeleteComment(c.id)}
+                                  disabled={deletingComment === c.id}
+                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500 transition-colors"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Replies */}
+                        {c.replies && Object.keys(c.replies).length > 0 && (
+                          <div className="ms-8 space-y-2 border-l-2 border-muted pl-3">
+                            {Object.entries(c.replies).map(([replyId, reply]) => (
+                              <div key={replyId} className="flex items-start gap-2">
+                                <div className="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold text-[10px] flex-shrink-0">
+                                  {reply.userName?.charAt(0).toUpperCase() || "?"}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-xs">{reply.userName}</span>
+                                    <span className="text-[10px] text-muted-foreground">{formatTime(reply.createdAt)}</span>
+                                  </div>
+                                  <p className="text-xs mt-0.5">{reply.text}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Pagination */}
+                  {totalCommentPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 pt-2">
+                      <button
+                        onClick={() => setCommentPage(Math.max(0, commentPage - 1))}
+                        disabled={commentPage === 0}
+                        className="px-3 py-1 text-sm bg-muted rounded-lg disabled:opacity-40"
+                      >
+                        ←
+                      </button>
+                      <span className="text-sm text-muted-foreground">
+                        {commentPage + 1} / {totalCommentPages}
+                      </span>
+                      <button
+                        onClick={() => setCommentPage(Math.min(totalCommentPages - 1, commentPage + 1))}
+                        disabled={commentPage === totalCommentPages - 1}
+                        className="px-3 py-1 text-sm bg-muted rounded-lg disabled:opacity-40"
+                      >
+                        →
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             
-            <div className="p-4 border-t flex gap-2">
-              <input
-                className="flex-1 px-4 py-2 rounded-xl bg-muted"
-                placeholder={tr("Add a comment...", "أضف تعليق...")}
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleComment()}
-              />
-              <button onClick={handleComment} className="btn-primary px-4 rounded-xl">
-                <Send size={18} />
-              </button>
+            {/* Comment Input */}
+            <div className="p-4 border-t space-y-2">
+              {replyingTo && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-1.5">
+                  <Reply size={12} />
+                  <span>{tr("Replying to", "رد على")} @{replyingTo.name}</span>
+                  <button onClick={() => setReplyingTo(null)} className="ml-auto"><X size={12} /></button>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <input
+                  className="flex-1 px-4 py-2 rounded-xl bg-muted text-sm"
+                  placeholder={tr("Add a comment...", "أضف تعليق...")}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (replyingTo ? handleReply(replyingTo.id) : handleComment())}
+                />
+                <button 
+                  onClick={() => replyingTo ? handleReply(replyingTo.id) : handleComment()} 
+                  className="btn-primary px-4 rounded-xl flex items-center justify-center"
+                  disabled={!comment.trim()}
+                >
+                  <Send size={16} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -277,11 +451,11 @@ export default function Reels() {
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
                   onClick={() => setUserRating(star)}
-                  className="p-1"
+                  className="p-1 transition-transform hover:scale-110"
                 >
                   <Star 
                     size={40} 
-                    className={`${(hoverRating || userRating) >= star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                    className={`${(hoverRating || userRating) >= star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} transition-colors`}
                   />
                 </button>
               ))}
@@ -298,7 +472,7 @@ export default function Reels() {
             <button 
               onClick={handleRate}
               disabled={userRating === 0}
-              className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl text-white font-bold disabled:opacity-50"
+              className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl text-white font-bold disabled:opacity-50 transition-opacity"
             >
               {tr("Submit Rating", "إرسال التقييم")}
             </button>

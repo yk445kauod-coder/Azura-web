@@ -3,7 +3,7 @@ import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLocation } from "wouter";
-import { Search, Plus, Check, Sparkles, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Search, Plus, Check, Sparkles, ChevronDown, ChevronUp, X, Filter, SlidersHorizontal } from "lucide-react";
 
 const SkeletonCard = lazy(() => import("./SkeletonCard"));
 
@@ -27,7 +27,7 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
   };
 }
 
-// Deluxe category definitions with icons and colors
+// Enhanced category definitions with icons, colors and gradients
 const CATS = [
   { id: "all",        emoji: "✨", en: "Menu",        ar: "القائمة"       },
   { id: "food",       emoji: "🍽️", en: "Food",       ar: "طعام"          },
@@ -44,19 +44,20 @@ const CATS = [
   { id: "shisha",     emoji: "💨", en: "Shisha",      ar: "شيشة"         },
 ];
 
-const CAT_COLORS: Record<string, { bg: string; border: string; icon: string }> = {
-  food:       { bg: "from-amber-50 to-orange-50", border: "border-amber-200", icon: "text-amber-600" },
-  sandwiches: { bg: "from-red-50 to-orange-50", border: "border-red-200", icon: "text-red-600" },
-  mains:      { bg: "from-emerald-50 to-teal-50", border: "border-emerald-200", icon: "text-emerald-600" },
-  burgers:    { bg: "from-yellow-50 to-amber-50", border: "border-yellow-200", icon: "text-yellow-600" },
-  hot_drinks: { bg: "from-brown-50 to-orange-50", border: "border-amber-700", icon: "text-amber-800" },
-  cold_drinks:{ bg: "from-blue-50 to-cyan-50", border: "border-blue-200", icon: "text-blue-600" },
-  fresh:      { bg: "from-green-50 to-emerald-50", border: "border-green-200", icon: "text-green-600" },
-  milkshake:  { bg: "from-pink-50 to-rose-50", border: "border-pink-200", icon: "text-pink-600" },
-  desserts:   { bg: "from-purple-50 to-violet-50", border: "border-purple-200", icon: "text-purple-600" },
-  extras:     { bg: "from-gray-50 to-slate-50", border: "border-gray-200", icon: "text-gray-600" },
-  drinks:     { bg: "from-sky-50 to-blue-50", border: "border-sky-200", icon: "text-sky-600" },
-  shisha:     { bg: "from-indigo-50 to-purple-50", border: "border-indigo-200", icon: "text-indigo-600" },
+// Enhanced color system with shimmer-compatible gradients
+const CAT_COLORS: Record<string, { bg: string; border: string; icon: string; badge: string; shimmer: string }> = {
+  food:       { bg: "from-amber-50 to-orange-50", border: "border-amber-200/50", icon: "text-amber-600", badge: "bg-amber-100 text-amber-700", shimmer: "from-amber-200/20 to-orange-200/20" },
+  sandwiches: { bg: "from-red-50 to-orange-50", border: "border-red-200/50", icon: "text-red-600", badge: "bg-red-100 text-red-700", shimmer: "from-red-200/20 to-orange-200/20" },
+  mains:      { bg: "from-emerald-50 to-teal-50", border: "border-emerald-200/50", icon: "text-emerald-600", badge: "bg-emerald-100 text-emerald-700", shimmer: "from-emerald-200/20 to-teal-200/20" },
+  burgers:    { bg: "from-yellow-50 to-amber-50", border: "border-yellow-200/50", icon: "text-yellow-600", badge: "bg-yellow-100 text-yellow-700", shimmer: "from-yellow-200/20 to-amber-200/20" },
+  hot_drinks: { bg: "from-orange-50 to-amber-50", border: "border-orange-200/50", icon: "text-orange-600", badge: "bg-orange-100 text-orange-700", shimmer: "from-orange-200/20 to-amber-200/20" },
+  cold_drinks:{ bg: "from-blue-50 to-cyan-50", border: "border-blue-200/50", icon: "text-blue-600", badge: "bg-blue-100 text-blue-700", shimmer: "from-blue-200/20 to-cyan-200/20" },
+  fresh:      { bg: "from-green-50 to-emerald-50", border: "border-green-200/50", icon: "text-green-600", badge: "bg-green-100 text-green-700", shimmer: "from-green-200/20 to-emerald-200/20" },
+  milkshake:  { bg: "from-pink-50 to-rose-50", border: "border-pink-200/50", icon: "text-pink-600", badge: "bg-pink-100 text-pink-700", shimmer: "from-pink-200/20 to-rose-200/20" },
+  desserts:   { bg: "from-purple-50 to-violet-50", border: "border-purple-200/50", icon: "text-purple-600", badge: "bg-purple-100 text-purple-700", shimmer: "from-purple-200/20 to-violet-200/20" },
+  extras:     { bg: "from-gray-50 to-slate-50", border: "border-gray-200/50", icon: "text-gray-600", badge: "bg-gray-100 text-gray-700", shimmer: "from-gray-200/20 to-slate-200/20" },
+  drinks:     { bg: "from-sky-50 to-blue-50", border: "border-sky-200/50", icon: "text-sky-600", badge: "bg-sky-100 text-sky-700", shimmer: "from-sky-200/20 to-blue-200/20" },
+  shisha:     { bg: "from-indigo-50 to-purple-50", border: "border-indigo-200/50", icon: "text-indigo-600", badge: "bg-indigo-100 text-indigo-700", shimmer: "from-indigo-200/20 to-purple-200/20" },
 };
 
 function greeting(lang: "en" | "ar") {
@@ -66,84 +67,162 @@ function greeting(lang: "en" | "ar") {
   return lang === "ar" ? "مساء النور! 🌙" : "Good evening! 🌙";
 }
 
-// Deluxe Menu Item Row Component
-function MenuItemRow({ item, lang, isRTL, isInCart, getQty, onAdd, justAdded }: {
+// Shimmer loading effect component
+function ShimmerEffect({ className = "" }: { className?: string }) {
+  return (
+    <div className={`relative overflow-hidden ${className}`}>
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+    </div>
+  );
+}
+
+// Badge component for categories and counts
+function Badge({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "count" | "status" }) {
+  const variants = {
+    default: "bg-primary/10 text-primary",
+    count: "bg-secondary/20 text-secondary-foreground",
+    status: "bg-muted text-muted-foreground",
+  };
+  return (
+    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-semibold ${variants[variant]}`}>
+      {children}
+    </span>
+  );
+}
+
+// Enhanced Menu Item Card Component
+function MenuItemCard({ item, lang, isRTL, isInCart, getQty, onAdd, onRemove, justAdded }: {
   item: MenuItem; lang: "en" | "ar"; isRTL: boolean;
   isInCart: (id: string) => boolean; getQty: (id: string) => number;
-  onAdd: (item: MenuItem) => void; justAdded: string | null;
+  onAdd: (item: MenuItem) => void; onRemove?: (item: MenuItem) => void;
+  justAdded: string | null;
 }) {
   const added = justAdded === item.id;
   const inCart = isInCart(item.id);
   const qty = getQty(item.id);
   const name = lang === "ar" ? item.nameAr : item.name;
+  const description = lang === "ar" ? item.descriptionAr : item.description;
 
   return (
-    <div className={`group flex items-center gap-4 py-4 px-4 rounded-xl transition-all duration-300 hover:bg-white/60 ${inCart ? 'bg-primary/5' : 'bg-white/30'}`}>
-      {/* Item Image */}
-      {item.image && (
-        <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
-          <img src={item.image} alt={name} className="w-full h-full object-cover" loading="lazy" />
-        </div>
-      )}
+    <div className={`group relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+      inCart ? 'bg-gradient-to-r from-primary/5 to-transparent ring-2 ring-primary/20' : 'bg-white/80 hover:bg-white'
+    }`}>
+      {/* Shimmer overlay on hover */}
+      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full" />
+      
+      {/* Item Image with shimmer placeholder */}
+      <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-md relative">
+        {item.image ? (
+          <img src={item.image} alt={name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+            <span className="text-3xl opacity-50">🍽️</span>
+          </div>
+        )}
+        {/* Badge for cart indicator */}
+        {inCart && (
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold shadow-md animate-spring-bounce">
+            {qty}
+          </div>
+        )}
+      </div>
       
       {/* Item Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-gray-800 text-base leading-tight">{name}</h3>
-          <span className="font-extrabold text-primary text-lg whitespace-nowrap">{item.price} LE</span>
+          <h3 className="font-bold text-gray-800 text-base leading-tight group-hover:text-primary transition-colors">{name}</h3>
+          <span className="font-extrabold text-primary text-lg whitespace-nowrap bg-primary/10 px-2 py-0.5 rounded-lg">
+            {item.price} LE
+          </span>
         </div>
-        {item.description && (
-          <p className="text-sm text-gray-500 mt-1 line-clamp-1">{item.description}</p>
+        {description && (
+          <p className="text-sm text-gray-500 mt-1 line-clamp-2 leading-relaxed">{description}</p>
         )}
+        {/* Category badge */}
+        <div className="mt-2">
+          <Badge variant="status">{item.category}</Badge>
+        </div>
       </div>
 
-      {/* Add Button */}
-      <button
-        onClick={() => onAdd(item)}
-        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 shadow-lg ${
-          added ? "bg-green-500 scale-95" : inCart ? "bg-primary scale-105" : "bg-gradient-to-br from-primary to-primary/80 hover:scale-110 active:scale-95"
-        }`}
-      >
-        {added ? <Check size={18} strokeWidth={3} className="text-white" /> : <Plus size={18} strokeWidth={2.5} className="text-white" />}
-        {inCart && !added && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">{qty}</span>
+      {/* Add/Remove Button */}
+      <div className="flex flex-col gap-2 flex-shrink-0">
+        <button
+          onClick={() => onAdd(item)}
+          className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 ${
+            added 
+              ? "bg-green-500 text-white" 
+              : inCart 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70"
+          }`}
+        >
+          {added ? <Check size={20} strokeWidth={3} /> : <Plus size={20} strokeWidth={2.5} />}
+        </button>
+        {inCart && onRemove && (
+          <button
+            onClick={() => onRemove(item)}
+            className="w-11 h-11 rounded-xl flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-100 transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            <span className="text-lg font-bold">−</span>
+          </button>
         )}
-      </button>
+      </div>
     </div>
   );
 }
 
-// Collapsible Category Section
-function CategorySection({ catId, catName, emoji, items, lang, isRTL, colors, isInCart, getQty, onAdd, justAdded, defaultOpen = false }: {
+// Enhanced Collapsible Category Section with pagination
+function CategorySection({ catId, catName, emoji, items, lang, isRTL, colors, isInCart, getQty, onAdd, onRemove, justAdded, defaultOpen = false }: {
   catId: string; catName: string; emoji: string; items: MenuItem[];
-  lang: "en" | "ar"; isRTL: boolean; colors: { bg: string; border: string; icon: string };
+  lang: "en" | "ar"; isRTL: boolean; colors: { bg: string; border: string; icon: string; badge: string; shimmer: string };
   isInCart: (id: string) => boolean; getQty: (id: string) => number;
-  onAdd: (item: MenuItem) => void; justAdded: string | null; defaultOpen?: boolean;
+  onAdd: (item: MenuItem) => void; onRemove?: (item: MenuItem) => void;
+  justAdded: string | null; defaultOpen?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const ITEMS_PER_PAGE = 6;
+  const [page, setPage] = useState(0);
+  
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const paginatedItems = items.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+    setPage(0);
+  };
 
   return (
-    <div className={`mb-6 rounded-2xl overflow-hidden border ${colors.border} bg-gradient-to-br ${colors.bg}`}>
+    <div className={`mb-5 rounded-2xl overflow-hidden border ${colors.border} bg-gradient-to-br ${colors.bg} shadow-sm hover:shadow-md transition-shadow`}>
       {/* Section Header */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 hover:bg-black/5 transition-colors"
+        onClick={handleToggle}
+        className="w-full flex items-center justify-between p-4 hover:bg-black/5 transition-all duration-200 active:bg-black/10"
       >
         <div className="flex items-center gap-3">
-          <span className={`text-2xl ${colors.icon}`}>{emoji}</span>
+          <div className={`w-10 h-10 rounded-xl bg-white/80 shadow-sm flex items-center justify-center ${colors.icon}`}>
+            <span className="text-xl">{emoji}</span>
+          </div>
           <div className="text-left">
             <h2 className="font-bold text-gray-800 text-lg">{catName}</h2>
-            <span className="text-xs text-gray-500">{items.length} items</span>
+            <div className="flex items-center gap-2">
+              <Badge variant="count">{items.length} items</Badge>
+              {isOpen && <Badge variant="default">↓</Badge>}
+            </div>
           </div>
         </div>
-        {isOpen ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
+        <div className={`flex items-center gap-2 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          <span className="text-xs text-muted-foreground font-medium">
+            {isOpen ? tr("Hide", "إخفاء") : tr("Show", "عرض")}
+          </span>
+          <ChevronDown size={20} className="text-gray-400" />
+        </div>
       </button>
 
-      {/* Items List */}
+      {/* Items List with Pagination */}
       {isOpen && (
-        <div className="px-3 pb-3 space-y-1">
-          {items.map((item) => (
-            <MenuItemRow
+        <div className="px-3 pb-3 space-y-3">
+          {paginatedItems.map((item) => (
+            <MenuItemCard
               key={item.id}
               item={item}
               lang={lang as "en" | "ar"}
@@ -151,9 +230,41 @@ function CategorySection({ catId, catName, emoji, items, lang, isRTL, colors, is
               isInCart={isInCart}
               getQty={getQty}
               onAdd={onAdd}
+              onRemove={onRemove}
               justAdded={justAdded}
             />
           ))}
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-3 pb-1">
+              <button
+                onClick={() => setPage(Math.max(0, page - 1))}
+                disabled={page === 0}
+                className="w-8 h-8 rounded-full bg-white/80 text-primary flex items-center justify-center disabled:opacity-40 hover:bg-white transition-colors shadow-sm"
+              >
+                <ChevronDown size={16} className="rotate-90" />
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      page === i ? "bg-primary w-6" : "bg-gray-300 hover:bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                disabled={page === totalPages - 1}
+                className="w-8 h-8 rounded-full bg-white/80 text-primary flex items-center justify-center disabled:opacity-40 hover:bg-white transition-colors shadow-sm"
+              >
+                <ChevronDown size={16} className="-rotate-90" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -162,7 +273,7 @@ function CategorySection({ catId, catName, emoji, items, lang, isRTL, colors, is
 
 export default function Menu() {
   const { lang, isRTL } = useLang();
-  const { addItem, isInCart, getQty } = useCart();
+  const { addItem, removeItem, isInCart, getQty } = useCart();
   const [, navigate] = useLocation();
 
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -228,6 +339,12 @@ export default function Menu() {
     addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
     setJustAdded(item.id);
     setTimeout(() => setJustAdded(null), 1400);
+  };
+
+  const handleRemove = (item: MenuItem) => {
+    if (removeItem) {
+      removeItem(item.id);
+    }
   };
 
   const toggleCat = (catId: string) => {
@@ -319,7 +436,7 @@ export default function Menu() {
         ) : (
           Object.entries(filteredGroups).map(([catId, catItems]) => {
             const catInfo = CATS.find(c => c.id === catId) || { emoji: "📋", en: catId, ar: catId };
-            const colors = CAT_COLORS[catId] || { bg: "from-gray-50 to-slate-50", border: "border-gray-200", icon: "text-gray-600" };
+            const colors = CAT_COLORS[catId] || { bg: "from-gray-50 to-slate-50", border: "border-gray-200", icon: "text-gray-600", badge: "bg-gray-100 text-gray-700", shimmer: "from-gray-200/20 to-slate-200/20" };
             const isOpen = expandedCats.has(catId) || cat !== "all";
 
             return (
@@ -335,6 +452,7 @@ export default function Menu() {
                 isInCart={isInCart}
                 getQty={getQty}
                 onAdd={handleAdd}
+                onRemove={handleRemove}
                 justAdded={justAdded}
                 defaultOpen={isOpen}
               />

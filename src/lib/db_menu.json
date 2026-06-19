@@ -1,0 +1,494 @@
+{
+  "restaurant_name": "Azura",
+  "menu": [
+    {
+      "section": "New Items",
+      "items": [
+        { "name": "Chicken Butterfly", "price": 336, "currency": "LE" },
+        { "name": "Chicken Lemon Pasta", "price": 234, "currency": "LE" },
+        { "name": "Dynamite Chicken", "price": 178, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Breakfast",
+      "items": [
+        { "name": "Azura Breakfast", "price": 204, "currency": "LE" },
+        { "name": "Mexican Breakfast", "price": 174, "currency": "LE" },
+        { "name": "Greek Breakfast", "price": 189, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Toast",
+      "items": [
+        { "name": "Triple S", "price": 218, "currency": "LE" },
+        { "name": "Chicken Cheese", "price": 219, "currency": "LE" },
+        { "name": "Mix Cheese", "price": 147, "currency": "LE" },
+        { "name": "Tuna", "price": 194, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Croissant",
+      "items": [
+        { "name": "Classic", "price": 71, "currency": "LE" },
+        { "name": "Mix Cheese", "price": 114, "currency": "LE" },
+        { "name": "Azura Croissant", "price": 149, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Soup",
+      "items": [
+        { "name": "Tomato and Basil Soup", "price": 93, "currency": "LE" },
+        { "name": "Mushroom Cream", "price": 102, "currency": "LE" },
+        { "name": "Creamy Chicken", "price": 113, "currency": "LE" },
+        { "name": "Creamy Chicken Mushroom", "price": 149, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Appetizers",
+      "items": [
+        { "name": "Fries", "price": 86, "currency": "LE" },
+        { "name": "Cheese Fries", "price": 106, "currency": "LE" },
+        { "name": "Beef Quesadilla", "price": 211, "currency": "LE" },
+        { "name": "Chicken Quesadilla", "price": 212, "currency": "LE" },
+        { "name": "Nachos", "price": 128, "currency": "LE" },
+        { "name": "Chicken Fries", "price": 202, "currency": "LE" },
+        { "name": "Chili Texas Fries", "price": 159, "currency": "LE" },
+        { "name": "Mozzarella Steak", "price": 96, "currency": "LE" },
+        { "name": "Strips", "price": 189, "currency": "LE" },
+        { "name": "Onion Rings", "price": 88, "currency": "LE" },
+        { "name": "Azura Plate", "price": 256, "currency": "LE" },
+        { "name": "Baked Potato", "price": 92, "currency": "LE" },
+        { "name": "Azura Potato", "price": 123, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Salad",
+      "items": [
+        { "name": "Greek Salad", "price": 133, "currency": "LE" },
+        { "name": "Chicken Caesar Salad", "price": 204, "currency": "LE" },
+        { "name": "Rocca Salad", "price": 124, "currency": "LE" },
+        { "name": "California Salad", "price": 193, "currency": "LE" },
+        { "name": "Azura Diso Salad", "price": 248, "currency": "LE" },
+        { "name": "Tuna Salad", "price": 206, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Pasta",
+      "items": [
+        { "name": "Alfredo Pasta", "price": 249, "currency": "LE" },
+        { "name": "Negresco", "price": 258, "currency": "LE" },
+        { "name": "Mac and Cheese", "price": 247, "currency": "LE" },
+        { "name": "Pesto Pasta", "price": 216, "currency": "LE" },
+        { "name": "Chicken Gravy Pasta", "price": 206, "currency": "LE" },
+        { "name": "Beef Stroganoff Pasta", "price": 279, "currency": "LE" },
+        { "name": "Azura Spicy Pasta", "price": 189, "currency": "LE" },
+        { "name": "Pasta Arrabbiata", "price": 165, "currency": "LE" },
+        { "name": "Pasta Forno", "price": 204, "currency": "LE" },
+        { "name": "Spaghetti Bolognese", "price": 197, "currency": "LE" },
+        { "name": "Cheese Ranch Pasta", "price": 238, "currency": "LE" },
+        { "name": "Mammo Pasta", "price": 196, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Tortilla Sandwiches",
+      "items": [
+        { "name": "Crispy Chicken", "price": 187, "currency": "LE" },
+        { "name": "Chicken Ranch", "price": 206, "currency": "LE" },
+        { "name": "Mexicans", "price": 219, "currency": "LE" },
+        { "name": "Fillet Cheese Steak", "price": 256, "currency": "LE" },
+        { "name": "Chicken Bacon", "price": 234, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Vina Sandwiches",
+      "items": [
+        { "name": "Grilled Chicken", "price": 207, "currency": "LE" },
+        { "name": "Chicken Fajita", "price": 226, "currency": "LE" },
+        { "name": "Chicken Pepperoni", "price": 234, "currency": "LE" },
+        { "name": "Beef Fajitas", "price": 236, "currency": "LE" },
+        { "name": "Cordon Bleu", "price": 201, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Main Dishes - Chicken",
+      "items": [
+        { "name": "Chicken Grill", "price": 334, "currency": "LE" },
+        { "name": "Chicken Lemon", "price": 341, "currency": "LE" },
+        { "name": "Cordon Bleu", "price": 357, "currency": "LE" },
+        { "name": "Country Fried Chicken", "price": 363, "currency": "LE" },
+        { "name": "Chicken Pesto", "price": 347, "currency": "LE" },
+        { "name": "Chicken Fromage", "price": 368, "currency": "LE" },
+        { "name": "Chicken Gravy", "price": 374, "currency": "LE" },
+        { "name": "Fajita", "price": 335, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Main Dishes - Meat",
+      "items": [
+        { "name": "Grilled Fillet", "price": 426, "currency": "LE" },
+        { "name": "Beef Stroganoff", "price": 439, "currency": "LE" },
+        { "name": "Beef Fajitas", "price": 429, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Beef Burger",
+      "items": [
+        { "name": "Classic Burger", "price": 228, "currency": "LE" },
+        { "name": "Cheese Burger", "price": 238, "currency": "LE" },
+        { "name": "Smoke Burger", "price": 264, "currency": "LE" },
+        { "name": "Fire Burger", "price": 237, "currency": "LE" },
+        { "name": "BBQ Burger", "price": 244, "currency": "LE" },
+        { "name": "Texas Burger", "price": 273, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Smash Burger",
+      "items": [
+        { "name": "Classic Smash", "price": 227, "currency": "LE" },
+        { "name": "Smoke Smash Burger", "price": 282, "currency": "LE" },
+        { "name": "Smash Mushroom Boom", "price": 252, "currency": "LE" },
+        { "name": "Fried Club", "price": 281, "currency": "LE" },
+        { "name": "Fire Smash Burger", "price": 257, "currency": "LE" },
+        { "name": "Chili Ranch", "price": 267, "currency": "LE" },
+        { "name": "Oven Baked Smash", "price": 279, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Fried Chicken Sandwich",
+      "items": [
+        { "name": "Classic Fried Chicken", "price": 216, "currency": "LE" },
+        { "name": "Fire Fried Chicken", "price": 221, "currency": "LE" },
+        { "name": "Smoke Fried Chicken", "price": 249, "currency": "LE" },
+        { "name": "Fried Festival", "price": 265, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Extra Kitchen",
+      "items": [
+        { "name": "Extra Chicken", "price": 50, "currency": "LE" },
+        { "name": "Extra Cheese", "price": 35, "currency": "LE" },
+        { "name": "Extra Bread", "price": 25, "currency": "LE" },
+        { "name": "Extra Meat", "price": 70, "currency": "LE" },
+        { "name": "Extra Fries", "price": 60, "currency": "LE" },
+        { "name": "Extra Rice", "price": 45, "currency": "LE" },
+        { "name": "Extra Mushroom", "price": 40, "currency": "LE" },
+        { "name": "Extra Sauce", "price": 35, "currency": "LE" },
+        { "name": "Sweet Chili", "price": 25, "currency": "LE" },
+        { "name": "Jalapeno", "price": 20, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Hot Drinks",
+      "items": [
+        { "name": "Tea", "price": 55, "currency": "LE" },
+        { "name": "Flavor Tea", "price": 65, "currency": "LE" },
+        { "name": "Zarda Tea", "price": 60, "currency": "LE" },
+        { "name": "Herbs", "price": 65, "currency": "LE" },
+        { "name": "Mixed Herbs", "price": 95, "currency": "LE" },
+        { "name": "Single Turkish Coffee", "price": 55, "currency": "LE" },
+        { "name": "Double Turkish Coffee", "price": 70, "currency": "LE" },
+        { "name": "French Coffee", "price": 80, "currency": "LE" },
+        { "name": "Hazelnut Coffee", "price": 85, "currency": "LE" },
+        { "name": "Nutella Coffee", "price": 95, "currency": "LE" },
+        { "name": "Hot Cidier", "price": 85, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Espresso",
+      "items": [
+        { "name": "Single Espresso", "price": 58, "currency": "LE" },
+        { "name": "Double Espresso", "price": 80, "currency": "LE" },
+        { "name": "Single Macchiato", "price": 65, "currency": "LE" },
+        { "name": "Espresso Con Panna", "price": 78, "currency": "LE" },
+        { "name": "Espresso Avocado", "price": 84, "currency": "LE" },
+        { "name": "Bon Bon Coffee", "price": 85, "currency": "LE" },
+        { "name": "Americano (white-black)", "price": 91, "currency": "LE" },
+        { "name": "Cappuccino", "price": 104, "currency": "LE" },
+        { "name": "Latte", "price": 88, "currency": "LE" },
+        { "name": "Flat White", "price": 110, "currency": "LE" },
+        { "name": "Caramel Macchiato", "price": 105, "currency": "LE" },
+        { "name": "Mocha", "price": 105, "currency": "LE" },
+        { "name": "Hazelnut Mocha (Nutella)", "price": 110, "currency": "LE" },
+        { "name": "Mocha Mint", "price": 107, "currency": "LE" },
+        { "name": "Lotus Latte", "price": 125, "currency": "LE" },
+        { "name": "Spanish Latte", "price": 115, "currency": "LE" },
+        { "name": "Hazelnut Spanish Latte", "price": 135, "currency": "LE" },
+        { "name": "Mocha Marshmallow", "price": 125, "currency": "LE" },
+        { "name": "Hazelnut Caramel", "price": 108, "currency": "LE" },
+        { "name": "Nescafe", "price": 80, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Corto",
+      "items": [
+        { "name": "Classic Corto", "price": 97, "currency": "LE" },
+        { "name": "Mocha Corto", "price": 119, "currency": "LE" },
+        { "name": "Corto Caramel", "price": 119, "currency": "LE" },
+        { "name": "Black Corto", "price": 114, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Hot Chocolate",
+      "items": [
+        { "name": "Classic Hot Chocolate", "price": 144, "currency": "LE" },
+        { "name": "Milk Hot Chocolate", "price": 169, "currency": "LE" },
+        { "name": "Dark Hot Chocolate", "price": 169, "currency": "LE" },
+        { "name": "Hot Lotus", "price": 169, "currency": "LE" },
+        { "name": "Hot Pistachio", "price": 179, "currency": "LE" },
+        { "name": "Hot Chocolate Marshmallow", "price": 169, "currency": "LE" },
+        { "name": "Oreo Hot Chocolate", "price": 169, "currency": "LE" },
+        { "name": "Cinnamon Hot Chocolate", "price": 169, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Sahlab",
+      "items": [
+        { "name": "Classic Sahlab (Nuts)", "price": 104, "currency": "LE" },
+        { "name": "Nutella Sahlab", "price": 139, "currency": "LE" },
+        { "name": "Lotus Sahlab", "price": 149, "currency": "LE" },
+        { "name": "Pistachio Sahlab", "price": 169, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Frappe",
+      "items": [
+        { "name": "Frappuccino", "price": 143, "currency": "LE" },
+        { "name": "Frappe Strong", "price": 159, "currency": "LE" },
+        { "name": "Caramel Macchiato Frappe", "price": 169, "currency": "LE" },
+        { "name": "Mocha Frappe", "price": 174, "currency": "LE" },
+        { "name": "Mocha Marshmallow Frappe", "price": 194, "currency": "LE" },
+        { "name": "White Mocha Frappe", "price": 174, "currency": "LE" },
+        { "name": "Oreo Frappe", "price": 164, "currency": "LE" },
+        { "name": "Lotus Frappe", "price": 195, "currency": "LE" },
+        { "name": "Blueberry Vanilla Frappe", "price": 159, "currency": "LE" },
+        { "name": "Strawberry Vanilla Frappe", "price": 159, "currency": "LE" },
+        { "name": "Chocolate Frappe", "price": 164, "currency": "LE" },
+        { "name": "Hazelnut Frappe", "price": 149, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Ice Cubes",
+      "items": [
+        { "name": "Espresso Energy", "price": 199, "currency": "LE" },
+        { "name": "Iced Latte", "price": 139, "currency": "LE" },
+        { "name": "Iced Cappuccino", "price": 154, "currency": "LE" },
+        { "name": "Iced Nescafe", "price": 139, "currency": "LE" },
+        { "name": "Iced Mocha", "price": 149, "currency": "LE" },
+        { "name": "Iced White Mocha", "price": 149, "currency": "LE" },
+        { "name": "Iced Caramel Macchiato", "price": 154, "currency": "LE" },
+        { "name": "Iced Spanish Latte", "price": 179, "currency": "LE" },
+        { "name": "Ice Spanish Hazelnut Latte", "price": 189, "currency": "LE" },
+        { "name": "Iced Rose Latte", "price": 174, "currency": "LE" },
+        { "name": "Blue Coffee Ice", "price": 174, "currency": "LE" },
+        { "name": "Ice Boba Coffee", "price": 184, "currency": "LE" },
+        { "name": "Ice Tea Black", "price": 89, "currency": "LE" },
+        { "name": "Ice Tea Green", "price": 104, "currency": "LE" },
+        { "name": "Ice Tea Peach", "price": 124, "currency": "LE" },
+        { "name": "Ice Tea Lemon Honey", "price": 134, "currency": "LE" },
+        { "name": "Ice Tea Raspberry", "price": 124, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Mocktails",
+      "items": [
+        { "name": "Lemon Mint", "price": 99, "currency": "LE" },
+        { "name": "Lemon Pink", "price": 99, "currency": "LE" },
+        { "name": "Lemon Strawberry", "price": 99, "currency": "LE" },
+        { "name": "Lemon Passion", "price": 109, "currency": "LE" },
+        { "name": "Classic Mojito", "price": 129, "currency": "LE" },
+        { "name": "Blueberry Mojito", "price": 184, "currency": "LE" },
+        { "name": "Mixed Berry Mojito", "price": 181, "currency": "LE" },
+        { "name": "Passion Mojito", "price": 179, "currency": "LE" },
+        { "name": "Strawberry Mojito", "price": 188, "currency": "LE" },
+        { "name": "Peach Mojito", "price": 189, "currency": "LE" },
+        { "name": "Apple Mojito", "price": 184, "currency": "LE" },
+        { "name": "Pineapple Mojito", "price": 197, "currency": "LE" },
+        { "name": "Red Bull Mojito", "price": 204, "currency": "LE" },
+        { "name": "Passion Blue", "price": 169, "currency": "LE" },
+        { "name": "Red Bull Berry", "price": 209, "currency": "LE" },
+        { "name": "Red Bull Blue", "price": 204, "currency": "LE" },
+        { "name": "Cherry Cola", "price": 139, "currency": "LE" },
+        { "name": "French Cola", "price": 144, "currency": "LE" },
+        { "name": "Boba Mojito (Blueberry, Passion, Strawberry, Green Apple)", "price": 224, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Boba Tea",
+      "items": [
+        { "name": "Boba Tea Blueberry", "price": 159, "currency": "LE" },
+        { "name": "Boba Tea Passion Fruit", "price": 164, "currency": "LE" },
+        { "name": "Boba Tea Strawberry", "price": 169, "currency": "LE" },
+        { "name": "Boba Tea Green Apple", "price": 169, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Fresh Juices",
+      "items": [
+        { "name": "Mango", "price": 134, "currency": "LE" },
+        { "name": "Strawberry", "price": 125, "currency": "LE" },
+        { "name": "Guava", "price": 133, "currency": "LE" },
+        { "name": "Orange", "price": 121, "currency": "LE" },
+        { "name": "Watermelon", "price": 127, "currency": "LE" },
+        { "name": "Kiwi", "price": 160, "currency": "LE" },
+        { "name": "Dates", "price": 130, "currency": "LE" },
+        { "name": "Pomegranate", "price": 118, "currency": "LE" },
+        { "name": "Banana", "price": 129, "currency": "LE" },
+        { "name": "Lemon", "price": 93, "currency": "LE" },
+        { "name": "Lemon Mint", "price": 99, "currency": "LE" },
+        { "name": "Pineapple", "price": 130, "currency": "LE" },
+        { "name": "Avocado", "price": 168, "currency": "LE" },
+        { "name": "Peach", "price": 127, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Cocktails",
+      "items": [
+        { "name": "Strawberry Banana", "price": 137, "currency": "LE" },
+        { "name": "Mango Kiwi", "price": 154, "currency": "LE" },
+        { "name": "Copacabana", "price": 129, "currency": "LE" },
+        { "name": "White Mountain", "price": 139, "currency": "LE" },
+        { "name": "Lemont Strawberry", "price": 144, "currency": "LE" },
+        { "name": "Yellow and Green", "price": 149, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Smoothie",
+      "items": [
+        { "name": "Lemon", "price": 89, "currency": "LE" },
+        { "name": "Lemon Mint", "price": 104, "currency": "LE" },
+        { "name": "Pina Colada", "price": 154, "currency": "LE" },
+        { "name": "Blueberry", "price": 139, "currency": "LE" },
+        { "name": "Mix Berry", "price": 144, "currency": "LE" },
+        { "name": "Mango Peach", "price": 154, "currency": "LE" },
+        { "name": "Passion Fruit", "price": 144, "currency": "LE" },
+        { "name": "Passion Strawberry", "price": 149, "currency": "LE" },
+        { "name": "Pineapple", "price": 139, "currency": "LE" },
+        { "name": "Strawberry", "price": 129, "currency": "LE" },
+        { "name": "Watermelon", "price": 149, "currency": "LE" },
+        { "name": "Mango Passion", "price": 134, "currency": "LE" },
+        { "name": "Blue Passion", "price": 159, "currency": "LE" },
+        { "name": "Strawberry Colada", "price": 159, "currency": "LE" },
+        { "name": "Mango Colada", "price": 159, "currency": "LE" },
+        { "name": "Mango", "price": 129, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Milkshake",
+      "items": [
+        { "name": "Vanilla", "price": 144, "currency": "LE" },
+        { "name": "Chocolate", "price": 149, "currency": "LE" },
+        { "name": "Strawberry", "price": 154, "currency": "LE" },
+        { "name": "Mango", "price": 154, "currency": "LE" },
+        { "name": "Blueberry", "price": 189, "currency": "LE" },
+        { "name": "Mix Berry", "price": 194, "currency": "LE" },
+        { "name": "Toffee", "price": 194, "currency": "LE" },
+        { "name": "Oreo", "price": 194, "currency": "LE" },
+        { "name": "Nutella", "price": 197, "currency": "LE" },
+        { "name": "Strawberry Coconut", "price": 184, "currency": "LE" },
+        { "name": "Pistachio", "price": 214, "currency": "LE" },
+        { "name": "Kinder Bueno", "price": 189, "currency": "LE" },
+        { "name": "Coffee", "price": 197, "currency": "LE" },
+        { "name": "Lotus", "price": 203, "currency": "LE" },
+        { "name": "Passion Fruit", "price": 174, "currency": "LE" },
+        { "name": "Apples", "price": 179, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Waffle",
+      "items": [
+        { "name": "Nutella", "price": 184, "currency": "LE" },
+        { "name": "Mixed Chocolate", "price": 209, "currency": "LE" },
+        { "name": "Lotus Caramel", "price": 204, "currency": "LE" },
+        { "name": "Azura Ice Cream Sandwich", "price": 189, "currency": "LE" },
+        { "name": "Kinder", "price": 219, "currency": "LE" },
+        { "name": "Pistachio", "price": 234, "currency": "LE" },
+        { "name": "Chocolate Marshmallow", "price": 199, "currency": "LE" },
+        { "name": "Chocolate Banana", "price": 179, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Desserts",
+      "items": [
+        { "name": "Molten Cake", "price": 178, "currency": "LE" },
+        { "name": "San Sabastian", "price": 170, "currency": "LE" },
+        { "name": "Brownies", "price": 155, "currency": "LE" },
+        { "name": "Red Velved", "price": 165, "currency": "LE" },
+        { "name": "Cheese Cake", "price": 170, "currency": "LE" },
+        { "name": "Ice Cream", "price": 55, "currency": "LE" },
+        { "name": "Triple Chocolate", "price": 159, "currency": "LE" },
+        { "name": "Cookies Cake", "price": 165, "currency": "LE" },
+        { "name": "Kinder Cake", "price": 165, "currency": "LE" },
+        { "name": "Oreo Cake", "price": 165, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Crepe",
+      "items": [
+        { "name": "Chocolate Crepe", "price": 212, "currency": "LE" },
+        { "name": "Banana Caramel", "price": 180, "currency": "LE" },
+        { "name": "Strawberry Chocolate", "price": 180, "currency": "LE" },
+        { "name": "Lotus Crepe", "price": 195, "currency": "LE" },
+        { "name": "Crepe Brownies", "price": 229, "currency": "LE" },
+        { "name": "Cheesecake Crepe", "price": 239, "currency": "LE" },
+        { "name": "Pistachio Crepe", "price": 219, "currency": "LE" },
+        { "name": "Azura Crepe", "price": 219, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Mini Pancakes",
+      "items": [
+        { "name": "Mini Chocolate Pancakes", "price": 168, "currency": "LE" },
+        { "name": "Mix For You", "price": 198, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Pancakes",
+      "items": [
+        { "name": "Chocolate Pancakes", "price": 180, "currency": "LE" },
+        { "name": "Mixed Chocolate", "price": 234, "currency": "LE" },
+        { "name": "Brownie Club", "price": 279, "currency": "LE" },
+        { "name": "Mix Berry", "price": 259, "currency": "LE" },
+        { "name": "Crunchy Lotus", "price": 211, "currency": "LE" },
+        { "name": "Strawberry Chocolate", "price": 189, "currency": "LE" },
+        { "name": "Pistachio", "price": 255, "currency": "LE" },
+        { "name": "Marshmallow S'mores", "price": 189, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Extra Drinks",
+      "items": [
+        { "name": "Sauce", "price": 25, "currency": "LE" },
+        { "name": "Flavor", "price": 25, "currency": "LE" },
+        { "name": "Topping", "price": 30, "currency": "LE" },
+        { "name": "Milk", "price": 25, "currency": "LE" },
+        { "name": "Ice Cream", "price": 50, "currency": "LE" },
+        { "name": "Nuts", "price": 45, "currency": "LE" },
+        { "name": "Pistachio", "price": 50, "currency": "LE" },
+        { "name": "Espresso", "price": 35, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Soft Drink",
+      "items": [
+        { "name": "Water", "price": 29, "currency": "LE" },
+        { "name": "Pepsi- Miranda- Seven", "price": 65, "currency": "LE" },
+        { "name": "Red Bull", "price": 115, "currency": "LE" },
+        { "name": "Fairuz", "price": 80, "currency": "LE" },
+        { "name": "Birell", "price": 85, "currency": "LE" }
+      ]
+    },
+    {
+      "section": "Hookah",
+      "items": [
+        { "name": "Hookah Mix", "price": 180, "currency": "LE" },
+        { "name": "Pyrex Hookah", "price": 190, "currency": "LE" },
+        { "name": "Luxury Hookah", "price": 150, "currency": "LE" },
+        { "name": "Hookah", "price": 65, "currency": "LE" },
+        { "name": "Pyrex Twin Hookah", "price": 210, "currency": "LE" },
+        { "name": "Azura Hookah", "price": 220, "currency": "LE" },
+        { "name": "Ice Lay", "price": 30, "currency": "LE" },
+        { "name": "Extra", "price": 55, "currency": "LE" }
+      ]
+    }
+  ]
+}

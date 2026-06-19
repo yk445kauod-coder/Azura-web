@@ -1,0 +1,75 @@
+{
+  "rules": {
+    "menu": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "category",
+        "available",
+        "price"
+      ]
+    },
+    "reels": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "createdAt",
+        "pinned",
+        "likes"
+      ]
+    },
+    "ratings": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "rating",
+        "createdAt"
+      ]
+    },
+    "orders": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "userId",
+        "status",
+        "createdAt"
+      ]
+    },
+    "users": {
+      "$uid": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "admins": {
+      ".read": true,
+      ".write": false
+    },
+    "broadcast": {
+      ".read": true,
+      ".write": true
+    },
+    "aiconfig": {
+      ".read": true,
+      ".write": true
+    },
+    "apisettings": {
+      ".read": true,
+      ".write": true
+    },
+    "suggestions": {
+      ".read": true,
+      ".write": true
+    },
+    "feedback": {
+      ".read": true,
+      ".write": true
+    },
+    "notifications": {
+      "$uid": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}

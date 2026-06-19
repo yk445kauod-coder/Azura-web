@@ -1,0 +1,1212 @@
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:8 ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+Y0 @ index-BeRtiV3n.js:8
+K0 @ index-BeRtiV3n.js:8
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:25 ErrorBoundary caught an error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1
+index-BeRtiV3n.js:170 App Error: ReferenceError: sparklesRef is not defined
+    at ref (index-BeRtiV3n.js:25:13897)
+    at ao (index-BeRtiV3n.js:8:93523)
+    at by (index-BeRtiV3n.js:8:97870)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:98267)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154)
+    at by (index-BeRtiV3n.js:8:97834)
+    at wi (index-BeRtiV3n.js:8:106154) {componentStack: '\n    at div (<anonymous>)\n    at div (<anonymous>)…index-BeRtiV3n.js:25:105)\n    at aR (<anonymous>)'}
+sR @ index-BeRtiV3n.js:170
+componentDidCatch @ index-BeRtiV3n.js:25
+X0.g.componentDidCatch.t.callback @ index-BeRtiV3n.js:8
+n0 @ index-BeRtiV3n.js:8
+i0 @ index-BeRtiV3n.js:8
+fy @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+wi @ index-BeRtiV3n.js:8
+by @ index-BeRtiV3n.js:8
+Gy @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+ev @ index-BeRtiV3n.js:8
+ho @ index-BeRtiV3n.js:8
+$y @ index-BeRtiV3n.js:8
+Fy @ index-BeRtiV3n.js:8
+Dy @ index-BeRtiV3n.js:8
+jy @ index-BeRtiV3n.js:8
+Jy @ index-BeRtiV3n.js:8
+ve @ index-BeRtiV3n.js:1

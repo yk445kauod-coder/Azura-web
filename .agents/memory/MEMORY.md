@@ -1,0 +1,3 @@
+- [Azura App Architecture](azura-arch.md) — Pure Firebase Realtime DB frontend, no backend server, port 5000 hardcoded for Replit webview.
+- [Azura No-Ordering Rule](azura-no-ordering.md) — App is display-only menu; CartContext never existed; MenuDeluxe/Joyful/Light/TikTok removed permanently.
+- [Azura AI Setup](azura-ai.md) — Groq primary (encrypted in Firebase) + Pollinations AI free fallback; chatWithAI() in aiService.ts handles both.

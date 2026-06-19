@@ -12,7 +12,7 @@ import Reels from "@/pages/Reels";
 import Suggest from "@/pages/Suggest";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {

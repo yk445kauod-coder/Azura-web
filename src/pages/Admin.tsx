@@ -11,15 +11,16 @@ import {
   Megaphone, Key, Bot, Sparkles, Wifi, WifiOff, AlertTriangle,
   Users, Activity, ChevronDown, ChevronUp, Search, Filter,
   Globe, Smartphone, Edit3, Save, X, CheckCircle, Clock,
-  TrendingUp, Eye, Hash, Zap,
+  TrendingUp, Eye, Hash, Zap, Film, Pin, PinOff, Image as ImageIcon,
 } from "lucide-react";
 import { fullMenuData } from "@/lib/fullMenu";
+import { parseVideoUrl } from "@/pages/Reels";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "menu" | "chat" | "reviews" | "ideas" | "users" | "broadcast" | "ai" | "api";
+type Tab = "overview" | "menu" | "chat" | "reviews" | "ideas" | "users" | "broadcast" | "reels" | "ai" | "api";
 
-interface MenuItem { id: string; name: string; nameAr: string; price: number; category: string; available: boolean; image: string; }
+interface MenuItem { id: string; name: string; nameAr: string; price: number; category: string; available: boolean; image: string; description?: string; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
 interface Feedback { id: string; userName: string; rating: number; comment: string; createdAt: number; read: boolean; }
@@ -27,6 +28,7 @@ interface Broadcast { id: string; title: string; titleAr: string; message: strin
 interface Suggestion { id: string; itemName: string; itemNameAr: string; description: string; category: string; status: "pending" | "approved" | "rejected"; votes: number; createdAt: number; authorName: string; image?: string; }
 interface UserLog { id: string; uid: string; name: string; tableNumber: string; loginCount: number; timestamp: number; deviceInfo: { userAgent: string; platform: string; language: string }; }
 interface UserSummary { uid: string; name: string; tableNumber: string; totalVisits: number; firstLogin: number; lastLogin: number; platform: string; }
+interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoUrl?: string; videoProvider?: "facebook" | "instagram" | "tiktok" | "direct" | "youtube"; videoId?: string; videoEmbedUrl?: string; }
 
 const CATS = ["New Items","Breakfast","Toast","Croissant","Soup","Appetizers","Salad","Pasta","Tortilla Sandwiches","Vina Sandwiches","Main Dishes - Chicken","Main Dishes - Meat","Beef Burger","Smash Burger","Fried Chicken Sandwich","Extra Kitchen","Hot Drinks","Iced Drinks","Fresh Juice","Cocktails","Smoothie","Milkshake","Waffle","Desserts","Crepe","Mini Pancakes","Pancakes","Extra Drinks","Soft Drink","Hookah"];
 const BLANK_ITEM = { name: "", nameAr: "", price: "", category: "New Items", image: "" };
@@ -73,6 +75,7 @@ export default function Admin() {
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [users, setUsers] = useState<UserSummary[]>([]);
+  const [reels, setReels] = useState<Reel[]>([]);
 
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
@@ -88,6 +91,11 @@ export default function Admin() {
 
   const [newBroadcast, setNewBroadcast] = useState(BLANK_BROADCAST);
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
+
+  // Reels management
+  const [addingReel, setAddingReel] = useState(false);
+  const [newReel, setNewReel] = useState({ image: "", caption: "", captionAr: "", mediaType: "image" as "image" | "video", videoUrl: "" });
+  const [uploadingReel, setUploadingReel] = useState(false);
 
   const [apiSettings, setApiSettings] = useState({ groqKey: "", aiEnabled: true });
   const [showApiKey, setShowApiKey] = useState(false);
@@ -110,7 +118,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (!authed) return;
-    const refs = ["menu", "support-chat", "feedback", "broadcast", "api-settings", "ai-config", "suggestions", "userLogs"];
+    const refs = ["menu", "support-chat", "feedback", "broadcast", "api-settings", "ai-config", "suggestions", "userLogs", "reels"];
 
     const menuRef = ref(db, "menu");
     onValue(menuRef, (snap) => {
@@ -182,6 +190,19 @@ export default function Admin() {
       setUsers(summary);
     });
 
+
+    // Reels subscription
+    onValue(ref(db, "reels"), (snap) => {
+      if (!snap.exists()) { setReels([]); return; }
+      const d = snap.val() as Record<string, Omit<Reel, "id">>;
+      const list = Object.entries(d).map(([id, r]) => ({ id, ...r }))
+        .sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          return b.createdAt - a.createdAt;
+        });
+      setReels(list);
+    });
     return () => refs.forEach((r) => off(ref(db, r)));
   }, [authed]);
 
@@ -255,6 +276,59 @@ export default function Admin() {
     swalSuccess(tr("Settings saved!", "تم الحفظ!"));
   };
 
+  // Reels helpers
+  const handleReelImageUpload = async (file: File) => {
+    setUploadingReel(true);
+    try {
+      const b64 = await compressToBase64(file, 800, 0.8);
+      setNewReel((p) => ({ ...p, image: b64 }));
+    } catch { swalError(tr("Image upload failed", "فشل رفع الصورة")); }
+    setUploadingReel(false);
+  };
+
+  const saveReel = async () => {
+    if (!newReel.image && !newReel.videoUrl) { swalError(tr("Image or video required", "الصورة أو الفيديو مطلوب")); return; }
+    setSavingItem(true);
+    const parsed = newReel.videoUrl ? parseVideoUrl(newReel.videoUrl) : null;
+    const reelData = {
+      image: newReel.image || parsed?.thumbnail || "",
+      caption: newReel.caption,
+      captionAr: newReel.captionAr,
+      mediaType: newReel.mediaType,
+      videoUrl: newReel.videoUrl,
+      videoProvider: parsed?.provider,
+      videoId: parsed?.videoId,
+      videoEmbedUrl: parsed?.embedUrl,
+      likes: 0,
+      likedBy: {},
+      createdAt: Date.now(),
+      authorName: "Admin",
+    };
+    await set(push(ref(db, "reels")), reelData);
+    setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" });
+    setAddingReel(false);
+    setSavingItem(false);
+    swalSuccess(tr("Reel created!", "تم إنشاء الريلز!"));
+  };
+
+  const toggleReelPin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
+  const deleteReel = async (reel: Reel) => {
+    if (!await swalConfirm(tr("Delete?", "حذف؟"), tr("Delete this reel?", "حذف هذا الريلز؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) return;
+    remove(ref(db, `reels/${reel.id}`));
+  };
+
+  // Menu inline editing
+  const startEditItem = (item: MenuItem) => setEditingItem({ ...item, description: item.description || "" });
+  const cancelEdit = () => setEditingItem(null);
+  const saveEditItem = async () => {
+    if (!editingItem) return;
+    await update(ref(db, `menu/${editingItem.category}/${editingItem.id}`), {
+      name: editingItem.name, nameAr: editingItem.nameAr, price: editingItem.price, image: editingItem.image, description: editingItem.description
+    });
+    setEditingItem(null);
+    swalSuccess(tr("Item updated!", "تم تحديث العنصر!"));
+  };
+
   const saveAiConfig = async () => {
     setSavingAiConfig(true);
     await set(ref(db, "ai-config"), { ...aiConfig, updatedAt: Date.now() });
@@ -319,6 +393,7 @@ export default function Admin() {
     { id: "ideas",      icon: <Lightbulb size={13}/>,      en: "Ideas",     ar: "أفكار",   badge: pendingSuggestions },
     { id: "users",      icon: <Users size={13}/>,          en: "Users",     ar: "الزوار" },
     { id: "broadcast",  icon: <Megaphone size={13}/>,      en: "Broadcast", ar: "إشعارات" },
+    { id: "reels",      icon: <Film size={13}/>,           en: "Reels",     ar: "ريلز" },
     { id: "ai",         icon: <Bot size={13}/>,            en: "AI Config", ar: "إعدادات الذكاء" },
     { id: "api",        icon: <Key size={13}/>,            en: "API",       ar: "API" },
   ];
@@ -509,24 +584,53 @@ export default function Admin() {
               {menuItems
                 .filter(i => (menuCatFilter === "all" || i.category === menuCatFilter) && (!menuSearch || i.name.toLowerCase().includes(menuSearch.toLowerCase()) || i.nameAr.includes(menuSearch)))
                 .map(item => (
-                  <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl transition-all" style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-xs)", border: `1px solid ${item.available ? "transparent" : "rgba(239,68,68,0.15)"}` }}>
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <div key={item.id} className="p-3 rounded-xl transition-all" style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-xs)", border: `1px solid ${item.available ? "transparent" : "rgba(239,68,68,0.15)"}` }}>
+                    {editingItem?.id === item.id ? (
+                      // Inline Edit Mode
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <input className={inp} style={inpStyle} placeholder={tr("Name (EN)", "الاسم (EN)")} value={editingItem.name} onChange={(e) => setEditingItem(p => p ? { ...p, name: e.target.value } : null)} />
+                          <input className={inp} style={inpStyle} placeholder={tr("Name (AR)", "الاسم (عربي)")} value={editingItem.nameAr} onChange={(e) => setEditingItem(p => p ? { ...p, nameAr: e.target.value } : null)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input className={inp} style={inpStyle} type="number" placeholder={tr("Price", "السعر")} value={editingItem.price} onChange={(e) => setEditingItem(p => p ? { ...p, price: Number(e.target.value) } : null)} />
+                          <select className={inp} style={{ ...inpStyle, appearance: "none" }} value={editingItem.category} onChange={(e) => setEditingItem(p => p ? { ...p, category: e.target.value } : null)}>
+                            {CATS.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <input className={inp} style={inpStyle} placeholder={tr("Image URL", "رابط الصورة")} value={editingItem.image} onChange={(e) => setEditingItem(p => p ? { ...p, image: e.target.value } : null)} />
+                        <textarea className={inp} style={{ ...inpStyle, resize: "none", minHeight: "60px" }} placeholder={tr("Description", "الوصف")} value={editingItem.description || ""} onChange={(e) => setEditingItem(p => p ? { ...p, description: e.target.value } : null)} />
+                        <div className="flex gap-2">
+                          <button onClick={saveEditItem} className="flex-1 py-2 rounded-xl font-bold text-sm text-primary-foreground bg-primary">{tr("Save", "حفظ")}</button>
+                          <button onClick={cancelEdit} className="px-4 py-2 rounded-xl font-bold text-sm bg-muted">{tr("Cancel", "إلغاء")}</button>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 text-lg">🍽️</div>
+                      // View Mode
+                      <div className="flex items-center gap-3">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 text-lg">🍽️</div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{item.category} · <span className="font-bold text-primary">{item.price} EGP</span></p>
+                          {item.description && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{item.description}</p>}
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <button onClick={() => startEditItem(item)} className="p-1.5 rounded-lg hover:bg-blue-50 hover:text-blue-600 text-muted-foreground transition-colors">
+                            <Edit3 size={13}/>
+                          </button>
+                          <button onClick={() => toggleAvail(item)} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                            {item.available ? tr("On","متاح") : tr("Off","مخفي")}
+                          </button>
+                          <button onClick={() => deleteItem(item)} className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-600 text-muted-foreground transition-colors">
+                            <Trash2 size={13}/>
+                          </button>
+                        </div>
+                      </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{item.category} · <span className="font-bold text-primary">{item.price} EGP</span></p>
-                    </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <button onClick={() => toggleAvail(item)} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                        {item.available ? tr("On","متاح") : tr("Off","مخفي")}
-                      </button>
-                      <button onClick={() => deleteItem(item)} className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-600 text-muted-foreground transition-colors">
-                        <Trash2 size={13}/>
-                      </button>
-                    </div>
                   </div>
                 ))}
             </div>
@@ -754,6 +858,94 @@ export default function Admin() {
                       <button onClick={() => remove(ref(db, `broadcast/${b.id}`))} className="p-1 rounded-lg hover:bg-red-50 hover:text-red-600 text-muted-foreground transition-colors">
                         <Trash2 size={12}/>
                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── REELS ── */}
+        {tab === "reels" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>{tr("Reels Management", "إدارة الريلز")}</h2>
+              <button onClick={() => { setAddingReel(!addingReel); setNewReel({ image: "", caption: "", captionAr: "", mediaType: "image", videoUrl: "" }); }} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-primary-foreground transition-all active:scale-95" style={{ background: "hsl(var(--primary))" }}>
+                {addingReel ? <><X size={13}/>{tr("Cancel","إلغاء")}</> : <><Plus size={13}/>{tr("Add Reel","إضافة")}</>}
+              </button>
+            </div>
+
+            {/* Add Reel Form */}
+            {addingReel && (
+              <div className="rounded-2xl p-4 space-y-3 border border-primary/20" style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-sm)" }}>
+                <h3 className="font-bold text-sm text-primary flex items-center gap-1.5"><Film size={13}/>{tr("New Reel", "رين جديد")}</h3>
+                <div className="flex gap-2">
+                  <button onClick={() => setNewReel(p => ({ ...p, mediaType: "image" }))} className={`flex-1 py-2 rounded-xl text-xs font-bold ${newReel.mediaType === "image" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                    <ImageIcon size={13} className="inline mr-1"/> {tr("Image", "صورة")}
+                  </button>
+                  <button onClick={() => setNewReel(p => ({ ...p, mediaType: "video" }))} className={`flex-1 py-2 rounded-xl text-xs font-bold ${newReel.mediaType === "video" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                    <Film size={13} className="inline mr-1"/> {tr("Video", "فيديو")}
+                  </button>
+                </div>
+                {newReel.mediaType === "image" ? (
+                  newReel.image ? (
+                    <div className="relative w-full h-40 rounded-xl overflow-hidden">
+                      <img src={newReel.image} alt="" className="w-full h-full object-cover" />
+                      <button onClick={() => setNewReel(p => ({ ...p, image: "" }))} className="absolute top-2 right-2 w-7 h-7 bg-black/50 text-white rounded-full flex items-center justify-center"><X size={13}/></button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-border cursor-pointer hover:border-primary/40 hover:bg-muted/30 transition-all">
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleReelImageUpload(e.target.files[0]); }} />
+                      <Upload size={20} className="text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{uploadingReel ? tr("Uploading…","جاري الرفع…") : tr("Upload image","رفع صورة")}</span>
+                    </label>
+                  )
+                ) : (
+                  <input className={inp} style={inpStyle} placeholder={tr("Video URL (Facebook/Instagram/TikTok/YouTube)", "رابط الفيديو")} value={newReel.videoUrl} onChange={(e) => setNewReel(p => ({ ...p, videoUrl: e.target.value }))} />
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <input className={inp} style={inpStyle} placeholder={tr("Caption (EN)", "التعليق (EN)")} value={newReel.caption} onChange={(e) => setNewReel(p => ({ ...p, caption: e.target.value }))} />
+                  <input className={inp} style={inpStyle} placeholder={tr("Caption (AR)", "التعليق (عربي)")} value={newReel.captionAr} onChange={(e) => setNewReel(p => ({ ...p, captionAr: e.target.value }))} />
+                </div>
+                <button onClick={saveReel} disabled={savingItem || (!newReel.image && !newReel.videoUrl)} className="w-full py-3 rounded-xl font-bold text-sm text-primary-foreground disabled:opacity-50 transition-all active:scale-[0.97]" style={{ background: "hsl(var(--primary))" }}>
+                  {savingItem ? tr("Saving…","جاري الحفظ…") : tr("Create Reel","إنشاء الريلز")}
+                </button>
+              </div>
+            )}
+
+            {/* Reels List */}
+            {reels.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground rounded-2xl" style={{ background: "hsl(var(--card))" }}>
+                <Film size={40} className="mx-auto mb-3 opacity-30"/>
+                <p className="text-sm">{tr("No reels yet", "لا توجد ريليز")}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {reels.map((reel) => (
+                  <div key={reel.id} className="relative rounded-xl overflow-hidden" style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-sm)" }}>
+                    {reel.mediaType === "video" ? (
+                      <div className="aspect-video bg-black flex items-center justify-center">
+                        <Film size={32} className="text-white/50"/>
+                        <span className="absolute text-white/70 text-xs ml-8">{reel.videoProvider}</span>
+                      </div>
+                    ) : (
+                      <img src={reel.image} alt="" className="w-full aspect-square object-cover" onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }} />
+                    )}
+                    {reel.pinned && <div className="absolute top-2 left-2 bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><Pin size={10}/>{tr("Pinned","مثبت")}</div>}
+                    <div className="p-2">
+                      <p className="text-xs font-medium truncate">{reel.caption || reel.captionAr || "—"}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-[10px] text-muted-foreground">❤️ {reel.likes}</span>
+                        <div className="flex gap-1">
+                          <button onClick={() => toggleReelPin(reel)} className={`p-1.5 rounded-lg ${reel.pinned ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>
+                            {reel.pinned ? <PinOff size={12}/> : <Pin size={12}/>}
+                          </button>
+                          <button onClick={() => deleteReel(reel)} className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-600 text-muted-foreground">
+                            <Trash2 size={12}/>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update, push, remove } from "@/lib/firebase";
-import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star, MoreHorizontal, Trash2, Reply, ThumbsUp } from "lucide-react";
-import { swalInfo } from "@/lib/swal";
+import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star, MoreHorizontal, Trash2, Reply, ThumbsUp, AlertCircle } from "lucide-react";
+import { swalInfo, swalError } from "@/lib/swal";
 
 interface Comment {
   id: string;
@@ -28,7 +28,11 @@ interface Reel {
   authorName: string;
   pinned?: boolean;
   videoUrl?: string;
-  videoProvider?: string;
+  videoProvider?: "facebook" | "instagram" | "tiktok" | "direct" | "youtube" | undefined;
+  videoId?: string;
+  videoThumbnail?: string;
+  videoEmbedUrl?: string;
+  mediaType?: "image" | "video";
   comments?: Record<string, Comment>;
 }
 
@@ -43,6 +47,84 @@ interface Rating {
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
 const COMMENTS_PER_PAGE = 10;
+
+// Parse video URLs from various platforms
+export function parseVideoUrl(input: string): { provider: Reel["videoProvider"]; videoId: string; embedUrl: string; thumbnail: string } | null {
+  if (!input) return null;
+  
+  const trimmed = input.trim();
+  
+  // Facebook Reels
+  const fbMatch = trimmed.match(/(?:facebook\.com\/(?:[\w.]+\/)?reel\/|fb\.reel\/)([\d]+)/i) ||
+                  trimmed.match(/fb\.watch\/([\w-]+)/i) ||
+                  trimmed.includes('facebook.com/reel/') || trimmed.includes('fb.reel/');
+  if (fbMatch || trimmed.includes('facebook.com/reel')) {
+    const id = fbMatch?.[1] || trimmed.split('/reel/').pop()?.split('?')[0] || '';
+    return {
+      provider: "facebook",
+      videoId: id,
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(trimmed)}&show_text=false&autoplay=true`,
+      thumbnail: `https://graph.facebook.com/${id}/picture?width=800`
+    };
+  }
+  
+  // Instagram Reels
+  const igMatch = trimmed.match(/instagram\.com\/(?:reel|p)\/([\w-]+)/i);
+  if (igMatch || trimmed.includes('instagram.com/reel')) {
+    const id = igMatch?.[1] || trimmed.split('/reel/').pop()?.split('?')[0] || '';
+    return {
+      provider: "instagram",
+      videoId: id,
+      embedUrl: `https://www.instagram.com/reel/${id}/embed/`,
+      thumbnail: `https://www.instagram.com/p/${id}/media/?size=l`
+    };
+  }
+  
+  // TikTok
+  const tiktokMatch = trimmed.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/i) ||
+                      trimmed.match(/vm\.tiktok\.com\/([\w]+)/i);
+  if (tiktokMatch || trimmed.includes('tiktok.com')) {
+    const id = tiktokMatch?.[1] || trimmed.split('video/').pop()?.split('?')[0] || '';
+    return {
+      provider: "tiktok",
+      videoId: id,
+      embedUrl: `https://www.tiktok.com/embed/${id}`,
+      thumbnail: `https://p16.xtiktokcdn.com/video/${id}/thumb_cover.jpg`
+    };
+  }
+  
+  // YouTube
+  const ytMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/i);
+  if (ytMatch) {
+    const id = ytMatch[1];
+    return {
+      provider: "youtube",
+      videoId: id,
+      embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1`,
+      thumbnail: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`
+    };
+  }
+  
+  // Direct video URL (mp4, webm, etc.)
+  if (trimmed.match(/\.(mp4|webm|mov|m3u8)(\?.*)?$/i) || trimmed.includes('video') || trimmed.startsWith('http')) {
+    return {
+      provider: "direct",
+      videoId: trimmed,
+      embedUrl: trimmed,
+      thumbnail: PLACEHOLDER
+    };
+  }
+  
+  return null;
+}
+
+// Fallback image handler
+export function getSafeImageUrl(url: string | undefined, fallback: string = PLACEHOLDER): string {
+  if (!url) return fallback;
+  // Remove query params that might cause 404
+  const cleanUrl = url.split('?')[0];
+  return cleanUrl || fallback;
+}
 
 export default function Reels() {
   const { user } = useAuth();
@@ -234,11 +316,24 @@ export default function Reels() {
     <div className="min-h-screen bg-black relative">
       {/* Main Reel View */}
       <div className="h-screen w-full flex items-center justify-center relative">
-        <img 
-          src={currentReel.image || PLACEHOLDER}
-          alt=""
-          className="w-full h-full object-cover"
-        />
+        {/* Video or Image */}
+        {currentReel.mediaType === "video" && currentReel.videoEmbedUrl ? (
+          <iframe
+            src={currentReel.videoEmbedUrl}
+            className="w-full h-full"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            title="Reel Video"
+            onError={() => swalError(tr("Failed to load video", "فشل تحميل الفيديو"))}
+          />
+        ) : (
+          <img 
+            src={getSafeImageUrl(currentReel.image)}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
+          />
+        )}
         
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/30" />

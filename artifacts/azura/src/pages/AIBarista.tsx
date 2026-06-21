@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLang } from "@/contexts/LanguageContext";
-import { useCart } from "@/contexts/CartContext";
 import { useBarista } from "@/contexts/BaristaContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI, textToSpeech, playAudioFromUrl } from "@/lib/crypto";
-import { Send, Plus, RefreshCw, Volume2, VolumeX, ShoppingCart, ArrowLeft, Check } from "lucide-react";
+import { Send, Plus, RefreshCw, Volume2, VolumeX, ArrowLeft, Check } from "lucide-react";
 
 interface SuggestedItem {
   id: string; name: string; nameAr: string; price: number; image: string; category: string;
@@ -17,7 +16,7 @@ interface Message {
   content: string;
   timestamp: number;
   suggestedItems?: SuggestedItem[];
-  action?: "add_to_cart" | "view_menu" | "checkout";
+  action?: "view_menu";
 }
 
 interface RawMenuItem {
@@ -57,7 +56,6 @@ function renderMarkdown(text: string): string {
 
 export default function AIBarista() {
   const { lang, isRTL } = useLang();
-  const { addItem, totalItems } = useCart();
   const { baristaName, baristaAvatar, persona } = useBarista();
   const [, navigate] = useLocation();
 
@@ -339,16 +337,14 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
     setLoading(false);
   };
 
-  const handleAddItem = (item: SuggestedItem) => {
-    addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
+  const handleViewItem = (item: SuggestedItem) => {
     setAddedItems(prev => new Set(prev).add(item.id));
     clearAddedAnimation(item.id);
   };
 
-  const handleAddAllItems = (items: SuggestedItem[]) => {
+  const handleViewAllItems = (items: SuggestedItem[]) => {
     items.forEach((item, index) => {
       setTimeout(() => {
-        addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
         setAddedItems(prev => new Set(prev).add(item.id));
         clearAddedAnimation(item.id);
       }, index * 150);
@@ -380,14 +376,6 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
             <p className="font-bold text-primary text-sm leading-tight">{baristaName}</p>
             <p className="text-[11px] text-muted-foreground">Azura Barista · Online</p>
           </div>
-          {totalItems > 0 && (
-            <button onClick={() => navigate("/cart")} className="relative btn-icon w-9 h-9">
-              <ShoppingCart size={18} />
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                {totalItems}
-              </span>
-            </button>
-          )}
           <div className="flex gap-1.5">
             <button onClick={toggleTTS} className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
               {ttsEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
@@ -433,7 +421,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
                         {msg.suggestedItems.length} items suggested
                       </p>
                       <button
-                        onClick={() => handleAddAllItems(msg.suggestedItems!)}
+                        onClick={() => handleViewAllItems(msg.suggestedItems!)}
                         className="text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105"
                         style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
                       >
@@ -449,7 +437,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
                         className={`card rounded-xl p-3 flex items-center gap-3 cursor-pointer transition-all ${
                           isAdded ? "bg-green-50 border border-green-200" : "hover:shadow-md"
                         }`} 
-                        onClick={() => handleAddItem(item)}
+                        onClick={() => handleViewItem(item)}
                       >
                         <img
                           src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
@@ -463,7 +451,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
                           <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleAddItem(item); }}
+                          onClick={(e) => { e.stopPropagation(); handleViewItem(item); }}
                           className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
                             isAdded ? "bg-green-500" : "btn-primary"
                           }`}

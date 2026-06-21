@@ -1,14 +1,13 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
-import { useCart } from "@/contexts/CartContext";
-import { useLocation } from "wouter";
-import { Search, Plus, Check, ChevronLeft, ChevronRight, Grid, List, SlidersHorizontal } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
   description: string; descriptionAr: string;
   price: number; category: string; available: boolean; image: string;
+  ingredients?: string[];
 }
 
 function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
@@ -22,31 +21,185 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
     category: String(raw.category || "food"),
     available: raw.available !== false,
     image: String(raw.image || raw.img || ""),
+    ingredients: Array.isArray(raw.ingredients) ? raw.ingredients as string[] : [],
   };
 }
 
 const CATS = [
-  { id: "all",        emoji: "🍽️", en: "All",      ar: "الكل"       },
-  { id: "food",       emoji: "🍴",  en: "Food",    ar: "طعام"       },
-  { id: "sandwiches", emoji: "🥪",  en: "Sandwich", ar: "ساندوتش"   },
-  { id: "mains",      emoji: "🍖",  en: "Mains",   ar: "أطباق"      },
-  { id: "burgers",    emoji: "🍔",  en: "Burgers", ar: "برجر"       },
-  { id: "hot_drinks", emoji: "☕",  en: "Hot",     ar: "ساخن"       },
-  { id: "cold_drinks",emoji: "🥤",  en: "Cold",    ar: "بارد"       },
-  { id: "fresh",      emoji: "🍹",  en: "Fresh",    ar: "طازج"       },
-  { id: "milkshake",  emoji: "🥛",  en: "Shakes",   ar: "شيك"        },
-  { id: "desserts",   emoji: "🍰",  en: "Sweets",   ar: "حلويات"     },
-  { id: "shisha",     emoji: "💨",  en: "Shisha",   ar: "شيشة"       },
+  { id: "all",        emoji: "✨",  en: "All",       ar: "الكل"       },
+  { id: "hot_drinks", emoji: "☕",  en: "Hot Drinks",  ar: "ساخن"      },
+  { id: "cold_drinks",emoji: "🥤", en: "Cold Drinks", ar: "بارد"      },
+  { id: "fresh",      emoji: "🍹",  en: "Fresh",       ar: "طازج"      },
+  { id: "milkshake",  emoji: "🥛", en: "Shakes",      ar: "شيك"       },
+  { id: "food",       emoji: "🍴",  en: "Food",        ar: "طعام"      },
+  { id: "sandwiches", emoji: "🥪", en: "Sandwiches",  ar: "ساندوتش"   },
+  { id: "mains",      emoji: "🍖",  en: "Mains",       ar: "أطباق"     },
+  { id: "burgers",    emoji: "🍔", en: "Burgers",     ar: "برجر"      },
+  { id: "desserts",   emoji: "🍰", en: "Desserts",     ar: "حلويات"    },
+  { id: "shisha",     emoji: "💨", en: "Shisha",       ar: "شيشة"      },
 ];
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 12;
 
-const FALLBACK = "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=200&q=60";
+// Item Detail Modal Component
+function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
+  const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
+  const cat = CATS.find(c => c.id === item.category);
+  
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Blur Background */}
+      <div 
+        className="absolute inset-0 backdrop-blur-xl bg-black/40"
+        style={{ backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
+      />
+      
+      {/* Modal Content */}
+      <div 
+        className="relative w-full max-w-md max-h-[85vh] overflow-hidden rounded-3xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: "modalSlideUp 0.3s ease-out" }}
+      >
+        {/* Image */}
+        <div className="relative h-56 overflow-hidden">
+          {item.image ? (
+            <img 
+              src={item.image} 
+              alt={item.name} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-7xl bg-gradient-to-br from-amber-100 to-orange-100">
+              {cat?.emoji || "🍽️"}
+            </div>
+          )}
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          
+          {/* Close button */}
+          <button 
+            onClick={onClose}
+            className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+          >
+            <X size={20} className="text-gray-700" />
+          </button>
+          
+          {/* Category badge */}
+          {cat && (
+            <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm flex items-center gap-1.5">
+              <span className="text-lg">{cat.emoji}</span>
+              <span className="text-sm font-bold text-gray-800">
+                {lang === "ar" ? cat.ar : cat.en}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Content */}
+        <div className="p-5 overflow-y-auto max-h-[calc(85vh-14rem)]">
+          {/* Title & Price */}
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "var(--font-heading)" }}>
+              {item.name}
+            </h2>
+            {item.nameAr && (
+              <p className="text-base text-gray-500 mt-0.5" dir="rtl">
+                {item.nameAr}
+              </p>
+            )}
+            <div className="flex items-baseline gap-2 mt-2">
+              <span className="text-3xl font-extrabold text-primary">
+                {item.price}
+              </span>
+              <span className="text-lg text-gray-500 font-medium">
+                {lang === "ar" ? "ج.م" : "EGP"}
+              </span>
+            </div>
+          </div>
+          
+          {/* Description */}
+          {(item.description || item.descriptionAr) && (
+            <div className="mb-5">
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {lang === "ar" ? (item.descriptionAr || item.description) : item.description}
+              </p>
+            </div>
+          )}
+          
+          {/* Ingredients */}
+          {item.ingredients && item.ingredients.length > 0 && (
+            <div className="mb-5">
+              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span>🧾</span> {tr("Ingredients", "المكونات")}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {item.ingredients.map((ing, idx) => (
+                  <span 
+                    key={idx}
+                    className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800"
+                  >
+                    {ing}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Default ingredients based on category */}
+          {(!item.ingredients || item.ingredients.length === 0) && (
+            <div className="mb-5">
+              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span>🧾</span> {tr("Ingredients", "المكونات")}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800">
+                  {cat?.emoji} {lang === "ar" ? cat?.ar : cat?.en}
+                </span>
+                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800">
+                  ☕ {lang === "ar" ? "طازج" : "Fresh"}
+                </span>
+                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800">
+                  ❤️ {lang === "ar" ? "صُنع بحب" : "Made with love"}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Info badges */}
+          <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              {tr("Available", "متاح")}
+            </div>
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+              <span>⏱️</span>
+              {tr("5-10 min", "5-10 دقيقة")}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes modalSlideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 export default function MenuLightweight() {
   const { lang, isRTL } = useLang();
-  const { addItem, isInCart, getQty } = useCart();
-  const [, navigate] = useLocation();
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,8 +207,7 @@ export default function MenuLightweight() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
-  const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
@@ -121,61 +273,68 @@ export default function MenuLightweight() {
     return items.filter((i) => i.available && i.category === c).length;
   }, [items]);
 
-  const handleAdd = useCallback((item: MenuItem) => {
-    addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, category: item.category, image: item.image });
-    setJustAdded(item.id);
-    setTimeout(() => setJustAdded(null), 1200);
-  }, [addItem]);
-
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-primary text-primary-foreground px-4 py-3">
-        <div className="flex items-center justify-between">
+      <div 
+        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        style={{ 
+          background: "linear-gradient(180deg, hsl(38, 92%, 50%) 0%, hsl(38, 92%, 45%) 100%)",
+          boxShadow: "0 4px 20px rgba(180, 120, 40, 0.3)"
+        }}
+      >
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-lg font-bold">{tr("Menu", "القائمة")}</h1>
-            <p className="text-xs text-primary-foreground/70">{filtered.length} {tr("items", "عنصر")}</p>
+            <h1 className="text-xl font-bold text-white drop-shadow-sm">{tr("Our Menu", "قائمتنا")}</h1>
+            <p className="text-xs text-white/80">{filtered.length} {tr("delicious items", "عنصر لذيذ")}</p>
           </div>
-          <div className="flex gap-2">
-            <button onClick={() => setViewMode("table")} className={`p-2 rounded-lg ${viewMode === "table" ? "bg-white/20" : "bg-white/10"}`}>
-              <List size={18} />
-            </button>
-            <button onClick={() => setViewMode("grid")} className={`p-2 rounded-lg ${viewMode === "grid" ? "bg-white/20" : "bg-white/10"}`}>
-              <Grid size={18} />
-            </button>
+          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+            <span className="text-2xl">☕</span>
           </div>
         </div>
-      </div>
-
-      {/* Search */}
-      <div className="sticky top-[60px] z-20 bg-background px-4 py-3 border-b">
+        
+        {/* Search */}
         <div className="relative">
-          <Search size={16} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "right-3" : "left-3"} text-muted-foreground`} />
+          <Search size={18} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "right-3" : "left-3"} text-gray-400`} />
           <input
             ref={searchRef}
             type="text"
-            placeholder={tr("Search...", "ابحث...")}
+            placeholder={tr("Search for something tasty...", "ابحث عن شيء لذيذ...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full py-2.5 rounded-xl text-sm ${isRTL ? "pr-10 pl-4" : "pl-10 pr-4"} bg-muted`}
+            className={`w-full py-3 pl-10 pr-4 rounded-2xl text-sm bg-white shadow-lg border-0 focus:ring-2 focus:ring-amber-300 ${
+              isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+            }`}
           />
         </div>
       </div>
 
-      {/* Categories - Horizontal Scroll */}
-      <div className="sticky top-[108px] z-10 bg-background px-4 py-2 overflow-x-auto scroll-hide border-b">
-        <div className="flex gap-2 min-w-max">
-          {CATS.map((c) => (
+      {/* Categories - Premium Horizontal Scroll */}
+      <div className="sticky top-[105px] z-20 bg-white/80 backdrop-blur-md px-4 py-3 border-b border-amber-100">
+        <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1">
+          {CATS.map((c, idx) => (
             <button
               key={c.id}
               onClick={() => setCat(c.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                cat === c.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              }`}
+              className={`
+                flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
+                transition-all duration-300 ease-out shadow-sm
+                ${cat === c.id 
+                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-200 scale-105" 
+                  : "bg-white text-gray-600 hover:bg-amber-50 hover:scale-102"
+                }
+              `}
+              style={{ 
+                animationDelay: `${idx * 50}ms`,
+                transform: cat === c.id ? "scale(1.05)" : "scale(1)"
+              }}
             >
-              <span>{c.emoji}</span>
+              <span className="text-lg">{c.emoji}</span>
               <span>{lang === "ar" ? c.ar : c.en}</span>
-              <span className={`text-[10px] ${cat === c.id ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+              <span className={`
+                text-[10px] px-1.5 py-0.5 rounded-full font-bold
+                ${cat === c.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"}
+              `}>
                 {catCount(c.id)}
               </span>
             </button>
@@ -186,98 +345,96 @@ export default function MenuLightweight() {
       {/* Content */}
       <div className="p-4">
         {loading ? (
-          <div className="space-y-3">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
+          <div className="grid grid-cols-2 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden">
+                <div className="h-36 bg-gradient-to-r from-amber-100 to-orange-100 animate-pulse" />
+                <div className="p-3 space-y-2">
+                  <div className="h-4 bg-amber-100 rounded animate-pulse" />
+                  <div className="h-3 w-2/3 bg-amber-100 rounded animate-pulse" />
+                </div>
+              </div>
             ))}
           </div>
         ) : paginated.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-5xl mb-3">☕</p>
-            <p className="font-bold text-primary">{tr("Nothing found", "لا توجد نتائج")}</p>
-          </div>
-        ) : viewMode === "table" ? (
-          /* TABLE VIEW */
-          <div className="space-y-2">
-            {paginated.map((item) => {
-              const added = justAdded === item.id;
-              const inCart = isInCart(item.id);
-              const qty = getQty(item.id);
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-card border transition-all hover:shadow-md"
-                  style={{ boxShadow: inCart ? "0 0 0 2px hsl(var(--primary)/0.3)" : "var(--shadow-sm)" }}
-                >
-                  {/* Thumbnail */}
-                  <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl">
-                        {CATS.find(c => c.id === item.category)?.emoji || "🍽️"}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-foreground truncate">{item.name}</p>
-                    {item.nameAr && <p className="text-xs text-muted-foreground truncate">{item.nameAr}</p>}
-                    <p className="text-primary font-extrabold text-sm mt-0.5">{item.price} EGP</p>
-                  </div>
-                  
-                  {/* Add Button */}
-                  <button
-                    onClick={() => handleAdd(item)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                      added ? "bg-green-500" : inCart ? "bg-primary" : "bg-primary/90"
-                    } text-primary-foreground`}
-                  >
-                    {added ? <Check size={18} strokeWidth={3} /> : <Plus size={18} strokeWidth={2.5} />}
-                    {inCart && !added && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                        {qty}
-                      </span>
-                    )}
-                  </button>
-                </div>
-              );
-            })}
+          <div className="text-center py-20">
+            <div className="text-7xl mb-4">🔍</div>
+            <p className="text-xl font-bold text-gray-700">{tr("Nothing found", "لا توجد نتائج")}</p>
+            <p className="text-sm text-gray-500 mt-2">{tr("Try a different search", "جرب بحث مختلف")}</p>
           </div>
         ) : (
-          /* GRID VIEW */
-          <div className="grid grid-cols-2 gap-3">
-            {paginated.map((item) => {
-              const added = justAdded === item.id;
-              const inCart = isInCart(item.id);
-              const qty = getQty(item.id);
+          /* GRID VIEW WITH SHIMMER */
+          <div className="grid grid-cols-2 gap-4">
+            {paginated.map((item, idx) => {
+              const cat = CATS.find(c => c.id === item.category);
               return (
-                <div key={item.id} className="rounded-xl overflow-hidden bg-card border">
-                  <div className="aspect-square bg-muted relative">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl">
-                        {CATS.find(c => c.id === item.category)?.emoji || "🍽️"}
+                <div 
+                  key={item.id} 
+                  className="group cursor-pointer"
+                  onClick={() => setSelectedItem(item)}
+                  style={{ 
+                    animationDelay: `${idx * 80}ms`,
+                    animation: "fadeInUp 0.4s ease-out forwards"
+                  }}
+                >
+                  {/* Card */}
+                  <div className="rounded-2xl overflow-hidden bg-white shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                    {/* Image Container with Shimmer */}
+                    <div className="relative h-36 overflow-hidden">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
+                          <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
+                        </div>
+                      )}
+                      
+                      {/* Shimmer Effect */}
+                      <div className="absolute inset-0 overflow-hidden">
+                        <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                       </div>
-                    )}
-                    {inCart && (
-                      <span className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                        {qty}
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-2">
-                    <p className="font-bold text-xs truncate">{item.name}</p>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-primary font-extrabold text-sm">{item.price}</p>
-                      <button
-                        onClick={() => handleAdd(item)}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center ${added ? "bg-green-500" : "bg-primary"} text-primary-foreground`}
-                      >
-                        {added ? <Check size={14} strokeWidth={3} /> : <Plus size={14} />}
-                      </button>
+                      
+                      {/* Shine on hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div 
+                          className="absolute w-32 h-32 bg-white/20 rounded-full blur-2xl"
+                          style={{
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)"
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Category badge */}
+                      <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold flex items-center gap-1">
+                        <span>{cat?.emoji}</span>
+                        <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="p-3">
+                      <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-amber-600 transition-colors">
+                        {item.name}
+                      </h3>
+                      {item.nameAr && (
+                        <p className="text-[11px] text-gray-400 truncate mt-0.5">{item.nameAr}</p>
+                      )}
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-lg font-extrabold text-amber-600">{item.price}</span>
+                          <span className="text-[10px] text-gray-400 font-medium">{lang === "ar" ? "ج.م" : "EGP"}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
+                          <span className="text-sm">+</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -288,30 +445,86 @@ export default function MenuLightweight() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
+          <div className="flex items-center justify-center gap-3 mt-8">
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="p-2 rounded-lg bg-muted disabled:opacity-30"
+              className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center disabled:opacity-40 disabled:shadow-none hover:shadow-lg transition-all"
             >
-              {isRTL ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+              {isRTL ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
             </button>
-            <span className="text-sm font-semibold px-3">
-              {page} / {totalPages}
-            </span>
+            <div className="flex items-center gap-1">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`w-8 h-8 rounded-lg text-sm font-bold transition-all ${
+                    page === i + 1 
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                      : "bg-white text-gray-500 hover:bg-amber-50"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="p-2 rounded-lg bg-muted disabled:opacity-30"
+              className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center disabled:opacity-40 disabled:shadow-none hover:shadow-lg transition-all"
             >
-              {isRTL ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+              {isRTL ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </button>
           </div>
         )}
       </div>
 
       {/* Bottom spacer for nav */}
-      <div className="h-20" />
+      <div className="h-24" />
+      
+      {/* Item Detail Modal */}
+      {selectedItem && (
+        <ItemModal 
+          item={selectedItem} 
+          onClose={() => setSelectedItem(null)} 
+          lang={lang}
+        />
+      )}
+      
+      {/* Global Styles */}
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes shimmer {
+          0% {
+            left: -100%;
+          }
+          100% {
+            left: 200%;
+          }
+        }
+        
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        
+        .scroll-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scroll-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,14 +1,12 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useLang } from "@/contexts/LanguageContext";
-import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { X, ShoppingCart } from "lucide-react";
+import { X } from "lucide-react";
 import { 
   HomeIcon, 
   SparklesIcon, 
-  ClipboardDocumentListIcon, 
   FilmIcon, 
   ChatBubbleLeftRightIcon, 
   UserIcon,
@@ -17,7 +15,6 @@ import {
 import { 
   HomeIcon as HomeIconSolid, 
   SparklesIcon as SparklesIconSolid, 
-  ClipboardDocumentListIcon as ClipboardIconSolid, 
   FilmIcon as FilmIconSolid, 
   ChatBubbleLeftRightIcon as ChatIconSolid, 
   UserIcon as UserIconSolid,
@@ -27,8 +24,6 @@ import {
 const NAV = [
   { path: "/menu",    key: "menu",    label: "القائمة",      labelEn: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid },
   { path: "/barista", key: "barista", label: "المساعد",      labelEn: "AI",       icon: SparklesIcon, iconActive: SparklesIconSolid },
-  { path: "/cart",    key: "cart",    label: "السلة",        labelEn: "Cart",     icon: ShoppingCart, iconActive: ShoppingCart, cart: true },
-  { path: "/orders",  key: "orders",  label: "الطلبات",      labelEn: "Orders",   icon: ClipboardDocumentListIcon, iconActive: ClipboardIconSolid },
   { path: "/reels",   key: "reels",   label: "الفيديو",       labelEn: "Reels",    icon: FilmIcon, iconActive: FilmIconSolid },
   { path: "/support", key: "support", label: "الدعم",        labelEn: "Support",  icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid },
   { path: "/profile", key: "profile", label: "حسابي",        labelEn: "Profile",  icon: UserIcon, iconActive: UserIconSolid },
@@ -59,7 +54,6 @@ const DEFAULT_BROADCAST: Broadcast = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { lang, isRTL } = useLang();
-  const { totalItems } = useCart();
   const { profile } = useAuth();
   const [location] = useLocation();
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
@@ -120,16 +114,6 @@ export default function Layout({ children }: { children: ReactNode }) {
               Table {profile.tableNumber}
             </span>
           )}
-          <Link href="/cart">
-            <button className="relative btn-icon w-9 h-9">
-              <ShoppingCart size={18} />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center font-bold leading-none px-1">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-          </Link>
         </div>
       </header>
 
@@ -185,9 +169,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           }}
         >
           <div className="flex items-stretch justify-around py-2 px-1">
-            {NAV.map((item, index) => {
+            {NAV.map((item) => {
               const active = isActive(item.path);
-              const badge = item.cart && totalItems > 0 ? totalItems : 0;
               const Icon = active ? item.iconActive : item.icon;
               const displayLabel = lang === "ar" ? item.label : item.labelEn;
               
@@ -232,20 +215,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                           `} 
                         />
                       </div>
-                      
-                      {/* Animated badge */}
-                      {badge > 0 && (
-                        <span 
-                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-lg"
-                          style={{ 
-                            background: "linear-gradient(135deg, hsl(22,55%,25%), hsl(22,55%,15%))",
-                            boxShadow: "0 3px 8px rgba(93,62,35,0.5)",
-                            animation: "badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
-                          }}
-                        >
-                          {badge > 99 ? "99+" : badge}
-                        </span>
-                      )}
                     </div>
                     
                     {/* Label with active highlight */}

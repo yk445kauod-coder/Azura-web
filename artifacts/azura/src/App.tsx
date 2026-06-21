@@ -8,9 +8,7 @@ import Layout from "@/components/Layout";
 import SplashScreen from "@/pages/SplashScreen";
 import MenuLightweight from "@/pages/MenuLightweight";
 import AIBarista from "@/pages/AIBarista";
-import Cart from "@/pages/Cart";
 import Profile from "@/pages/Profile";
-import Orders from "@/pages/Orders";
 import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
 import Suggest from "@/pages/Suggest";
@@ -54,8 +52,6 @@ function AppRoutes() {
               <Route path="/" component={MenuLightweight} />
               <Route path="/menu" component={MenuLightweight} />
               <Route path="/barista" component={AIBarista} />
-              <Route path="/cart" component={Cart} />
-              <Route path="/orders" component={Orders} />
               <Route path="/reels" component={Reels} />
               <Route path="/support" component={SupportChat} />
               <Route path="/suggest" component={Suggest} />

@@ -19,7 +19,7 @@ import AIAdminAssistant from "@/components/AIAdminAssistant";
 import VisualPageBuilder from "@/components/VisualPageBuilder";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "orders" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "customers" | "ai" | "builder";
+type Tab = "overview" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "customers" | "ai" | "builder";
 
 interface Order {
   orderId: string; userId?: string; userName: string; tableNumber: string;
@@ -675,7 +675,6 @@ export default function Admin() {
 
   const TABS: { id: Tab; icon: React.ReactNode; en: string; ar: string; badge?: number }[] = [
     { id: "overview",   icon: <BarChart3 size={14}/>,     en: "Overview",    ar: "الرئيسية"   },
-    { id: "orders",     icon: <Package size={14}/>,        en: "Orders",      ar: "الطلبات",   badge: pendingOrdersCount || 0 },
     { id: "menu",       icon: <UtensilsCrossed size={14}/>, en: "Menu",       ar: "القائمة"    },
     { id: "chat",       icon: <MessageCircle size={14}/>,  en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
     { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
@@ -855,168 +854,6 @@ export default function Admin() {
                 <p className="text-center text-muted-foreground text-sm py-8">{tr("No activity yet","لا يوجد نشاط بعد")}</p>
               )}
             </div>
-          </div>
-        )}
-
-        {/* ━━━ ORDERS ━━━ */}
-        {tab === "orders" && (
-          <div className="space-y-4 page-enter">
-            {/* Table Grid - 1-11 inside, 14 outside */}
-            <div className="grid grid-cols-3 gap-3">
-              {/* Inside tables (1-11) */}
-              <div className="col-span-3">
-                <h3 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-2">
-                  <span>🏠</span> {tr("Inside Tables (1-11)","الطاولات الداخلية (1-11)")}
-                </h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {Array.from({length: 11}, (_, i) => i + 1).map((tableNum) => {
-                    const tableOrders = orders.filter((o) => o.tableNumber === String(tableNum));
-                    const hasActive = tableOrders.some((o) => o.status === "pending" || o.status === "preparing");
-                    const hasNew = tableOrders.some((o) => {
-                      const created = o.createdAt || 0;
-                      return Date.now() - created < 300000; // 5 min
-                    });
-                    return (
-                      <button key={tableNum} onClick={() => setSelectedTable(String(tableNum))}
-                        className={`relative p-3 rounded-xl text-center transition-all ${
-                          selectedTable === String(tableNum) 
-                            ? "bg-primary/20 ring-2 ring-primary" 
-                            : hasActive 
-                              ? "bg-amber-50 ring-1 ring-amber-300"
-                              : "bg-card hover:bg-muted/50"
-                        }`}>
-                        <div className="text-2xl font-bold text-primary">{tableNum}</div>
-                        <div className="text-[10px] text-muted-foreground">
-                          {tableOrders.length} {tr("orders","طلب")}
-                        </div>
-                        {hasNew && (
-                          <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"/>
-                        )}
-                        {hasActive && !hasNew && (
-                          <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full"/>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {/* Outside tables (12-25) */}
-              <div className="col-span-3">
-                <h3 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-2">
-                  <span>🌳</span> {tr("Outside (12-25)","الخارجي (12-25)")}
-                </h3>
-                <div className="grid grid-cols-4 gap-2">
-                  {Array.from({length: 14}, (_, i) => i + 12).map((tableNum) => {
-                    const tableOrders = orders.filter((o) => o.tableNumber === String(tableNum));
-                    const hasActive = tableOrders.some((o) => o.status === "pending" || o.status === "preparing");
-                    const hasNew = tableOrders.some((o) => {
-                      const created = o.createdAt || 0;
-                      return Date.now() - created < 300000;
-                    });
-                    return (
-                      <button key={tableNum} onClick={() => setSelectedTable(String(tableNum))}
-                        className={`relative p-3 rounded-xl text-center transition-all ${
-                          selectedTable === String(tableNum) 
-                            ? "bg-primary/20 ring-2 ring-primary" 
-                            : hasActive 
-                              ? "bg-amber-50 ring-1 ring-amber-300"
-                              : "bg-card hover:bg-muted/50"
-                        }`}>
-                        <div className="text-lg font-bold text-primary">{tableNum}</div>
-                        <div className="text-[10px] text-muted-foreground">
-                          {tableOrders.length} {tr("orders","طلب")}
-                        </div>
-                        {hasNew && (
-                          <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"/>
-                        )}
-                        {hasActive && !hasNew && (
-                          <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full"/>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Selected Table Orders */}
-            {selectedTable && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-primary flex items-center gap-2">
-                    {tr("Table","طاولة")} {selectedTable} - {tr("Orders","الطلبات")}
-                  </h3>
-                  <button onClick={() => setSelectedTable(null)} className="text-xs text-muted-foreground hover:text-foreground">
-                    {tr("Close","إغلاق")}
-                  </button>
-                </div>
-                
-                {orders.filter((o) => o.tableNumber === selectedTable).length === 0 ? (
-                  <div className="text-center py-8 card rounded-xl">
-                    <Package size={36} className="mx-auto text-muted-foreground/30 mb-2"/>
-                    <p className="text-muted-foreground text-sm">{tr("No orders for this table","لا يوجد طلبات لهذه الطاولة")}</p>
-                  </div>
-                ) : (
-                  orders.filter((o) => o.tableNumber === selectedTable).map((o) => (
-                    <details key={`${o.userId || ""}-${o.orderId}`} className="card rounded-2xl overflow-hidden group">
-                      <summary className="p-4 cursor-pointer flex items-center gap-3 select-none list-none">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <p className="font-bold text-sm text-foreground">{o.userName}</p>
-                            <span className="text-[10px] text-muted-foreground">#{o.orderId?.slice(-5)}</span>
-                            {Date.now() - (o.createdAt || 0) < 300000 && (
-                              <span className="bg-green-100 text-green-700 text-[9px] px-1.5 py-0.5 rounded-full font-bold">NEW</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground">{o.items?.length||0} {tr("items","عناصر")} · {o.total} {tr("EGP","ج.م")}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">
-                            {new Date(o.createdAt).toLocaleString(lang==="ar"?"ar-EG":"en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
-                          </p>
-                        </div>
-                        <span className={`badge px-2 py-1 flex-shrink-0 ${STATUS_META[o.status]?.cls || ""}`}>
-                          {STATUS_META[o.status]?.icon}
-                          <span className="ms-1">{lang==="ar"?STATUS_META[o.status]?.ar:STATUS_META[o.status]?.label}</span>
-                        </span>
-                        <ChevronDown size={14} className="text-muted-foreground flex-shrink-0 group-open:rotate-180 transition-transform"/>
-                      </summary>
-                      <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
-                        <div className="space-y-1">
-                          {o.items?.map((item, i) => (
-                            <div key={i} className="flex justify-between text-xs">
-                              <span className="text-foreground">{lang==="ar"?(item.nameAr||item.name):item.name} <span className="text-muted-foreground">×{item.quantity}</span></span>
-                              <span className="font-semibold text-secondary">{item.subtotal} {tr("EGP","ج.م")}</span>
-                            </div>
-                          ))}
-                          {o.notes && <p className="text-xs italic text-muted-foreground mt-1">📝 {o.notes}</p>}
-                          <div className="flex justify-between text-sm font-bold pt-1 border-t border-border/40">
-                            <span>{tr("Total","الإجمالي")}</span>
-                            <span className="text-primary">{o.total} {tr("EGP","ج.م")}</span>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {STATUS_FLOW.filter((s) => s !== o.status).map((s) => (
-                            s === "cancelled" ? (
-                              <button 
-                                key={s} 
-                                onClick={() => showCancelDialog(o)} 
-                                className={`chip text-[11px] ${STATUS_META[s]?.cls}`}
-                              >
-                                {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
-                              </button>
-                            ) : (
-                              <button key={s} onClick={() => setOrderStatus(o, s)} className={`chip text-[11px] ${STATUS_META[s]?.cls}`}>
-                                {STATUS_META[s]?.icon} <span className="ms-1">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
-                              </button>
-                            )
-                          ))}
-                        </div>
-                      </div>
-                    </details>
-                  ))
-                )}
-              </div>
-            )}
           </div>
         )}
 

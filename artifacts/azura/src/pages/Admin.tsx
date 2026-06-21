@@ -8,24 +8,19 @@ import { fileToChunks, getChunksSizeMB, saveToIndexedDB } from "@/lib/chunkedVid
 import { encryptKey } from "@/lib/crypto";
 import { parseVideoUrl, getProviderName, getProviderIcon, type VideoProvider } from "@/lib/videoProviders";
 import {
-  BarChart3, Package, UtensilsCrossed, MessageCircle, Star, Lightbulb,
-  TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2, ToggleLeft, ToggleRight,
-  Send, ChevronDown, Upload, CheckCircle, XCircle, Clock, ChefHat, Truck,
+  MessageCircle, Star, Lightbulb,
+  TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2,
+  Send, CheckCircle, XCircle,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
-  RotateCcw, Download, Archive, UploadCloud, Trash, Edit3, Save,
-  Video, AlertTriangle, Bot, LayoutDashboard,
+  RotateCcw, Download, Archive, UploadCloud, Save,
+  Video, AlertTriangle, Bot, LayoutDashboard, Users,
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 import VisualPageBuilder from "@/components/VisualPageBuilder";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "menu" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "analytics" | "inventory" | "customers" | "ai" | "builder";
+type Tab = "overview" | "users" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai" | "builder";
 
-interface Order {
-  orderId: string; userId?: string; userName: string; tableNumber: string;
-  items: { name: string; nameAr: string; quantity: number; price: number; subtotal: number }[];
-  total: number; status: string; notes?: string; createdAt: number;
-}
 interface MenuItem { id: string; name: string; nameAr: string; description: string; price: number; category: string; available: boolean; image: string; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
@@ -35,74 +30,7 @@ interface Report { id: string; userName: string; description: string; type: stri
 interface Broadcast { id: string; title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string; createdAt: number; }
 interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoUrl?: string; videoProvider?: VideoProvider; videoThumbnail?: string; videoChunks?: string[]; chunkCount?: number; }
 
-const STATUS_META: Record<string, { label: string; ar: string; icon: React.ReactNode; cls: string }> = {
-  pending:   { label: "Pending",   ar: "انتظار",  icon: <Clock size={11}/>,       cls: "status-pending"   },
-  preparing: { label: "Preparing", ar: "يُحضَّر",  icon: <ChefHat size={11}/>,     cls: "status-preparing" },
-  ready:     { label: "Ready!",    ar: "جاهز!",   icon: <CheckCircle size={11}/>, cls: "status-ready"     },
-  delivered: { label: "Done",      ar: "اتسلم",   icon: <Truck size={11}/>,       cls: "status-delivered" },
-  cancelled: { label: "Cancelled", ar: "اتلغى",   icon: <XCircle size={11}/>,     cls: "status-cancelled" },
-};
-const STATUS_FLOW = ["pending", "preparing", "ready", "delivered", "cancelled"] as const;
-
-const SAMPLE_IMAGES: Record<string, { url: string; label: string }[]> = {
-  coffee: [
-    { url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=75", label: "Espresso" },
-    { url: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=75", label: "Latte" },
-    { url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=75", label: "Sunrise" },
-    { url: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&q=75", label: "Mocha" },
-    { url: "https://images.unsplash.com/photo-1572119865084-43c285814d63?w=400&q=75", label: "Cold Brew" },
-    { url: "https://images.unsplash.com/photo-1529925262326-a27c9d5a3815?w=400&q=75", label: "Flat White" },
-  ],
-  beverages: [
-    { url: "https://images.unsplash.com/photo-1546173159-315724a31696?w=400&q=75", label: "Iced" },
-    { url: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=75", label: "Smoothie" },
-    { url: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&q=75", label: "Lemonade" },
-    { url: "https://images.unsplash.com/photo-1536657464919-892534f60d6e?w=400&q=75", label: "Matcha" },
-    { url: "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=400&q=75", label: "Juice" },
-    { url: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&q=75", label: "Cocktail" },
-  ],
-  food: [
-    { url: "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=400&q=75", label: "Avocado Toast" },
-    { url: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=75", label: "Pancakes" },
-    { url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=75", label: "Salad" },
-    { url: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=75", label: "Eggs" },
-    { url: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&q=75", label: "Burger" },
-    { url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=75", label: "Bowl" },
-  ],
-  desserts: [
-    { url: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&q=75", label: "Tiramisu" },
-    { url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=75", label: "Cake" },
-    { url: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&q=75", label: "Chocolate" },
-    { url: "https://images.unsplash.com/photo-1558320355-09d12f95e3b2?w=400&q=75", label: "Croissant" },
-    { url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=75", label: "Cupcake" },
-    { url: "https://images.unsplash.com/photo-1464305795204-6f5bbfc7fb81?w=400&q=75", label: "Tart" },
-  ],
-  shisha: [
-    { url: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=400&q=75", label: "Classic Hookah" },
-    { url: "https://images.unsplash.com/photo-1605792657660-596af9009f82?w=400&q=75", label: "Fruit Bowl" },
-    { url: "https://images.unsplash.com/photo-1582284540020-4a4c9b7f5b0c?w=400&q=75", label: "Two Hose" },
-    { url: "https://images.unsplash.com/photo-1568613802138-c97e4c3c2d18?w=400&q=75", label: "Premium Mix" },
-    { url: "https://images.unsplash.com/photo-1599422314077-f4dfdaa4cd09?w=400&q=75", label: "Mint Flavor" },
-    { url: "https://images.unsplash.com/photo-1606942318098-400e98a01f90?w=400&q=75", label: "Double Apple" },
-  ],
-};
-
-const CATS = ["coffee", "beverages", "food", "desserts", "shisha"] as const;
-const BLANK_ITEM = { name: "", nameAr: "", description: "", price: "", category: "coffee", image: "" };
 const BLANK_BROADCAST = { title: "", titleAr: "", message: "", messageAr: "", type: "info" as const, emoji: "📢" };
-
-function normalizeItem(id: string, raw: Record<string, unknown>, category?: string): MenuItem {
-  return {
-    id, 
-    name: String(raw.name || raw.nameEn || id), 
-    nameAr: String(raw.nameAr || ""),
-    description: String(raw.description || raw.descEn || ""),
-    price: Number(raw.price) || 0, 
-    category: String(raw.category || category || "coffee"),
-    available: raw.available !== false, 
-    image: String(raw.image || raw.img || ""),
-  };
-}
 
 function Stars({ n, size = 14 }: { n: number; size?: number }) {
   return (
@@ -130,20 +58,8 @@ export default function Admin() {
   const [pinErr, setPinErr] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
   
-  // Landing page state - only show once per device
-  const [showLanding, setShowLanding] = useState(() => {
-    const shown = localStorage.getItem("azura-admin-landing-shown");
-    return shown !== "true";
-  });
-  
-  const dismissLanding = () => {
-    localStorage.setItem("azura-admin-landing-shown", "true");
-    setShowLanding(false);
-  };
-
   // Data
-  const [orders, setOrders]       = useState<Order[]>([]);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [users, setUsers]         = useState<any[]>([]);
   const [chats, setChats]         = useState<ChatSession[]>([]);
   const [feedback, setFeedback]   = useState<Feedback[]>([]);
   const [ideas, setIdeas]         = useState<Suggestion[]>([]);
@@ -157,40 +73,24 @@ export default function Admin() {
   const [chatInput, setChatInput]       = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Menu form
-  const [adding, setAdding]         = useState(false);
-  const [newItem, setNewItem]       = useState(BLANK_ITEM);
-  const [uploading, setUploading]   = useState(false);
-  const [imgSize, setImgSize]       = useState(0);
-  const [showGallery, setShowGallery] = useState(false);
-  const [savingItem, setSavingItem] = useState(false);
-
   // Broadcast form
-  const [newBroadcast, setNewBroadcast] = useState(BLANK_BROADCAST);
+  const [newBroadcast, setNewBroadcast] = useState<{
+    title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string;
+  }>(BLANK_BROADCAST);
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
   // Reels form
-  const [newReel, setNewReel] = useState({ 
-    image: "", 
-    caption: "", 
-    captionAr: "", 
-    mediaType: "image" as "image" | "video", 
-    videoUrl: "",
-    videoProvider: undefined as VideoProvider | undefined,
-    videoThumbnail: "",
+  const [newReel, setNewReel] = useState<{
+    image: string; caption: string; captionAr: string; mediaType: "image" | "video"; videoUrl: string; videoProvider: VideoProvider | undefined; videoThumbnail: string; videoChunks?: string[]; chunkCount?: number;
+  }>({
+    image: "", caption: "", captionAr: "", mediaType: "image" as "image" | "video", videoUrl: "", videoProvider: undefined as VideoProvider | undefined, videoThumbnail: "",
   });
+  const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
-  // Orders filter
-  const [orderFilter, setOrderFilter] = useState("all");
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
-
-  // Reports range
-  const [range, setRange] = useState<"today" | "week" | "month">("week");
 
   // API settings
   const [apiSettings, setApiSettings] = useState({
-    geminiKey: "",
+    groqKey: "",
     aiEnabled: true,
   });
   const [showApiKey, setShowApiKey] = useState(false);
@@ -206,10 +106,11 @@ export default function Admin() {
 
   // Load banner from Firebase
   useEffect(() => {
+    if (!authed) return;
     const bannerRef = ref(db, "homepage-banner");
     onValue(bannerRef, (snap) => {
       if (snap.exists()) {
-        const data = snap.val() as { content: string; bgColor: string; textColor: string; enabled: boolean };
+        const data = snap.val();
         setBannerContent(data.content || "");
         setBannerBgColor(data.bgColor || "#FF6B35");
         setBannerTextColor(data.textColor || "#FFFFFF");
@@ -249,87 +150,52 @@ export default function Admin() {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const inp = "input-field px-3 py-2.5 text-sm";
 
+  const formatDuration = (seconds: number) => {
+    if (!seconds) return "0s";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
+  };
+
   // ── Load all data ──────────────────────────────────────────────
   useEffect(() => {
     if (!authed) return;
 
-    // Orders: handle both old flat format and new per-user nested format
-    const ordersRef = ref(db, "orders");
-    onValue(ordersRef, (snap) => {
-      if (!snap.exists()) return;
-      const data = snap.val() as Record<string, unknown>;
-      const allOrders: Order[] = [];
-      Object.entries(data).forEach(([key, val]) => {
-        if (!val || typeof val !== "object") return;
-        const v = val as Record<string, unknown>;
-        
-        // Check if it's a direct order (old flat format) vs nested orders
-        if (v.items && Array.isArray(v.items)) {
-          allOrders.push({ ...(v as unknown as Order), orderId: (v.orderId as string) || key });
-        } else {
-          Object.entries(v).forEach(([orderId, order]) => {
-            if (order && typeof order === "object") {
-              const o = order as Record<string, unknown>;
-              allOrders.push({ 
-                ...(o as unknown as Order), 
-                userId: key, 
-                orderId: (o.orderId as string) || orderId 
-              });
-            }
-          });
-        }
-      });
-      allOrders.sort((a, b) => b.createdAt - a.createdAt);
-      setOrders(allOrders);
-    });
-
-    // Menu
-    onValue(ref(db, "menu"), (snap) => {
-      if (!snap.exists()) return;
-      const data = snap.val() as Record<string, Record<string, unknown>>;
-      const result: MenuItem[] = [];
-      Object.entries(data).forEach(([category, val]) => {
-        if (typeof val !== "object" || !val) return;
-        const v = val as Record<string, unknown>;
-        // Check if it's a direct item (has price/name)
-        if (v.price !== undefined || v.name !== undefined) {
-          result.push(normalizeItem(category, v, category));
-        } else {
-          // It's a sub-object with items
-          Object.entries(v).forEach(([itemId, itemData]) => {
-            if (typeof itemData === "object" && itemData) {
-              result.push(normalizeItem(itemId, itemData as Record<string, unknown>, category));
-            }
-          });
-        }
-      });
-      setMenuItems(result);
+    // Users
+    onValue(ref(db, "users"), (snap) => {
+      if (!snap.exists()) { setUsers([]); return; }
+      const data = snap.val() as Record<string, any>;
+      const list = Object.entries(data).map(([uid, val]) => ({ uid, ...val }));
+      setUsers(list.sort((a, b) => (b.lastLoginAt || 0) - (a.lastLoginAt || 0)));
     });
 
     // Feedback
     onValue(ref(db, "feedback"), (snap) => {
-      if (!snap.exists()) return;
+      if (!snap.exists()) { setFeedback([]); return; }
       const data = snap.val() as Record<string, Omit<Feedback, "id">>;
       setFeedback(Object.entries(data).map(([id, f]) => ({ id, ...f })).sort((a, b) => b.createdAt - a.createdAt));
     });
 
     // Suggestions
     onValue(ref(db, "suggestions"), (snap) => {
-      if (!snap.exists()) return;
+      if (!snap.exists()) { setIdeas([]); return; }
       const data = snap.val() as Record<string, Omit<Suggestion, "id">>;
       setIdeas(Object.entries(data).map(([id, s]) => ({ id, ...s })).sort((a, b) => b.createdAt - a.createdAt));
     });
 
     // User Reports
     onValue(ref(db, "reports"), (snap) => {
-      if (!snap.exists()) return;
+      if (!snap.exists()) { setReports([]); return; }
       const data = snap.val() as Record<string, Omit<Report, "id">>;
       setReports(Object.entries(data).map(([id, r]) => ({ id, ...r })).sort((a, b) => b.createdAt - a.createdAt));
     });
 
     // Support chat
     onValue(ref(db, "support-chat"), (snap) => {
-      if (!snap.exists()) return;
+      if (!snap.exists()) { setChats([]); return; }
       const data = snap.val() as Record<string, { meta?: ChatSession }>;
       const sessions = Object.entries(data)
         .filter(([, v]) => v?.meta)
@@ -361,13 +227,13 @@ export default function Admin() {
       if (!snap.exists()) return;
       const data = snap.val() as Record<string, unknown>;
       setApiSettings({
-        geminiKey: (data.geminiKey as string) || "",
+        groqKey: (data.groqKey as string) || (data.geminiKey as string) || "",
         aiEnabled: data.aiEnabled !== false,
       });
     });
 
     return () => {
-      ["orders","menu","feedback","suggestions","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
+      ["users","feedback","suggestions","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -392,126 +258,6 @@ export default function Admin() {
     else setPinErr(tr("Wrong PIN. Try: azura2024", "PIN خاطئ. جرب: azura2024"));
   };
 
-  // ── Order helpers ─────────────────────────────────────────────
-  const setOrderStatus = async (order: Order, status: string, cancelReason?: string) => {
-    const orderPath = order.userId ? `orders/${order.userId}/${order.orderId}` : `orders/${order.orderId}`;
-    
-    // If cancelling, require reason and notify user
-    if (status === "cancelled" && cancelReason) {
-      // Update order status
-      await update(ref(db, orderPath), { status, cancelReason, cancelledAt: Date.now(), cancelledBy: "admin" });
-      
-      // Send notification to user
-      if (order.userId) {
-        const notification = {
-          type: "order_cancelled",
-          title: lang === "ar" ? "تم إلغاء طلبك" : "Your order was cancelled",
-          message: lang === "ar" 
-            ? `تم إلغاء طلبك رقم #${order.orderId.slice(-5)}. السبب: ${cancelReason}`
-            : `Your order #${order.orderId.slice(-5)} was cancelled. Reason: ${cancelReason}`,
-          orderId: order.orderId,
-          createdAt: Date.now(),
-          read: false,
-        };
-        await push(ref(db, `notifications/${order.userId}`), notification);
-        
-        // Send message to support chat
-        const cancelMessage = lang === "ar"
-          ? `⚠️ تم إلغاء طلبك رقم #${order.orderId.slice(-5)}\n\n📋 السبب: ${cancelReason}\n\n💰 سيتم استرداد المبلغ إذا تم الدفع.\n\nلمزيد من الاستفسارات، تواصل معنا.`
-          : `⚠️ Your order #${order.orderId.slice(-5)} has been cancelled.\n\n📋 Reason: ${cancelReason}\n\n💰 Refund will be processed if payment was made.\n\nContact us for more info.`;
-        
-        await push(ref(db, `support-chat/${order.userId}/messages`), {
-          text: cancelMessage,
-          sender: "admin",
-          createdAt: Date.now(),
-          readByAdmin: true,
-          isSystem: true,
-        });
-        await update(ref(db, `support-chat/${order.userId}/meta`), {
-          lastMessage: cancelMessage.substring(0, 50),
-          lastAt: Date.now(),
-          unreadAdmin: 0,
-        });
-      }
-    } else {
-      // Regular status update
-      await update(ref(db, orderPath), { status });
-    }
-  };
-
-  // Show cancel dialog with reason
-  const showCancelDialog = async (order: Order) => {
-    const reason = window.prompt(lang === "ar" 
-      ? "أدخل سبب إلغاء الطلب (مطلوب):" 
-      : "Enter reason for cancellation (required):");
-    
-    if (!reason || reason.trim() === "") {
-      swalError(lang === "ar" ? "يجب إدخال سبب الإلغاء" : "Cancellation reason is required");
-      return;
-    }
-    
-    await setOrderStatus(order, "cancelled", reason.trim());
-    swalSuccess(lang === "ar" 
-      ? "تم إلغاء الطلب وإخطار العميل" 
-      : "Order cancelled and customer notified");
-  };
-
-  // ── Menu helpers ──────────────────────────────────────────────
-  const toggleAvail = (item: MenuItem) => update(ref(db, `menu/${item.category}/${item.id}`), { available: !item.available });
-  const deleteItem = async (item: MenuItem) => {
-    if (!await swalConfirm(tr("Delete Item", "حذف العنصر"), tr(`Delete "${item.name}"?`, `حذف "${item.nameAr || item.name}"؟`), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) return;
-    try {
-      // Try direct path first
-      await remove(ref(db, `menu/${item.category}/${item.id}`));
-    } catch {
-      // Try alternate path structure
-      await remove(ref(db, `menu/${item.id}`));
-    }
-  };
-  
-  // Edit item inline
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const startEdit = (item: MenuItem) => setEditingItem({ ...item });
-  const cancelEdit = () => setEditingItem(null);
-  const saveEdit = async () => {
-    if (!editingItem) return;
-    try {
-      await update(ref(db, `menu/${editingItem.category}/${editingItem.id}`), {
-        name: editingItem.name,
-        nameAr: editingItem.nameAr,
-        description: editingItem.description,
-        price: editingItem.price,
-        image: editingItem.image,
-      });
-    } catch {
-      // Try alternate path
-      await update(ref(db, `menu/${editingItem.id}`), {
-        name: editingItem.name,
-        nameAr: editingItem.nameAr,
-        description: editingItem.description,
-        price: editingItem.price,
-        image: editingItem.image,
-      });
-    }
-    setEditingItem(null);
-  };
-  const handleImageUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const b64 = await compressToBase64(file, 400, 0.72);
-      setNewItem((p) => ({ ...p, image: b64 }));
-      setImgSize(base64SizeKB(b64));
-    } catch { swalError(tr("Image compression failed", "فشل ضغط الصورة")); }
-    setUploading(false);
-  };
-  const saveItem = async () => {
-    if (!newItem.name || !newItem.price) return;
-    setSavingItem(true);
-    const r = push(ref(db, `menu/${newItem.category}`));
-    await set(r, { name: newItem.name, nameAr: newItem.nameAr, description: newItem.description, price: Number(newItem.price), category: newItem.category, available: true, image: newItem.image });
-    setNewItem(BLANK_ITEM); setAdding(false); setSavingItem(false); setImgSize(0); setShowGallery(false);
-  };
-
   // ── Chat helpers ──────────────────────────────────────────────
   const sendReply = async () => {
     if (!chatInput.trim() || !selectedChat) return;
@@ -531,6 +277,13 @@ export default function Admin() {
   // ── Report helpers ──────────────────────────────────────────
   const updateReportStatus = (id: string, status: string) =>
     update(ref(db, `reports/${id}`), { status });
+
+  const deleteUser = async (uid: string, name: string) => {
+    if (await swalConfirm(tr(`Delete User ${name}?`, `حذف المستخدم ${name}؟`), tr("This will remove all user data. Chat logs will remain in conversations.", "سيتم حذف بيانات المستخدم. ستبقى سجلات الدردشة."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
+      await remove(ref(db, `users/${uid}`));
+      swalSuccess(tr("User deleted", "تم حذف المستخدم"));
+    }
+  };
 
   // ── Broadcast helpers ─────────────────────────────────────────
   const sendBroadcast = async () => {
@@ -581,11 +334,11 @@ export default function Admin() {
           const end = Math.min(i + batchSize, newReel.videoChunks.length);
           
           for (let j = i; j < end; j++) {
-            batch[`chunk_${j}`] = newReel.videoChunks[j];
+            batch[`chunk_${j}`] = newReel.videoChunks![j];
           }
           
           await update(chunksRef, batch);
-          setUploadProgress(Math.round(((i + batchSize) / newReel.videoChunks.length) * 90));
+          setUploadProgress(Math.round(((i + batchSize) / newReel.videoChunks!.length) * 90));
         }
       } else if (newReel.mediaType === "video" && newReel.videoUrl && newReel.videoProvider !== "direct") {
         // URL-based video - save to IndexedDB for caching
@@ -616,31 +369,13 @@ export default function Admin() {
   const saveApiSettings = async () => {
     setSavingApiKey(true);
     await set(ref(db, "api-settings"), {
-      geminiKey: apiSettings.geminiKey ? encryptKey(apiSettings.geminiKey) : "",
+      groqKey: apiSettings.groqKey ? encryptKey(apiSettings.groqKey) : "",
       aiEnabled: apiSettings.aiEnabled,
       updatedAt: Date.now(),
     });
     setSavingApiKey(false);
   };
 
-  // ── Reports ───────────────────────────────────────────────────
-  const now = Date.now();
-  const rangeMs = range === "today" ? 86400000 : range === "week" ? 604800000 : 2592000000;
-  const filteredOrders = orders.filter((o) => o.createdAt >= now - rangeMs);
-  const revenue = filteredOrders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + o.total, 0);
-  const cancelRate = filteredOrders.length ? Math.round((filteredOrders.filter((o) => o.status === "cancelled").length / filteredOrders.length) * 100) : 0;
-  const itemFreq: Record<string, { name: string; count: number }> = {};
-  filteredOrders.forEach((o) => o.items?.forEach((i) => {
-    itemFreq[i.name] = { name: i.name, count: (itemFreq[i.name]?.count || 0) + i.quantity };
-  }));
-  const topItems = Object.values(itemFreq).sort((a, b) => b.count - a.count).slice(0, 6);
-  const maxFreq = topItems[0]?.count || 1;
-  const dayBuckets: number[] = Array(7).fill(0);
-  orders.filter((o) => o.createdAt >= now - 604800000).forEach((o) => {
-    const daysAgo = Math.floor((now - o.createdAt) / 86400000);
-    if (daysAgo < 7) dayBuckets[6 - daysAgo]++;
-  });
-  const maxDayCount = Math.max(...dayBuckets, 1);
   const avgRating = feedback.length ? (feedback.reduce((s, f) => s + f.rating, 0) / feedback.length).toFixed(1) : "—";
   const ratingDist = [5,4,3,2,1].map((r) => ({ r, count: feedback.filter((f) => f.rating === r).length }));
   const maxRatingCount = Math.max(...ratingDist.map((d) => d.count), 1);
@@ -670,21 +405,17 @@ export default function Admin() {
     );
   }
 
-  const pendingOrdersCount = orders.filter((o) => o.status === "pending" || o.status === "preparing").length;
   const unreadChats = chats.reduce((s, c) => s + (c.unreadAdmin || 0), 0);
 
   const TABS: { id: Tab; icon: React.ReactNode; en: string; ar: string; badge?: number }[] = [
-    { id: "overview",   icon: <BarChart3 size={14}/>,     en: "Overview",    ar: "الرئيسية"   },
-    { id: "menu",       icon: <UtensilsCrossed size={14}/>, en: "Menu",       ar: "القائمة"    },
+    { id: "overview",   icon: <LayoutDashboard size={14}/>, en: "Overview",    ar: "الرئيسية"   },
+    { id: "users",      icon: <Users size={14}/>,           en: "Users",       ar: "المستخدمين" },
     { id: "chat",       icon: <MessageCircle size={14}/>,  en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
     { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
     { id: "ideas",      icon: <Lightbulb size={14}/>,      en: "Ideas",       ar: "الأفكار",   badge: ideas.filter((i) => i.status === "pending").length || 0 },
     { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",     ar: "التقارير",  badge: reports.filter((r) => r.status === "pending").length || 0 },
-    { id: "analytics",  icon: <BarChart3 size={14}/>,      en: "Analytics",   ar: "تحليلات"    },
     { id: "broadcast",  icon: <Megaphone size={14}/>,      en: "Broadcast",   ar: "إشعارات"    },
     { id: "reels",      icon: <Film size={14}/>,           en: "Reels",       ar: "ريلز"       },
-    { id: "inventory",  icon: <Package size={14}/>,        en: "Inventory",   ar: "المخزون"    },
-    { id: "customers",  icon: <Package size={14}/>,        en: "Customers",   ar: "العملاء"     },
     { id: "ai",         icon: <Bot size={14}/>,             en: "AI Assistant", ar: "المساعد الذكي" },
     { id: "builder",    icon: <LayoutDashboard size={14}/>, en: "Page Builder", ar: "منشئ الصفحات" },
     { id: "api",        icon: <Key size={14}/>,            en: "Egytronic",   ar: "إيچترونيك" },
@@ -727,103 +458,16 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-4 pb-8">
 
-        {/* ━━━ AMAZING LANDING PAGE ━━━ */}
-        {showLanding && (
-          <div className="relative overflow-hidden rounded-3xl mb-6" style={{ 
-            background: "linear-gradient(135deg, hsl(35, 80%, 35%) 0%, hsl(25, 80%, 45%) 50%, hsl(15, 70%, 40%) 100%)",
-            boxShadow: "0 20px 60px rgba(93, 62, 35, 0.4)" 
-          }}>
-            {/* Animated background elements */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-white/10 animate-pulse" />
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/5" style={{ animation: "float 6s ease-in-out infinite" }} />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-white/5" style={{ animation: "pulse 4s ease-in-out infinite" }} />
-            </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute top-4 right-4 text-4xl opacity-20">☕</div>
-            <div className="absolute bottom-4 left-4 text-3xl opacity-20">✨</div>
-            <div className="absolute top-4 left-8 text-2xl opacity-10">🍰</div>
-            
-            <div className="relative p-6 text-white text-center">
-              {/* Welcome Badge */}
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-4">
-                <span className="text-sm">👑</span>
-                <span className="text-xs font-bold">{tr("Welcome, Admin!", "أهلاً يا مدير!")}</span>
-              </div>
-              
-              {/* Main Title */}
-              <h2 className="text-2xl font-extrabold mb-2" style={{ fontFamily: "var(--font-heading)", textShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
-                {tr("Azura Admin Center", "مركز إدارة أزورا")}
-              </h2>
-              <p className="text-white/80 text-sm mb-4">
-                {tr("Complete control at your fingertips", "تحكم كامل بين يديك")}
-              </p>
-              
-              {/* Quick Stats Row */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                  <p className="text-2xl font-extrabold">{orders.length}</p>
-                  <p className="text-[10px] text-white/70">{tr("Total Orders", "إجمالي الطلبات")}</p>
-                </div>
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                  <p className="text-2xl font-extrabold">{menuItems.length}</p>
-                  <p className="text-[10px] text-white/70">{tr("Menu Items", "عناصر القائمة")}</p>
-                </div>
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                  <p className="text-2xl font-extrabold">{chats.length}</p>
-                  <p className="text-[10px] text-white/70">{tr("Active Chats", "محادثات نشطة")}</p>
-                </div>
-              </div>
-              
-              {/* Features List */}
-              <div className="text-left bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-5">
-                <p className="text-xs font-bold text-white/60 mb-3 uppercase tracking-wider">{tr("Your Superpowers", "قدراتك الخارقة")}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { icon: "📊", label: tr("Analytics Dashboard", "لوحة التحليلات"), tab: "analytics" },
-                    { icon: "📦", label: tr("Inventory Control", "التحكم بالمخزون"), tab: "inventory" },
-                    
-                    { icon: "❤️", label: tr("Customer Insights", "رؤى العملاء"), tab: "customers" },
-                  ].map((f) => (
-                    <button 
-                      key={f.tab}
-                      onClick={() => { setTab(f.tab as Tab); dismissLanding(); }}
-                      className="flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 transition-all"
-                    >
-                      <span className="text-lg">{f.icon}</span>
-                      <span className="text-xs font-semibold text-white">{f.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Dismiss Button */}
-              <button 
-                onClick={dismissLanding}
-                className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl py-3 text-sm font-bold transition-all flex items-center justify-center gap-2"
-              >
-                <span>🚀</span>
-                {tr("Let's Get Started!", "هيا نبدأ!")}
-              </button>
-            </div>
-            
-            {/* Bottom wave decoration */}
-            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ 
-              background: "linear-gradient(to top, rgba(0,0,0,0.1), transparent)",
-            }} />
-          </div>
-        )}
 
         {/* ━━━ OVERVIEW ━━━ */}
         {tab === "overview" && (
           <div className="space-y-4 page-enter">
             <div className="grid grid-cols-2 gap-3">
               {[
-                { emoji: "📋", label: tr("Today's Orders","طلبات اليوم"), value: orders.filter((o) => new Date(o.createdAt).toDateString() === new Date().toDateString()).length },
-                { emoji: "🔥", label: tr("Active","نشطة الآن"), value: pendingOrdersCount },
-                { emoji: "💰", label: tr("Today Revenue","إيراد اليوم"), value: `${orders.filter((o) => new Date(o.createdAt).toDateString() === new Date().toDateString() && o.status !== "cancelled").reduce((s,o) => s+o.total, 0)} EGP` },
-                { emoji: "💬", label: tr("Unread","رسائل جديدة"), value: unreadChats + feedback.filter((f)=>!f.read).length + ideas.filter((i)=>i.status==="pending").length },
+                { emoji: "👥", label: tr("Total Users","إجمالي المستخدمين"), value: users.length },
+                { emoji: "💬", label: tr("Unread Messages","رسائل جديدة"), value: unreadChats },
+                { emoji: "⭐", label: tr("New Reviews","تقييمات جديدة"), value: feedback.filter((f)=>!f.read).length },
+                { emoji: "💡", label: tr("New Ideas","أفكار جديدة"), value: ideas.filter((i)=>i.status==="pending").length },
               ].map((s) => (
                 <div key={s.label} className="card-elevated rounded-2xl p-4 text-center">
                   <p className="text-2xl mb-1">{s.emoji}</p>
@@ -832,275 +476,98 @@ export default function Admin() {
                 </div>
               ))}
             </div>
-            <h2 className="font-bold text-sm text-foreground">{tr("Recent Activity","آخر النشاطات")}</h2>
+            <h2 className="font-bold text-sm text-foreground">{tr("Recent User Activity","نشاط المستخدمين الأخير")}</h2>
             <div className="space-y-2">
-              {[
-                ...orders.slice(0,3).map((o) => ({ name: o.userName, sub: `Table ${o.tableNumber} · ${o.total} EGP`, time: o.createdAt, icon: "📋" })),
-                ...feedback.slice(0,2).map((f) => ({ name: f.userName, sub: `${"★".repeat(f.rating)}${"☆".repeat(5-f.rating)} · ${f.comment.slice(0,40)}`, time: f.createdAt, icon: "⭐" })),
-                ...ideas.slice(0,2).map((i) => ({ name: i.userName, sub: `Suggests: ${i.itemName}`, time: i.createdAt, icon: "💡" })),
-              ].sort((a,b) => b.time - a.time).slice(0,8).map((a, i) => (
-                <div key={i} className="card rounded-xl p-3 flex items-center gap-3">
-                  <span className="text-xl flex-shrink-0">{a.icon}</span>
+              {users.slice(0, 8).map((u) => (
+                <div key={u.uid} className="card rounded-xl p-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    {u.name?.[0]?.toUpperCase() || "?"}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-foreground truncate">{a.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{a.sub}</p>
+                    <p className="font-semibold text-sm text-foreground truncate">{u.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {u.loginCount || 0} logins · Table {u.tableNumber || "N/A"}
+                    </p>
                   </div>
                   <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                    {new Date(a.time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+                    {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "—"}
                   </span>
                 </div>
               ))}
-              {orders.length === 0 && feedback.length === 0 && ideas.length === 0 && (
-                <p className="text-center text-muted-foreground text-sm py-8">{tr("No activity yet","لا يوجد نشاط بعد")}</p>
+              {users.length === 0 && (
+                <p className="text-center text-muted-foreground text-sm py-8">{tr("No users yet","لا يوجد مستخدمين بعد")}</p>
               )}
             </div>
           </div>
         )}
 
-        {/* ━━━ MENU ━━━ */}
-        {tab === "menu" && (
-          <div className="space-y-3 page-enter">
-            {/* Alert for items without images */}
-            {(() => {
-              const itemsWithoutImages = menuItems.filter((i: MenuItem) => !i.image);
-              if (itemsWithoutImages.length === 0) return null;
-              return (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">⚠️</span>
-                  <div className="flex-1">
-                    <p className="font-bold text-amber-800 text-sm">
-                      {itemsWithoutImages.length} items need photos!
-                    </p>
-                    <p className="text-xs text-amber-600 mt-1">
-                      Add images to improve menu appearance. Tap item to edit.
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {itemsWithoutImages.slice(0, 5).map((item: MenuItem) => (
-                        <button
-                          key={item.id}
-                          onClick={() => setEditingItem(item)}
-                          className="px-3 py-1 bg-amber-100 hover:bg-amber-200 rounded-full text-xs font-medium text-amber-800 transition-colors"
-                        >
-                          📷 {item.name}
-                        </button>
-                      ))}
-                      {itemsWithoutImages.length > 5 && (
-                        <span className="px-3 py-1 bg-amber-100 rounded-full text-xs text-amber-700">
-                          +{itemsWithoutImages.length - 5} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        {/* ━━━ USERS ━━━ */}
+        {tab === "users" && (
+          <div className="space-y-4 page-enter">
+            <div className="card-elevated rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <Users size={18} className="text-primary"/> {tr("User Management","إدارة المستخدمين")}
+                </h3>
+                <span className="badge bg-primary/10 text-primary font-bold">{users.length}</span>
               </div>
-              );
-            })()}
-            <button onClick={() => setAdding(!adding)} className="btn-primary w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-              <Plus size={16}/> {tr("Add Menu Item","إضافة عنصر")}
-            </button>
-            {adding && (
-              <div className="card-elevated rounded-2xl p-4 space-y-3">
-                <h3 className="font-bold text-foreground">{tr("New Item","عنصر جديد")}</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <input className={inp} placeholder={tr("Name (EN) *","الاسم EN *")} value={newItem.name} onChange={(e) => setNewItem((p) => ({...p, name: e.target.value}))} />
-                  <input className={inp} placeholder="اسم بالعربي" dir="rtl" value={newItem.nameAr} onChange={(e) => setNewItem((p) => ({...p, nameAr: e.target.value}))} />
-                </div>
-                <input className={inp} placeholder={tr("Description","وصف قصير")} value={newItem.description} onChange={(e) => setNewItem((p) => ({...p, description: e.target.value}))} />
-                <div className="grid grid-cols-2 gap-2">
-                  <input className={inp} type="number" placeholder={tr("Price (EGP) *","السعر ج.م *")} value={newItem.price} onChange={(e) => setNewItem((p) => ({...p, price: e.target.value}))} />
-                  <select className={inp} value={newItem.category} onChange={(e) => { setNewItem((p) => ({...p, category: e.target.value})); setShowGallery(false); }}>
-                    {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                {/* Image */}
-                <div className="rounded-xl overflow-hidden" style={{ border: "1.5px dashed hsl(var(--border))" }}>
-                  {newItem.image ? (
-                    <div className="relative">
-                      <img src={newItem.image} alt="preview" className="w-full h-32 object-cover"/>
-                      <div className="absolute inset-0 flex items-end px-3 pb-2" style={{ background: "linear-gradient(transparent,rgba(0,0,0,0.4))" }}>
-                        <span className="text-white text-xs font-medium">{imgSize > 0 ? `${imgSize} KB` : "Sample"}</span>
-                      </div>
-                      <button onClick={() => { setNewItem((p) => ({...p, image: ""})); setImgSize(0); }} className="absolute top-2 right-2 btn-icon w-7 h-7 bg-white/90 text-destructive">
-                        <XCircle size={13}/>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="p-3 space-y-2">
-                      <div className="flex gap-2">
-                        <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer rounded-lg py-2.5 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-muted/30 transition-colors border border-dashed border-border">
-                          <Upload size={14}/>
-                          {uploading ? "..." : "Upload"}
-                          <input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }}/>
-                        </label>
-                        <input 
-                          className="flex-1 px-3 py-2 rounded-lg text-xs border border-border bg-background"
-                          placeholder="Or paste URL"
-                          onChange={(e) => setNewItem((p) => ({...p, image: e.target.value}))}
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <hr className="flex-1 border-border"/> <span>{tr("or sample","أو نموذج")}</span> <hr className="flex-1 border-border"/>
-                      </div>
-                    </div>
-                  )}
-                  {!newItem.image && (
-                    <>
-                      <button onClick={() => setShowGallery(!showGallery)} className="w-full py-2 text-xs font-semibold text-primary flex items-center justify-center gap-1.5" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                        <ImageIcon size={13}/> {tr(`Samples (${newItem.category})`,`نماذج (${newItem.category})`)}
-                      </button>
-                      {showGallery && (
-                        <div className="grid grid-cols-3 gap-1 p-2" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                          {(SAMPLE_IMAGES[newItem.category] || []).map((img) => (
-                            <button key={img.url} onClick={() => { setNewItem((p) => ({...p, image: img.url})); setImgSize(0); setShowGallery(false); }} className="relative rounded-lg overflow-hidden aspect-square hover:ring-2 ring-primary transition-all">
-                              <img src={img.url} alt={img.label} className="w-full h-full object-cover"/>
-                              <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-[9px] text-center py-0.5">{img.label}</div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={saveItem} disabled={savingItem || !newItem.name || !newItem.price} className="btn-primary flex-1 py-3 rounded-xl text-sm font-bold disabled:opacity-50">
-                    {savingItem ? tr("Saving…","حفظ…") : tr("Save Item","حفظ العنصر")}
-                  </button>
-                  <button onClick={() => { setAdding(false); setNewItem(BLANK_ITEM); setImgSize(0); setShowGallery(false); }} className="btn-secondary px-5 py-3 rounded-xl text-sm">{tr("Cancel","إلغاء")}</button>
-                </div>
-              </div>
-            )}
-            {menuItems.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">{tr("No menu items","لا توجد عناصر")}</p>}
-            <div className="space-y-2">
-              {menuItems.map((item) => (
-                <div key={item.id} className={`card rounded-xl p-3 transition-opacity ${!item.available ? "opacity-55" : ""}`}>
-                  {/* Editing Mode */}
-                  {editingItem?.id === item.id ? (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          className={inp}
-                          value={editingItem.name}
-                          onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                          placeholder="Name (EN)"
-                        />
-                        <input
-                          className={inp}
-                          value={editingItem.nameAr}
-                          onChange={(e) => setEditingItem({ ...editingItem, nameAr: e.target.value })}
-                          placeholder="Name (AR)"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="number"
-                          className={inp}
-                          value={editingItem.price}
-                          onChange={(e) => setEditingItem({ ...editingItem, price: Number(e.target.value) })}
-                          placeholder="Price"
-                        />
-                        <select
-                          className={inp}
-                          value={editingItem.category}
-                          onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
-                        >
-                          {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </div>
-                      
-                      {/* Image Section */}
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">{tr("Image", "الصورة")}</label>
-                        {editingItem.image && (
-                          <div className="relative rounded-lg overflow-hidden">
-                            <img src={editingItem.image} alt="preview" className="w-full h-24 object-cover" onError={(e) => { (e.target as HTMLImageElement).src = ""; }} />
-                            <button 
-                              onClick={() => setEditingItem({ ...editingItem, image: "" })} 
-                              className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        )}
-                        <div className="flex gap-2">
-                          <input
-                            className={`${inp} flex-1`}
-                            value={editingItem.image}
-                            onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
-                            placeholder="Or paste image URL here"
-                          />
-                          <label className="btn-secondary px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1 text-sm">
-                            <Upload size={14} />
-                            <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              try {
-                                const base64 = await compressToBase64(file);
-                                const kbSize = Math.round(base64.length * 0.75 / 1024);
-                                setEditingItem({ ...editingItem, image: base64 });
-                                alert(`Image: ${kbSize} KB (${kbSize > 200 ? '⚠️ Large' : '✓ OK'})`);
-                              } catch (err) { alert("Failed to compress image"); }
-                            }} />
-                          </label>
-                        </div>
-                      </div>
-                      
-                      <textarea
-                        className={`${inp} min-h-[50px] resize-none`}
-                        value={editingItem.description}
-                        onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                        placeholder="Description"
-                      />
-                      <div className="flex gap-2">
-                        <button onClick={saveEdit} className="btn-primary flex-1 py-2 rounded-lg text-sm flex items-center justify-center gap-1">
-                          <Save size={14}/> {tr("Save","حفظ")}
-                        </button>
-                        <button onClick={cancelEdit} className="btn-ghost flex-1 py-2 rounded-lg text-sm">
-                          {tr("Cancel","إلغاء")}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* View Mode */
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-muted relative">
-                        {item.image ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }}/>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-black text-white text-xs font-medium p-1 text-center">{item.name.substring(0, 10)}</div>
-                        )}
-                        {!item.image && (
-                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[8px]">!</span>
-                        )}
+
+              <div className="space-y-3">
+                {users.map((u) => (
+                  <div key={u.uid} className="card rounded-2xl p-4 border border-border/50 hover:shadow-md transition-all">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground text-xl font-black shadow-lg">
+                        {u.name?.[0]?.toUpperCase() || "?"}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
-                        {item.nameAr && <p className="text-xs text-muted-foreground truncate">{item.nameAr}</p>}
-                        <p className="text-xs text-secondary font-bold">{item.price} {tr("EGP","ج.م")}</p>
-                        <div className="flex items-center gap-2">
-                          <span className={`badge px-1.5 py-0.5 text-[10px] ${item.available ? "status-ready" : "status-cancelled"}`}>
-                            {item.available ? tr("Available","متاح") : tr("Hidden","مخفي")}
-                          </span>
-                          {!item.image && (
-                            <span className="badge bg-red-100 text-red-700 px-1.5 py-0.5 text-[10px]">⚠️ No Image</span>
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-foreground">{u.name}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              Table {u.tableNumber || "N/A"}
+                            </span>
+                            <button onClick={() => deleteUser(u.uid, u.name)} className="p-1 text-destructive/50 hover:text-destructive transition-colors">
+                              <Trash2 size={14}/>
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {u.loginCount > 1 && (
+                            <span className="text-[9px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-md font-bold uppercase">Returning User</span>
                           )}
+                          {u.totalUsageSeconds > 1800 && (
+                            <span className="text-[9px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-md font-bold uppercase">Heavy User</span>
+                          )}
+                          <span className="text-[9px] text-muted-foreground/60 font-mono bg-muted/30 px-1 rounded truncate flex-1">{u.uid}</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-border/40">
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{tr("Last Active","آخر نشاط")}</p>
+                            <p className="text-xs font-semibold text-foreground">
+                              {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : "Never"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{tr("Usage Time","وقت الاستخدام")}</p>
+                            <p className="text-xs font-semibold text-foreground">{formatDuration(u.totalUsageSeconds || 0)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{tr("Device ID","معرف الجهاز")}</p>
+                            <p className="text-xs font-mono text-muted-foreground truncate" title={u.deviceId}>{u.deviceId || "Unknown"}</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{tr("Account Created","تاريخ التسجيل")}</p>
+                            <p className="text-xs font-semibold text-foreground">
+                              {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "Unknown"}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <button onClick={() => startEdit(item)} className="btn-icon w-8 h-8 text-primary hover:bg-primary/10">
-                          <Edit3 size={14}/>
-                        </button>
-                        <button onClick={() => toggleAvail(item)} className="btn-icon w-8 h-8 text-primary">
-                          {item.available ? <ToggleRight size={16}/> : <ToggleLeft size={16}/>}
-                        </button>
-                        <button onClick={() => deleteItem(item)} className="btn-icon w-8 h-8 text-destructive/70 hover:text-destructive">
-                          <Trash2 size={14}/>
-                        </button>
-                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -1254,79 +721,6 @@ export default function Admin() {
                 )}
               </div>
             ))}
-          </div>
-        )}
-
-        {/* ━━━ ANALYTICS (formerly Reports) ━━━ */}
-        {tab === "analytics" && (
-          <div className="space-y-5 page-enter">
-            <div className="flex gap-2">
-              {(["today","week","month"] as const).map((r) => (
-                <button key={r} onClick={() => setRange(r)} className={`chip flex-1 justify-center ${range===r?"chip-active":"chip-inactive"}`}>
-                  {r==="today"?tr("Today","اليوم"):r==="week"?tr("7 Days","7 أيام"):tr("30 Days","30 يوم")}
-                </button>
-              ))}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: tr("Orders","طلبات"),    value: filteredOrders.length },
-                { label: tr("Revenue","إيراد"),   value: `${revenue} EGP` },
-                { label: tr("Avg Order","متوسط"), value: filteredOrders.filter(o=>o.status!=="cancelled").length ? `${Math.round(revenue/filteredOrders.filter(o=>o.status!=="cancelled").length)||0} EGP` : "—" },
-                { label: tr("Cancel Rate","إلغاء"), value: `${cancelRate}%` },
-              ].map((k) => (
-                <div key={k.label} className="card-elevated rounded-2xl p-4 text-center">
-                  <p className="text-xl font-extrabold text-primary">{k.value}</p>
-                  <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{k.label}</p>
-                </div>
-              ))}
-            </div>
-            <div className="card rounded-2xl p-4">
-              <h3 className="font-bold text-sm text-foreground mb-3">{tr("Orders – Last 7 Days","الطلبات – آخر 7 أيام")}</h3>
-              <div className="flex items-end gap-1.5 h-20">
-                {dayBuckets.map((count, i) => {
-                  const label = new Date(Date.now()-(6-i)*86400000).toLocaleDateString(lang==="ar"?"ar-EG":"en-US",{weekday:"short"});
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-[9px] text-muted-foreground font-bold">{count||""}</span>
-                      <div className="w-full rounded-t-md transition-all" style={{ height:`${(count/maxDayCount)*100}%`, minHeight:4, background:count?"hsl(var(--primary))":"hsl(var(--muted))" }}/>
-                      <span className="text-[8px] text-muted-foreground leading-none">{label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            {topItems.length > 0 && (
-              <div className="card rounded-2xl p-4">
-                <h3 className="font-bold text-sm text-foreground mb-3">{tr("Most Ordered","الأكثر طلباً")}</h3>
-                <div className="space-y-2.5">
-                  {topItems.map((item, i) => (
-                    <div key={item.name} className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="font-medium text-foreground">{i+1}. {item.name}</span>
-                        <span className="text-secondary font-bold">{item.count}×</span>
-                      </div>
-                      <CssBar pct={(item.count/maxFreq)*100}/>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="card rounded-2xl p-4">
-              <h3 className="font-bold text-sm text-foreground mb-3">{tr("Order Statuses","توزيع الحالات")}</h3>
-              <div className="space-y-2">
-                {STATUS_FLOW.map((s) => {
-                  const cnt = filteredOrders.filter((o) => o.status === s).length;
-                  const pct = filteredOrders.length ? (cnt/filteredOrders.length)*100 : 0;
-                  return (
-                    <div key={s} className="flex items-center gap-2 text-xs">
-                      <span className="w-16 text-muted-foreground capitalize">{lang==="ar"?STATUS_META[s]?.ar:STATUS_META[s]?.label}</span>
-                      <div className="flex-1"><CssBar pct={pct}/></div>
-                      <span className="w-8 text-right font-bold text-foreground">{cnt}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         )}
 
@@ -1789,27 +1183,29 @@ export default function Admin() {
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-5">
               <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("Egytronic AI Gateway","بوابة Egytronic للذكاء الاصطناعي")}
+                <Key size={18} className="text-primary"/> {tr("Groq & Pollinations AI","ذكاء جروك وبولينيشن")}
               </h3>
 
-              {/* Egytronic API Key */}
+              {/* Groq API Key */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("Egytronic API Key","مفتاح API Egytronic")}</label>
+                <label className="text-sm font-semibold text-foreground">{tr("Groq API Key","مفتاح API Groq")}</label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
                       type={showApiKey ? "text" : "password"}
                       className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your Egytronic API key (gsk_...)","أدخل مفتاح Egytronic API (gsk_...)")}
-                      value={apiSettings.geminiKey}
-                      onChange={(e) => setApiSettings((p) => ({...p, geminiKey: e.target.value}))}
+                      placeholder={tr("Enter your Groq API key (gsk_...)","أدخل مفتاح Groq API (gsk_...)")}
+                      value={apiSettings.groqKey}
+                      onChange={(e) => setApiSettings((p) => ({...p, groqKey: e.target.value}))}
                     />
                     <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                       {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
                     </button>
                   </div>
                 </div>
-                
+                <p className="text-[10px] text-muted-foreground italic">
+                  {tr("Pollinations.ai text API is used as a fallback if Groq fails.","يتم استخدام Pollinations.ai كبديل في حالة فشل Groq.")}
+                </p>
               </div>
 
               {/* AI Toggle */}
@@ -1833,13 +1229,13 @@ export default function Admin() {
               {/* Status */}
               <div className="rounded-xl p-3 bg-muted/30">
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${apiSettings.geminiKey ? "bg-green-500" : "bg-amber-500"}`}/>
+                  <div className={`w-2 h-2 rounded-full ${apiSettings.groqKey ? "bg-green-500" : "bg-amber-500"}`}/>
                   <span className="text-xs font-medium">
-                    {apiSettings.geminiKey ? tr("Egytronic Gateway configured","بوابة Egytronic مُعدّة") : tr("Egytronic Gateway not configured","بوابة Egytronic غير مُعدّة")}
+                    {apiSettings.groqKey ? tr("Groq API configured","تم إعداد مفتاح Groq") : tr("Groq API not configured","لم يتم إعداد مفتاح Groq")}
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {tr("The AI service runs directly in the browser for fast responses.","خدمة الذكاء الاصطناعي تعمل مباشرة في المتصفح لسرعة الاستجابة.")}
+                  {tr("The AI service uses Groq Llama 3.3 and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك Llama 3.3 وبولينيشن للنصوص والصوت.")}
                 </p>
               </div>
             </div>
@@ -1851,20 +1247,6 @@ export default function Admin() {
           <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
         )}
 
-        {/* ━━━ ANALYTICS TAB ━━━ */}
-        {tab === "analytics" && (
-          <AnalyticsTab orders={orders} menuItems={menuItems} feedback={feedback} tr={tr} />
-        )}
-
-        {/* ━━━ INVENTORY TAB ━━━ */}
-        {tab === "inventory" && (
-          <InventoryTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} />
-        )}
-
-        {/* ━━━ CUSTOMERS TAB ━━━ */}
-        {tab === "customers" && (
-          <CustomersTab orders={orders} tr={tr} />
-        )}
 
         {/* ━━━ AI ASSISTANT ━━━ */}
         {tab === "ai" && (
@@ -1911,7 +1293,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
       }
     });
     return () => unsub();
-  }, []);
+  }, [db, ref]);
 
   const createBackup = async () => {
     setLoading(true);
@@ -2077,371 +1459,6 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// Analytics Tab Component
-function AnalyticsTab({ orders, menuItems, feedback, tr }: {
-  orders: any[]; menuItems: any[]; feedback: any[]; tr: (en: string, ar: string) => string;
-}) {
-  // Calculate metrics
-  const today = new Date().toDateString();
-  const todayOrders = orders.filter((o) => new Date(o.createdAt).toDateString() === today);
-  const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-  
-  const weekOrders = orders.filter((o) => {
-    const d = new Date(o.createdAt);
-    const now = new Date();
-    const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
-    return diff <= 7;
-  });
-  const weekRevenue = weekOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-  
-  const avgOrderValue = orders.length > 0 ? Math.round(orders.reduce((sum, o) => sum + (o.total || 0), 0) / orders.length) : 0;
-  
-  // Top items
-  const itemCounts: Record<string, number> = {};
-  orders.forEach((o) => {
-    (o.items || []).forEach((item: any) => {
-      itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
-    });
-  });
-  const topItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  
-  // Category breakdown
-  const catCounts: Record<string, number> = {};
-  menuItems.forEach((m) => {
-    catCounts[m.category] = (catCounts[m.category] || 0) + 1;
-  });
-  
-  // Status breakdown
-  const statusCounts: Record<string, number> = {};
-  orders.forEach((o) => {
-    statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
-  });
-  
-  // Hourly distribution
-  const hourlyOrders: number[] = Array(24).fill(0);
-  orders.forEach((o) => {
-    const h = new Date(o.createdAt).getHours();
-    hourlyOrders[h]++;
-  });
-  const peakHour = hourlyOrders.indexOf(Math.max(...hourlyOrders));
-  
-  // Rating stats
-  const ratings = feedback.map((f) => f.rating).filter(Boolean);
-  const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : "N/A";
-  
-  return (
-    <div className="space-y-6 page-enter">
-      {/* Revenue Cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Today's Revenue","إيرادات اليوم")}</p>
-          <p className="text-2xl font-extrabold text-primary">{todayRevenue}</p>
-          <p className="text-xs text-muted-foreground">{todayOrders.length} {tr("orders","طلبات")}</p>
-        </div>
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Weekly Revenue","إيرادات الأسبوع")}</p>
-          <p className="text-2xl font-extrabold text-primary">{weekRevenue}</p>
-          <p className="text-xs text-muted-foreground">{weekOrders.length} {tr("orders","طلبات")}</p>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-3">
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Avg Order Value","متوسط الطلب")}</p>
-          <p className="text-2xl font-extrabold text-primary">{avgOrderValue}</p>
-          <p className="text-xs text-muted-foreground">EGP</p>
-        </div>
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Avg Rating","التقييم المتوسط")}</p>
-          <p className="text-2xl font-extrabold text-primary">{avgRating} ⭐</p>
-          <p className="text-xs text-muted-foreground">{feedback.length} {tr("reviews","تقييمات")}</p>
-        </div>
-      </div>
-      
-      {/* Top Selling Items */}
-      <div className="card-elevated rounded-2xl p-5 space-y-3">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <TrendingUp size={18} className="text-primary"/> {tr("Top Selling Items","أفضل المنتجات مبيعاً")}
-        </h3>
-        {topItems.length === 0 ? (
-          <p className="text-muted-foreground text-sm">{tr("No sales data yet","لا توجد بيانات مبيعات بعد")}</p>
-        ) : (
-          <div className="space-y-2">
-            {topItems.map(([name, count], i) => (
-              <div key={name} className="flex items-center gap-3">
-                <span className="text-lg font-bold text-primary w-6">{i + 1}</span>
-                <span className="flex-1 text-sm font-medium truncate">{name}</span>
-                <span className="text-sm font-bold text-muted-foreground">{count}x</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      
-      {/* Category Breakdown */}
-      <div className="card-elevated rounded-2xl p-5 space-y-3">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <Package size={18} className="text-primary"/> {tr("Menu Categories","فئات القائمة")}
-        </h3>
-        <div className="grid grid-cols-2 gap-2">
-          {Object.entries(catCounts).map(([cat, count]) => (
-            <div key={cat} className="card rounded-xl p-3 flex items-center gap-2">
-              <span className="text-xl">
-                {cat === "coffee" ? "☕" : cat === "beverages" ? "🧃" : cat === "food" ? "🥗" : cat === "desserts" ? "🍰" : cat === "shisha" ? "💨" : "📦"}
-              </span>
-              <div>
-                <p className="text-sm font-semibold capitalize">{cat}</p>
-                <p className="text-xs text-muted-foreground">{count} {tr("items","عناصر")}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Order Status Distribution */}
-      <div className="card-elevated rounded-2xl p-5 space-y-3">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <BarChart3 size={18} className="text-primary"/> {tr("Order Status","حالة الطلبات")}
-        </h3>
-        <div className="space-y-2">
-          {[
-            { status: "pending", label: "Pending", ar: "انتظار", color: "#f59e0b" },
-            { status: "preparing", label: "Preparing", ar: "يُحضَّر", color: "#3b82f6" },
-            { status: "ready", label: "Ready", ar: "جاهز", color: "#22c55e" },
-            { status: "delivered", label: "Done", ar: "اتسلم", color: "#6b7280" },
-            { status: "cancelled", label: "Cancelled", ar: "اتلغى", color: "#ef4444" },
-          ].map((s) => (
-            <div key={s.status} className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full" style={{ background: s.color }} />
-              <span className="flex-1 text-sm font-medium">{tr(s.label, s.ar)}</span>
-              <span className="text-sm font-bold text-muted-foreground">{statusCounts[s.status] || 0}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Peak Hours */}
-      <div className="card-elevated rounded-2xl p-5 space-y-3">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <Clock size={18} className="text-primary"/> {tr("Peak Hour","ساعة الذروة")}
-        </h3>
-        <p className="text-sm">{tr("Most orders come around", "معظم الطلبات تأتي حول")}</p>
-        <p className="text-2xl font-extrabold text-primary">{peakHour}:00 - {peakHour + 1}:00</p>
-        <p className="text-xs text-muted-foreground">{hourlyOrders[peakHour]} {tr("orders","طلبات")}</p>
-      </div>
-    </div>
-  );
-}
-
-// Inventory Tab Component
-function InventoryTab({ tr, db, ref, set, remove, push }: {
-  tr: (en: string, ar: string) => string;
-  db: any; ref: any; set: any; remove: any; push: any;
-}) {
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [newItem, setNewItem] = useState({ name: "", category: "supplies", quantity: "", unit: "pcs", alertLevel: "10", price: "" });
-  
-  useEffect(() => {
-    const unsub = onValue(ref(db, "inventory"), (snap) => {
-      if (snap.exists()) {
-        const data = snap.val() as Record<string, any>;
-        setItems(Object.entries(data).map(([id, v]) => ({ id, ...v })));
-      } else {
-        setItems([]);
-      }
-      setLoading(false);
-    });
-    return () => unsub();
-  }, []);
-  
-  const handleAdd = async () => {
-    if (!newItem.name) return;
-    const id = push(ref(db, "inventory")).key;
-    await set(ref(db, `inventory/${id}`), {
-      name: newItem.name,
-      category: newItem.category,
-      quantity: Number(newItem.quantity) || 0,
-      unit: newItem.unit,
-      alertLevel: Number(newItem.alertLevel) || 10,
-      price: Number(newItem.price) || 0,
-      updatedAt: Date.now(),
-    });
-    setNewItem({ name: "", category: "supplies", quantity: "", unit: "pcs", alertLevel: "10", price: "" });
-    setShowAdd(false);
-  };
-  
-  const handleDelete = async (id: string) => {
-    await remove(ref(db, `inventory/${id}`));
-  };
-  
-  const updateQuantity = async (id: string, item: any, delta: number) => {
-    const newQty = Math.max(0, (item.quantity || 0) + delta);
-    await update(ref(db, `inventory/${id}`), { quantity: newQty, updatedAt: Date.now() });
-  };
-  
-  const lowStock = items.filter((i) => (i.quantity || 0) <= (i.alertLevel || 10));
-  
-  return (
-    <div className="space-y-6 page-enter">
-      {/* Low Stock Alert */}
-      {lowStock.length > 0 && (
-        <div className="card-elevated rounded-2xl p-4 border-2 border-amber-500/30">
-          <h3 className="font-bold text-amber-600 flex items-center gap-2 mb-3">
-            ⚠️ {tr("Low Stock Alert","تنبيه المخزون المنخفض")}
-          </h3>
-          <div className="space-y-2">
-            {lowStock.map((item) => (
-              <div key={item.id} className="flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2">
-                <span className="text-sm font-medium">{item.name}</span>
-                <span className="text-xs font-bold text-amber-600">{item.quantity} {item.unit}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Add Item */}
-      <div className="card-elevated rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-foreground flex items-center gap-2">
-            <Package size={18} className="text-primary"/> {tr("Inventory Items","عناصر المخزون")}
-          </h3>
-          <button onClick={() => setShowAdd(!showAdd)} className="btn-primary px-3 py-1.5 rounded-lg text-sm">
-            {showAdd ? tr("Cancel","إلغاء") : tr("+ Add Item","+ إضافة")}
-          </button>
-        </div>
-        
-        {showAdd && (
-          <div className="space-y-3 p-4 bg-muted/30 rounded-xl">
-            <input className="input-field" placeholder={tr("Item name","اسم العنصر")} value={newItem.name} onChange={(e) => setNewItem((p) => ({ ...p, name: e.target.value }))} />
-            <div className="grid grid-cols-2 gap-2">
-              <input className="input-field" type="number" placeholder={tr("Quantity","الكمية")} value={newItem.quantity} onChange={(e) => setNewItem((p) => ({ ...p, quantity: e.target.value }))} />
-              <input className="input-field" placeholder={tr("Unit","الوحدة")} value={newItem.unit} onChange={(e) => setNewItem((p) => ({ ...p, unit: e.target.value }))} />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <input className="input-field" type="number" placeholder={tr("Alert level","مستوى التنبيه")} value={newItem.alertLevel} onChange={(e) => setNewItem((p) => ({ ...p, alertLevel: e.target.value }))} />
-              <input className="input-field" type="number" placeholder={tr("Price","السعر")} value={newItem.price} onChange={(e) => setNewItem((p) => ({ ...p, price: e.target.value }))} />
-            </div>
-            <select className="input-field" value={newItem.category} onChange={(e) => setNewItem((p) => ({ ...p, category: e.target.value }))}>
-              <option value="supplies">Supplies</option>
-              <option value="ingredients">Ingredients</option>
-              <option value="packaging">Packaging</option>
-              <option value="equipment">Equipment</option>
-            </select>
-            <button onClick={handleAdd} className="btn-primary w-full py-2 rounded-lg">{tr("Add Item","إضافة العنصر")}</button>
-          </div>
-        )}
-        
-        {loading ? (
-          <div className="text-center py-8 text-muted-foreground">{tr("Loading...","جاري التحميل...")}</div>
-        ) : items.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-4">{tr("No inventory items","لا توجد عناصر مخزون")}</p>
-        ) : (
-          <div className="space-y-2">
-            {items.map((item) => {
-              const isLow = (item.quantity || 0) <= (item.alertLevel || 10);
-              return (
-                <div key={item.id} className={`card rounded-xl p-3 flex items-center gap-3 ${isLow ? "border border-amber-500/30 bg-amber-50/30" : ""}`}>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.quantity} {item.unit} • {tr(item.category, item.category)}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => updateQuantity(item.id, item, -1)} className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-sm font-bold hover:bg-muted/80">−</button>
-                    <span className="w-10 text-center font-bold text-sm">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item, 1)} className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">+</button>
-                  </div>
-                  <button onClick={() => handleDelete(item.id)} className="text-destructive p-1"><Trash2 size={14} /></button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Customers Tab Component
-function CustomersTab({ orders, tr }: {
-  orders: any[]; tr: (en: string, ar: string) => string;
-}) {
-  // Extract unique customers
-  const customerMap: Record<string, { name: string; orders: number; totalSpent: number; lastOrder: number }> = {};
-  
-  orders.forEach((o) => {
-    const key = o.userId || o.userName;
-    if (!customerMap[key]) {
-      customerMap[key] = { name: o.userName, orders: 0, totalSpent: 0, lastOrder: 0 };
-    }
-    customerMap[key].orders++;
-    customerMap[key].totalSpent += o.total || 0;
-    customerMap[key].lastOrder = Math.max(customerMap[key].lastOrder, o.createdAt || 0);
-  });
-  
-  const customers = Object.entries(customerMap)
-    .map(([id, data]) => ({ id, ...data }))
-    .sort((a, b) => b.totalSpent - a.totalSpent);
-  
-  const totalCustomers = customers.length;
-  const totalRevenue = customers.reduce((sum, c) => sum + c.totalSpent, 0);
-  const avgSpent = totalCustomers > 0 ? Math.round(totalRevenue / totalCustomers) : 0;
-  
-  return (
-    <div className="space-y-6 page-enter">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Total Customers","إجمالي العملاء")}</p>
-          <p className="text-2xl font-extrabold text-primary">{totalCustomers}</p>
-        </div>
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Total Revenue","إجمالي الإيرادات")}</p>
-          <p className="text-2xl font-extrabold text-primary">{totalRevenue}</p>
-        </div>
-        <div className="card-elevated rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{tr("Avg Spent","متوسط الصرف")}</p>
-          <p className="text-2xl font-extrabold text-primary">{avgSpent}</p>
-        </div>
-      </div>
-      
-      {/* Customer List */}
-      <div className="card-elevated rounded-2xl p-5 space-y-3">
-        <h3 className="font-bold text-foreground flex items-center gap-2">
-          <Package size={18} className="text-primary"/> {tr("Customer List","قائمة العملاء")}
-        </h3>
-        
-        {customers.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-4">{tr("No customer data yet","لا توجد بيانات عملاء بعد")}</p>
-        ) : (
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {customers.map((customer, i) => (
-              <div key={customer.id} className="card rounded-xl p-3 flex items-center gap-3">
-                <span className="text-lg font-bold text-muted-foreground w-6">#{i + 1}</span>
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  {customer.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{customer.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {customer.orders} {tr("orders","طلبات")} • {new Date(customer.lastOrder).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-primary">{customer.totalSpent}</p>
-                  <p className="text-xs text-muted-foreground">EGP</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

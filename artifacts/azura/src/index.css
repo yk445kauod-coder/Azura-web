@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -53,7 +53,7 @@
   /* ── iOS Typography (San Francisco style) ── */
   --font-heading: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Playfair Display', Georgia, serif;
   --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Nunito', system-ui, sans-serif;
-  --font-arabic: 'Cairo', -apple-system, BlinkMacSystemFont, 'SF Pro Arabic', 'Segoe UI', sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Arabic', 'Segoe UI', sans-serif;
   --radius: 1rem;
   --safe-area-bottom: env(safe-area-inset-bottom, 20px);
   --safe-area-top: env(safe-area-inset-top, 47px);

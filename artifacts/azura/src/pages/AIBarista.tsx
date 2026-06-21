@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useBarista } from "@/contexts/BaristaContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
-import { db, ref, onValue, off } from "@/lib/firebase";
+import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI, textToSpeech, playAudioFromUrl } from "@/lib/crypto";
 import { Send, Plus, RefreshCw, Volume2, VolumeX, ArrowLeft, Check } from "lucide-react";
 
@@ -59,15 +60,7 @@ export default function AIBarista() {
   const { baristaName, baristaAvatar, persona } = useBarista();
   const [, navigate] = useLocation();
 
-  // Load saved messages from localStorage for session memory
-  const [messages, setMessages] = useState<Message[]>(() => {
-    try {
-      const saved = localStorage.getItem("azura-chat-history");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -82,17 +75,29 @@ export default function AIBarista() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { user } = useAuth();
 
-  // Save messages to localStorage for session memory
+  // Load chat history from Firebase
   useEffect(() => {
-    try {
-      // Keep only last 50 messages to prevent localStorage overflow
-      const messagesToSave = messages.slice(-50);
-      localStorage.setItem("azura-chat-history", JSON.stringify(messagesToSave));
-    } catch (e) {
-      console.warn("Failed to save chat history:", e);
-    }
-  }, [messages]);
+    if (!user) return;
+    const chatRef = ref(db, `conversations/${user.uid}/barista`);
+    onValue(chatRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        setMessages(Object.values(data));
+      } else {
+        setMessages([]);
+      }
+    });
+    return () => off(chatRef);
+  }, [user]);
+
+  // Persistent chat history - save to Firebase
+  const saveMessageToFirebase = async (msg: Message) => {
+    if (!user) return;
+    const msgRef = ref(db, `conversations/${user.uid}/barista/${msg.id}`);
+    await set(msgRef, msg);
+  };
 
   const toggleTTS = () => {
     const next = !ttsEnabled;
@@ -135,7 +140,7 @@ export default function AIBarista() {
     const unsubscribe = onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
-        const storedKey = data.geminiKey as string;
+        const storedKey = (data.groqKey || data.geminiKey) as string;
         
         if (!storedKey) {
           setEgyKey("");
@@ -301,6 +306,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
 
     const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text, timestamp: Date.now() };
     setMessages((p) => [...p, userMsg]);
+    saveMessageToFirebase(userMsg);
     setInput("");
     setLoading(true);
     
@@ -321,6 +327,7 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
         suggestedItems: suggestedItems.length > 0 ? suggestedItems : undefined,
       };
       setMessages((p) => [...p, aiMsg]);
+      saveMessageToFirebase(aiMsg);
       
       // Speak the response
       speak(parsed);
@@ -377,10 +384,13 @@ Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\
             <p className="text-[11px] text-muted-foreground">Azura Barista · Online</p>
           </div>
           <div className="flex gap-1.5">
-            <button onClick={toggleTTS} className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
+            <button onClick={toggleTTS} title="Toggle Voice" className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
               {ttsEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
             </button>
-            <button onClick={() => { setMessages([]); setGreeted(false); }} className="btn-icon w-8 h-8 text-muted-foreground hover:text-foreground">
+            <button onClick={() => {
+              if (user) remove(ref(db, `conversations/${user.uid}/barista`));
+              setMessages([]); setGreeted(false);
+            }} title="Clear History" className="btn-icon w-8 h-8 text-muted-foreground hover:text-destructive transition-colors">
               <RefreshCw size={13} />
             </button>
           </div>

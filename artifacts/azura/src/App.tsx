@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { BaristaProvider } from "@/contexts/BaristaContext";
 import Layout from "@/components/Layout";
-import SplashScreen from "@/pages/SplashScreen";
+import Welcome from "@/pages/Welcome";
 import MenuLightweight from "@/pages/MenuLightweight";
 import AIBarista from "@/pages/AIBarista";
 import Profile from "@/pages/Profile";
@@ -44,7 +44,7 @@ function AppRoutes() {
     <Switch>
       <Route path="/admin" component={Admin} />
       {!user ? (
-        <Route component={SplashScreen} />
+        <Route component={Welcome} />
       ) : (
         <Route>
           <Layout>

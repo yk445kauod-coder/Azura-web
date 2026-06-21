@@ -48,135 +48,136 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
   
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
       onClick={onClose}
     >
-      {/* Blur Background */}
-      <div 
-        className="absolute inset-0 backdrop-blur-xl bg-black/40"
-        style={{ backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
-      />
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-primary/20 backdrop-blur-sm" />
       
       {/* Modal Content */}
       <div 
-        className="relative w-full max-w-md max-h-[85vh] overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="relative w-full max-w-lg overflow-hidden rounded-t-[2.5rem] sm:rounded-3xl bg-card shadow-xl border border-border/50"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "modalSlideUp 0.3s ease-out" }}
+        style={{ animation: "ios-modal-in 0.4s cubic-bezier(0.32, 0.72, 0, 1)" }}
       >
-        {/* Image */}
-        <div className="relative h-56 overflow-hidden">
-          {item.image ? (
-            <img 
-              src={item.image} 
-              alt={item.name} 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-7xl bg-gradient-to-br from-amber-100 to-orange-100">
-              {cat?.emoji || "🍽️"}
-            </div>
-          )}
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          
-          {/* Close button */}
-          <button 
-            onClick={onClose}
-            className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-colors"
-          >
-            <X size={20} className="text-gray-700" />
-          </button>
-          
-          {/* Category badge */}
-          {cat && (
-            <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm flex items-center gap-1.5">
-              <span className="text-lg">{cat.emoji}</span>
-              <span className="text-sm font-bold text-gray-800">
-                {lang === "ar" ? cat.ar : cat.en}
-              </span>
-            </div>
-          )}
+        {/* Handle for mobile */}
+        <div className="sm:hidden flex justify-center pt-3 pb-1">
+          <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
         </div>
-        
-        {/* Content */}
-        <div className="p-5 overflow-y-auto max-h-[calc(85vh-14rem)]">
-          {/* Title & Price */}
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "var(--font-heading)" }}>
-              {item.name}
-            </h2>
-            {item.nameAr && (
-              <p className="text-base text-gray-500 mt-0.5" dir="rtl">
-                {item.nameAr}
-              </p>
-            )}
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-extrabold text-primary">
-                {item.price}
-              </span>
-              <span className="text-lg text-gray-500 font-medium">
-                {lang === "ar" ? "ج.م" : "EGP"}
-              </span>
+
+        <div className="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
+          <div className="flex flex-col sm:flex-row gap-6">
+            {/* Image */}
+            <div className="w-full sm:w-48 h-48 sm:h-48 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-6xl">
+                  {cat?.emoji || "🍽️"}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground leading-tight">
+                    {item.name}
+                  </h2>
+                  {item.nameAr && (
+                    <p className="text-lg text-muted-foreground font-medium mt-1" dir="rtl">
+                      {item.nameAr}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={onClose}
+                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl font-black text-primary">
+                  {item.price}
+                </span>
+                <span className="text-sm text-muted-foreground font-bold uppercase tracking-wider">
+                  {lang === "ar" ? "ج.م" : "EGP"}
+                </span>
+                {cat && (
+                  <span className="ml-auto badge bg-primary/5 text-primary border border-primary/10">
+                    {cat.emoji} {lang === "ar" ? cat.ar : cat.en}
+                  </span>
+                )}
+              </div>
+
+              {/* Description */}
+              {(item.description || item.descriptionAr) && (
+                <div className="mb-6 p-4 rounded-2xl bg-muted/30 border border-border/30">
+                  <p className="text-sm text-foreground/80 leading-relaxed italic">
+                    "{lang === "ar" ? (item.descriptionAr || item.description) : item.description}"
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           
-          {/* Description */}
-          {(item.description || item.descriptionAr) && (
-            <div className="mb-5">
-              <p className="text-sm text-gray-600 leading-relaxed">
-                {lang === "ar" ? (item.descriptionAr || item.description) : item.description}
-              </p>
-            </div>
-          )}
-          
-          {/* Ingredients */}
-          {item.ingredients && item.ingredients.length > 0 && (
-            <div className="mb-5">
-              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <span>🧾</span> {tr("Ingredients", "المكونات")}
+          <div className="mt-6 space-y-6">
+            {/* Ingredients */}
+            <div>
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px]">🧾</span>
+                {tr("Ingredients", "المكونات التفصيلية")}
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {item.ingredients.map((ing, idx) => (
-                  <span 
-                    key={idx}
-                    className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800"
-                  >
-                    {ing}
-                  </span>
-                ))}
+              <div className="grid grid-cols-2 gap-2">
+                {item.ingredients && item.ingredients.length > 0 ? (
+                  item.ingredients.map((ing, idx) => (
+                    <div
+                      key={idx}
+                      className="px-3 py-2 rounded-xl bg-card border border-border/60 text-xs font-medium text-foreground/70 flex items-center gap-2"
+                    >
+                      <div className="w-1 h-1 rounded-full bg-primary/40" />
+                      {ing}
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="px-3 py-2 rounded-xl bg-card border border-border/60 text-xs font-medium text-foreground/70 flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-primary/40" />
+                      {lang === "ar" ? "مكونات طازجة" : "Fresh ingredients"}
+                    </div>
+                    <div className="px-3 py-2 rounded-xl bg-card border border-border/60 text-xs font-medium text-foreground/70 flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-primary/40" />
+                      {lang === "ar" ? "جودة عالية" : "Premium quality"}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-          )}
-          
-          {/* Default ingredients based on category */}
-          {(!item.ingredients || item.ingredients.length === 0) && (
-            <div className="mb-5">
-              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <span>🧾</span> {tr("Ingredients", "المكونات")}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800">
-                  {cat?.emoji} {lang === "ar" ? cat?.ar : cat?.en}
-                </span>
-                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800">
-                  ☕ {lang === "ar" ? "طازج" : "Fresh"}
-                </span>
-                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800">
-                  ❤️ {lang === "ar" ? "صُنع بحب" : "Made with love"}
-                </span>
+
+            {/* Info Footer */}
+            <div className="flex items-center justify-between pt-6 border-t border-border/40">
+              <div className="flex gap-4">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                  <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                  {tr("Available Now", "متاح الآن")}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                  <span>⏱️</span>
+                  {tr("Ready in 5-10 min", "جاهز خلال 5-10 دقائق")}
+                </div>
               </div>
-            </div>
-          )}
-          
-          {/* Info badges */}
-          <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              {tr("Available", "متاح")}
-            </div>
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-              <span>⏱️</span>
-              {tr("5-10 min", "5-10 دقيقة")}
+              <button
+                onClick={onClose}
+                className="btn-primary px-8 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20"
+              >
+                {tr("Close", "إغلاق")}
+              </button>
             </div>
           </div>
         </div>
@@ -347,11 +348,17 @@ export default function MenuLightweight() {
         {loading ? (
           <div className="grid grid-cols-2 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden">
-                <div className="h-36 bg-gradient-to-r from-amber-100 to-orange-100 animate-pulse" />
+              <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm">
+                <div className="relative h-36 bg-muted overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                </div>
                 <div className="p-3 space-y-2">
-                  <div className="h-4 bg-amber-100 rounded animate-pulse" />
-                  <div className="h-3 w-2/3 bg-amber-100 rounded animate-pulse" />
+                  <div className="h-4 bg-muted rounded relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  </div>
+                  <div className="h-3 w-2/3 bg-muted rounded relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  </div>
                 </div>
               </div>
             ))}
@@ -378,41 +385,26 @@ export default function MenuLightweight() {
                   }}
                 >
                   {/* Card */}
-                  <div className="rounded-2xl overflow-hidden bg-white shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                    {/* Image Container with Shimmer */}
+                  <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:shadow-amber-200/40 group-hover:-translate-y-1 group-active:scale-95 active:scale-95">
+                    {/* Image Container */}
                     <div className="relative h-36 overflow-hidden">
+                      {/* Premium Shimmer Overlay on Hover */}
+                      <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                       {item.image ? (
                         <img 
                           src={item.image} 
                           alt={item.name} 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover"
                           loading="lazy"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
                           <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
                         </div>
                       )}
                       
-                      {/* Shimmer Effect */}
-                      <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-                      </div>
-                      
-                      {/* Shine on hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div 
-                          className="absolute w-32 h-32 bg-white/20 rounded-full blur-2xl"
-                          style={{
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)"
-                          }}
-                        />
-                      </div>
-                      
                       {/* Category badge */}
-                      <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold flex items-center gap-1">
+                      <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
                         <span>{cat?.emoji}</span>
                         <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
                       </div>
@@ -420,19 +412,19 @@ export default function MenuLightweight() {
                     
                     {/* Info */}
                     <div className="p-3">
-                      <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-amber-600 transition-colors">
+                      <h3 className="font-bold text-sm text-foreground truncate">
                         {item.name}
                       </h3>
                       {item.nameAr && (
-                        <p className="text-[11px] text-gray-400 truncate mt-0.5">{item.nameAr}</p>
+                        <p className="text-[11px] text-muted-foreground truncate mt-0.5" dir="rtl">{item.nameAr}</p>
                       )}
-                      <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center justify-between mt-3">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-extrabold text-amber-600">{item.price}</span>
-                          <span className="text-[10px] text-gray-400 font-medium">{lang === "ar" ? "ج.م" : "EGP"}</span>
+                          <span className="text-lg font-extrabold text-primary">{item.price}</span>
+                          <span className="text-[10px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-                          <span className="text-sm">+</span>
+                        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
+                          <span className="text-lg font-bold">+</span>
                         </div>
                       </div>
                     </div>

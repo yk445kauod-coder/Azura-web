@@ -18,10 +18,9 @@ import {
   Video, AlertTriangle, Bot, LayoutDashboard, Users,
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
-import VisualPageBuilder from "@/components/VisualPageBuilder";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "users" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai" | "builder";
+type Tab = "overview" | "users" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
 
 interface MenuItem { id: string; name: string; nameAr: string; description: string; price: number; category: string; available: boolean; image: string; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
@@ -420,7 +419,6 @@ export default function Admin() {
     { id: "broadcast",  icon: <Megaphone size={14}/>,      en: "Broadcast",   ar: "إشعارات"    },
     { id: "reels",      icon: <Film size={14}/>,           en: "Reels",       ar: "ريلز"       },
     { id: "ai",         icon: <Bot size={14}/>,             en: "AI Assistant", ar: "المساعد الذكي" },
-    { id: "builder",    icon: <LayoutDashboard size={14}/>, en: "Page Builder", ar: "منشئ الصفحات" },
     { id: "api",        icon: <Key size={14}/>,            en: "Egytronic",   ar: "إيچترونيك" },
     { id: "system",     icon: <Settings size={14}/>,       en: "System",      ar: "النظام"     },
   ];
@@ -1255,13 +1253,6 @@ export default function Admin() {
         {tab === "ai" && (
           <div className="page-enter">
             <AIAdminAssistant />
-          </div>
-        )}
-
-        {/* ━━━ PAGE BUILDER ━━━ */}
-        {tab === "builder" && (
-          <div className="page-enter">
-            <VisualPageBuilder />
           </div>
         )}
       </div>

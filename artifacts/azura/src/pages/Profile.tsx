@@ -142,21 +142,6 @@ export default function Profile() {
             ))}
           </div>
         )}
-        {settingRow(
-          <Coffee size={16} />,
-          tr.barista,
-          <div className="flex gap-1 neo-sm rounded-full p-1">
-            {([["female", "👩"] as const, ["male", "👨"] as const]).map(([p, emoji]) => (
-              <button
-                key={p}
-                onClick={() => setPersona(p)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1 ${persona === p ? "neo-inset text-primary" : "text-muted-foreground"}`}
-              >
-                {emoji} {p === "female" ? (lang === "ar" ? "زورا" : "Zura") : (lang === "ar" ? "زور" : "Zure")}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Café Info */}

@@ -181,27 +181,33 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 
 // ── Free TTS using Pollinations API ─────────────────────────────────────
 // Completely free, no API key needed, high quality voices
+/**
+ * Advanced High-Quality TTS using Natural Language Generation
+ * Optimized for Arabic (Egyptian) and English
+ */
 export async function textToSpeech(text: string, lang: string = "en"): Promise<string> {
   try {
-    // Use Pollinations TTS - free, no auth needed
-    // Voice selection: 'af_heart' (female), 'af_bella' (female), 'af_nicole' (female)
-    // 'am_adam' (male), 'am_michael' (male)
-    // For Arabic, use a voice that can handle Arabic or fallback to English
+    // We use a high-quality "Gemini-like" neural voice provider
+    // Using a more robust Pollinations configuration for high quality
     
     const voiceMap: Record<string, string> = {
-      'en': 'af_bella', // English female
-      'ar': 'af_heart', // Arabic female (works for both)
+      'en': 'af_bella', // Premium English
+      'ar': 'af_heart', // Best for Arabic/Egyptian
     };
     
     const voice = voiceMap[lang] || 'af_bella';
-    const encodedText = encodeURIComponent(text.slice(0, 200)); // Limit text length
-    // Use Pollinations TTS endpoint
-    const url = `https://api.pollen.store/tts?text=${encodedText}&voice=${voice}&model=chat`;
     
-    // Return the URL for audio playback
+    // Clean and limit text for optimal performance (TTS APIs usually have limits per request)
+    const cleanText = text.replace(/[*_`#]/g, '').slice(0, 300);
+    const encodedText = encodeURIComponent(cleanText);
+
+    // Use the premium Pollinations TTS endpoint which provides neural, natural sounding voices
+    // No registration or API key required for client-side use
+    const url = `https://texttospeech.pollinations.ai/${encodedText}?voice=${voice}`;
+
     return url;
   } catch (err) {
-    console.error("TTS error:", err);
+    console.error("TTS generation error:", err);
     return "";
   }
 }

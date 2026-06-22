@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { db, ref, onValue, off, update, set, push, remove, get } from "@/lib/firebase";
+import { smartGet, smartSet, smartUpdate, smartRemove, smartPush, getDBMode, setDBMode, onModeChange } from "@/lib/dbWrapper";
+import { testR2Connection, type R2Config, listR2Objects, downloadFromR2, uploadToR2 } from "@/lib/r2";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
@@ -57,7 +59,12 @@ export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem("azura-admin") === "true");
   const [pinErr, setPinErr] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
-  
+  const [dbMode, setDbModeState] = useState(getDBMode());
+
+  useEffect(() => {
+    return onModeChange(() => setDbModeState(getDBMode()));
+  }, []);
+
   // Data
   const [users, setUsers]         = useState<any[]>([]);
   const [chats, setChats]         = useState<ChatSession[]>([]);
@@ -261,26 +268,25 @@ export default function Admin() {
   // ── Chat helpers ──────────────────────────────────────────────
   const sendReply = async () => {
     if (!chatInput.trim() || !selectedChat) return;
-    const r = push(ref(db, `support-chat/${selectedChat}/messages`));
-    await set(r, { text: chatInput.trim(), sender: "admin", createdAt: Date.now(), readByAdmin: true });
-    await update(ref(db, `support-chat/${selectedChat}/meta`), { lastMessage: chatInput.trim(), lastAt: Date.now() });
+    await smartPush(`support-chat/${selectedChat}/messages`, { text: chatInput.trim(), sender: "admin", createdAt: Date.now(), readByAdmin: true });
+    await smartUpdate(`support-chat/${selectedChat}/meta`, { lastMessage: chatInput.trim(), lastAt: Date.now() });
     setChatInput("");
   };
 
   // ── Feedback helpers ──────────────────────────────────────────
-  const markFeedbackRead = (id: string) => update(ref(db, `feedback/${id}`), { read: true });
+  const markFeedbackRead = (id: string) => smartUpdate(`feedback/${id}`, { read: true });
 
   // ── Suggestion helpers ────────────────────────────────────────
   const setSuggestionStatus = (id: string, status: string, note?: string) =>
-    update(ref(db, `suggestions/${id}`), { status, ...(note ? { adminNote: note } : {}) });
+    smartUpdate(`suggestions/${id}`, { status, ...(note ? { adminNote: note } : {}) });
 
   // ── Report helpers ──────────────────────────────────────────
   const updateReportStatus = (id: string, status: string) =>
-    update(ref(db, `reports/${id}`), { status });
+    smartUpdate(`reports/${id}`, { status });
 
   const deleteUser = async (uid: string, name: string) => {
     if (await swalConfirm(tr(`Delete User ${name}?`, `حذف المستخدم ${name}؟`), tr("This will remove all user data. Chat logs will remain in conversations.", "سيتم حذف بيانات المستخدم. ستبقى سجلات الدردشة."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
-      await remove(ref(db, `users/${uid}`));
+      await smartRemove(`users/${uid}`);
       swalSuccess(tr("User deleted", "تم حذف المستخدم"));
     }
   };
@@ -289,12 +295,11 @@ export default function Admin() {
   const sendBroadcast = async () => {
     if (!newBroadcast.title || !newBroadcast.message) return;
     setSendingBroadcast(true);
-    const r = push(ref(db, "broadcast"));
-    await set(r, { ...newBroadcast, createdAt: Date.now() });
+    await smartPush("broadcast", { ...newBroadcast, createdAt: Date.now() });
     setNewBroadcast(BLANK_BROADCAST);
     setSendingBroadcast(false);
   };
-  const deleteBroadcast = (id: string) => remove(ref(db, `broadcast/${id}`));
+  const deleteBroadcast = (id: string) => smartRemove(`broadcast/${id}`);
 
   // ── Reels helpers ─────────────────────────────────────────────
   const createReel = async () => {
@@ -307,7 +312,7 @@ export default function Admin() {
       const reelId = r.key!;
       
       // Save reel metadata with video URL info
-      await set(r, {
+      await smartSet(`reels/${reelId}`, {
         image: newReel.image,
         caption: newReel.caption,
         captionAr: newReel.captionAr,
@@ -326,9 +331,7 @@ export default function Admin() {
         const fullVideo = newReel.videoChunks.join("");
         await saveToIndexedDB(`reel_${reelId}`, fullVideo);
         
-        const chunksRef = ref(db, `reelChunks/${reelId}`);
         const batchSize = 5;
-        
         for (let i = 0; i < newReel.videoChunks.length; i += batchSize) {
           const batch: Record<string, string> = {};
           const end = Math.min(i + batchSize, newReel.videoChunks.length);
@@ -355,12 +358,12 @@ export default function Admin() {
     
     setUploading(false);
   };
-  const togglePin = (reel: Reel) => update(ref(db, `reels/${reel.id}`), { pinned: !reel.pinned });
+  const togglePin = (reel: Reel) => smartUpdate(`reels/${reel.id}`, { pinned: !reel.pinned });
   const deleteReel = async (reel: Reel) => { 
     if (await swalConfirm(tr("Delete Post", "حذف المنشور"), tr("Delete this post?", "حذف المنشور؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
-      remove(ref(db, `reels/${reel.id}`));
+      await smartRemove(`reels/${reel.id}`);
       if (reel.chunkCount) {
-        remove(ref(db, `reelChunks/${reel.id}`));
+        await smartRemove(`reelChunks/${reel.id}`);
       }
     }
   };
@@ -368,7 +371,7 @@ export default function Admin() {
   // ── API Settings helpers ────────────────────────────────────
   const saveApiSettings = async () => {
     setSavingApiKey(true);
-    await set(ref(db, "api-settings"), {
+    await smartSet("api-settings", {
       groqKey: apiSettings.groqKey ? encryptKey(apiSettings.groqKey) : "",
       aiEnabled: apiSettings.aiEnabled,
       updatedAt: Date.now(),
@@ -1244,7 +1247,7 @@ export default function Admin() {
 
         {/* ━━━ SYSTEM TAB ━━━ */}
         {tab === "system" && (
-          <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} />
+          <SystemTab tr={tr} db={db} ref={ref} set={set} remove={remove} push={push} get={get} lang={lang} />
         )}
 
 
@@ -1267,12 +1270,13 @@ export default function Admin() {
 }
 
 // System Management Component
-function SystemTab({ tr, db, ref, set, remove, push, get }: {
+function SystemTab({ tr, db, ref, set, remove, push, get, lang }: {
   tr: (en: string, ar: string) => string;
-  db: any; ref: any; set: any; remove: any; push: any; get: any;
+  db: any; ref: any; set: any; remove: any; push: any; get: any; lang: string;
 }) {
   const [backups, setBackups] = useState<{ id: string; name: string; date: number; size: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [r2Loading, setR2Loading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmAction, setConfirmAction] = useState<string>("");
 
@@ -1303,8 +1307,8 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
       // Collect all data
       const paths = ["menu", "orders", "users", "ai-config", "api-settings", "broadcast", "reels", "feedback", "suggestions", "pos-settings", "homepage-banner"];
       for (const path of paths) {
-        const snap = await get(ref(db, path));
-        if (snap.exists()) snapshot[path] = snap.val();
+        const data = await smartGet(path);
+        if (data) snapshot[path] = data;
       }
 
       const backupData = {
@@ -1314,9 +1318,8 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
         size: `${Math.round(JSON.stringify(snapshot).length / 1024)} KB`,
       };
 
-      // Save to Firebase
-      const backupRef = push(ref(db, "backups"));
-      await set(backupRef, backupData);
+      // Save to Firebase/R2
+      await smartPush("backups", backupData);
 
       // Download to device
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
@@ -1340,14 +1343,12 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
     
     setLoading(true);
     try {
-      const snap = await get(ref(db, `backups/${backupId}/data`));
-      if (!snap.exists()) throw new Error("Backup not found");
-      
-      const data = snap.val() as Record<string, any>;
+      const data = await smartGet(`backups/${backupId}/data`);
+      if (!data) throw new Error("Backup not found");
       
       // Restore each path
       for (const [path, content] of Object.entries(data)) {
-        await set(ref(db, path), content);
+        await smartSet(path, content);
       }
 
       swalSuccess(tr("Backup restored successfully!", "تم استعادة النسخة بنجاح!"));
@@ -1371,7 +1372,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
         "notifications", "pos-settings", "homepage-banner", "backups"
       ];
       for (const path of paths) {
-        await remove(ref(db, path));
+        await smartRemove(path);
       }
 
       swalSuccess(tr("System reset complete! A backup was saved to your device.", "تم إعادة تعيين النظام! تم حفظ نسخة احتياطية على جهازك."));
@@ -1385,11 +1386,127 @@ function SystemTab({ tr, db, ref, set, remove, push, get }: {
 
   const deleteBackup = async (id: string) => {
     if (!await swalConfirm(tr("Delete Backup", "حذف النسخة"), tr("Delete this backup?", "حذف هذه النسخة؟"), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) return;
-    await remove(ref(db, `backups/${id}`));
+    await smartRemove(`backups/${id}`);
+  };
+
+  // R2 Config State
+  const [r2Config, setR2Config] = useState<R2Config>({
+    endpoint: "",
+    accessKey: "",
+    secretKey: "",
+    bucket: ""
+  });
+
+  useEffect(() => {
+    smartGet("r2-config").then(cfg => {
+      if (cfg) setR2Config(cfg);
+    });
+  }, []);
+
+  const handleSaveR2 = async () => {
+    setR2Loading(true);
+    try {
+      await smartSet("r2-config", r2Config);
+      swalSuccess(tr("R2 Config Saved", "تم حفظ إعدادات R2"));
+    } catch (e) {
+      swalError(tr("Save failed", "فشل الحفظ"));
+    }
+    setR2Loading(false);
+  };
+
+  const handleTestR2 = async () => {
+    setR2Loading(true);
+    try {
+      await testR2Connection(r2Config);
+      swalSuccess(tr("R2 Connection Successful!", "تم الاتصال بـ R2 بنجاح!"));
+    } catch (e) {
+      swalError(tr("R2 Connection Failed", "فشل الاتصال بـ R2"));
+    }
+    setR2Loading(false);
+  };
+
+  const handleGlobalSync = async () => {
+    if (!await swalConfirm(tr("Global Sync", "مزامنة شاملة"), tr("This will push all R2 data back to Firebase. Existing Firebase data will be overwritten.", "سيتم رفع كافة بيانات R2 إلى Firebase. سيتم استبدال البيانات الحالية."), tr("Sync Now", "مزامنة الآن"), tr("Cancel", "إلغاء"))) return;
+
+    setLoading(true);
+    try {
+      const objects = await listR2Objects();
+      for (const obj of objects) {
+        if (!obj.Key?.endsWith(".json")) continue;
+        const data = await downloadFromR2(obj.Key);
+        const path = obj.Key.replace(".json", "");
+        await set(ref(db, path), data);
+      }
+      swalSuccess(tr("Global Sync Complete!", "تمت المزامنة الشاملة بنجاح!"));
+    } catch (e) {
+      console.error(e);
+      swalError(tr("Sync failed", "فشلت المزامنة"));
+    }
+    setLoading(false);
   };
 
   return (
     <div className="space-y-6 page-enter">
+      {/* Fallback Mode Indicator */}
+      {getDBMode() === "r2" && (
+        <div className="card rounded-2xl p-4 bg-red-500 text-white flex items-center justify-between shadow-lg animate-pulse">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={20}/>
+            <div>
+              <p className="font-bold text-sm">{tr("OFFLINE FALLBACK MODE ACTIVE", "وضع الطوارئ (R2) مفعّل")}</p>
+              <p className="text-[10px] opacity-80">{tr("Firebase is unavailable. Changes are being saved to R2.", "Firebase غير متاح. يتم حفظ التغييرات على R2.")}</p>
+            </div>
+          </div>
+          <button onClick={() => setDBMode("firebase")} className="px-3 py-1 bg-white text-red-600 rounded-lg text-xs font-bold">
+            {tr("Try Reconnect", "إعادة الاتصال")}
+          </button>
+        </div>
+      )}
+
+      {/* R2 Configuration Section */}
+      <div className="card-elevated rounded-2xl p-5 space-y-4">
+        <h3 className="font-bold text-foreground flex items-center gap-2">
+          <UploadCloud size={18} className="text-primary"/> {tr("R2 Fallback Config (S3)","إعدادات الطوارئ R2")}
+        </h3>
+        <p className="text-xs text-muted-foreground">{tr("Configure Cloudflare R2 or any S3-compatible storage for automated admin fallback.", "قم بتهيئة R2 أو أي مخزن S3 لوضع الطوارئ التلقائي للأدمن.")}</p>
+
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Endpoint","نقطة الاتصال")}</label>
+            <input className="input-field px-3 py-2 text-sm" placeholder="https://<id>.r2.cloudflarestorage.com" value={r2Config.endpoint} onChange={e => setR2Config({...r2Config, endpoint: e.target.value})}/>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Access Key","مفتاح الوصول")}</label>
+              <input className="input-field px-3 py-2 text-sm" type="password" value={r2Config.accessKey} onChange={e => setR2Config({...r2Config, accessKey: e.target.value})}/>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Secret Key","المفتاح السري")}</label>
+              <input className="input-field px-3 py-2 text-sm" type="password" value={r2Config.secretKey} onChange={e => setR2Config({...r2Config, secretKey: e.target.value})}/>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Bucket Name","اسم الباكت")}</label>
+            <input className="input-field px-3 py-2 text-sm" value={r2Config.bucket} onChange={e => setR2Config({...r2Config, bucket: e.target.value})}/>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button onClick={handleTestR2} disabled={r2Loading} className="flex-1 py-2.5 bg-muted text-foreground rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+              <Eye size={14}/> {tr("Test Connection", "فحص الاتصال")}
+            </button>
+            <button onClick={handleSaveR2} disabled={r2Loading} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg">
+              <Save size={14}/> {tr("Save Config", "حفظ الإعدادات")}
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-border/40">
+          <button onClick={handleGlobalSync} disabled={loading} className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-orange-200">
+            <RotateCcw size={16}/> {tr("Global Sync: R2 → Firebase", "مزامنة شاملة: من R2 إلى Firebase")}
+          </button>
+        </div>
+      </div>
+
       {/* Backup Section */}
       <div className="card-elevated rounded-2xl p-5 space-y-4">
         <h3 className="font-bold text-foreground flex items-center gap-2">

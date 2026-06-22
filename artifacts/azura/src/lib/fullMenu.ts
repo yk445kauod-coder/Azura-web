@@ -4,179 +4,179 @@ export const fullMenuData = {
   "food": {
     "chicken-butterfly": {
       "name": "Chicken Butterfly",
-      "nameAr": "Chicken Butterfly",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "دجاج باترفلاي",
+      "description": "Succulent chicken breast opened like a butterfly, grilled to perfection.",
+      "descriptionAr": "صدر دجاج متبل ومفتوح على شكل فراشة مشوي بعناية.",
       "price": 336,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80",
-
+      "ingredients": ["Chicken Breast", "Special Herbs", "Lemon", "Garlic Butter", "Grilled Vegetables"]
     },
     "chicken-lemon-pasta": {
       "name": "Chicken Lemon Pasta",
-      "nameAr": "Chicken Lemon Pasta",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "مكرونة دجاج بالليمون",
+      "description": "Pasta tossed in a zesty lemon cream sauce with grilled chicken.",
+      "descriptionAr": "مكرونة مع صوص الكريمة والليمون المنعش مع قطع الدجاج المشوي.",
       "price": 234,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
-
+      "ingredients": ["Penne Pasta", "Grilled Chicken", "Lemon Zest", "Heavy Cream", "Parmesan", "Parsley"]
     },
     "dynamite-chicken": {
       "name": "Dynamite Chicken",
-      "nameAr": "Dynamite Chicken",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "دجاج داينمايت",
+      "description": "Golden fried chicken chunks tossed in a creamy, spicy dynamite sauce.",
+      "descriptionAr": "قطع دجاج مقلية ذهبية مغموسة في صوص الداينمايت الكريمي الحار.",
       "price": 178,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
-
+      "ingredients": ["Crispy Chicken Bites", "Dynamite Spicy Sauce", "Spring Onions", "Sesame Seeds"]
     },
     "azura-breakfast": {
       "name": "Azura Breakfast",
-      "nameAr": "Azura Breakfast",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "إفطار أزورا",
+      "description": "The ultimate morning feast with eggs, pastrami, and premium cheeses.",
+      "descriptionAr": "وليمة الصباح المثالية مع البيض والبسطرمة والأجبان الفاخرة.",
       "price": 204,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&q=80",
-
+      "ingredients": ["Eggs to order", "Pastrami", "Roomy Cheese", "Feta", "Honey", "Jam", "Fresh Bread"]
     },
     "mexican-breakfast": {
       "name": "Mexican Breakfast",
-      "nameAr": "Mexican Breakfast",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "إفطار مكسيكي",
+      "description": "Zesty breakfast with scrambled eggs, peppers, and spicy beans.",
+      "descriptionAr": "إفطار حار مع بيض مخفوق، فلفل، وفول متبل.",
       "price": 174,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-
+      "ingredients": ["Spicy Scrambled Eggs", "Colored Peppers", "Mexican Beans", "Jalapeños", "Tortilla"]
     },
     "greek-breakfast": {
       "name": "Greek Breakfast",
-      "nameAr": "Greek Breakfast",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "إفطار يوناني",
+      "description": "Healthy and fresh morning start with feta, olives, and thyme.",
+      "descriptionAr": "بداية صباحية صحية وطازجة مع الجبن الفيتا والزيتون والزعتر.",
       "price": 189,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
-
+      "ingredients": ["Boiled Eggs", "Greek Feta", "Kalamata Olives", "Cucumber", "Tomato", "Zaatar"]
     },
     "triple-s": {
       "name": "Triple S",
-      "nameAr": "Triple S",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "تريبل إس",
+      "description": "Super Savory Sandwich with layers of steak, chicken, and sausage.",
+      "descriptionAr": "ساندوتش فائق اللذة مع طبقات من الستيك والدجاج والسجق.",
       "price": 218,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
-
+      "ingredients": ["Beef Strips", "Chicken Strips", "Sausage", "Mozzarella", "Special Sauce"]
     },
     "chicken-cheese": {
       "name": "Chicken Cheese",
-      "nameAr": "Chicken Cheese",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "دجاج بالجبنة",
+      "description": "Tender chicken breast smothered in a blend of melted cheeses.",
+      "descriptionAr": "صدر دجاج طري مغطى بمزيج من الأجبان الذائبة.",
       "price": 219,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80",
-
+      "ingredients": ["Grilled Chicken", "Cheddar", "Mozzarella", "Swiss Cheese", "White Sauce"]
     },
     "mix-cheese": {
       "name": "Mix Cheese",
-      "nameAr": "Mix Cheese",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "ميكس جبن",
+      "description": "A gooey delight of four premium melted cheeses on toasted bread.",
+      "descriptionAr": "بهجة من أربعة أنواع من الأجبان المميزة الذائبة على خبز محمص.",
       "price": 114,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
-
+      "ingredients": ["Blue Cheese", "Cheddar", "Roomy", "Mozzarella"]
     },
     "tuna": {
       "name": "Tuna",
-      "nameAr": "Tuna",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "تونا",
+      "description": "Fresh tuna chunks with light mayo and crispy vegetables.",
+      "descriptionAr": "قطع تونة طازجة مع مايونيز خفيف وخضروات مقرمشة.",
       "price": 194,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80",
-
+      "ingredients": ["Premium Tuna", "Bell Peppers", "Onions", "Light Mayo", "Lemon Juice"]
     },
     "classic": {
       "name": "Classic",
-      "nameAr": "Classic",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "كلاسيك",
+      "description": "Standard simple breakfast with eggs and toast.",
+      "descriptionAr": "إفطار كلاسيكي بسيط مع بيض وتوست.",
       "price": 71,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80",
-
+      "ingredients": ["Two Eggs", "Toasted Sourdough", "Butter", "Jam"]
     },
     "azura-croissant": {
       "name": "Azura Croissant",
-      "nameAr": "Azura Croissant",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "كرواسون أزورا",
+      "description": "Flaky butter croissant filled with your choice of savory toppings.",
+      "descriptionAr": "كرواسون بالزبدة هش محشو باختيارك من الحشوات اللذيذة.",
       "price": 149,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80",
-
+      "ingredients": ["Handcrafted Croissant", "Turkey", "Cheese", "Fresh Greens"]
     },
     "tomato-and-basil-soup": {
       "name": "Tomato and Basil Soup",
-      "nameAr": "Tomato and Basil Soup",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "شوربة طماطم بالريحان",
+      "description": "Roasted vine tomatoes blended with fresh basil and cream.",
+      "descriptionAr": "طماطم مشوية ممزوجة مع الريحان الطازج والكريمة.",
       "price": 93,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80",
-
+      "ingredients": ["Vine Tomatoes", "Fresh Basil", "Cream", "Garlic", "Onion"]
     },
     "mushroom-cream": {
       "name": "Mushroom Cream",
-      "nameAr": "Mushroom Cream",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "شوربة كريمة المشروم",
+      "description": "Earthy forest mushrooms in a rich, velvety cream soup.",
+      "descriptionAr": "مشروم بري في شوربة كريمة غنية ومخملية.",
       "price": 102,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-
+      "ingredients": ["Fresh Mushrooms", "Heavy Cream", "Thyme", "Butter"]
     },
     "creamy-chicken": {
       "name": "Creamy Chicken",
-      "nameAr": "Creamy Chicken",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "شوربة كريمة الدجاج",
+      "description": "Hearty chunks of chicken breast in a savory cream base.",
+      "descriptionAr": "قطع صدر دجاج مشبعة في قاعدة كريمة لذيذة.",
       "price": 113,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80",
-
+      "ingredients": ["Chicken Breast", "Milk", "Cream", "Celery", "Carrots"]
     },
     "creamy-chicken-mushroom": {
       "name": "Creamy Chicken Mushroom",
-      "nameAr": "Creamy Chicken Mushroom",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "شوربة دجاج بالمشروم",
+      "description": "The perfect combo of chicken and mushrooms in thick cream.",
+      "descriptionAr": "المزيج المثالي من الدجاج والمشروم في كريمة كثيفة.",
       "price": 149,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80",
-
+      "ingredients": ["Chicken Pieces", "Mushrooms", "Garlic", "Parsley", "Cream"]
     },
     "fries": {
       "name": "Fries",
@@ -758,14 +758,14 @@ export const fullMenuData = {
   "burgers": {
     "classic-burger": {
       "name": "Classic Burger",
-      "nameAr": "Classic Burger",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "كلاسيك برجر",
+      "description": "The timeless favorite: pure beef patty with fresh toppings.",
+      "descriptionAr": "الطعم الأصلي: قطعة لحم بقري صافي مع الخضروات الطازجة.",
       "price": 228,
       "category": "burgers",
       "available": true,
       "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171f90?w=400&q=80",
-
+      "ingredients": ["100% Beef Patty", "Fresh Lettuce", "Tomato", "Pickles", "Azura Sauce", "Brioche Bun"]
     },
     "cheese-burger": {
       "name": "Cheese Burger",
@@ -1355,14 +1355,14 @@ export const fullMenuData = {
     },
     "latte": {
       "name": "Latte",
-      "nameAr": "Latte",
-      "description": "",
-      "descriptionAr": "",
+      "nameAr": "لاتيه",
+      "description": "Smooth espresso with steamed milk and a thin layer of foam.",
+      "descriptionAr": "إسبريسو غني مع حليب مبخر وطبقة خفيفة من الرغوة.",
       "price": 88,
       "category": "hot_drinks",
       "available": true,
       "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80",
-
+      "ingredients": ["Premium Arabica Coffee Beans", "Steamed Fresh Milk", "Silky Foam"]
     },
     "flat-white": {
       "name": "Flat White",

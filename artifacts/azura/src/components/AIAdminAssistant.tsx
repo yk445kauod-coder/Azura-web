@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { db, ref, get } from "@/lib/firebase";
+import { db, ref, get, onValue, off, set, remove } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
+import { decryptKey, chatWithAI, isValidApiKey } from "@/lib/crypto";
 import { 
   Bot, Send, Loader2, Users, 
   Package, DollarSign, RefreshCw,
-  XCircle, BookOpen, ExternalLink, Maximize2, Minimize2, FileText
+  XCircle, BookOpen, ExternalLink, Maximize2, Minimize2, FileText, Trash2
 } from "lucide-react";
 
 interface AIMessage {
@@ -49,6 +50,7 @@ export default function AIAdminAssistant() {
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [showMenuViewer, setShowMenuViewer] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [apiKey, setApiKey] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const menuViewerRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +58,40 @@ export default function AIAdminAssistant() {
 
   useEffect(() => {
     loadAllData();
+    loadApiKey();
+    loadChatHistory();
+    return () => off(ref(db, "conversations/admin/assistant"));
   }, []);
+
+  const loadApiKey = async () => {
+    const snap = await get(ref(db, "api-settings"));
+    if (snap.exists()) {
+      const data = snap.val();
+      const rawKey = data.groqKey || data.geminiKey;
+      if (rawKey) {
+        const decrypted = decryptKey(rawKey);
+        if (isValidApiKey(decrypted)) setApiKey(decrypted);
+      }
+    }
+  };
+
+  const loadChatHistory = () => {
+    onValue(ref(db, "conversations/admin/assistant"), (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        setMessages(Object.values(data));
+      }
+    });
+  };
+
+  const saveMessage = async (msg: AIMessage) => {
+    await set(ref(db, `conversations/admin/assistant/${msg.id}`), msg);
+  };
+
+  const clearHistory = async () => {
+    await remove(ref(db, "conversations/admin/assistant"));
+    setMessages([]);
+  };
 
   const loadAllData = async () => {
     await Promise.all([loadAnalytics(), loadMenuItems()]);
@@ -186,49 +221,31 @@ export default function AIAdminAssistant() {
   };
 
   useEffect(() => {
-    const welcomeMsg = lang === "ar" 
-      ? `🤖 أهلاً بك في مساعد أزورا الذكي!
+    if (messages.length === 0) {
+      const welcomeMsg = lang === "ar"
+        ? `🤖 أهلاً بك في مساعد أزورا الذكي!
 
 ☕ ${CAFE_CONTEXT.name}
 📍 ${CAFE_CONTEXT.location}
 
-أستطيع مساعدتك في:
-
-📊 التحليلات - تقارير شاملة عن المبيعات والطلبات
-📦 الطلبات - متابعة حالة الطلبات
-👥 العملاء - معلومات العملاء والمبيعات
-💰 الإيرادات - تفاصيل الإيرادات والأرباح
-🍽️ القائمة - البحث في القائمة وأسعارها
-💡 اقتراحات - أفكار لتحسين الخدمة
-
-📖 عرض القائمة - افتح القائمة في نافذة جديدة
-
-اكتب سؤالك أو اطلب ما تحتاجه!`
-      : `🤖 Welcome to Azura AI Assistant!
+أستطيع مساعدتك في كل شيء يخص أزورا!`
+        : `🤖 Welcome to Azura Admin Assistant!
 
 ☕ ${CAFE_CONTEXT.name}
 📍 ${CAFE_CONTEXT.location}
 
-I can help you with:
+I can help you with everything regarding Azura!`;
 
-📊 Analytics - Comprehensive sales and order reports
-📦 Orders - Track order status
-👥 Customers - Customer and sales info
-💰 Revenue - Revenue and profit details
-🍽️ Menu - Search menu and prices
-💡 Suggestions - Ideas to improve service
-
-📖 View Menu - Open menu in new window
-
-Type your question or request what you need!`;
-    
-    setMessages([{
-      id: "welcome",
-      role: "assistant",
-      content: welcomeMsg,
-      timestamp: Date.now(),
-    }]);
-  }, [lang]);
+      const welcome = {
+        id: "welcome",
+        role: "assistant" as const,
+        content: welcomeMsg,
+        timestamp: Date.now(),
+      };
+      setMessages([welcome]);
+      saveMessage(welcome);
+    }
+  }, [lang, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -385,11 +402,29 @@ Type "help" to see all available commands.`;
     };
     
     setMessages(prev => [...prev, userMessage]);
+    saveMessage(userMessage);
     setInput("");
     setLoading(true);
     
     try {
-      const response = await generateResponse(input);
+      let response = "";
+      if (apiKey) {
+        const systemPrompt = `You are the Admin Assistant for Azura Cafe.
+        Context: ${JSON.stringify(CAFE_CONTEXT)}
+        Analytics: ${JSON.stringify(analytics)}
+        Menu Summary: ${menuItems.length} items.
+        Respond as a professional yet friendly business advisor.`;
+
+        const history = messages.slice(-10).map(m => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }]
+        }));
+
+        response = await chatWithAI(apiKey, userMessage.content, history, systemPrompt);
+      } else {
+        response = await generateResponse(userMessage.content);
+      }
+
       const assistantMessage: AIMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -397,6 +432,7 @@ Type "help" to see all available commands.`;
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, assistantMessage]);
+      saveMessage(assistantMessage);
       
       if (input.toLowerCase().includes("show menu") || input.toLowerCase().includes("عرض القائمة")) {
         setShowMenuViewer(true);
@@ -453,6 +489,13 @@ Type "help" to see all available commands.`;
             title={tr("Refresh Data", "تحديث البيانات")}
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
+          <button
+            onClick={clearHistory}
+            className="p-2 hover:bg-red-50 text-muted-foreground hover:text-red-500 rounded-lg transition-colors"
+            title={tr("Clear Chat", "مسح المحادثة")}
+          >
+            <Trash2 size={14} />
           </button>
         </div>
       </div>

@@ -51,7 +51,47 @@ export function isValidApiKey(key: string): boolean {
 }
 
 // ── AI Chat ─────────────────────────────────────────────────
-// Using Groq API with smart conversational AI
+
+/**
+ * Fallback AI Chat using Pollinations.ai (Free text API)
+ */
+export async function chatWithPollinations(
+  message: string,
+  history: Array<{ role: string; parts: Array<{ text: string }> }>,
+  systemPrompt: string
+): Promise<string> {
+  const url = "https://text.pollinations.ai/openai/chat/completions";
+
+  const formattedHistory = history.map((h) => ({
+    role: h.role === 'model' ? 'assistant' : 'user',
+    content: h.parts[0]?.text || "",
+  }));
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...formattedHistory,
+          { role: "user", content: message }
+        ],
+        model: "openai",
+        temperature: 0.7
+      }),
+    });
+
+    if (!res.ok) throw new Error("Pollinations API failed");
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
+  } catch (err) {
+    console.error("Pollinations error:", err);
+    throw err;
+  }
+}
+
+// Using Groq API with smart conversational AI (Primary)
 export async function chatWithAI(
   apiKey: string,
   message: string,
@@ -103,45 +143,40 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 - If confused about what they want, ask a question
 - Never break character - you are a friendly barista`;
 
-  // Convert history to Groq format
-  const groqHistory = history.map((h) => ({
-    role: h.role === 'model' ? 'assistant' : 'user',
-    content: h.parts[0]?.text || "",
-  }));
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: enhancedSystem },
+          ...history.map((h) => ({
+            role: h.role === 'model' ? 'assistant' : 'user',
+            content: h.parts[0]?.text || "",
+          })),
+          { role: "user", content: message }
+        ],
+        temperature: 0.85,
+        max_tokens: 700,
+      }),
+    });
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: enhancedSystem },
-        ...groqHistory,
-        { role: "user", content: message }
-      ],
-      temperature: 0.85,
-      max_tokens: 700,
-    }),
-  });
+    if (!res.ok) {
+      const err = await res.text();
+      console.warn("Groq API error, falling back to Pollinations:", err);
+      return chatWithPollinations(message, history, enhancedSystem);
+    }
 
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("Groq API error:", err);
-    
-    if (err.includes("429") || err.includes("rate_limit")) {
-      throw new Error("Rate limit exceeded. Please try again in a moment.");
-    }
-    if (err.includes("invalid") || err.includes("api_key")) {
-      throw new Error("Invalid API key. Please check your Egytronic key in Admin settings.");
-    }
-    throw new Error("AI service error. Please try again.");
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
+  } catch (err) {
+    console.warn("Groq error, falling back to Pollinations:", err);
+    return chatWithPollinations(message, history, enhancedSystem);
   }
-  
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || "";
 }
 
 // ── Free TTS using Pollinations API ─────────────────────────────────────

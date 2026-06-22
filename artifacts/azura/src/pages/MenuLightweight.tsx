@@ -350,14 +350,12 @@ export default function MenuLightweight() {
             {[...Array(6)].map((_, i) => (
               <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm">
                 <div className="relative h-36 bg-muted overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
                 </div>
                 <div className="p-3 space-y-2">
                   <div className="h-4 bg-muted rounded relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                   </div>
                   <div className="h-3 w-2/3 bg-muted rounded relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                   </div>
                 </div>
               </div>
@@ -380,8 +378,8 @@ export default function MenuLightweight() {
                   className="group cursor-pointer"
                   onClick={() => setSelectedItem(item)}
                   style={{ 
-                    animationDelay: `${idx * 80}ms`,
-                    animation: "fadeInUp 0.4s ease-out forwards"
+                    animationDelay: `${idx * 30}ms`,
+                    animation: "fadeInSimple 0.3s ease-out forwards"
                   }}
                 >
                   {/* Card */}
@@ -485,10 +483,10 @@ export default function MenuLightweight() {
       
       {/* Global Styles */}
       <style>{`
-        @keyframes fadeInUp {
+        @keyframes fadeInSimple {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(8px);
           }
           to {
             opacity: 1;
@@ -498,10 +496,10 @@ export default function MenuLightweight() {
         
         @keyframes shimmer {
           0% {
-            left: -100%;
+            transform: translateX(-100%);
           }
           100% {
-            left: 200%;
+            transform: translateX(100%);
           }
         }
         

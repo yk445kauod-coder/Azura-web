@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -40,6 +40,92 @@ const CATS = [
 ];
 
 const ITEMS_PER_PAGE = 12;
+
+// Memoized MenuItem Component for better performance
+const MenuCard = memo(({
+  item,
+  lang,
+  onClick,
+  index
+}: {
+  item: MenuItem;
+  lang: "en" | "ar";
+  onClick: (item: MenuItem) => void;
+  index: number;
+}) => {
+  const cat = CATS.find(c => c.id === item.category);
+  return (
+    <div
+      className="group cursor-pointer"
+      onClick={() => onClick(item)}
+      style={{
+        animation: "fadeInUp 0.4s ease-out forwards",
+        animationDelay: `${index * 80}ms`
+      }}
+    >
+      {/* Card */}
+      <div className="rounded-2xl overflow-hidden bg-white shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+        {/* Image Container with Shimmer */}
+        <div className="relative h-36 overflow-hidden">
+          {item.image ? (
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
+              <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
+            </div>
+          )}
+
+          {/* Shimmer Effect */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+          </div>
+
+          {/* Shine on hover */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div
+              className="absolute w-32 h-32 bg-white/20 rounded-full blur-2xl"
+              style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)"
+              }}
+            />
+          </div>
+
+          {/* Category badge */}
+          <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold flex items-center gap-1">
+            <span>{cat?.emoji}</span>
+            <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="p-3">
+          <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-amber-600 transition-colors">
+            {item.name}
+          </h3>
+          {item.nameAr && (
+            <p className="text-[11px] text-gray-400 truncate mt-0.5">{item.nameAr}</p>
+          )}
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-extrabold text-amber-600">{item.price}</span>
+              <span className="text-[10px] text-gray-400 font-medium">{lang === "ar" ? "ج.م" : "EGP"}</span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
+              <span className="text-sm">+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 // Item Detail Modal Component
 function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
@@ -267,11 +353,21 @@ export default function MenuLightweight() {
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // Category counts
-  const catCount = useCallback((c: string) => {
-    if (c === "all") return items.filter((i) => i.available).length;
-    return items.filter((i) => i.available && i.category === c).length;
+  // Memoized category counts - O(N) single pass optimization
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0 };
+    items.forEach(item => {
+      if (item.available) {
+        counts.all++;
+        counts[item.category] = (counts[item.category] || 0) + 1;
+      }
+    });
+    return counts;
   }, [items]);
+
+  const handleItemClick = useCallback((item: MenuItem) => {
+    setSelectedItem(item);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50" dir={isRTL ? "rtl" : "ltr"}>
@@ -335,7 +431,7 @@ export default function MenuLightweight() {
                 text-[10px] px-1.5 py-0.5 rounded-full font-bold
                 ${cat === c.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"}
               `}>
-                {catCount(c.id)}
+                {categoryCounts[c.id] || 0}
               </span>
             </button>
           ))}
@@ -365,81 +461,15 @@ export default function MenuLightweight() {
         ) : (
           /* GRID VIEW WITH SHIMMER */
           <div className="grid grid-cols-2 gap-4">
-            {paginated.map((item, idx) => {
-              const cat = CATS.find(c => c.id === item.category);
-              return (
-                <div 
-                  key={item.id} 
-                  className="group cursor-pointer"
-                  onClick={() => setSelectedItem(item)}
-                  style={{ 
-                    animationDelay: `${idx * 80}ms`,
-                    animation: "fadeInUp 0.4s ease-out forwards"
-                  }}
-                >
-                  {/* Card */}
-                  <div className="rounded-2xl overflow-hidden bg-white shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                    {/* Image Container with Shimmer */}
-                    <div className="relative h-36 overflow-hidden">
-                      {item.image ? (
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
-                          <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
-                        </div>
-                      )}
-                      
-                      {/* Shimmer Effect */}
-                      <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-                      </div>
-                      
-                      {/* Shine on hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div 
-                          className="absolute w-32 h-32 bg-white/20 rounded-full blur-2xl"
-                          style={{
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)"
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Category badge */}
-                      <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold flex items-center gap-1">
-                        <span>{cat?.emoji}</span>
-                        <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
-                      </div>
-                    </div>
-                    
-                    {/* Info */}
-                    <div className="p-3">
-                      <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-amber-600 transition-colors">
-                        {item.name}
-                      </h3>
-                      {item.nameAr && (
-                        <p className="text-[11px] text-gray-400 truncate mt-0.5">{item.nameAr}</p>
-                      )}
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-extrabold text-amber-600">{item.price}</span>
-                          <span className="text-[10px] text-gray-400 font-medium">{lang === "ar" ? "ج.م" : "EGP"}</span>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-                          <span className="text-sm">+</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {paginated.map((item, idx) => (
+              <MenuCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                onClick={handleItemClick}
+                index={idx}
+              />
+            ))}
           </div>
         )}
 

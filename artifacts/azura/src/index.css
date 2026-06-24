@@ -87,7 +87,7 @@
   
   h1, h2, h3, h4, h5, h6 { 
     font-family: var(--font-heading); 
-    font-weight: 800;
+    font-weight: 900; /* Ultra bold for premium feel */
     letter-spacing: -0.02em;
   }
 
@@ -107,7 +107,7 @@
   }
   [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 {
     font-family: var(--font-arabic);
-    font-weight: 900;
+    font-weight: 900; /* Max bold for Arabic headings */
   }
   
   /* iOS Scrollbar */

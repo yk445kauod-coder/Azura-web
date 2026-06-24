@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -41,21 +41,94 @@ const CATS = [
 
 const ITEMS_PER_PAGE = 12;
 
+// Memoized individual item card for peak scroll performance
+const MenuItemCard = memo(({
+  item,
+  lang,
+  idx,
+  onClick,
+  CATS
+}: {
+  item: MenuItem;
+  lang: string;
+  idx: number;
+  onClick: (item: MenuItem) => void;
+  CATS: any[];
+}) => {
+  const cat = CATS.find(c => c.id === item.category);
+  return (
+    <div
+      className="group cursor-pointer"
+      onClick={() => onClick(item)}
+      style={{
+        animationDelay: `${idx * 30}ms`,
+        animation: "fadeInSimple 0.3s ease-out forwards"
+      }}
+    >
+      {/* Card */}
+      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:shadow-amber-200/40 group-hover:-translate-y-1 group-active:scale-95 active:scale-95">
+        {/* Image Container */}
+        <div className="relative h-36 overflow-hidden">
+          {/* Premium Shimmer Overlay on Hover */}
+          <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+          {item.image ? (
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
+            </div>
+          )}
+
+          {/* Category badge */}
+          <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
+            <span>{cat?.emoji}</span>
+            <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="p-3">
+          <h3 className="font-bold text-sm text-foreground truncate">
+            {lang === "ar" ? item.nameAr : item.name}
+          </h3>
+          {item.nameAr && lang !== "ar" && (
+            <p className="text-[11px] text-muted-foreground truncate mt-0.5" dir="rtl">{item.nameAr}</p>
+          )}
+          <div className="flex items-center justify-between mt-3">
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-extrabold text-primary">{item.price}</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
+              <span className="text-lg font-bold">+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 // Item Detail Modal Component
 function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const cat = CATS.find(c => c.id === item.category);
-  
+
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
       onClick={onClose}
     >
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-primary/20 backdrop-blur-sm" />
-      
+
       {/* Modal Content */}
-      <div 
+      <div
         className="relative w-full max-w-lg overflow-hidden rounded-t-[2.5rem] sm:rounded-3xl bg-card shadow-xl border border-border/50"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "ios-modal-in 0.4s cubic-bezier(0.32, 0.72, 0, 1)" }}
@@ -370,66 +443,16 @@ export default function MenuLightweight() {
         ) : (
           /* GRID VIEW WITH SHIMMER */
           <div className="grid grid-cols-2 gap-4">
-            {paginated.map((item, idx) => {
-              const cat = CATS.find(c => c.id === item.category);
-              return (
-                <div 
-                  key={item.id} 
-                  className="group cursor-pointer"
-                  onClick={() => setSelectedItem(item)}
-                  style={{ 
-                    animationDelay: `${idx * 30}ms`,
-                    animation: "fadeInSimple 0.3s ease-out forwards"
-                  }}
-                >
-                  {/* Card */}
-                  <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:shadow-amber-200/40 group-hover:-translate-y-1 group-active:scale-95 active:scale-95">
-                    {/* Image Container */}
-                    <div className="relative h-36 overflow-hidden">
-                      {/* Premium Shimmer Overlay on Hover */}
-                      <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-                      {item.image ? (
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-muted">
-                          <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
-                        </div>
-                      )}
-                      
-                      {/* Category badge */}
-                      <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
-                        <span>{cat?.emoji}</span>
-                        <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
-                      </div>
-                    </div>
-                    
-                    {/* Info */}
-                    <div className="p-3">
-                      <h3 className="font-bold text-sm text-foreground truncate">
-                        {item.name}
-                      </h3>
-                      {item.nameAr && (
-                        <p className="text-[11px] text-muted-foreground truncate mt-0.5" dir="rtl">{item.nameAr}</p>
-                      )}
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-extrabold text-primary">{item.price}</span>
-                          <span className="text-[10px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
-                        </div>
-                        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
-                          <span className="text-lg font-bold">+</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {paginated.map((item, idx) => (
+              <MenuItemCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                idx={idx}
+                onClick={setSelectedItem}
+                CATS={CATS}
+              />
+            ))}
           </div>
         )}
 

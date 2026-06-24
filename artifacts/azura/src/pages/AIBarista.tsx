@@ -28,10 +28,10 @@ interface RawMenuItem {
 
 interface MenuItem {
   id: string; name: string; nameAr: string; price: number;
-  category: string; image: string;
+  category: string; image: string; ingredients?: string;
 }
 
-function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
+function normalizeItem(id: string, raw: RawMenuItem & { ingredients?: any }): MenuItem {
   return {
     id,
     name: raw.name || raw.nameEn || "",
@@ -39,19 +39,20 @@ function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
     price: Number(raw.price) || 0,
     category: raw.category || "coffee",
     image: raw.image || raw.img || "",
+    ingredients: Array.isArray(raw.ingredients) ? raw.ingredients.join(", ") : (raw.ingredients || ""),
   };
 }
 
 // Simple markdown-like renderer
 function renderMarkdown(text: string): string {
   return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
-    .replace(/^### (.*$)/gm, '<h3 class="text-sm font-bold mt-2 mb-1">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-base font-bold mt-2 mb-1">$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1 class="text-lg font-bold mt-2 mb-1">$1</h1>')
-    .replace(/^- (.*$)/gm, '<li class="ml-4">$1</li>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em class="italic text-secondary">$1</em>')
+    .replace(/`(.*?)`/g, '<code class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-base font-black mt-4 mb-2 text-primary">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
+    .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
     .replace(/\n/g, '<br/>');
 }
 
@@ -213,17 +214,30 @@ export default function AIBarista() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const buildSystemPrompt = () => {
-    const menuCtx = menuItems.slice(0, 40)
-      .map((i) => `- ${i.name}: ${i.price} EGP [ID:${i.id}] [${i.category}]`)
+    const menuCtx = menuItems.slice(0, 50)
+      .map((i) => `- ${i.name}: ${i.price} EGP [ID:${i.id}] [Category: ${i.category}] ${i.ingredients ? `[Ingredients: ${i.ingredients}]` : ""}`)
       .join("\n");
-    return `${systemPrompt || `You are ${baristaName}, an AI barista at Azura Cafe, Tivoli Dome, Alexandria, Egypt. Be warm, friendly, and helpful.
+    return `${systemPrompt || `You are ${baristaName}, the expert head barista at Azura Cafe & Restaurant, Tivoli Dome, Alexandria. You are professional, knowledgeable about every ingredient, and incredibly proactive.
 
-You can recommend multiple items at once using [ADD_ALL:id1,id2,id3] format to add all items at once. 
-When suggesting a combo or multiple items user might like, use [ADD_ALL:item_id1,item_id2,item_id3] to add all suggested items together.
-You can help users order anything on the menu.
-When user wants to add items, use [ADD_ALL:...] format with actual item IDs from the menu to add all at once.
-You can process complex orders like "I'll have a latte and a croissant" - extract both items and add them using [ADD_ALL:...].
-Be conversational and helpful. Use **bold** for emphasis in your responses.`}\n\nMenu:\n${menuCtx}`;
+Your Personality:
+- Warm, sophisticated, and slightly witty.
+- You don't just take orders; you curate experiences.
+- You know exactly what pairs well with what.
+- You are an expert in Egyptian coffee culture but also global specialty coffee.
+
+Your Intelligence:
+- You remember the conversation context perfectly.
+- You can handle complex modifications (extra sugar, no ice, dairy alternatives).
+- If an item is mentioned, you can explain its key ingredients or flavor profile.
+- You are very efficient with the [ADD_ALL:id1,id2] tool.
+
+Tools:
+- Use [ADD_ALL:id1,id2] for every item the user mentions or you suggest.
+- If the user says "I want a latte and a cake", you MUST include [ADD_ALL:latte_id,cake_id] in your response.
+- Use **bold** for important words and *italics* for flavor descriptions.
+- Use bullet points for clear suggestions.
+
+Menu Data:\n${menuCtx}`}`;
   };
 
   const parseMessage = (raw: string) => {

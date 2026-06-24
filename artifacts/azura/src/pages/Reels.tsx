@@ -64,7 +64,7 @@ export default function Reels() {
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  // Load reels
+  // Load reels and re-parse FB XFBML
   useEffect(() => {
     const reelsRef = ref(db, "reels");
     onValue(reelsRef, (snap) => {
@@ -79,9 +79,23 @@ export default function Reels() {
         });
       setReels(list);
       setLoading(false);
+
+      // Trigger Facebook XFBML re-parsing
+      setTimeout(() => {
+        if (window.FB) {
+          window.FB.XFBML.parse();
+        }
+      }, 500);
     });
     return () => off(reelsRef);
   }, []);
+
+  useEffect(() => {
+    // Re-parse XFBML when current reel changes
+    if (window.FB && currentReel?.videoProvider === "facebook") {
+      setTimeout(() => window.FB.XFBML.parse(), 100);
+    }
+  }, [currentIndex, currentReel]);
 
   // Load ratings
   useEffect(() => {

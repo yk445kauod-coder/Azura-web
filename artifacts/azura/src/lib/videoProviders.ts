@@ -513,7 +513,9 @@ export function getEmbedHtml(video: ParsedVideo, width = "100%" as string | numb
       return `<blockquote class="instagram-media" data-instgrm-permalink="${video.originalUrl}" data-instgrm-width="${width}"></blockquote><script async src="//www.instagram.com/embed.js"></script>`;
     
     case "facebook":
-      return `<div id="fb-root"></div><script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0"></script><div class="fb-video" data-href="${video.originalUrl}" data-width="${width}" data-show-text="false" data-lazy="true"></div>`;
+      // Check if it's a reel based on URL or provider info
+      const isReel = video.originalUrl?.includes("/reel/");
+      return `<div class="fb-video" data-href="${video.originalUrl}" data-width="${width}" data-show-text="false" data-allowfullscreen="true" data-autoplay="true" data-lazy="true"></div>`;
     
     case "tiktok":
       return `<blockquote class="tiktok-embed" cite="${video.embedUrl}" data-video-id="${video.videoId}" style="width:100%;max-width:${width}px;"><section></section></blockquote><script async src="https://www.tiktok.com/embed.js"></script>`;

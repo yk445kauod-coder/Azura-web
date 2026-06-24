@@ -101,21 +101,20 @@ export async function chatWithAI(
   const url = "https://api.groq.com/openai/v1/chat/completions";
   
   // Detect user language from message
-  const isArabic = /[\u0600-\u06FF]/.test(message) || message.includes('في') || message.includes('ال') || message.includes('ما') || message.includes('أنا') || message.includes('إيه') || message.includes('عاوز') || message.includes('محتاج') || message.includes('عندي');
+  const isArabic = /[\u0600-\u06FF]/.test(message);
   
   const langInstruction = isArabic 
-    ? `RESPOND IN EGYPTIAN ARABIC (عامية مصرية) - never use English unless user switches to English`
-    : `RESPOND IN ENGLISH - be natural and friendly`;
+    ? `IMPORTANT: RESPOND IN FLUENT EGYPTIAN ARABIC (عامية مصرية أصيلة). Use warm, local Alexandria-style hospitality. Keep it professional yet very friendly.`
+    : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm and professional like a high-end Alexandrian cafe host.`;
 
   // Enhanced system prompt for smart conversational AI
   const enhancedSystem = `${systemPrompt}
 
-## CONVERSATION STYLE
-- Be friendly, warm, and like a real barista friend
+## PERSONALITY & LANGUAGE
+- You are Zura, a world-class barista.
 - ${langInstruction}
-- Ask questions to understand what they want
-- Remember previous messages and build on them
-- Don't just list items - have a real conversation
+- Use a proactive approach: "Would you like some almond milk with that?" or "That pairs perfectly with our croissant!"
+- Avoid robotic or repetitive phrases.
 
 ## EXAMPLES OF GOOD CONVERSATION:
 ${isArabic ? `
@@ -151,7 +150,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.3-70b-versatile", // Using the latest Llama 3.3 for peak performance and multilingual depth
         messages: [
           { role: "system", content: enhancedSystem },
           ...history.map((h) => ({

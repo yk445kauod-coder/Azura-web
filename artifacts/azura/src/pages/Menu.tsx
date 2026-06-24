@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
@@ -163,7 +163,105 @@ function greeting(lang: "en" | "ar") {
   return lang === "ar" ? "مساء النور! 🌙" : "Good evening! 🌙";
 }
 
-// SkeletonCard is now lazy loaded
+// Memoized individual menu item card to prevent unnecessary re-renders
+const MenuItemCard = memo(({
+  item,
+  lang,
+  inCart,
+  qty,
+  added,
+  visible,
+  idx,
+  onAdd,
+  tr,
+  CATS,
+  FALLBACK
+}: {
+  item: MenuItem;
+  lang: string;
+  inCart: boolean;
+  qty: number;
+  added: boolean;
+  visible: boolean;
+  idx: number;
+  onAdd: (item: MenuItem) => void;
+  tr: (en: string, ar: string) => string;
+  CATS: any[];
+  FALLBACK: any;
+}) => {
+  const imgSrc = item.image || FALLBACK[item.category] || FALLBACK.coffee;
+  const category = CATS.find((c) => c.id === item.category);
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden flex flex-col group transition-all duration-300"
+      style={{
+        background: "hsl(var(--card))",
+        boxShadow: inCart ? "0 0 0 2px hsl(var(--primary)/0.35), var(--shadow-md)" : "var(--shadow-sm)",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(12px)",
+        transition: `opacity 0.35s ease ${idx * 40}ms, transform 0.35s ease ${idx * 40}ms, box-shadow 0.2s ease`,
+      }}
+    >
+      {/* Image - Lazy loaded */}
+      <div className="relative overflow-hidden bg-muted" style={{ paddingTop: "68%" }}>
+        <LazyImage
+          src={imgSrc}
+          alt={item.name}
+          className="absolute inset-0 w-full h-full"
+          fallback={FALLBACK[item.category] || FALLBACK.coffee}
+        />
+        {/* Category badge */}
+        <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white/90"
+          style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}>
+          {category?.emoji} {category?.en}
+        </span>
+        {/* Cart qty badge */}
+        {inCart && qty > 0 && (
+          <span className="absolute top-2 right-2 text-[10px] font-extrabold text-white rounded-full flex items-center justify-center"
+            style={{ background: "hsl(var(--primary))", minWidth: 20, height: 20, padding: "0 5px", boxShadow: "var(--shadow-sm)" }}>
+            {qty}
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="font-bold text-sm text-foreground leading-tight mb-0.5">
+          {lang === "ar" ? item.nameAr : item.name}
+        </h3>
+        {(item.description || item.descriptionAr) && (
+          <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2 flex-1 mb-2">
+            {lang === "ar" ? (item.descriptionAr || item.description) : item.description}
+          </p>
+        )}
+        <div className="flex items-center justify-between mt-auto pt-1">
+          <div>
+            <span className="font-extrabold text-primary text-base leading-none">
+              {item.price}
+            </span>
+            <span className="text-[10px] text-secondary font-semibold ms-1">{tr("EGP", "ج.م")}</span>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onAdd(item); }}
+            className={`flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ${
+              added ? "scale-90" : "hover:scale-110 active:scale-95"
+            }`}
+            style={added
+              ? { background: "#22c55e", boxShadow: "0 3px 10px rgba(34,197,94,0.45)" }
+              : { background: "hsl(var(--primary))", boxShadow: "var(--shadow-primary)" }
+            }
+          >
+            {added
+              ? <Check size={15} strokeWidth={3} className="text-white" />
+              : <Plus size={15} strokeWidth={2.5} className="text-primary-foreground" />
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export default function Menu() {
   const { lang, isRTL } = useLang();
@@ -252,11 +350,18 @@ export default function Menu() {
     return items.filter((i) => i.available && i.image).slice(0, 8);
   }, [items]);
 
-  // Memoized category counts
-  const catCount = useCallback((c: string) => {
-    if (c === "all") return items.filter((i) => i.available).length;
-    return items.filter((i) => i.available && i.category === c).length;
+  // Memoized category counts to prevent O(N*M) calculation on every render
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0 };
+    items.forEach(item => {
+      if (!item.available) return;
+      counts.all++;
+      counts[item.category] = (counts[item.category] || 0) + 1;
+    });
+    return counts;
   }, [items]);
+
+  const getCatCount = useCallback((id: string) => categoryCounts[id] || 0, [categoryCounts]);
 
   // Memoized add handler
   const handleAdd = useCallback((item: MenuItem) => {
@@ -321,7 +426,7 @@ export default function Menu() {
             <span className="text-sm">{c.emoji}</span>
             {lang === "ar" ? c.ar : c.en}
             <span className={`rounded-full text-[9px] font-extrabold px-1.5 py-0.5 min-w-[18px] text-center ${cat === c.id ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"}`}>
-              {catCount(c.id)}
+              {getCatCount(c.id)}
             </span>
           </button>
         ))}
@@ -386,83 +491,22 @@ export default function Menu() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
-            {filtered.map((item, idx) => {
-              const inCart = isInCart(item.id);
-              const qty = getQty(item.id);
-              const added = justAdded === item.id;
-              const imgSrc = item.image || FALLBACK[item.category] || FALLBACK.coffee;
-
-              return (
-                <div
-                  key={item.id}
-                  className="rounded-2xl overflow-hidden flex flex-col group transition-all duration-300"
-                  style={{
-                    background: "hsl(var(--card))",
-                    boxShadow: inCart ? "0 0 0 2px hsl(var(--primary)/0.35), var(--shadow-md)" : "var(--shadow-sm)",
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? "translateY(0)" : "translateY(12px)",
-                    transition: `opacity 0.35s ease ${idx * 40}ms, transform 0.35s ease ${idx * 40}ms, box-shadow 0.2s ease`,
-                  }}
-                >
-                  {/* Image - Lazy loaded */}
-                  <div className="relative overflow-hidden bg-muted" style={{ paddingTop: "68%" }}>
-                    <LazyImage
-                      src={imgSrc}
-                      alt={item.name}
-                      className="absolute inset-0 w-full h-full"
-                      fallback={FALLBACK[item.category] || FALLBACK.coffee}
-                    />
-                    {/* Category badge */}
-                    <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white/90"
-                      style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}>
-                      {CATS.find((c) => c.id === item.category)?.emoji} {CATS.find((c) => c.id === item.category)?.en}
-                    </span>
-                    {/* Cart qty badge */}
-                    {inCart && qty > 0 && (
-                      <span className="absolute top-2 right-2 text-[10px] font-extrabold text-white rounded-full flex items-center justify-center"
-                        style={{ background: "hsl(var(--primary))", minWidth: 20, height: 20, padding: "0 5px", boxShadow: "var(--shadow-sm)" }}>
-                        {qty}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-3 flex flex-col flex-1">
-                    <h3 className="font-bold text-sm text-foreground leading-tight mb-0.5">
-                      {item.name}
-                    </h3>
-                    {item.description && (
-                      <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2 flex-1 mb-2">
-                        {item.description}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between mt-auto pt-1">
-                      <div>
-                        <span className="font-extrabold text-primary text-base leading-none">
-                          {item.price}
-                        </span>
-                        <span className="text-[10px] text-secondary font-semibold ms-1">{lang === "ar" ? "ج.م" : "EGP"}</span>
-                      </div>
-                      <button
-                        onClick={() => handleAdd(item)}
-                        className={`flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ${
-                          added ? "scale-90" : "hover:scale-110 active:scale-95"
-                        }`}
-                        style={added
-                          ? { background: "#22c55e", boxShadow: "0 3px 10px rgba(34,197,94,0.45)" }
-                          : { background: "hsl(var(--primary))", boxShadow: "var(--shadow-primary)" }
-                        }
-                      >
-                        {added
-                          ? <Check size={15} strokeWidth={3} className="text-white" />
-                          : <Plus size={15} strokeWidth={2.5} className="text-primary-foreground" />
-                        }
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {filtered.map((item, idx) => (
+              <MenuItemCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                inCart={isInCart(item.id)}
+                qty={getQty(item.id)}
+                added={justAdded === item.id}
+                visible={visible}
+                idx={idx}
+                onAdd={handleAdd}
+                tr={tr}
+                CATS={CATS}
+                FALLBACK={FALLBACK}
+              />
+            ))}
           </div>
         )}
       </div>

@@ -9,6 +9,7 @@ export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive
 export interface ParsedVideo {
   provider: VideoProvider;
   embedUrl: string;
+  originalUrl?: string;
   thumbnail: string;
   title: string;
   isEmbeddable: boolean;
@@ -483,13 +484,16 @@ export function parseVideoUrl(url: string): ParsedVideo {
   
   for (const parser of parsers) {
     const result = parser(cleanUrl);
-    if (result) return result;
+    if (result) {
+      return { ...result, originalUrl: url };
+    }
   }
   
   // Unknown provider
   return {
     provider: "unknown",
     embedUrl: url,
+    originalUrl: url,
     thumbnail: "",
     title: "External Video",
     isEmbeddable: false,
@@ -506,10 +510,10 @@ export function getEmbedHtml(video: ParsedVideo, width = "100%" as string | numb
       return `<iframe src="${video.embedUrl}" width="${width}" height="${height}" allow="autoplay" loading="lazy"></iframe>`;
     
     case "instagram":
-      return `<blockquote class="instagram-media" data-instgrm-permalink="${video.embedUrl}" data-instgrm-width="${width}"></blockquote><script async src="//www.instagram.com/embed.js"></script>`;
+      return `<blockquote class="instagram-media" data-instgrm-permalink="${video.originalUrl}" data-instgrm-width="${width}"></blockquote><script async src="//www.instagram.com/embed.js"></script>`;
     
     case "facebook":
-      return `<div id="fb-root"></div><script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0"></script><div class="fb-video" data-href="${video.embedUrl}" data-width="${width}" data-show-text="false" data-lazy="true"></div>`;
+      return `<div id="fb-root"></div><script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0"></script><div class="fb-video" data-href="${video.originalUrl}" data-width="${width}" data-show-text="false" data-lazy="true"></div>`;
     
     case "tiktok":
       return `<blockquote class="tiktok-embed" cite="${video.embedUrl}" data-video-id="${video.videoId}" style="width:100%;max-width:${width}px;"><section></section></blockquote><script async src="https://www.tiktok.com/embed.js"></script>`;

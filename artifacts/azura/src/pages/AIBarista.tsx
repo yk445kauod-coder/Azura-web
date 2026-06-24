@@ -84,8 +84,9 @@ export default function AIBarista() {
     const chatRef = ref(db, `conversations/${user.uid}/barista`);
     onValue(chatRef, (snap) => {
       if (snap.exists()) {
-        const data = snap.val();
-        setMessages(Object.values(data));
+        const data = snap.val() as Record<string, Message>;
+        const sortedMessages = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+        setMessages(sortedMessages);
       } else {
         setMessages([]);
       }

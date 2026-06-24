@@ -10,7 +10,7 @@ import { fileToChunks, getChunksSizeMB, saveToIndexedDB } from "@/lib/chunkedVid
 import { encryptKey } from "@/lib/crypto";
 import { parseVideoUrl, getProviderName, getProviderIcon, type VideoProvider } from "@/lib/videoProviders";
 import {
-  MessageCircle, Star, Lightbulb,
+  MessageCircle, Star,
   TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2,
   Send, CheckCircle, XCircle,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
@@ -20,13 +20,12 @@ import {
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
+type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
 
 interface MenuItem { id: string; name: string; nameAr: string; description: string; price: number; category: string; available: boolean; image: string; ingredients?: string; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
-interface Suggestion { id: string; userName: string; itemName: string; description: string; category: string; image?: string; status: string; adminNote?: string; votes: number; createdAt: number; }
 interface Report { id: string; userName: string; description: string; type: string; status: string; createdAt: number; }
 interface Broadcast { id: string; title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string; createdAt: number; }
 interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoUrl?: string; videoProvider?: VideoProvider; videoThumbnail?: string; videoChunks?: string[]; chunkCount?: number; }
@@ -69,7 +68,6 @@ export default function Admin() {
   const [users, setUsers]         = useState<any[]>([]);
   const [chats, setChats]         = useState<ChatSession[]>([]);
   const [feedback, setFeedback]   = useState<Feedback[]>([]);
-  const [ideas, setIdeas]         = useState<Suggestion[]>([]);
   const [reports, setReports]     = useState<Report[]>([]);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [reels, setReels]         = useState<Reel[]>([]);
@@ -206,13 +204,6 @@ export default function Admin() {
       setFeedback(Object.entries(data).map(([id, f]) => ({ id, ...f })).sort((a, b) => b.createdAt - a.createdAt));
     });
 
-    // Suggestions
-    onValue(ref(db, "suggestions"), (snap) => {
-      if (!snap.exists()) { setIdeas([]); return; }
-      const data = snap.val() as Record<string, Omit<Suggestion, "id">>;
-      setIdeas(Object.entries(data).map(([id, s]) => ({ id, ...s })).sort((a, b) => b.createdAt - a.createdAt));
-    });
-
     // User Reports
     onValue(ref(db, "reports"), (snap) => {
       if (!snap.exists()) { setReports([]); return; }
@@ -260,7 +251,7 @@ export default function Admin() {
     });
 
     return () => {
-      ["menu","users","feedback","suggestions","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
+      ["menu","users","feedback","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -295,10 +286,6 @@ export default function Admin() {
 
   // ── Feedback helpers ──────────────────────────────────────────
   const markFeedbackRead = (id: string) => smartUpdate(`feedback/${id}`, { read: true });
-
-  // ── Suggestion helpers ────────────────────────────────────────
-  const setSuggestionStatus = (id: string, status: string, note?: string) =>
-    smartUpdate(`suggestions/${id}`, { status, ...(note ? { adminNote: note } : {}) });
 
   // ── Report helpers ──────────────────────────────────────────
   const updateReportStatus = (id: string, status: string) =>
@@ -436,7 +423,6 @@ export default function Admin() {
     { id: "users",      icon: <Users size={14}/>,           en: "Users",       ar: "المستخدمين" },
     { id: "chat",       icon: <MessageCircle size={14}/>,  en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
     { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
-    { id: "ideas",      icon: <Lightbulb size={14}/>,      en: "Ideas",       ar: "الأفكار",   badge: ideas.filter((i) => i.status === "pending").length || 0 },
     { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",     ar: "التقارير",  badge: reports.filter((r) => r.status === "pending").length || 0 },
     { id: "broadcast",  icon: <Megaphone size={14}/>,      en: "Broadcast",   ar: "إشعارات"    },
     { id: "reels",      icon: <Film size={14}/>,           en: "Reels",       ar: "ريلز"       },
@@ -592,7 +578,6 @@ export default function Admin() {
                 { emoji: "👥", label: tr("Total Users","إجمالي المستخدمين"), value: users.length },
                 { emoji: "💬", label: tr("Unread Messages","رسائل جديدة"), value: unreadChats },
                 { emoji: "⭐", label: tr("New Reviews","تقييمات جديدة"), value: feedback.filter((f)=>!f.read).length },
-                { emoji: "💡", label: tr("New Ideas","أفكار جديدة"), value: ideas.filter((i)=>i.status==="pending").length },
               ].map((s) => (
                 <div key={s.label} className="card-elevated rounded-2xl p-4 text-center">
                   <p className="text-2xl mb-1">{s.emoji}</p>
@@ -803,51 +788,6 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ━━━ IDEAS (Suggestions) ━━━ */}
-        {tab === "ideas" && (
-          <div className="space-y-3 page-enter">
-            <div className="card rounded-xl p-3 bg-amber-50 border border-amber-200">
-              <p className="text-xs text-amber-800 font-semibold">💡 {tr("Customers can suggest items to add to your menu. Approve to accept, Decline to reject.","يقترح العملاء عناصر لإضافتها للقائمة. وافق أو ارفض.")}</p>
-            </div>
-            {ideas.length === 0 && (
-              <div className="text-center py-12"><Lightbulb size={40} className="mx-auto text-muted-foreground/25 mb-2"/><p className="text-muted-foreground text-sm">{tr("No suggestions yet","لا يوجد اقتراحات")}</p></div>
-            )}
-            {ideas.map((idea) => (
-              <div key={idea.id} className="card rounded-2xl p-4">
-                <div className="flex items-start gap-3">
-                  {idea.image && <img src={idea.image} alt={idea.itemName} className="w-16 h-16 rounded-xl object-cover flex-shrink-0"/>}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-bold text-sm text-foreground">{idea.itemName}</p>
-                        <p className="text-[11px] text-secondary font-semibold capitalize">{idea.category}</p>
-                      </div>
-                      <span className={`badge px-2 py-0.5 flex-shrink-0 ${idea.status==="approved"?"status-ready":idea.status==="declined"?"status-cancelled":"status-pending"}`}>
-                        {idea.status}
-                      </span>
-                    </div>
-                    {idea.description && <p className="text-xs text-muted-foreground mt-1">{idea.description}</p>}
-                    <p className="text-[10px] text-muted-foreground mt-1">{tr("By","من")} {idea.userName} · {new Date(idea.createdAt).toLocaleDateString()}</p>
-                    {idea.adminNote && <p className="text-xs text-primary font-medium mt-1">💬 {idea.adminNote}</p>}
-                  </div>
-                </div>
-                {idea.status === "pending" && (
-                  <div className="flex gap-2 mt-3 pt-3" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                    <button onClick={() => setSuggestionStatus(idea.id, "approved")} className="flex-1 py-2 rounded-xl text-xs font-bold status-ready flex items-center justify-center gap-1">
-                      <CheckCircle size={12}/> {tr("Approve","موافقة")}
-                    </button>
-                    <button onClick={() => setSuggestionStatus(idea.id, "declined")} className="flex-1 py-2 rounded-xl text-xs font-bold status-cancelled flex items-center justify-center gap-1">
-                      <XCircle size={12}/> {tr("Decline","رفض")}
-                    </button>
-                    <button onClick={() => { const note = prompt(tr("Add note for customer:","أضف ملاحظة للعميل:")); if (note) setSuggestionStatus(idea.id, "pending", note); }} className="flex-1 py-2 rounded-xl text-xs font-bold chip-inactive flex items-center justify-center gap-1">
-                      💬 {tr("Note","ملاحظة")}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* ━━━ USER REPORTS ━━━ */}
         {tab === "reports" && (
@@ -1420,7 +1360,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get, lang }: {
       const snapshot: Record<string, any> = {};
       
       // Collect all data
-      const paths = ["menu", "orders", "users", "ai-config", "api-settings", "broadcast", "reels", "feedback", "suggestions", "pos-settings", "homepage-banner"];
+      const paths = ["menu", "users", "ai-config", "api-settings", "broadcast", "reels", "feedback", "homepage-banner"];
       for (const path of paths) {
         const data = await smartGet(path);
         if (data) snapshot[path] = data;
@@ -1482,9 +1422,9 @@ function SystemTab({ tr, db, ref, set, remove, push, get, lang }: {
 
       // Clear all data paths
       const paths = [
-        "menu", "orders", "users", "ai-config", "api-settings", 
-        "broadcast", "reels", "feedback", "suggestions", "conversations", 
-        "notifications", "pos-settings", "homepage-banner", "backups"
+        "menu", "users", "ai-config", "api-settings",
+        "broadcast", "reels", "feedback", "conversations",
+        "notifications", "homepage-banner", "backups"
       ];
       for (const path of paths) {
         await smartRemove(path);
@@ -1664,7 +1604,7 @@ function SystemTab({ tr, db, ref, set, remove, push, get, lang }: {
           <RotateCcw size={18}/> {tr("Reset System","إعادة تعيين النظام")}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {tr("This will delete all data (menu, orders, users, etc.) and create a backup first.", "سيتم حذف جميع البيانات (القائمة، الطلبات، المستخدمين، إلخ) وإنشاء نسخة احتياطية أولاً.")}
+          {tr("This will delete all app data (menu, users, etc.) and create a backup first.", "سيتم حذف جميع البيانات (القائمة، المستخدمين، إلخ) وإنشاء نسخة احتياطية أولاً.")}
         </p>
         <button onClick={() => { setShowConfirm(true); setConfirmAction("reset"); }}
           className="w-full py-3 rounded-xl bg-destructive text-white font-bold flex items-center justify-center gap-2 hover:bg-destructive/90">

@@ -65,12 +65,10 @@ const MenuItemCard = memo(({
         animation: "fadeInSimple 0.3s ease-out forwards"
       }}
     >
-      {/* Card */}
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:shadow-amber-200/40 group-hover:-translate-y-1 group-active:scale-95 active:scale-95">
+      {/* Card - Removed all hover shimmer and heavy effects as requested */}
+      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm active:scale-95 transition-transform duration-200">
         {/* Image Container */}
         <div className="relative h-36 overflow-hidden">
-          {/* Premium Shimmer Overlay on Hover */}
-          <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
           {item.image ? (
             <img
               src={item.image}

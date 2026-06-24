@@ -11,7 +11,6 @@ import AIBarista from "@/pages/AIBarista";
 import Profile from "@/pages/Profile";
 import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
-import Suggest from "@/pages/Suggest";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty } from "@/lib/firebase";
@@ -54,7 +53,6 @@ function AppRoutes() {
               <Route path="/barista" component={AIBarista} />
               <Route path="/reels" component={Reels} />
               <Route path="/support" component={SupportChat} />
-              <Route path="/suggest" component={Suggest} />
               <Route path="/profile" component={Profile} />
               <Route component={NotFound} />
             </Switch>

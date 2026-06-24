@@ -36,9 +36,9 @@ interface Broadcast {
 }
 
 const BROADCAST_TYPE_STYLE: Record<string, string> = {
-  info:  "bg-gradient-to-r from-purple-500 to-pink-500 border-white/30 text-white",
-  promo: "bg-gradient-to-r from-amber-500 to-orange-500 border-white/30 text-white",
-  alert: "bg-gradient-to-r from-red-500 to-pink-500 border-white/30 text-white",
+  info:  "bg-primary/5 border-primary/20 text-primary",
+  promo: "bg-primary/5 border-primary/20 text-primary",
+  alert: "bg-destructive/10 border-destructive/20 text-destructive",
 };
 
 const DEFAULT_BROADCAST: Broadcast = {
@@ -117,35 +117,25 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {/* Animated Broadcast Banner */}
+      {/* Broadcast Banner */}
       {broadcast && (
-        <div className={`mx-3 mt-2 rounded-2xl px-4 py-3 border text-sm overflow-hidden relative ${BROADCAST_TYPE_STYLE[broadcast.type] || BROADCAST_TYPE_STYLE.info} animate-slide-down`}>
-          {/* Animated sparkle emojis */}
-          <div className="absolute top-1 left-2 text-xs animate-pulse opacity-60">✨</div>
-          <div className="absolute top-2 right-4 text-xs animate-bounce" style={{ animationDelay: "0.3s" }}>⭐</div>
-          <div className="absolute bottom-1 right-8 text-xs animate-pulse" style={{ animationDelay: "0.6s" }}>💫</div>
-          
+        <div className={`mx-3 mt-2 rounded-xl px-4 py-3 border text-sm overflow-hidden relative ${BROADCAST_TYPE_STYLE[broadcast.type] || BROADCAST_TYPE_STYLE.info}`}>
           <div className="flex items-center gap-3">
-            <span className="text-2xl flex-shrink-0 animate-wiggle">{broadcast.emoji || "🎉"}</span>
+            <span className="text-xl flex-shrink-0">{broadcast.emoji || "✨"}</span>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm leading-tight flex items-center gap-1">
+              <p className="font-bold text-sm leading-tight">
                 {lang === "ar" ? (broadcast.titleAr || broadcast.title) : broadcast.title}
               </p>
-              <p className="text-xs opacity-90 leading-snug mt-0.5 flex items-center gap-1">
+              <p className="text-xs opacity-80 leading-snug mt-0.5">
                 {lang === "ar" ? (broadcast.messageAr || broadcast.message) : broadcast.message}
               </p>
             </div>
             <button 
               onClick={dismissBroadcast} 
-              className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-all hover:scale-110"
+              className="flex-shrink-0 w-6 h-6 rounded-full hover:bg-black/5 flex items-center justify-center transition-all"
             >
-              <X size={14} className="text-white" />
+              <X size={14} />
             </button>
-          </div>
-          
-          {/* Animated progress bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/30">
-            <div className="h-full bg-white/80 animate-progress" style={{ width: "60%" }} />
           </div>
         </div>
       )}

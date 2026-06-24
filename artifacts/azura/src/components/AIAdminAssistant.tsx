@@ -16,15 +16,13 @@ interface AIMessage {
 }
 
 interface AnalyticsData {
-  totalOrders: number;
-  totalRevenue: number;
-  avgOrderValue: number;
   totalCustomers: number;
-  ordersToday: number;
-  revenueToday: number;
-  topItems: { name: string; nameAr?: string; count: number }[];
-  ordersByStatus: Record<string, number>;
+  returningCustomers: number;
+  heavyUsers: number;
+  activeToday: number;
+  totalUsageTime: number;
   avgRating: number;
+  totalMenuItems: number;
 }
 
 interface MenuItemData {
@@ -78,8 +76,9 @@ export default function AIAdminAssistant() {
   const loadChatHistory = () => {
     onValue(ref(db, "conversations/admin/assistant"), (snap) => {
       if (snap.exists()) {
-        const data = snap.val();
-        setMessages(Object.values(data));
+        const data = snap.val() as Record<string, AIMessage>;
+        const sorted = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+        setMessages(sorted);
       }
     });
   };
@@ -99,70 +98,44 @@ export default function AIAdminAssistant() {
 
   const loadAnalytics = async () => {
     try {
-      const ordersSnap = await get(ref(db, "orders"));
+      const usersSnap = await get(ref(db, "users"));
       const feedbackSnap = await get(ref(db, "feedback"));
+      const menuSnap = await get(ref(db, "menu/items"));
       
-      let orders: any[] = [];
+      let users: any[] = [];
       let feedback: any[] = [];
+      let menuCount = 0;
       
-      if (ordersSnap.exists()) {
-        const data = ordersSnap.val();
-        Object.entries(data).forEach(([key, val]) => {
-          if (val && typeof val === "object") {
-            if ((val as any).items) {
-              orders.push({ ...(val as any), userId: key });
-            } else {
-              Object.values(val as object).forEach((order: any) => {
-                if (order?.orderId) orders.push({ ...order, userId: key });
-              });
-            }
-          }
-        });
+      if (usersSnap.exists()) {
+        users = Object.values(usersSnap.val());
       }
       
       if (feedbackSnap.exists()) {
-        const data = feedbackSnap.val();
-        feedback = Object.entries(data).map(([id, f]) => ({ id, ...(f as any) }));
+        feedback = Object.values(feedbackSnap.val());
+      }
+
+      if (menuSnap.exists()) {
+        menuCount = Object.keys(menuSnap.val()).length;
       }
 
       const today = new Date().setHours(0, 0, 0, 0);
-      const ordersToday = orders.filter(o => (o.createdAt || 0) >= today);
-      const revenueToday = ordersToday.reduce((sum, o) => sum + (o.total || 0), 0);
-      
-      const itemCounts: Record<string, { name: string; nameAr?: string; count: number }> = {};
-      orders.forEach(order => {
-        (order.items || []).forEach((item: any) => {
-          const key = item.name;
-          if (!itemCounts[key]) {
-            itemCounts[key] = { name: item.name, nameAr: item.nameAr, count: 0 };
-          }
-          itemCounts[key].count += item.quantity;
-        });
-      });
-      const topItems = Object.entries(itemCounts)
-        .map(([name, data]) => ({ name, nameAr: data.nameAr, count: data.count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      const ordersByStatus: Record<string, number> = {};
-      orders.forEach(o => {
-        ordersByStatus[o.status] = (ordersByStatus[o.status] || 0) + 1;
-      });
+      const activeToday = users.filter(u => (u.lastLoginAt || 0) >= today).length;
+      const returning = users.filter(u => (u.loginCount || 0) > 1).length;
+      const heavy = users.filter(u => (u.totalUsageSeconds || 0) > 1800).length;
+      const totalUsage = users.reduce((sum, u) => sum + (u.totalUsageSeconds || 0), 0);
 
       const avgRating = feedback.length > 0 
-        ? (feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length).toFixed(1)
+        ? (feedback.reduce((sum, f) => sum + (f.rating || 0), 0) / feedback.length).toFixed(1)
         : "0.0";
 
       setAnalytics({
-        totalOrders: orders.length,
-        totalRevenue: orders.reduce((sum, o) => sum + (o.total || 0), 0),
-        avgOrderValue: orders.length > 0 ? Math.round(orders.reduce((sum, o) => sum + (o.total || 0), 0) / orders.length) : 0,
-        totalCustomers: new Set(orders.map(o => o.userId)).size,
-        ordersToday: ordersToday.length,
-        revenueToday,
-        topItems,
-        ordersByStatus,
+        totalCustomers: users.length,
+        returningCustomers: returning,
+        heavyUsers: heavy,
+        activeToday,
+        totalUsageTime: totalUsage,
         avgRating: parseFloat(avgRating),
+        totalMenuItems: menuCount,
       });
     } catch (error) {
       console.error("Error loading analytics:", error);
@@ -251,63 +224,34 @@ I can help you with everything regarding Azura!`;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const formatDuration = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
+  };
+
   const generateResponse = async (userInput: string): Promise<string> => {
     const input = userInput.toLowerCase();
     
-    // Analytics & Revenue
-    if (input.includes("analytics") || input.includes("report") || input.includes("تحليل") || input.includes("تقارير") || input.includes("revenue") || input.includes("إيراد")) {
+    // User Analytics
+    if (input.includes("users") || input.includes("analytics") || input.includes("customers") || input.includes("تحليل") || input.includes("مستخدمين")) {
       if (!analytics) return tr("Loading analytics...", "جاري تحميل التحليلات...");
       return lang === "ar" 
-        ? `💰 تقرير الإيرادات
+        ? `👥 تقرير المستخدمين
 
-• إجمالي الإيرادات: ${analytics.totalRevenue} ج.م
-• إيرادات اليوم: ${analytics.revenueToday} ج.م
-• متوسط قيمة الطلب: ${analytics.avgOrderValue} ج.م
-• عدد الطلبات الكلي: ${analytics.totalOrders}
-• الطلبات اليوم: ${analytics.ordersToday}`
-        : `💰 Revenue Report
+• إجمالي المستخدمين: ${analytics.totalCustomers}
+• نشط اليوم: ${analytics.activeToday}
+• مستخدمين دائمين: ${analytics.returningCustomers}
+• مستخدمين نشطين جداً: ${analytics.heavyUsers}
+• إجمالي وقت الاستخدام: ${formatDuration(analytics.totalUsageTime)}`
+        : `👥 User Analytics Report
 
-• Total Revenue: ${analytics.totalRevenue} EGP
-• Today's Revenue: ${analytics.revenueToday} EGP
-• Avg Order Value: ${analytics.avgOrderValue} EGP
-• Total Orders: ${analytics.totalOrders}
-• Orders Today: ${analytics.ordersToday}`;
-    }
-    
-    // Top items
-    if (input.includes("top item") || input.includes("best seller") || input.includes("الأكثر") || input.includes("مبيع")) {
-      if (!analytics || analytics.topItems.length === 0) return tr("No sales data available yet.", "لا توجد بيانات مبيعات بعد.");
-      const itemsList = analytics.topItems.slice(0, 5).map((item, i) => 
-        `${i + 1}. ${item.name}${item.nameAr ? ` (${item.nameAr})` : ''} - ${item.count} orders`
-      ).join("\n");
-      return lang === "ar" 
-        ? `🏆 الأكثر مبيعاً
-
-${itemsList}`
-        : `🏆 Top Sellers
-
-${itemsList}`;
-    }
-    
-    // Order status
-    if (input.includes("order status") || input.includes("pending") || input.includes("حالة الطلبات")) {
-      if (!analytics) return tr("Loading...", "جاري التحميل...");
-      const { ordersByStatus } = analytics;
-      return lang === "ar"
-        ? `📦 حالة الطلبات
-
-• في الانتظار: ${ordersByStatus.pending || 0}
-• قيد التحضير: ${ordersByStatus.preparing || 0}
-• جاهز: ${ordersByStatus.ready || 0}
-• تم التسليم: ${ordersByStatus.delivered || 0}
-• ملغي: ${ordersByStatus.cancelled || 0}`
-        : `📦 Order Status
-
-• Pending: ${ordersByStatus.pending || 0}
-• Preparing: ${ordersByStatus.preparing || 0}
-• Ready: ${ordersByStatus.ready || 0}
-• Delivered: ${ordersByStatus.delivered || 0}
-• Cancelled: ${ordersByStatus.cancelled || 0}`;
+• Total Users: ${analytics.totalCustomers}
+• Active Today: ${analytics.activeToday}
+• Returning Customers: ${analytics.returningCustomers}
+• Heavy Users (30m+): ${analytics.heavyUsers}
+• Total App Usage Time: ${formatDuration(analytics.totalUsageTime)}`;
     }
     
     // Menu search
@@ -355,19 +299,13 @@ ${itemsList}`;
       return lang === "ar"
         ? `🤖 أوامري المتاحة:
 
-• "تحليلات" أو "تقارير" - تقرير شامل
-• "الأكثر مبيعاً" - أفضل العناصر
-• "حالة الطلبات" - الطلبات بالحالات
-• "الإيرادات" - تقرير الإيرادات
+• "تحليلات" أو "مستخدمين" - تقرير المستخدمين
 • "[اسم العنصر]" - بحث في القائمة
 • "اقتراحات" - أفكار للتحسين
 • "عرض القائمة" - فتح القائمة`
         : `🤖 Available Commands:
 
-• "analytics" or "reports" - Full report
-• "top items" - Best sellers
-• "order status" - Orders by status
-• "revenue" - Revenue report
+• "analytics" or "users" - User activity report
 • "[item name]" - Search menu
 • "suggestions" - Improvement ideas
 • "show menu" - Open menu viewer`;
@@ -552,19 +490,19 @@ Type "help" to see all available commands.`;
         <div className="px-4 py-2 border-b bg-muted/30">
           <div className="flex gap-3 overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-1 text-xs">
-              <Package size={12} className="text-primary" />
-              <span className="font-medium">{analytics.ordersToday}</span>
-              <span className="text-muted-foreground">{tr("today", "اليوم")}</span>
+              <Users size={12} className="text-primary" />
+              <span className="font-medium">{analytics.activeToday}</span>
+              <span className="text-muted-foreground">{tr("active today", "نشط اليوم")}</span>
             </div>
             <div className="flex items-center gap-1 text-xs">
-              <DollarSign size={12} className="text-green-500" />
-              <span className="font-medium">{analytics.revenueToday}</span>
-              <span className="text-muted-foreground">EGP</span>
+              <RefreshCw size={12} className="text-blue-500" />
+              <span className="font-medium">{analytics.returningCustomers}</span>
+              <span className="text-muted-foreground">{tr("returning", "عائد")}</span>
             </div>
             <div className="flex items-center gap-1 text-xs">
-              <Users size={12} className="text-blue-500" />
-              <span className="font-medium">{analytics.totalCustomers}</span>
-              <span className="text-muted-foreground">{tr("customers", "عميل")}</span>
+              <Maximize2 size={12} className="text-orange-500" />
+              <span className="font-medium">{analytics.heavyUsers}</span>
+              <span className="text-muted-foreground">{tr("heavy", "نشط جداً")}</span>
             </div>
             <div className="flex items-center gap-1 text-xs">
               <span className={analytics.avgRating >= 4 ? "text-green-500" : "text-yellow-500"}>⭐</span>

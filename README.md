@@ -24,10 +24,25 @@ Azura is a modern, mobile-first web application for restaurants, featuring a Tik
 - **Database Fallback**: Robust Admin panel with Cloudflare R2 fallback layer.
 - **Video Reels**: Enhanced embedding support for Facebook and Instagram Reels.
 
-## ⚠️ Deployment Note
-Always use **pnpm** for installing dependencies and building the project. The Cloudflare Pages deployment environment is configured to use the `pnpm-lock.yaml` for consistency.
+## ☁️ Cloudflare Pages Deployment Settings
+To ensure a successful build and avoid deployment errors (like "Cannot read properties of null"), use the following settings in the Cloudflare Pages dashboard:
+
+### **Build Settings**
+- **Framework preset**: `None`
+- **Build command**: `pnpm build`
+- **Build output directory**: `dist`
+- **Root directory**: `artifacts/azura`
+
+### **Environment Variables**
+- **NODE_VERSION**: `22` (or latest LTS)
+- **PNPM_VERSION**: `10` (or latest)
+
+### **Important Notes**
+1. **DO NOT** use `npm install` or `npm run build` as the build command. Cloudflare's `pnpm` support is more stable for this project's dependency tree.
+2. The `_redirects` file is already included in the `public` folder to handle Single Page Application (SPA) routing.
 
 ```bash
+# Manual Build Process
 cd artifacts/azura
 pnpm install
 pnpm run build

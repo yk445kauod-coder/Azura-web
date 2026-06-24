@@ -419,15 +419,11 @@ export default function MenuLightweight() {
         {loading ? (
           <div className="grid grid-cols-2 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm">
-                <div className="relative h-36 bg-muted overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
-                </div>
+              <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm animate-pulse">
+                <div className="relative h-36 bg-muted" />
                 <div className="p-3 space-y-2">
-                  <div className="h-4 bg-muted rounded relative overflow-hidden">
-                  </div>
-                  <div className="h-3 w-2/3 bg-muted rounded relative overflow-hidden">
-                  </div>
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
                 </div>
               </div>
             ))}

@@ -20,9 +20,9 @@ import {
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
 const ADMIN_PIN = "azura2024";
-type Tab = "overview" | "users" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
+type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "ideas" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
 
-interface MenuItem { id: string; name: string; nameAr: string; description: string; price: number; category: string; available: boolean; image: string; }
+interface MenuItem { id: string; name: string; nameAr: string; description: string; price: number; category: string; available: boolean; image: string; ingredients?: string; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
@@ -65,6 +65,7 @@ export default function Admin() {
   }, []);
 
   // Data
+  const [menu, setMenu]           = useState<MenuItem[]>([]);
   const [users, setUsers]         = useState<any[]>([]);
   const [chats, setChats]         = useState<ChatSession[]>([]);
   const [feedback, setFeedback]   = useState<Feedback[]>([]);
@@ -170,6 +171,26 @@ export default function Admin() {
   useEffect(() => {
     if (!authed) return;
 
+    // Menu
+    onValue(ref(db, "menu"), (snap) => {
+      if (!snap.exists()) { setMenu([]); return; }
+      const data = snap.val() as Record<string, any>;
+      const result: MenuItem[] = [];
+      Object.entries(data).forEach(([key, val]) => {
+        if (typeof val !== "object" || val === null) return;
+        const v = val as Record<string, any>;
+        if (v.price !== undefined || v.name !== undefined) {
+          result.push({ id: key, ...v } as MenuItem);
+        } else {
+          Object.entries(v).forEach(([subId, subVal]) => {
+            if (typeof subVal === "object" && subVal !== null)
+              result.push({ id: subId, ...subVal as any } as MenuItem);
+          });
+        }
+      });
+      setMenu(result);
+    });
+
     // Users
     onValue(ref(db, "users"), (snap) => {
       if (!snap.exists()) { setUsers([]); return; }
@@ -239,7 +260,7 @@ export default function Admin() {
     });
 
     return () => {
-      ["users","feedback","suggestions","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
+      ["menu","users","feedback","suggestions","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -411,6 +432,7 @@ export default function Admin() {
 
   const TABS: { id: Tab; icon: React.ReactNode; en: string; ar: string; badge?: number }[] = [
     { id: "overview",   icon: <LayoutDashboard size={14}/>, en: "Overview",    ar: "الرئيسية"   },
+    { id: "menu",       icon: <Plus size={14}/>,            en: "Menu",        ar: "القائمة"    },
     { id: "users",      icon: <Users size={14}/>,           en: "Users",       ar: "المستخدمين" },
     { id: "chat",       icon: <MessageCircle size={14}/>,  en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
     { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
@@ -459,6 +481,108 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-4 pb-8">
 
+
+        {/* ━━━ MENU MANAGEMENT ━━━ */}
+        {tab === "menu" && (
+          <div className="space-y-4 page-enter">
+            <div className="card-elevated rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <Plus size={18} className="text-primary"/> {tr("Menu Management","إدارة القائمة")}
+                </h3>
+                <button
+                  onClick={() => {
+                    const id = prompt("Item ID (e.g. espresso_1):");
+                    if (!id) return;
+                    smartSet(`menu/items/${id}`, {
+                      name: "New Item", nameAr: "صنف جديد", price: 50, category: "coffee", available: true, image: "", description: "", ingredients: ""
+                    });
+                  }}
+                  className="btn-primary px-4 py-2 rounded-xl text-xs font-bold"
+                >
+                  {tr("Add Item", "إضافة صنف")}
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {menu.length === 0 && (
+                  <div className="text-center py-10">
+                    <p className="text-muted-foreground">{tr("No menu items found.","لا توجد عناصر في القائمة.")}</p>
+                    <button
+                      onClick={async () => {
+                        const { fullMenuData } = await import("@/lib/fullMenu");
+                        await smartSet("menu", fullMenuData);
+                        swalSuccess(tr("Menu data restored!","تم استعادة بيانات القائمة!"));
+                      }}
+                      className="mt-3 text-primary text-xs font-bold underline"
+                    >
+                      {tr("Restore default menu data","استعادة القائمة الافتراضية")}
+                    </button>
+                  </div>
+                )}
+                {menu.map((item) => (
+                  <div key={item.id} className="card rounded-2xl p-4 border border-border/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (EN)","الاسم إنجليزي")}</label>
+                            <input className={inp} value={item.name} onChange={e => smartUpdate(`menu/items/${item.id}`, { name: e.target.value })}/>
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (AR)","الاسم عربي")}</label>
+                            <input className={inp} dir="rtl" value={item.nameAr} onChange={e => smartUpdate(`menu/items/${item.id}`, { nameAr: e.target.value })}/>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Price","السعر")}</label>
+                            <input type="number" className={inp} value={item.price} onChange={e => smartUpdate(`menu/items/${item.id}`, { price: Number(e.target.value) })}/>
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Category","الفئة")}</label>
+                            <input className={inp} value={item.category} onChange={e => smartUpdate(`menu/items/${item.id}`, { category: e.target.value })}/>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 pt-2">
+                          <button
+                            onClick={() => smartUpdate(`menu/items/${item.id}`, { available: !item.available })}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                          >
+                            {item.available ? tr("Available", "متاح") : tr("Sold Out", "نفذ")}
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (await swalConfirm("Delete Item?", "Are you sure?", "Delete", "Cancel")) {
+                                smartRemove(`menu/items/${item.id}`);
+                              }
+                            }}
+                            className="p-1.5 text-destructive/50 hover:text-destructive ml-auto"
+                          >
+                            <Trash2 size={16}/>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Image URL","رابط الصورة")}</label>
+                          <div className="flex gap-2">
+                            <input className={inp} value={item.image} onChange={e => smartUpdate(`menu/items/${item.id}`, { image: e.target.value })}/>
+                            {item.image && <img src={item.image} className="w-10 h-10 rounded-lg object-cover" />}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (comma separated)","المكونات (مفصولة بفاصلة)")}</label>
+                          <textarea className={`${inp} min-h-[60px] resize-none`} value={item.ingredients || ""} onChange={e => smartUpdate(`menu/items/${item.id}`, { ingredients: e.target.value })} placeholder="Coffee, Milk, Sugar..."/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ━━━ OVERVIEW ━━━ */}
         {tab === "overview" && (

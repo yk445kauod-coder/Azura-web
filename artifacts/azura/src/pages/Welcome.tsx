@@ -193,34 +193,6 @@ export default function Welcome() {
           </p>
         </div>
 
-        {/* AI Barista Picker */}
-        <div className="rounded-2xl p-4 mb-4" style={{ background: "hsla(var(--card),0.88)", backdropFilter: "blur(12px)", boxShadow: "var(--shadow-md)", border: "1px solid rgba(93,62,35,0.06)" }}>
-          <p className="text-[11px] font-bold text-muted-foreground text-center uppercase tracking-widest mb-3 flex items-center justify-center gap-1.5">
-            <Sparkles size={10} /> {tr("Choose your AI barista", "اختار باريستاك الذكي")}
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setPersona("female")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${persona === "female" ? "ring-2 ring-primary" : "hover:bg-muted/30"}`}
-              style={persona === "female" ? { background: "hsl(var(--primary)/0.08)", boxShadow: "var(--shadow-sm)" } : {}}>
-              <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Zura&backgroundColor=b6e3f4&clothColor=5d3e6e&mouthColor=ec4899&hairColor=7c3aed" alt="Zura" className="w-14 h-14 rounded-full" style={{ filter: persona === "female" ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "opacity(0.7)" }} />
-              <div className="text-center">
-                <p className="font-extrabold text-sm text-primary">{tr("Zura", "زورا")}</p>
-                <p className="text-[10px] text-muted-foreground leading-tight">{tr("Warm & friendly", "دافية ومبتسمة دايماً")}</p>
-              </div>
-              {persona === "female" && <div className="w-5 h-1 rounded-full" style={{ background: "hsl(var(--primary))" }} />}
-            </button>
-            <button onClick={() => setPersona("male")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${persona === "male" ? "ring-2 ring-primary" : "hover:bg-muted/30"}`}
-              style={persona === "male" ? { background: "hsl(var(--primary)/0.08)", boxShadow: "var(--shadow-sm)" } : {}}>
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Zure&backgroundColor=c0aede&clothesColor=3d5a80" alt="Zure" className="w-14 h-14 rounded-full" style={{ filter: persona === "male" ? "drop-shadow(0 2px 8px hsl(var(--primary)/0.3))" : "opacity(0.7)" }} />
-              <div className="text-center">
-                <p className="font-extrabold text-sm text-primary">{tr("Zure", "زور")}</p>
-                <p className="text-[10px] text-muted-foreground leading-tight">{tr("Cool & knowledgeable", "هادي ومتمكن")}</p>
-              </div>
-              {persona === "male" && <div className="w-5 h-1 rounded-full" style={{ background: "hsl(var(--primary))" }} />}
-            </button>
-          </div>
-        </div>
 
         {/* Simplified Login */}
         <div className="card-elevated rounded-2xl p-6 space-y-4">

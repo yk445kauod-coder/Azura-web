@@ -96,7 +96,14 @@ export default function AIBarista() {
   const saveMessageToFirebase = async (msg: Message) => {
     if (!user) return;
     const msgRef = ref(db, `conversations/${user.uid}/barista/${msg.id}`);
-    await set(msgRef, msg);
+
+    // Sanitize message to avoid Firebase 'undefined' errors
+    const sanitizedMsg = {
+      ...msg,
+      suggestedItems: msg.suggestedItems || null
+    };
+
+    await set(msgRef, sanitizedMsg);
   };
 
   const toggleTTS = () => {

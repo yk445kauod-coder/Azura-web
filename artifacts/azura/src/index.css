@@ -100,8 +100,15 @@
   .text-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
   .text-2xl { font-size: 1.5rem; line-height: 2rem; font-weight: 700; }
 
-  [dir="rtl"] * { font-family: var(--font-arabic); }
-  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 { font-family: var(--font-arabic); }
+  [dir="rtl"] * {
+    font-family: var(--font-arabic);
+    font-weight: 600; /* More thick by default for Arabic */
+    -webkit-font-smoothing: antialiased;
+  }
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 {
+    font-family: var(--font-arabic);
+    font-weight: 800;
+  }
   
   /* iOS Scrollbar */
   ::-webkit-scrollbar { width: 0; height: 0; }

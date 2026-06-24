@@ -178,11 +178,13 @@ export function parseFacebook(url: string): ParsedVideo | null {
   
   // Extract video ID from various patterns
   let videoId = "";
+  let isReel = false;
   
   if (videoIdMatch) {
     videoId = videoIdMatch[1];
   } else if (reelMatch) {
     videoId = reelMatch[1];
+    isReel = true;
   } else if (watchMatch) {
     videoId = watchMatch[1];
   } else if (videoMatch) {
@@ -195,9 +197,11 @@ export function parseFacebook(url: string): ParsedVideo | null {
     return {
       provider: "facebook",
       // Use Facebook's video embed player
-      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&mute=false`,
+      embedUrl: isReel
+        ? `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`
+        : `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&mute=false`,
       thumbnail: videoId ? `https://graph.facebook.com/${videoId}/picture` : "",
-      title: "Facebook Video",
+      title: isReel ? "Facebook Reel" : "Facebook Video",
       isEmbeddable: true,
       videoId,
       apiEndpoint: videoId ? `${FACEBOOK_API_BASE}/${videoId}?fields=thumbnail_url,source,title` : undefined,

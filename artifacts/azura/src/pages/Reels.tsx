@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update, push, remove } from "@/lib/firebase";
+import { parseVideoUrl, getEmbedHtml } from "@/lib/videoProviders";
 import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star, MoreHorizontal, Trash2, Reply, ThumbsUp } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
 
@@ -233,12 +234,23 @@ export default function Reels() {
   return (
     <div className="min-h-screen bg-black relative">
       {/* Main Reel View */}
-      <div className="h-screen w-full flex items-center justify-center relative">
-        <img 
-          src={currentReel.image || PLACEHOLDER}
-          alt=""
-          className="w-full h-full object-cover"
-        />
+      <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
+        {currentReel.videoUrl ? (
+          <div className="w-full h-full">
+            <div
+              className="w-full h-full"
+              dangerouslySetInnerHTML={{
+                __html: getEmbedHtml(parseVideoUrl(currentReel.videoUrl), "100%", "100%")
+              }}
+            />
+          </div>
+        ) : (
+          <img
+            src={currentReel.image || PLACEHOLDER}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+        )}
         
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/30" />

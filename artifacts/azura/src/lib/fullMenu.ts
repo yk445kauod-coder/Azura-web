@@ -775,7 +775,7 @@ export const fullMenuData = {
       "price": 238,
       "category": "burgers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1553979459-d5f9a8a9a9a8?w=400&q=80",
+      "image": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&q=80",
 
     },
     "smoke-burger": {
@@ -786,7 +786,7 @@ export const fullMenuData = {
       "price": 264,
       "category": "burgers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171f90?w=400&q=80",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
 
     },
     "fire-burger": {

@@ -15,7 +15,7 @@ import {
   Send, CheckCircle, XCircle,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Save, X,
-  Video, AlertTriangle, Bot, LayoutDashboard, Users,
+  Video, AlertTriangle, Bot, LayoutDashboard, Users, ToggleLeft, ToggleRight, Sparkles,
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
@@ -122,7 +122,7 @@ function ImagePicker({
     </div>
   );
 }
-type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai";
+type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai" | "features";
 
 interface MenuItem { id: string; name: string; nameAr: string; description: string; descriptionAr?: string; price: number; category: string; available: boolean; image: string; ingredients?: string; ingredientsAr?: string; recommended?: boolean; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
@@ -231,6 +231,14 @@ export default function Admin() {
   const [bannerPreview, setBannerPreview] = useState(false);
   const [savingBanner, setSavingBanner] = useState(false);
 
+  // Feature flags
+  const [featureFlags, setFeatureFlags] = useState({
+    baristaEnabled: true,
+    reelsEnabled: true,
+    supportEnabled: true,
+  });
+  const [savingFlag, setSavingFlag] = useState<string | null>(null);
+
   // Load banner from Firebase
   useEffect(() => {
     if (!authed) return;
@@ -246,6 +254,34 @@ export default function Admin() {
     });
     return () => off(ref(db, "homepage-banner"));
   }, [authed]);
+
+  // Load feature flags from Firebase
+  useEffect(() => {
+    if (!authed) return;
+    const ffRef = ref(db, "feature-flags");
+    onValue(ffRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        setFeatureFlags({
+          baristaEnabled: data.baristaEnabled !== false,
+          reelsEnabled: data.reelsEnabled !== false,
+          supportEnabled: data.supportEnabled !== false,
+        });
+      }
+    });
+    return () => off(ref(db, "feature-flags"));
+  }, [authed]);
+
+  const toggleFeatureFlag = async (key: string, value: boolean) => {
+    setSavingFlag(key);
+    try {
+      await update(ref(db, "feature-flags"), { [key]: value });
+      setFeatureFlags(prev => ({ ...prev, [key]: value }));
+    } catch (e) {
+      swalError(tr("Failed to update setting", "فشل تحديث الإعداد"));
+    }
+    setSavingFlag(null);
+  };
 
   const saveBanner = async () => {
     setSavingBanner(true);
@@ -538,14 +574,15 @@ export default function Admin() {
   const TABS: { id: Tab; icon: React.ReactNode; en: string; ar: string; badge?: number }[] = [
     { id: "overview",   icon: <LayoutDashboard size={14}/>, en: "Overview",    ar: "الرئيسية"   },
     { id: "menu",       icon: <Plus size={14}/>,            en: "Menu",        ar: "القائمة"    },
+    { id: "features",   icon: <ToggleRight size={14}/>,     en: "Features",    ar: "الميزات"    },
     { id: "users",      icon: <Users size={14}/>,           en: "Users",       ar: "المستخدمين" },
-    { id: "chat",       icon: <MessageCircle size={14}/>,  en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
-    { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
-    { id: "broadcast",  icon: <Megaphone size={14}/>,      en: "Broadcast",   ar: "إشعارات"    },
-    { id: "reels",      icon: <Film size={14}/>,           en: "Reels",       ar: "ريلز"       },
+    { id: "chat",       icon: <MessageCircle size={14}/>,   en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
+    { id: "reviews",    icon: <Star size={14}/>,            en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
+    { id: "broadcast",  icon: <Megaphone size={14}/>,       en: "Broadcast",   ar: "إشعارات"    },
+    { id: "reels",      icon: <Film size={14}/>,            en: "Reels",       ar: "ريلز"       },
     { id: "ai",         icon: <Bot size={14}/>,             en: "AI Assistant", ar: "المساعد الذكي" },
-    { id: "api",        icon: <Key size={14}/>,            en: "Egytronic",   ar: "إيچترونيك" },
-    { id: "system",     icon: <Settings size={14}/>,       en: "System",      ar: "النظام"     },
+    { id: "api",        icon: <Key size={14}/>,             en: "Egytronic",   ar: "إيچترونيك" },
+    { id: "system",     icon: <Settings size={14}/>,        en: "System",      ar: "النظام"     },
   ];
 
   return (
@@ -584,6 +621,124 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-4 pb-8">
 
+        {/* ━━━ FEATURES / PAGE TOGGLES ━━━ */}
+        {tab === "features" && (
+          <div className="space-y-4 page-enter">
+            <div className="card-elevated rounded-2xl p-5 space-y-5">
+              <div className="flex items-center gap-2 mb-1">
+                <ToggleRight size={20} className="text-primary"/>
+                <h3 className="font-bold text-foreground">{tr("App Features & Pages", "ميزات وصفحات التطبيق")}</h3>
+              </div>
+              <p className="text-xs text-muted-foreground -mt-2">{tr("Toggle pages and features on/off for all users in real time.", "تفعيل أو تعطيل الصفحات والميزات لجميع المستخدمين فوراً.")}</p>
+
+              {/* AI Barista Page */}
+              <div className="flex items-center justify-between gap-4 py-3 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <Sparkles size={18} className="text-purple-600"/>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{tr("AI Barista Page", "صفحة الباريستا الذكي")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tr("Chat with Zura AI assistant", "الدردشة مع زورا الذكية")}</p>
+                  </div>
+                </div>
+                <button
+                  disabled={savingFlag === "baristaEnabled"}
+                  onClick={() => toggleFeatureFlag("baristaEnabled", !featureFlags.baristaEnabled)}
+                  className={`relative w-14 h-7 rounded-full transition-colors duration-200 flex-shrink-0 ${featureFlags.baristaEnabled ? "bg-green-500" : "bg-muted"} disabled:opacity-60`}
+                >
+                  <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ${featureFlags.baristaEnabled ? "translate-x-8" : "translate-x-1"}`}/>
+                </button>
+              </div>
+
+              {/* Reels Page */}
+              <div className="flex items-center justify-between gap-4 py-3 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center flex-shrink-0">
+                    <Film size={18} className="text-pink-600"/>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{tr("Reels Page", "صفحة الريلز")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tr("Video & image feed for customers", "فيد الفيديو والصور للعملاء")}</p>
+                  </div>
+                </div>
+                <button
+                  disabled={savingFlag === "reelsEnabled"}
+                  onClick={() => toggleFeatureFlag("reelsEnabled", !featureFlags.reelsEnabled)}
+                  className={`relative w-14 h-7 rounded-full transition-colors duration-200 flex-shrink-0 ${featureFlags.reelsEnabled ? "bg-green-500" : "bg-muted"} disabled:opacity-60`}
+                >
+                  <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ${featureFlags.reelsEnabled ? "translate-x-8" : "translate-x-1"}`}/>
+                </button>
+              </div>
+
+              {/* Support Chat Page */}
+              <div className="flex items-center justify-between gap-4 py-3 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <MessageCircle size={18} className="text-blue-600"/>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{tr("Support Chat Page", "صفحة الدعم")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tr("Customer live support chat", "محادثة الدعم المباشر للعملاء")}</p>
+                  </div>
+                </div>
+                <button
+                  disabled={savingFlag === "supportEnabled"}
+                  onClick={() => toggleFeatureFlag("supportEnabled", !featureFlags.supportEnabled)}
+                  className={`relative w-14 h-7 rounded-full transition-colors duration-200 flex-shrink-0 ${featureFlags.supportEnabled ? "bg-green-500" : "bg-muted"} disabled:opacity-60`}
+                >
+                  <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ${featureFlags.supportEnabled ? "translate-x-8" : "translate-x-1"}`}/>
+                </button>
+              </div>
+
+              {/* AI Enabled */}
+              <div className="flex items-center justify-between gap-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <Bot size={18} className="text-amber-600"/>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{tr("AI Service (Groq/Gemini)", "خدمة الذكاء الاصطناعي")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tr("Disable to pause all AI responses", "تعطيل لإيقاف جميع ردود الذكاء")}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    const next = !apiSettings.aiEnabled;
+                    setApiSettings(p => ({ ...p, aiEnabled: next }));
+                    await update(ref(db, "api-settings"), { aiEnabled: next });
+                  }}
+                  className={`relative w-14 h-7 rounded-full transition-colors duration-200 flex-shrink-0 ${apiSettings.aiEnabled ? "bg-green-500" : "bg-muted"}`}
+                >
+                  <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ${apiSettings.aiEnabled ? "translate-x-8" : "translate-x-1"}`}/>
+                </button>
+              </div>
+            </div>
+
+            {/* Status Overview Card */}
+            <div className="card rounded-2xl p-4 space-y-3">
+              <h4 className="font-bold text-sm text-foreground">{tr("Current Status", "الحالة الحالية")}</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: tr("AI Barista", "الباريستا"), key: "baristaEnabled", value: featureFlags.baristaEnabled },
+                  { label: tr("Reels", "الريلز"), key: "reelsEnabled", value: featureFlags.reelsEnabled },
+                  { label: tr("Support", "الدعم"), key: "supportEnabled", value: featureFlags.supportEnabled },
+                  { label: tr("AI Service", "خدمة الذكاء"), key: "aiService", value: apiSettings.aiEnabled },
+                ].map(item => (
+                  <div key={item.key} className={`rounded-xl px-3 py-2.5 flex items-center gap-2 ${item.value ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.value ? "bg-green-500" : "bg-red-500"}`}/>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{item.label}</p>
+                      <p className={`text-[10px] font-bold ${item.value ? "text-green-600" : "text-red-600"}`}>
+                        {item.value ? tr("Active", "مفعّل") : tr("Disabled", "معطّل")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ━━━ MENU MANAGEMENT ━━━ */}
         {tab === "menu" && (

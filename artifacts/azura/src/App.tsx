@@ -2,7 +2,6 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { CartProvider } from "@/contexts/CartContext";
 import { BaristaProvider } from "@/contexts/BaristaContext";
 import Layout from "@/components/Layout";
 import Welcome from "@/pages/Welcome";
@@ -72,13 +71,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          <CartProvider>
-            <BaristaProvider>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <AppRoutes />
-              </WouterRouter>
-            </BaristaProvider>
-          </CartProvider>
+          <BaristaProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <AppRoutes />
+            </WouterRouter>
+          </BaristaProvider>
         </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>

@@ -4,8 +4,8 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
-import { decryptKey, isValidApiKey, chatWithAI, speakText } from "@/lib/crypto";
-import { Send, Eye, RefreshCw, Volume2, VolumeX, ArrowLeft, Check } from "lucide-react";
+import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
+import { Send, Eye, RefreshCw, ArrowLeft, Check } from "lucide-react";
 
 interface SuggestedItem {
   id: string; name: string; nameAr: string; price: number; image: string; category: string;
@@ -43,7 +43,6 @@ function normalizeItem(id: string, raw: RawMenuItem & { ingredients?: any }): Me
   };
 }
 
-// Simple markdown-like renderer
 function renderMarkdown(text: string): string {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
@@ -69,8 +68,6 @@ export default function AIBarista() {
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
   const [egyKey, setEgyKey] = useState("");
-  const [ttsEnabled, setTtsEnabled] = useState(() => localStorage.getItem("azura-tts") === "true");
-  const [speaking, setSpeaking] = useState(false);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -78,7 +75,6 @@ export default function AIBarista() {
 
   const { user } = useAuth();
 
-  // Load chat history from Firebase
   useEffect(() => {
     if (!user) return;
     const chatRef = ref(db, `conversations/${user.uid}/barista`);
@@ -94,24 +90,14 @@ export default function AIBarista() {
     return () => off(chatRef);
   }, [user]);
 
-  // Persistent chat history - save to Firebase
   const saveMessageToFirebase = async (msg: Message) => {
     if (!user) return;
     const msgRef = ref(db, `conversations/${user.uid}/barista/${msg.id}`);
-
-    // Sanitize message to avoid Firebase 'undefined' errors
     const sanitizedMsg = {
       ...msg,
       suggestedItems: msg.suggestedItems || null
     };
-
     await set(msgRef, sanitizedMsg);
-  };
-
-  const toggleTTS = () => {
-    const next = !ttsEnabled;
-    setTtsEnabled(next);
-    localStorage.setItem("azura-tts", String(next));
   };
 
   const clearAddedAnimation = (id: string) => {
@@ -124,26 +110,12 @@ export default function AIBarista() {
     }, 1500);
   };
 
-  const speak = useCallback(async (text: string) => {
-    if (!ttsEnabled) return;
-    setSpeaking(true);
-    try {
-      await speakText(text, lang === "ar" ? "ar" : "en");
-    } catch (err) {
-      console.error("TTS error:", err);
-    } finally {
-      setSpeaking(false);
-    }
-  }, [ttsEnabled, lang]);
-
-  // Load AI settings from Firebase (decrypt the stored key)
   useEffect(() => {
     const apiRef = ref(db, "api-settings");
     const unsubscribe = onValue(apiRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
         const storedKey = (data.groqKey || data.geminiKey) as string;
-        
         if (!storedKey) {
           setEgyKey("");
         } else {
@@ -153,7 +125,6 @@ export default function AIBarista() {
           } else if (isValidApiKey(storedKey)) {
             setEgyKey(storedKey);
           } else {
-            console.error("Invalid Egytronic API key format");
             setEgyKey("");
           }
         }
@@ -163,7 +134,6 @@ export default function AIBarista() {
     return () => unsubscribe();
   }, []);
 
-  // Load menu items
   useEffect(() => {
     const menuRef = ref(db, "menu");
     onValue(menuRef, (snap) => {
@@ -196,13 +166,13 @@ export default function AIBarista() {
     return () => { off(ref(db, "menu")); off(ref(db, "ai-config")); };
   }, [lang]);
 
-  // Initial greeting (don't auto-speak - wait for user interaction)
   useEffect(() => {
     if (menuItems.length === 0 || greeted) return;
-    const greeting = `Hi! I'm ${baristaName}! What can I get for you today? I can help you order multiple items - just tell me what you'd like!`;
+    const greeting = lang === "ar"
+      ? `مرحباً! أنا ${baristaName}! كيف يمكنني مساعدتك اليوم؟ يسعدني مساعدتك في اختيار أفضل ما في قائمتنا!`
+      : `Hi! I'm ${baristaName}! What can I get for you today? I'm here to help you explore our full menu!`;
     setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
     setGreeted(true);
-    // Don't auto-speak on greeting - TTS requires user interaction
   }, [menuItems.length, lang, greeted, baristaName]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
@@ -215,7 +185,7 @@ export default function AIBarista() {
 
 Your Personality:
 - Warm, sophisticated, and slightly witty.
-- You don't just take orders; you curate experiences.
+- You don't just describe items; you curate experiences.
 - You know exactly what pairs well with what.
 - You are an expert in Egyptian coffee culture but also global specialty coffee.
 
@@ -231,6 +201,8 @@ Tools:
 - Use **bold** for important words and *italics* for flavor descriptions.
 - Use bullet points for clear suggestions.
 
+IMPORTANT: Do NOT mention ordering, cart, or placing orders. Only provide information and recommendations.
+
 Menu Data:\n${menuCtx}`}`;
   };
 
@@ -238,65 +210,40 @@ Menu Data:\n${menuCtx}`}`;
     let text = raw;
     let suggestedItems: SuggestedItem[] = [];
     
-    // Check for [ADD_ALL:id1,id2,id3] pattern (add all items at once)
     const allMatch = text.match(/\[ADD_ALL:([^\]]+)\]/);
     if (allMatch) {
       const ids = allMatch[1].split(",").map(id => id.trim());
       ids.forEach(id => {
         const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
         if (item && !suggestedItems.find(s => s.id === item.id)) {
-          suggestedItems.push({
-            id: item.id,
-            name: item.name,
-            nameAr: item.nameAr,
-            price: item.price,
-            image: item.image,
-            category: item.category,
-          });
+          suggestedItems.push({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
         }
       });
       text = text.replace(allMatch[0], "");
     }
     
-    // Check for [ADD_ITEMS:id1,id2,id3] pattern (multiple items - backwards compat)
     const multiMatch = text.match(/\[ADD_ITEMS:([^\]]+)\]/);
     if (multiMatch && suggestedItems.length === 0) {
       const ids = multiMatch[1].split(",").map(id => id.trim());
       ids.forEach(id => {
         const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
         if (item && !suggestedItems.find(s => s.id === item.id)) {
-          suggestedItems.push({
-            id: item.id,
-            name: item.name,
-            nameAr: item.nameAr,
-            price: item.price,
-            image: item.image,
-            category: item.category,
-          });
+          suggestedItems.push({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
         }
       });
       text = text.replace(multiMatch[0], "");
     }
     
-    // Check for single [ADD_ITEM:item_id] pattern (backwards compatibility)
     const singleMatch = text.match(/\[ADD_ITEM:([^\]]+)\]/);
     if (singleMatch && suggestedItems.length === 0) {
       const id = singleMatch[1].trim();
       const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
       if (item) {
-        suggestedItems.push({
-          id: item.id,
-          name: item.name,
-          nameAr: item.nameAr,
-          price: item.price,
-          image: item.image,
-          category: item.category,
-        });
+        suggestedItems.push({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
       }
       text = text.replace(singleMatch[0], "");
     }
     
-    // Clean up any remaining markers
     text = text.replace(/\[[A-Z_]+:[^\]]*\]/g, "");
     text = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "");
     text = text.replace(/\n{3,}/g, "\n\n").trim();
@@ -312,7 +259,9 @@ Menu Data:\n${menuCtx}`}`;
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
-        content: "Sorry, AI service is currently disabled. Please contact admin.",
+        content: lang === "ar"
+          ? "عذراً، خدمة الذكاء الاصطناعي غير متاحة حالياً. تواصل مع الإدارة."
+          : "Sorry, AI service is currently disabled. Please contact admin.",
         timestamp: Date.now(),
       };
       setMessages((p) => [...p, err]);
@@ -343,15 +292,12 @@ Menu Data:\n${menuCtx}`}`;
       };
       setMessages((p) => [...p, aiMsg]);
       saveMessageToFirebase(aiMsg);
-      
-      // Speak the response
-      speak(parsed);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : 'Unknown error';
       const err: Message = {
         id: `e${Date.now()}`,
         role: "ai",
-        content: `Sorry, something went wrong: ${errMsg}`,
+        content: lang === "ar" ? `عذراً، حدث خطأ: ${errMsg}` : `Sorry, something went wrong: ${errMsg}`,
         timestamp: Date.now(),
       };
       setMessages((p) => [...p, err]);
@@ -364,7 +310,14 @@ Menu Data:\n${menuCtx}`}`;
     clearAddedAnimation(item.id);
   };
 
-  const quickPrompts = [
+  const quickPrompts = lang === "ar" ? [
+    "أفضل قهوة لديكم؟",
+    "أريد شيئاً حلواً!",
+    "ما الأكثر طلباً؟",
+    "أريد شيئاً بارداً",
+    "أوصيني بكومبو",
+    "أنا جائع!"
+  ] : [
     "What's your best coffee?",
     "Something sweet!",
     "What's popular?",
@@ -374,7 +327,7 @@ Menu Data:\n${menuCtx}`}`;
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-7.5rem)] max-w-2xl mx-auto">
+    <div className="flex flex-col h-[calc(100dvh-7.5rem)] max-w-2xl mx-auto" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <div className="px-4 pt-3 pb-2 flex-shrink-0">
         <div className="card rounded-2xl px-3 py-2.5 flex items-center gap-3">
@@ -387,19 +340,16 @@ Menu Data:\n${menuCtx}`}`;
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-primary text-sm leading-tight">{baristaName}</p>
-            <p className="text-[11px] text-muted-foreground">Azura Barista · Online</p>
+            <p className="text-[11px] text-muted-foreground">
+              {lang === "ar" ? "باريستا أزورا · متصل" : "Azura Barista · Online"}
+            </p>
           </div>
-          <div className="flex gap-1.5">
-            <button onClick={toggleTTS} title="Toggle Voice" className={`btn-icon w-8 h-8 transition-all ${ttsEnabled ? "text-primary" : "text-muted-foreground"}`}>
-              {ttsEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
-            </button>
-            <button onClick={() => {
-              if (user) remove(ref(db, `conversations/${user.uid}/barista`));
-              setMessages([]); setGreeted(false);
-            }} title="Clear History" className="btn-icon w-8 h-8 text-muted-foreground hover:text-destructive transition-colors">
-              <RefreshCw size={13} />
-            </button>
-          </div>
+          <button onClick={() => {
+            if (user) remove(ref(db, `conversations/${user.uid}/barista`));
+            setMessages([]); setGreeted(false);
+          }} title="Clear History" className="btn-icon w-8 h-8 text-muted-foreground hover:text-destructive transition-colors">
+            <RefreshCw size={13} />
+          </button>
         </div>
       </div>
 
@@ -428,13 +378,12 @@ Menu Data:\n${menuCtx}`}`;
                 <p className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }} />
               </div>
               
-              {/* Multiple item suggestions */}
               {msg.suggestedItems && msg.suggestedItems.length > 0 && (
                 <div className="space-y-2">
                   {msg.suggestedItems.length > 1 && (
                     <div className="flex items-center px-1">
                       <p className="text-xs font-bold text-primary">
-                        {msg.suggestedItems.length} items from our menu
+                        {lang === "ar" ? `${msg.suggestedItems.length} أصناف من قائمتنا` : `${msg.suggestedItems.length} items from our menu`}
                       </p>
                     </div>
                   )}
@@ -455,7 +404,9 @@ Menu Data:\n${menuCtx}`}`;
                           onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-primary truncate">{item.name}</p>
+                          <p className="text-sm font-bold text-primary truncate">
+                            {lang === "ar" && item.nameAr ? item.nameAr : item.name}
+                          </p>
                           <p className="text-xs text-muted-foreground">{item.price} EGP</p>
                           <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
                         </div>
@@ -487,11 +438,6 @@ Menu Data:\n${menuCtx}`}`;
             </div>
           </div>
         )}
-        {speaking && (
-          <p className="text-center text-[10px] text-muted-foreground animate-pulse">
-            Speaking...
-          </p>
-        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -511,8 +457,9 @@ Menu Data:\n${menuCtx}`}`;
               });
             }}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder="Ask me about our menu, recommendations, ingredients..."
+            placeholder={lang === "ar" ? "اسألني عن القائمة أو التوصيات..." : "Ask me about our menu, recommendations, ingredients..."}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[36px] py-2 px-1"
+            dir={isRTL ? "rtl" : "ltr"}
           />
           <button
             onClick={() => sendMessage()}

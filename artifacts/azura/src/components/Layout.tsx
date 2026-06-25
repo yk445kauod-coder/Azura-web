@@ -10,7 +10,6 @@ import {
   FilmIcon, 
   ChatBubbleLeftRightIcon, 
   UserIcon,
-  Cog6ToothIcon
 } from "@heroicons/react/24/outline";
 import { 
   HomeIcon as HomeIconSolid, 
@@ -18,21 +17,26 @@ import {
   FilmIcon as FilmIconSolid, 
   ChatBubbleLeftRightIcon as ChatIconSolid, 
   UserIcon as UserIconSolid,
-  Cog6ToothIcon as CogIconSolid
 } from "@heroicons/react/24/solid";
 
-const NAV = [
-  { path: "/menu",    key: "menu",    label: "القائمة",      labelEn: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid },
-  { path: "/barista", key: "barista", label: "المساعد",      labelEn: "AI",       icon: SparklesIcon, iconActive: SparklesIconSolid },
-  { path: "/reels",   key: "reels",   label: "الفيديو",       labelEn: "Reels",    icon: FilmIcon, iconActive: FilmIconSolid },
-  { path: "/support", key: "support", label: "الدعم",        labelEn: "Support",  icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid },
-  { path: "/profile", key: "profile", label: "حسابي",        labelEn: "Profile",  icon: UserIcon, iconActive: UserIconSolid },
+const ALL_NAV = [
+  { path: "/menu",    key: "menu",    label: "القائمة",  labelEn: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid,    alwaysOn: true },
+  { path: "/barista", key: "barista", label: "المساعد",  labelEn: "AI",       icon: SparklesIcon, iconActive: SparklesIconSolid, alwaysOn: false },
+  { path: "/reels",   key: "reels",   label: "الفيديو",  labelEn: "Reels",    icon: FilmIcon,    iconActive: FilmIconSolid,     alwaysOn: false },
+  { path: "/support", key: "support", label: "الدعم",    labelEn: "Support",  icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid, alwaysOn: false },
+  { path: "/profile", key: "profile", label: "حسابي",    labelEn: "Profile",  icon: UserIcon,    iconActive: UserIconSolid,     alwaysOn: true },
 ];
 
 interface Broadcast {
   id: string; title: string; titleAr: string;
   message: string; messageAr: string;
   type: "info" | "promo" | "alert"; emoji: string; createdAt: number;
+}
+
+interface FeatureFlags {
+  baristaEnabled: boolean;
+  reelsEnabled: boolean;
+  supportEnabled: boolean;
 }
 
 const BROADCAST_TYPE_STYLE: Record<string, string> = {
@@ -46,7 +50,7 @@ const DEFAULT_BROADCAST: Broadcast = {
   title: "✨ Welcome to NEW Azura App!",
   titleAr: "✨ مرحباً بكم في تطبيق أزورا الجديد!",
   message: "🎬 Check out our NEW Video Reels! Swipe through delicious dishes 🍽️",
-  messageAr: "🎬 شاهدREELs الجديدة! اسحب لرؤية الأطباق اللذيذة 🍽️",
+  messageAr: "🎬 شاهد Reels الجديدة! اسحب لرؤية الأطباق اللذيذة 🍽️",
   type: "promo",
   emoji: "🎉",
   createdAt: Date.now(),
@@ -59,13 +63,34 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
   const [allBroadcasts, setAllBroadcasts] = useState<Broadcast[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlags>({
+    baristaEnabled: true,
+    reelsEnabled: true,
+    supportEnabled: true,
+  });
 
   const isActive = (p: string) => location === p || (p === "/menu" && (location === "/" || location === ""));
 
   const getReadIds = (): string[] => JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
   const saveReadIds = (ids: string[]) => localStorage.setItem("azura-read-broadcasts", JSON.stringify(ids));
 
-  // Listen for admin broadcasts OR show default welcome
+  // Listen for feature flags
+  useEffect(() => {
+    const ffRef = ref(db, "feature-flags");
+    onValue(ffRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Partial<FeatureFlags>;
+        setFeatureFlags({
+          baristaEnabled: data.baristaEnabled !== false,
+          reelsEnabled: data.reelsEnabled !== false,
+          supportEnabled: data.supportEnabled !== false,
+        });
+      }
+    });
+    return () => off(ref(db, "feature-flags"));
+  }, []);
+
+  // Listen for broadcasts
   useEffect(() => {
     const bRef = ref(db, "broadcast");
     onValue(bRef, (snap) => {
@@ -101,6 +126,15 @@ export default function Layout({ children }: { children: ReactNode }) {
     setNotifOpen(false);
   };
 
+  // Filter nav based on feature flags
+  const NAV = ALL_NAV.filter(item => {
+    if (item.alwaysOn) return true;
+    if (item.key === "barista") return featureFlags.baristaEnabled;
+    if (item.key === "reels") return featureFlags.reelsEnabled;
+    if (item.key === "support") return featureFlags.supportEnabled;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
@@ -122,10 +156,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-2">
           {profile?.tableNumber && (
             <span className="text-[11px] font-bold text-primary px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--muted))", boxShadow: "var(--shadow-xs)" }}>
-              Table {profile.tableNumber}
+              {lang === "ar" ? `طاولة ${profile.tableNumber}` : `Table ${profile.tableNumber}`}
             </span>
           )}
-          {/* Notification Bell */}
           <button
             onClick={() => setNotifOpen(true)}
             className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-muted active:scale-95"
@@ -149,7 +182,6 @@ export default function Layout({ children }: { children: ReactNode }) {
             style={{ borderTop: "1px solid hsl(var(--border))" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Handle bar */}
             <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-2" />
             <div className="flex items-center justify-between">
               <h2 className="font-extrabold text-foreground text-base">
@@ -219,9 +251,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="page-enter">{children}</div>
       </main>
 
-      {/* Bottom Nav - Amazing iOS Style */}
+      {/* Bottom Nav */}
       <nav className="fixed bottom-0 inset-x-0 z-40 px-1 pb-safe">
-        {/* Background blur container - Pure white glass, unaffected by bg */}
         <div 
           className="mx-3 mb-2 rounded-2xl overflow-hidden"
           style={{ 
@@ -247,7 +278,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                       ${active ? "" : "hover:scale-[1.08] active:scale-[0.92]"}
                     `}
                   >
-                    {/* Active indicator pill */}
                     {active && (
                       <div 
                         className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full"
@@ -257,8 +287,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                         }}
                       />
                     )}
-                    
-                    {/* Icon container with dynamic background */}
                     <div className="relative">
                       <div 
                         className={`
@@ -280,8 +308,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                         />
                       </div>
                     </div>
-                    
-                    {/* Label with active highlight */}
                     <span 
                       className={`
                         text-[10px] font-semibold leading-none tracking-wide transition-all duration-300

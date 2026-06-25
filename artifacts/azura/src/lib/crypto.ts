@@ -98,6 +98,56 @@ export async function chatWithAI(
   history: Array<{ role: string; parts: Array<{ text: string }> }>,
   systemPrompt: string
 ): Promise<string> {
+  // Load settings to determine provider
+  let aiProvider = "groq";
+  let openaiEndpoint = "";
+
+  try {
+    const { db, ref, get } = await import("./firebase");
+    const snap = await get(ref(db, "api-settings"));
+    if (snap.exists()) {
+      const data = snap.val();
+      aiProvider = data.aiProvider || "groq";
+      openaiEndpoint = data.openaiEndpoint || "";
+    }
+  } catch (e) {
+    console.warn("Could not load AI settings, defaulting to groq", e);
+  }
+
+  const formattedHistory = history.map((h) => ({
+    role: h.role === 'model' ? 'assistant' : 'user',
+    content: h.parts[0]?.text || "",
+  }));
+
+  // Pollinations.ai (Free Fallback)
+  if (aiProvider === "pollinations" || (!apiKey && aiProvider !== "pollinations")) {
+    return chatWithPollinations(message, history, systemPrompt);
+  }
+
+  // OpenAI Compatible
+  if (aiProvider === "openai" && openaiEndpoint) {
+    try {
+      const res = await fetch(`${openaiEndpoint.replace(/\/$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: "gpt-4-turbo",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...formattedHistory,
+            { role: "user", content: message }
+          ]
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "";
+      }
+    } catch (e) {
+      console.error("OpenAI provider error:", e);
+    }
+  }
+
   const url = "https://api.groq.com/openai/v1/chat/completions";
   
   // Detect user language from message

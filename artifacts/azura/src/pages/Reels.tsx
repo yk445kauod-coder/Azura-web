@@ -80,22 +80,22 @@ export default function Reels() {
       setReels(list);
       setLoading(false);
 
-      // Trigger Facebook XFBML re-parsing
+      // Trigger Social SDK re-parsing
       setTimeout(() => {
-        if (window.FB) {
-          window.FB.XFBML.parse();
-        }
-      }, 500);
+        if (window.FB) window.FB.XFBML.parse();
+        if (window.instgrm) window.instgrm.Embeds.process();
+      }, 800);
     });
     return () => off(reelsRef);
   }, []);
 
   useEffect(() => {
-    // Re-parse XFBML when current reel changes
-    if (window.FB && currentReel?.videoProvider === "facebook") {
-      setTimeout(() => window.FB.XFBML.parse(), 100);
-    }
-  }, [currentIndex, currentReel]);
+    // Re-parse Social Embeds when current reel changes
+    setTimeout(() => {
+      if (window.FB) window.FB.XFBML.parse();
+      if (window.instgrm) window.instgrm.Embeds.process();
+    }, 300);
+  }, [currentIndex, currentReel?.id]);
 
   // Load ratings
   useEffect(() => {

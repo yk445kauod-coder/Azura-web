@@ -22,7 +22,7 @@ import AIAdminAssistant from "@/components/AIAdminAssistant";
 const ADMIN_PIN = "azura2024";
 type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
 
-interface MenuItem { id: string; name: string; nameAr: string; description: string; descriptionAr?: string; price: number; category: string; available: boolean; image: string; ingredients?: string; ingredientsAr?: string; }
+interface MenuItem { id: string; name: string; nameAr: string; description: string; descriptionAr?: string; price: number; category: string; available: boolean; image: string; ingredients?: string; ingredientsAr?: string; recommended?: boolean; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
@@ -536,12 +536,28 @@ export default function Admin() {
                             <input className={inp} value={item.category} onChange={e => smartUpdate(`menu/items/${item.id}`, { category: e.target.value })}/>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 pt-2">
+                        <div className="flex items-center gap-2 pt-2 flex-wrap">
                           <button
                             onClick={() => smartUpdate(`menu/items/${item.id}`, { available: !item.available })}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
                           >
                             {item.available ? tr("Available", "متاح") : tr("Sold Out", "نفذ")}
+                          </button>
+                          <button
+                            title={item.recommended ? "Remove from Recommended" : "Mark as Recommended"}
+                            onClick={async () => {
+                              await smartUpdate(`menu/items/${item.id}`, { recommended: !item.recommended });
+                              if (!item.recommended) {
+                                await set(ref(db, "notifications/recommended"), {
+                                  message: `⭐ ${item.name} is now recommended!`,
+                                  messageAr: `⭐ ${item.nameAr} مُوصى به الآن!`,
+                                  updatedAt: Date.now(),
+                                });
+                              }
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${item.recommended ? "bg-amber-400 text-white shadow-md shadow-amber-200" : "bg-gray-100 text-gray-500 hover:bg-amber-50 hover:text-amber-600"}`}
+                          >
+                            {item.recommended ? `⭐ ${tr("Recommended","موصى به")}` : `☆ ${tr("Recommend","أوصِ به")}`}
                           </button>
                           <button
                             onClick={async () => {

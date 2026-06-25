@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
@@ -9,6 +9,7 @@ interface MenuItem {
   price: number; category: string; available: boolean; image: string;
   ingredients?: string[];
   ingredientsAr?: string[];
+  recommended?: boolean;
 }
 
 function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
@@ -22,13 +23,15 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
     category: String(raw.category || "food"),
     available: raw.available !== false,
     image: String(raw.image || raw.img || ""),
-  ingredients: Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []),
-  ingredientsAr: Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : (typeof raw.ingredientsAr === "string" ? (raw.ingredientsAr as string).split(",").map(i => i.trim()) : [])),
+    recommended: raw.recommended === true,
+    ingredients: Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []),
+    ingredientsAr: Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []),
   };
 }
 
 const CATS = [
   { id: "all",        emoji: "✨",  en: "All",         ar: "الكل"      },
+  { id: "recommended",emoji: "⭐",  en: "Top Picks",   ar: "الأفضل"    },
   { id: "new_items",  emoji: "🆕",  en: "New",         ar: "جديد"      },
   { id: "food",       emoji: "🍗",  en: "Main",        ar: "أطباق"     },
   { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
@@ -46,6 +49,7 @@ const CATS = [
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
+  recommended: ["recommended"],
   new_items:   ["new_items", "new", "featured"],
   food:        ["food", "mains", "main", "new_items"],
   sandwiches:  ["sandwich", "sandwiches", "toast", "croissant"],
@@ -110,8 +114,15 @@ const MenuItemCard = memo(({
             <span>{cat?.emoji}</span>
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
-          {/* NEW badge */}
-          {item.category === "new_items" && (
+          {/* RECOMMENDED gold badge — highest priority */}
+          {item.recommended && (
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-[9px] font-black tracking-wide shadow-lg shadow-amber-200 flex items-center gap-1">
+              <span>⭐</span>
+              <span>{lang === "ar" ? "مُوصى به" : "TOP PICK"}</span>
+            </div>
+          )}
+          {/* NEW badge — shown only when not recommended */}
+          {!item.recommended && item.category === "new_items" && (
             <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black tracking-wide shadow-lg">
               {lang === "ar" ? "جديد" : "NEW"}
             </div>
@@ -308,7 +319,10 @@ export default function MenuLightweight() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [showRecToast, setShowRecToast] = useState(false);
+  const [recToastMsg, setRecToastMsg] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+  const toastShownRef = useRef(false);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
 
@@ -346,12 +360,31 @@ export default function MenuLightweight() {
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
-  // Filtered items
+  // Recommendation notification toast — fires once when recommended items load
+  useEffect(() => {
+    if (toastShownRef.current || items.length === 0) return;
+    const recItems = items.filter(i => i.available && i.recommended);
+    if (recItems.length === 0) return;
+    toastShownRef.current = true;
+    const firstName = lang === "ar" ? (recItems[0].nameAr || recItems[0].name) : recItems[0].name;
+    const msg = lang === "ar"
+      ? `⭐ ${recItems.length > 1 ? `${recItems.length} أصناف` : firstName} مُوصى بها الآن!`
+      : `⭐ ${recItems.length > 1 ? `${recItems.length} items` : firstName} recommended today!`;
+    setRecToastMsg(msg);
+    setShowRecToast(true);
+    const t = setTimeout(() => setShowRecToast(false), 4000);
+    return () => clearTimeout(t);
+  }, [items, lang]);
+
+  // Filtered items — "recommended" tab uses the flag, not category string
   const filtered = useMemo(() => {
-    const aliasSet = cat !== "all" ? new Set(CAT_ALIASES[cat] ?? [cat]) : null;
     return items.filter((item) => {
       if (!item.available) return false;
-      if (aliasSet && !aliasSet.has(item.category.toLowerCase())) return false;
+      if (cat === "recommended") return item.recommended === true;
+      if (cat !== "all") {
+        const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
+        if (!aliasSet.has(item.category.toLowerCase())) return false;
+      }
       if (debouncedSearch) {
         const q = debouncedSearch.toLowerCase();
         const ingMatch = (item.ingredients ?? []).some(i => i.toLowerCase().includes(q));
@@ -372,6 +405,7 @@ export default function MenuLightweight() {
   // Category counts
   const catCount = useCallback((c: string) => {
     if (c === "all") return items.filter((i) => i.available).length;
+    if (c === "recommended") return items.filter((i) => i.available && i.recommended).length;
     const aliasSet = new Set(CAT_ALIASES[c] ?? [c]);
     return items.filter((i) => i.available && aliasSet.has(i.category.toLowerCase())).length;
   }, [items]);

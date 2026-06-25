@@ -42,7 +42,7 @@ interface Rating {
   createdAt: number;
 }
 
-const PLACEHOLDER = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80";
+const PLACEHOLDER = "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800";
 const COMMENTS_PER_PAGE = 10;
 
 export default function Reels() {
@@ -89,13 +89,16 @@ export default function Reels() {
     return () => off(reelsRef);
   }, []);
 
+  // Re-parse Social Embeds when current reel changes
+  // NOTE: currentReelId is derived below — keep this effect AFTER the state declarations
+  // but the dep value is captured via the state array (safe, no TDZ)
+  const currentReelId = reels[currentIndex]?.id;
   useEffect(() => {
-    // Re-parse Social Embeds when current reel changes
     setTimeout(() => {
       if (window.FB) window.FB.XFBML.parse();
       if (window.instgrm) window.instgrm.Embeds.process();
     }, 300);
-  }, [currentIndex, currentReel?.id]);
+  }, [currentIndex, currentReelId]);
 
   // Load ratings
   useEffect(() => {

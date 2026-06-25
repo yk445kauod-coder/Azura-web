@@ -1,0 +1,100 @@
+[Violation] Forced reflow while executing JavaScript took <N>ms
+6[DOM] Password field is not contained in a form: (More info: <URL>) 
+index-z29Xuugi.js:8 [Violation] 'click' handler took 442ms
+5[Violation] 'setTimeout' handler took <N>ms
+[Violation] 'click' handler took 5661ms
+[Violation] 'click' handler took 1566ms
+index-z29Xuugi.js:1 [Violation] 'message' handler took 172ms
+[Violation] 'click' handler took 6619ms
+picture:1          GET https://graph.facebook.com/844863218315110/picture 400
+Image (async)
+W1 @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+gi @ index-z29Xuugi.js:8
+J1 @ index-z29Xuugi.js:8
+E2 @ index-z29Xuugi.js:8
+S2 @ index-z29Xuugi.js:8
+p2 @ index-z29Xuugi.js:8
+m2 @ index-z29Xuugi.js:8
+D2 @ index-z29Xuugi.js:8
+cl @ index-z29Xuugi.js:8
+j2 @ index-z29Xuugi.js:8
+(anonymous) @ index-z29Xuugi.js:8
+index-z29Xuugi.js:9 Unrecognized feature: 'web-share'.
+dt @ index-z29Xuugi.js:9
+un @ index-z29Xuugi.js:9
+h6 @ index-z29Xuugi.js:8
+Bd @ index-z29Xuugi.js:8
+w2 @ index-z29Xuugi.js:8
+x6 @ index-z29Xuugi.js:8
+Gp @ index-z29Xuugi.js:8
+m2 @ index-z29Xuugi.js:8
+I2 @ index-z29Xuugi.js:8
+U @ index-z29Xuugi.js:1
+5Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.
+5Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.
+5Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.
+5Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'browsing-topics'.
+5Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.
+5Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.
+5Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.
+5Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.
+5Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.
+5Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.
+5Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'unload'.
+5Error with Permissions-Policy header: Unrecognized feature: 'window-management'.
+5Document-Policy HTTP header: Unrecognized document policy feature name include-js-call-stacks-in-crash-reports.
+-MiLwDFVI2F.js:329 [Violation] 'requestAnimationFrame' handler took 55ms
+-MiLwDFVI2F.js:184 [Violation] 'message' handler took 228ms
+[Violation] 'setInterval' handler took 244ms
+VM94 index-z29Xuugi.js:9 [Violation] 'setInterval' handler took 86ms

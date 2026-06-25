@@ -180,10 +180,10 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 `}
 
 ## ACTION RULES
-- When user clearly wants to order something specific, end with: [ADD_ITEM:item_id]
-- When user wants to add something to cart, confirm with: [ADD_ITEM:item_id]
-- Don't suggest items every message - only when relevant
-- If user is just chatting, respond naturally without suggesting items
+- When user asks about a specific item, showcase it with: [ADD_ITEM:item_id]
+- Only highlight items when genuinely relevant to the conversation
+- If user is just chatting, respond naturally without highlighting items
+- DO NOT mention ordering, cart, or placing orders — this is a digital menu, not an ordering app
 
 ## IMPORTANT
 - Keep responses conversational, not robotic
@@ -200,7 +200,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "deepseek-r1-distill-qwen-32b", // Using DeepSeek Qwen 32B for superior Arabic linguistic depth and reasoning
+        model: "llama-3.3-70b-versatile", // Llama 3.3 70B — best available on Groq, excellent Arabic + Egyptian dialect
         messages: [
           { role: "system", content: enhancedSystem },
           ...history.map((h) => ({
@@ -228,73 +228,40 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
   }
 }
 
-// ── Free TTS using Pollinations API ─────────────────────────────────────
-// Completely free, no API key needed, high quality voices
+// ── High-Quality TTS via StreamElements (AWS Polly voices, free, no API key) ──
 /**
- * Advanced High-Quality TTS using Natural Language Generation
- * Optimized for Arabic (Egyptian) and English
+ * Returns a URL for a natural-sounding human voice (AWS Polly via StreamElements).
+ * Arabic → Zeina (native Egyptian-Arabic female).
+ * English → Ivy (warm female voice).
+ * No CORS issues when set as <audio> src directly (no crossOrigin attribute).
  */
 export async function textToSpeech(text: string, lang: string = "en"): Promise<string> {
-  try {
-    // We use a high-quality "Gemini-like" neural voice provider
-    // Using a more robust Pollinations configuration for high quality
-    
-    const voiceMap: Record<string, string> = {
-      'en': 'af_bella', // Premium English
-      'ar': 'af_heart', // Best for Arabic/Egyptian
-    };
-    
-    const voice = voiceMap[lang] || 'af_bella';
-    
-    // Clean and limit text for optimal performance (TTS APIs usually have limits per request)
-    const cleanText = text.replace(/[*_`#]/g, '').slice(0, 300);
-    const encodedText = encodeURIComponent(cleanText);
+  // Strip markdown / HTML tags, limit to 250 chars (StreamElements limit)
+  const cleanText = text
+    .replace(/[*_`#\[\]]/g, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 250);
 
-    // Use the premium Pollinations TTS endpoint which provides neural, natural sounding voices
-    // No registration or API key required for client-side use
-    const url = `https://texttospeech.pollinations.ai/${encodedText}?voice=${voice}`;
+  if (!cleanText) return "";
 
-    return url;
-  } catch (err) {
-    console.error("TTS generation error:", err);
-    return "";
-  }
+  const voice = lang === "ar" ? "Zeina" : "Ivy";
+  const encoded = encodeURIComponent(cleanText);
+  return `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encoded}`;
 }
 
-// Alternative: Use browser TTS as fallback
-export function browserTTS(text: string, lang: string = "en-US") {
-  if (!('speechSynthesis' in window)) return;
-  
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  utterance.rate = 0.95;
-  utterance.pitch = 1;
-  
-  // Try to find best voice
-  const voices = speechSynthesis.getVoices();
-  const preferred = voices.find(v => v.lang.includes(lang.split('-')[0])) 
-                  || voices.find(v => v.name.includes('Natural'))
-                  || voices[0];
-  if (preferred) utterance.voice = preferred;
-  
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utterance);
-}
-
-// Play audio from URL (for Pollinations)
+// Play audio from URL — no crossOrigin attribute so any URL works without CORS headers
 export function playAudioFromUrl(url: string): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const audio = new Audio();
-    audio.crossOrigin = "anonymous";
+    // Do NOT set crossOrigin — lets audio load from any URL without CORS headers
     audio.src = url;
     audio.onended = () => resolve();
     audio.onerror = () => {
-      console.warn("TTS playback failed, trying browser fallback");
+      console.warn("TTS playback failed (StreamElements)");
       resolve();
     };
-    audio.play().catch(() => {
-      // Silently handle and resolve
-      resolve();
-    });
+    audio.play().catch(() => resolve());
   });
 }

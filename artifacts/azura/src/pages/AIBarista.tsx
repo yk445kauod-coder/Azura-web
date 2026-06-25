@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI, textToSpeech, playAudioFromUrl } from "@/lib/crypto";
-import { Send, Plus, RefreshCw, Volume2, VolumeX, ArrowLeft, Check } from "lucide-react";
+import { Send, Eye, RefreshCw, Volume2, VolumeX, ArrowLeft, Check } from "lucide-react";
 
 interface SuggestedItem {
   id: string; name: string; nameAr: string; price: number; image: string; category: string;
@@ -228,13 +228,13 @@ Your Personality:
 
 Your Intelligence:
 - You remember the conversation context perfectly.
-- You can handle complex modifications (extra sugar, no ice, dairy alternatives).
+- You can handle questions about modifications (extra sugar, no ice, dairy alternatives).
 - If an item is mentioned, you can explain its key ingredients or flavor profile.
-- You are very efficient with the [ADD_ALL:id1,id2] tool.
+- You are excellent at pairing recommendations.
 
 Tools:
-- Use [ADD_ALL:id1,id2] for every item the user mentions or you suggest.
-- If the user says "I want a latte and a cake", you MUST include [ADD_ALL:latte_id,cake_id] in your response.
+- When you want to highlight specific items for the customer, use [ADD_ALL:id1,id2] to showcase them.
+- If the user asks about a latte and a cake, use [ADD_ALL:latte_id,cake_id] to display those items.
 - Use **bold** for important words and *italics* for flavor descriptions.
 - Use bullet points for clear suggestions.
 
@@ -371,15 +371,6 @@ Menu Data:\n${menuCtx}`}`;
     clearAddedAnimation(item.id);
   };
 
-  const handleViewAllItems = (items: SuggestedItem[]) => {
-    items.forEach((item, index) => {
-      setTimeout(() => {
-        setAddedItems(prev => new Set(prev).add(item.id));
-        clearAddedAnimation(item.id);
-      }, index * 150);
-    });
-  };
-
   const quickPrompts = [
     "What's your best coffee?",
     "Something sweet!",
@@ -448,26 +439,19 @@ Menu Data:\n${menuCtx}`}`;
               {msg.suggestedItems && msg.suggestedItems.length > 0 && (
                 <div className="space-y-2">
                   {msg.suggestedItems.length > 1 && (
-                    <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center px-1">
                       <p className="text-xs font-bold text-primary">
-                        {msg.suggestedItems.length} items suggested
+                        {msg.suggestedItems.length} items from our menu
                       </p>
-                      <button
-                        onClick={() => handleViewAllItems(msg.suggestedItems!)}
-                        className="text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105"
-                        style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
-                      >
-                        <Plus size={12} /> Add All
-                      </button>
                     </div>
                   )}
                   {msg.suggestedItems.map((item) => {
-                    const isAdded = addedItems.has(item.id);
+                    const isSeen = addedItems.has(item.id);
                     return (
                       <div 
                         key={item.id} 
                         className={`card rounded-xl p-3 flex items-center gap-3 cursor-pointer transition-all ${
-                          isAdded ? "bg-green-50 border border-green-200" : "hover:shadow-md"
+                          isSeen ? "bg-primary/5 border border-primary/20" : "hover:shadow-md"
                         }`} 
                         onClick={() => handleViewItem(item)}
                       >
@@ -482,23 +466,16 @@ Menu Data:\n${menuCtx}`}`;
                           <p className="text-xs text-muted-foreground">{item.price} EGP</p>
                           <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
                         </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleViewItem(item); }}
-                          className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                            isAdded ? "bg-green-500" : "btn-primary"
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+                            isSeen ? "bg-primary/20" : "bg-muted"
                           }`}
-                          style={isAdded ? { background: "#22c55e" } : { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
                         >
-                          {isAdded ? <Check size={16} className="text-white" /> : <Plus size={16} className="text-white" />}
-                        </button>
+                          {isSeen ? <Check size={14} className="text-primary" /> : <Eye size={14} className="text-muted-foreground" />}
+                        </div>
                       </div>
                     );
                   })}
-                  {msg.suggestedItems.length > 1 && (
-                    <p className="text-[10px] text-muted-foreground text-center px-1">
-                      Tap individual items or "Add All" to add everything
-                    </p>
-                  )}
                 </div>
               )}
             </div>
@@ -538,7 +515,7 @@ Menu Data:\n${menuCtx}`}`;
               e.target.style.height = `${Math.min(e.target.scrollHeight, 96)}px`;
             }}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder="What would you like to order?..."
+            placeholder="Ask me about our menu, recommendations, ingredients..."
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[36px] py-2 px-1"
           />
           <button

@@ -79,6 +79,23 @@ export default function Admin() {
   const [chatInput, setChatInput]       = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // Add Item inline form
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({
+    name: "", nameAr: "", price: "", category: "coffee",
+    image: "", description: "", descriptionAr: "",
+    ingredients: "", ingredientsAr: "", available: true,
+  });
+  const [savingItem, setSavingItem] = useState(false);
+
+  const MENU_CATEGORIES = [
+    "coffee","iced_coffee","hot_drinks","hot_chocolate","frappuccino","sahlab",
+    "fresh_juices","smoothies","milkshakes","mojitos","boba_tea",
+    "burgers","smash_burgers","fried_chicken","main_dishes","pasta",
+    "salads","soups","appetizers","breakfast","toast","croissant",
+    "pancakes","crepes","desserts","corto","add_ons","shisha","new_items",
+  ];
+
   // Broadcast form
   const [newBroadcast, setNewBroadcast] = useState<{
     title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string;
@@ -510,19 +527,108 @@ export default function Admin() {
                     <UploadCloud size={13}/> {tr("Force Reseed", "رفع القائمة الكاملة")}
                   </button>
                   <button
-                    onClick={() => {
-                      const id = prompt("Item ID (e.g. espresso_1):");
-                      if (!id) return;
-                      smartSet(`menu/items/${id}`, {
-                        name: "New Item", nameAr: "صنف جديد", price: 50, category: "coffee", available: true, image: "", description: "", ingredients: ""
-                      });
-                    }}
-                    className="btn-primary px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1"
+                    onClick={() => setShowAddForm(v => !v)}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors ${showAddForm ? "bg-muted text-foreground" : "btn-primary"}`}
                   >
-                    <Plus size={13}/> {tr("Add Item", "إضافة صنف")}
+                    <Plus size={13}/> {showAddForm ? tr("Cancel", "إلغاء") : tr("Add Item", "إضافة صنف")}
                   </button>
                 </div>
               </div>
+
+              {/* ── Inline Add Item Form ── */}
+              {showAddForm && (
+                <div className="rounded-2xl border border-primary/20 bg-primary/3 p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <p className="text-xs font-black text-primary uppercase tracking-widest">{tr("New Menu Item", "صنف جديد")}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (EN) *","الاسم إنجليزي *")}</label>
+                      <input className={inp} placeholder="e.g. Caramel Latte" value={addForm.name}
+                        onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (AR)","الاسم عربي")}</label>
+                      <input className={inp} dir="rtl" placeholder="مثال: لاتيه كراميل" value={addForm.nameAr}
+                        onChange={e => setAddForm(f => ({ ...f, nameAr: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Price (EGP) *","السعر *")}</label>
+                      <input type="number" className={inp} placeholder="0" min="0" value={addForm.price}
+                        onChange={e => setAddForm(f => ({ ...f, price: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Category *","الفئة *")}</label>
+                      <select className={inp} value={addForm.category}
+                        onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}>
+                        {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Image URL","رابط الصورة")}</label>
+                    <div className="flex gap-2 items-center">
+                      <input className={`${inp} flex-1`} placeholder="https://..." value={addForm.image}
+                        onChange={e => setAddForm(f => ({ ...f, image: e.target.value }))} />
+                      {addForm.image && (
+                        <img src={addForm.image} alt="preview" className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-border"
+                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (EN)","مكونات EN")}</label>
+                      <textarea className={`${inp} resize-none text-[11px]`} rows={2} placeholder="Coffee, Milk, Sugar..." value={addForm.ingredients}
+                        onChange={e => setAddForm(f => ({ ...f, ingredients: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (AR)","مكونات AR")}</label>
+                      <textarea className={`${inp} resize-none text-[11px]`} rows={2} dir="rtl" placeholder="قهوة، حليب..." value={addForm.ingredientsAr}
+                        onChange={e => setAddForm(f => ({ ...f, ingredientsAr: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Description (EN)","الوصف")}</label>
+                    <input className={inp} placeholder="Short description..." value={addForm.description}
+                      onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))} />
+                  </div>
+                  <div className="flex items-center gap-3 pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <div className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 ${addForm.available ? "bg-green-500" : "bg-muted"}`}
+                        onClick={() => setAddForm(f => ({ ...f, available: !f.available }))}>
+                        <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${addForm.available ? "translate-x-4" : ""}`} />
+                      </div>
+                      <span className="text-xs font-semibold text-foreground">{addForm.available ? tr("Available","متاح") : tr("Unavailable","غير متاح")}</span>
+                    </label>
+                    <button
+                      disabled={savingItem || !addForm.name || !addForm.price || !addForm.category}
+                      onClick={async () => {
+                        if (!addForm.name || !addForm.price) return swalError(tr("Name and price are required","الاسم والسعر مطلوبان"));
+                        setSavingItem(true);
+                        const slug = addForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+                        const id = `${slug}_${Date.now().toString(36)}`;
+                        const item = {
+                          name: addForm.name.trim(), nameAr: addForm.nameAr.trim(),
+                          price: Number(addForm.price), category: addForm.category,
+                          image: addForm.image.trim(), available: addForm.available,
+                          description: addForm.description.trim(), descriptionAr: addForm.descriptionAr.trim(),
+                          ingredients: addForm.ingredients.trim(), ingredientsAr: addForm.ingredientsAr.trim(),
+                        };
+                        await set(ref(db, `menu/${addForm.category}/${id}`), item);
+                        setAddForm({ name:"", nameAr:"", price:"", category:"coffee", image:"", description:"", descriptionAr:"", ingredients:"", ingredientsAr:"", available:true });
+                        setShowAddForm(false);
+                        setSavingItem(false);
+                        swalSuccess(tr(`✅ "${addForm.name}" added to ${addForm.category}!`, `✅ تمت إضافة "${addForm.nameAr || addForm.name}"!`));
+                      }}
+                      className="btn-primary px-5 py-2 rounded-xl text-xs font-bold disabled:opacity-40 flex items-center gap-1.5 ms-auto"
+                    >
+                      {savingItem ? <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={13}/>}
+                      {tr("Save Item","حفظ الصنف")}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 {menu.length === 0 && (

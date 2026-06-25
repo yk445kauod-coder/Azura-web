@@ -142,8 +142,8 @@ const MenuItemCard = memo(({
               <span className="text-lg font-extrabold text-primary">{item.price}</span>
               <span className="text-[10px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
             </div>
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
-              <span className="text-lg font-bold">+</span>
+            <div className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary text-[10px] font-bold">
+              {lang === "ar" ? "التفاصيل" : "Details"}
             </div>
           </div>
         </div>

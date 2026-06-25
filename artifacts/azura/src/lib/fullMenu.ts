@@ -10,7 +10,7 @@ export const fullMenuData = {
       "price": 336,
       "category": "new_items",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Grilled Chicken", "Butterfly Sauce", "Rice", "Toasted Bread", "Garlic", "Mushrooms", "Mozzarella"],
       "ingredientsAr": ["دجاج مشوي", "صوص باترفلاي", "أرز", "خبز محمص", "ثوم", "مشروم", "موزاريلا"]
     },
@@ -22,7 +22,7 @@ export const fullMenuData = {
       "price": 234,
       "category": "new_items",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Penne Pasta", "Creamy Lemon Sauce", "Grilled Chicken Pieces"],
       "ingredientsAr": ["مكرونة بيني", "صوص ليمون كريمي", "قطع دجاج مشوي"]
     },
@@ -34,7 +34,7 @@ export const fullMenuData = {
       "price": 178,
       "category": "new_items",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&q=80",
+      "image": "https://images.pexels.com/photos/60616/fried-chicken-chicken-fried-crunchy-60616.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Chicken Pieces", "Special Dynamite Sauce"],
       "ingredientsAr": ["قطع دجاج", "صوص دايناميت خاص"]
     }
@@ -48,7 +48,7 @@ export const fullMenuData = {
       "price": 310,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Grilled Chicken Breast", "Choice of Sauce", "Side Salad"],
       "ingredientsAr": ["صدر دجاج مشوي", "اختيار صوص", "سلطة جانبية"]
     },
@@ -60,7 +60,7 @@ export const fullMenuData = {
       "price": 325,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2673353/pexels-photo-2673353.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Grilled Chicken", "Mushroom Cream Sauce", "Herbs"],
       "ingredientsAr": ["دجاج مشوي", "صوص مشروم كريمي", "أعشاب"]
     },
@@ -72,7 +72,7 @@ export const fullMenuData = {
       "price": 450,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1307658/pexels-photo-1307658.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Beef Fillet", "Choice of Sauce (Pepper / Mushroom / Blue Cheese)"],
       "ingredientsAr": ["فيليه لحم", "اختيار صوص (فلفل / مشروم / بلو تشيز)"]
     },
@@ -84,7 +84,7 @@ export const fullMenuData = {
       "price": 194,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2955819/pexels-photo-2955819.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crispy Chicken", "Tortilla Bread", "Lettuce", "Sauce"],
       "ingredientsAr": ["دجاج كريسبي", "خبز تورتيلا", "خس", "صوص"]
     }
@@ -98,7 +98,7 @@ export const fullMenuData = {
       "price": 204,
       "category": "breakfast",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
+      "image": "https://images.pexels.com/photos/139746/pexels-photo-139746.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Cheese Omelette", "Hot Dog", "Fries", "Smoked Turkey", "Toast"],
       "ingredientsAr": ["أومليت بالجبنة", "هوت دوج", "بطاطس", "تركي مدخن", "توست"]
     },
@@ -110,7 +110,7 @@ export const fullMenuData = {
       "price": 174,
       "category": "breakfast",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1599307767316-776533bb941c?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Omelette", "Mexican Hot Dog", "Baked Potatoes", "Toast"],
       "ingredientsAr": ["أومليت", "هوت دوج مكسيكي", "بطاطس مخبوزة", "توست"]
     },
@@ -122,7 +122,7 @@ export const fullMenuData = {
       "price": 189,
       "category": "breakfast",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3609822/pexels-photo-3609822.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Spanish Omelet", "Feta Cheese Slices", "Roasted Potatoes", "Mushrooms", "Olives", "Toast"],
       "ingredientsAr": ["أومليت إسباني", "شرائح جبنة فيتا", "بطاطس روستو", "مشروم", "زيتون", "توست"]
     }
@@ -136,7 +136,7 @@ export const fullMenuData = {
       "price": 218,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1647163/pexels-photo-1647163.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Smoked Turkey", "Beef Bacon", "Pepperoni", "Lettuce", "Tomato", "Cheddar Cheese Mix"],
       "ingredientsAr": ["تركي مدخن", "بيف بيكون", "بيبيروني", "خس", "طماطم", "ميكس جبن شيدر"]
     },
@@ -148,7 +148,7 @@ export const fullMenuData = {
       "price": 219,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3952093/pexels-photo-3952093.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Grilled Chicken", "Mushrooms", "Colored Peppers", "Mozzarella", "Cheddar Cheese Mix", "Cheese Sauce", "Lettuce", "Tomatoes"],
       "ingredientsAr": ["دجاج مشوي", "مشروم", "فلفل ألوان", "موزاريلا", "ميكس جبن شيدر", "صوص جبنة", "خس", "طماطم"]
     },
@@ -160,7 +160,7 @@ export const fullMenuData = {
       "price": 147,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1528736235302-52922df5c122?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Cheddar", "Mozzarella", "Cheese Sauce", "Toast Bread"],
       "ingredientsAr": ["شيدر", "موزاريلا", "صوص جبنة", "خبز توست"]
     },
@@ -172,7 +172,7 @@ export const fullMenuData = {
       "price": 194,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1603901/pexels-photo-1603901.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Tuna", "Mayonnaise", "Onion", "Colored Peppers", "Dill", "Olives"],
       "ingredientsAr": ["تونة", "مايونيز", "بصل", "فلفل ألوان", "شبت", "زيتون"]
     },
@@ -184,7 +184,7 @@ export const fullMenuData = {
       "price": 71,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3952093/pexels-photo-3952093.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Butter Croissant"],
       "ingredientsAr": ["كرواسون زبدة"]
     },
@@ -196,7 +196,7 @@ export const fullMenuData = {
       "price": 114,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3952093/pexels-photo-3952093.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Croissant", "Cheddar Cheese", "Cheese Sauce"],
       "ingredientsAr": ["كرواسون", "جبنة شيدر", "صوص جبنة"]
     },
@@ -208,7 +208,7 @@ export const fullMenuData = {
       "price": 149,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3952093/pexels-photo-3952093.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Croissant", "Lettuce", "Smoked Turkey", "Pepperoni", "Cheddar"],
       "ingredientsAr": ["كرواسون", "خس", "تركي مدخن", "بيبيروني", "شيدر"]
     },
@@ -220,7 +220,7 @@ export const fullMenuData = {
       "price": 256,
       "category": "sandwiches",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1603901/pexels-photo-1603901.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Beef Fillet", "Colored Peppers", "Mushrooms", "Onions", "Brown Sauce", "Cheese"],
       "ingredientsAr": ["فيليه لحم", "فلفل ألوان", "مشروم", "بصل", "صوص بني", "جبنة"]
     }
@@ -234,7 +234,7 @@ export const fullMenuData = {
       "price": 228,
       "category": "burgers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Beef Burger", "Lettuce", "Tomato", "Thousand Island Sauce", "Cucumber"],
       "ingredientsAr": ["برجر لحم", "خس", "طماطم", "صوص ثاوزند آيلاند", "خيار"]
     },
@@ -246,7 +246,7 @@ export const fullMenuData = {
       "price": 238,
       "category": "burgers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3483098/pexels-photo-3483098.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Beef Burger", "Texas Sauce", "Lettuce", "Tomato", "Cheddar Slices", "Cheese Sauce"],
       "ingredientsAr": ["برجر لحم", "صوص تكساس", "خس", "طماطم", "شرائح شيدر", "صوص جبنة"]
     },
@@ -258,7 +258,7 @@ export const fullMenuData = {
       "price": 264,
       "category": "burgers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2282532/pexels-photo-2282532.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Beef Burger", "Texas Sauce", "Smoked Turkey", "Smoked Bacon", "Lettuce", "Tomato", "Cheese Sauce"],
       "ingredientsAr": ["برجر لحم", "صوص تكساس", "تركي مدخن", "بيكون مدخن", "خس", "طماطم", "صوص جبنة"]
     },
@@ -270,7 +270,7 @@ export const fullMenuData = {
       "price": 244,
       "category": "burgers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2282532/pexels-photo-2282532.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Beef Burger", "BBQ Sauce", "Beef Bacon", "Lettuce", "Tomato", "Cheese Sauce"],
       "ingredientsAr": ["برجر لحم", "صوص باربيكيو", "بيف بيكون", "خس", "طماطم", "صوص جبنة"]
     }
@@ -284,7 +284,7 @@ export const fullMenuData = {
       "price": 86,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Potatoes", "Vegetable Oil", "Salt"],
       "ingredientsAr": ["بطاطس", "زيت نباتي", "ملح"]
     },
@@ -296,7 +296,7 @@ export const fullMenuData = {
       "price": 106,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["French Fries", "Cheese Sauce"],
       "ingredientsAr": ["بطاطس محمرة", "صوص جبنة"]
     },
@@ -308,7 +308,7 @@ export const fullMenuData = {
       "price": 212,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1618040996337-56904b7850b9?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2087748/pexels-photo-2087748.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Tortilla", "Grilled Chicken", "Cheese"],
       "ingredientsAr": ["تورتيلا", "دجاج مشوي", "جبنة"]
     },
@@ -320,7 +320,7 @@ export const fullMenuData = {
       "price": 128,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1108117/pexels-photo-1108117.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Dorito Chips", "Beef Bacon", "Ranch", "Cheddar Mix", "Cheese Sauce"],
       "ingredientsAr": ["شيبس دوريتوس", "بيف بيكون", "رانش", "ميكس شيدر", "صوص جبنة"]
     },
@@ -332,7 +332,7 @@ export const fullMenuData = {
       "price": 202,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1562059390-a76e3c14af26?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3616956/pexels-photo-3616956.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crispy Chicken", "Fries", "Honey Mustard Sauce", "Cheese Sauce"],
       "ingredientsAr": ["دجاج كريسبي", "بطاطس", "صوص هاني مسترد", "صوص جبنة"]
     },
@@ -344,7 +344,7 @@ export const fullMenuData = {
       "price": 256,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1541529086526-db283c563270?w=600&q=80",
+      "image": "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Mozzarella Sticks", "Strips", "Onion Rings", "Fries", "Nachos", "Three Sauces"],
       "ingredientsAr": ["أصابع موزاريلا", "ستربس", "حلقات بصل", "بطاطس", "ناتشوز", "ثلاث صوصات"]
     },
@@ -356,7 +356,7 @@ export const fullMenuData = {
       "price": 123,
       "category": "appetizers",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3776946/pexels-photo-3776946.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Mash Potato", "Smoked Turkey", "Olives", "Cheddar Mix", "Mozzarella", "Ranch Sauce"],
       "ingredientsAr": ["بطاطس مهروسة", "تركي مدخن", "زيتون", "ميكس شيدر", "موزاريلا", "صوص رانش"]
     }
@@ -370,7 +370,7 @@ export const fullMenuData = {
       "price": 93,
       "category": "soups",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Tomato", "Fresh Basil", "Cream", "Spices"],
       "ingredientsAr": ["طماطم", "ريحان طازج", "كريمة", "توابل"]
     },
@@ -382,7 +382,7 @@ export const fullMenuData = {
       "price": 102,
       "category": "soups",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Fresh Mushrooms", "Cream", "Butter", "Onion", "Spices"],
       "ingredientsAr": ["مشروم طازج", "كريمة", "زبدة", "بصل", "توابل"]
     },
@@ -394,7 +394,7 @@ export const fullMenuData = {
       "price": 113,
       "category": "soups",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Chicken", "Cream", "Vegetables", "Spices"],
       "ingredientsAr": ["دجاج", "كريمة", "خضروات", "توابل"]
     },
@@ -406,7 +406,7 @@ export const fullMenuData = {
       "price": 140,
       "category": "soups",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Chicken", "Fresh Mushrooms", "Cream", "Butter", "Spices"],
       "ingredientsAr": ["دجاج", "مشروم طازج", "كريمة", "زبدة", "توابل"]
     }
@@ -420,7 +420,7 @@ export const fullMenuData = {
       "price": 133,
       "category": "salads",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Lettuce", "Cucumber", "Tomatoes", "Greek Feta Cheese", "Thyme", "Olive Oil"],
       "ingredientsAr": ["خس", "خيار", "طماطم", "جبنة فيتا يونانية", "زعتر", "زيت زيتون"]
     },
@@ -432,7 +432,7 @@ export const fullMenuData = {
       "price": 204,
       "category": "salads",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Lettuce", "Grilled Chicken", "Croutons", "Caesar Dressing", "Parmesan Cheese"],
       "ingredientsAr": ["خس", "دجاج مشوي", "كروتون", "دريسنج سيزر", "جبنة بارميزان"]
     },
@@ -444,7 +444,7 @@ export const fullMenuData = {
       "price": 124,
       "category": "salads",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1211887/pexels-photo-1211887.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Lettuce", "Arugula (Rocca)", "Hazelnuts", "Fresh Mushrooms", "Colored Peppers", "Parmesan Cheese"],
       "ingredientsAr": ["خس", "جرجير", "بندق", "مشروم طازج", "فلفل ألوان", "جبنة بارميزان"]
     },
@@ -456,7 +456,7 @@ export const fullMenuData = {
       "price": 193,
       "category": "salads",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Lettuce", "Colored Peppers", "Cucumber", "Cheddar Mix", "Grilled Chicken", "Sweet Corn", "Hawaiian Sauce"],
       "ingredientsAr": ["خس", "فلفل ألوان", "خيار", "ميكس شيدر", "دجاج مشوي", "ذرة حلوة", "صوص هاوايان"]
     },
@@ -468,7 +468,7 @@ export const fullMenuData = {
       "price": 248,
       "category": "salads",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1211887/pexels-photo-1211887.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Lettuce", "Crispy Chicken", "Smoked Turkey", "Smoked Beef", "Colored Peppers", "Cheddar Mix", "Nachos", "Honey Mustard Sauce"],
       "ingredientsAr": ["خس", "دجاج كريسبي", "تركي مدخن", "بيف مدخن", "فلفل ألوان", "ميكس شيدر", "ناتشوز", "صوص هاني مسترد"]
     },
@@ -480,7 +480,7 @@ export const fullMenuData = {
       "price": 206,
       "category": "salads",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1211887/pexels-photo-1211887.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Tuna", "Mayonnaise", "Colored Peppers", "Onion", "Olives", "Lettuce"],
       "ingredientsAr": ["تونة", "مايونيز", "فلفل ألوان", "بصل", "زيتون", "خس"]
     }
@@ -494,7 +494,7 @@ export const fullMenuData = {
       "price": 249,
       "category": "pasta",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1645112481351-9f2043657803?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Fettuccine Pasta", "Creamy White Sauce", "Chicken", "Parmesan Cheese"],
       "ingredientsAr": ["مكرونة فيتوتشيني", "صوص أبيض كريمي", "دجاج", "جبنة بارميزان"]
     },
@@ -506,7 +506,7 @@ export const fullMenuData = {
       "price": 258,
       "category": "pasta",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1527603/pexels-photo-1527603.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Pasta", "Chicken", "Bechamel Sauce", "Mozzarella"],
       "ingredientsAr": ["مكرونة", "دجاج", "صوص بشاميل", "موزاريلا"]
     },
@@ -518,7 +518,7 @@ export const fullMenuData = {
       "price": 247,
       "category": "pasta",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3590401/pexels-photo-3590401.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Macaroni", "Cheese Sauce", "Cheddar Mix"],
       "ingredientsAr": ["مكرونة", "صوص جبنة", "ميكس شيدر"]
     },
@@ -530,7 +530,7 @@ export const fullMenuData = {
       "price": 189,
       "category": "pasta",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1527603/pexels-photo-1527603.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Pasta", "Jalapeno", "Spices", "White Sauce", "Pepperoni", "Sweet Chili"],
       "ingredientsAr": ["مكرونة", "هالبينو", "توابل", "صوص أبيض", "بيبيروني", "سويت تشيلي"]
     },
@@ -542,7 +542,7 @@ export const fullMenuData = {
       "price": 238,
       "category": "pasta",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1645112481351-9f2043657803?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Pasta", "Cheese Mix", "Crispy Chicken", "Ranch Sauce"],
       "ingredientsAr": ["مكرونة", "ميكس جبن", "دجاج كريسبي", "صوص رانش"]
     },
@@ -554,7 +554,7 @@ export const fullMenuData = {
       "price": 196,
       "category": "pasta",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1527603/pexels-photo-1527603.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Spaghetti", "Red Tomato Sauce", "Crispy Chicken", "Parmesan Cheese"],
       "ingredientsAr": ["سباغيتي", "صوص طماطم أحمر", "دجاج كريسبي", "جبنة بارميزان"]
     }
@@ -568,7 +568,7 @@ export const fullMenuData = {
       "price": 180,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Choice of Two Chocolate Types"],
       "ingredientsAr": ["3 طبقات بان كيك", "اختيار نوعين شوكولاتة"]
     },
@@ -580,7 +580,7 @@ export const fullMenuData = {
       "price": 234,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Dark Chocolate", "Milk Chocolate", "White Chocolate", "Nutella"],
       "ingredientsAr": ["3 طبقات بان كيك", "شوكولاتة داكنة", "شوكولاتة حليب", "شوكولاتة بيضاء", "نوتيلا"]
     },
@@ -592,7 +592,7 @@ export const fullMenuData = {
       "price": 279,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3026804/pexels-photo-3026804.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Brownie Pieces", "Chocolate Mix"],
       "ingredientsAr": ["3 طبقات بان كيك", "قطع براوني", "ميكس شوكولاتة"]
     },
@@ -604,7 +604,7 @@ export const fullMenuData = {
       "price": 259,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Mixed Berries", "White Chocolate"],
       "ingredientsAr": ["3 طبقات بان كيك", "توت مشكل", "شوكولاتة بيضاء"]
     },
@@ -616,7 +616,7 @@ export const fullMenuData = {
       "price": 211,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Lotus Sauce", "Lotus Biscuits"],
       "ingredientsAr": ["3 طبقات بان كيك", "صوص لوتس", "بسكويت لوتس"]
     },
@@ -628,7 +628,7 @@ export const fullMenuData = {
       "price": 194,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Fresh Strawberry Pieces", "Chocolate Mix"],
       "ingredientsAr": ["3 طبقات بان كيك", "قطع فراولة طازجة", "ميكس شوكولاتة"]
     },
@@ -640,7 +640,7 @@ export const fullMenuData = {
       "price": 189,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Marshmallows", "Dark Chocolate", "Ice Cream Scoop"],
       "ingredientsAr": ["3 طبقات بان كيك", "مارشميلو", "شوكولاتة داكنة", "بوله آيس كريم"]
     },
@@ -652,7 +652,7 @@ export const fullMenuData = {
       "price": 255,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "image": "https://images.pexels.com/photos/357573/pexels-photo-357573.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["3 Layers of Pancakes", "Pistachio Sauce"],
       "ingredientsAr": ["3 طبقات بان كيك", "صوص فستق"]
     },
@@ -664,7 +664,7 @@ export const fullMenuData = {
       "price": 180,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2373520/pexels-photo-2373520.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crepe", "Bananas", "Caramel Sauce"],
       "ingredientsAr": ["كريب", "موز", "صوص كراميل"]
     },
@@ -676,7 +676,7 @@ export const fullMenuData = {
       "price": 180,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2373520/pexels-photo-2373520.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crepe", "Chocolate Sauce"],
       "ingredientsAr": ["كريب", "صوص شوكولاتة"]
     },
@@ -688,7 +688,7 @@ export const fullMenuData = {
       "price": 195,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2373520/pexels-photo-2373520.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crepe", "Lotus Biscuits", "Nuts", "Lotus Sauce"],
       "ingredientsAr": ["كريب", "بسكويت لوتس", "مكسرات", "صوص لوتس"]
     },
@@ -700,7 +700,7 @@ export const fullMenuData = {
       "price": 224,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2373520/pexels-photo-2373520.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crepe", "Brownie Pieces", "Mixed Chocolate"],
       "ingredientsAr": ["كريب", "قطع براوني", "ميكس شوكولاتة"]
     },
@@ -712,7 +712,7 @@ export const fullMenuData = {
       "price": 218,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2373520/pexels-photo-2373520.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Crepe", "Cheesecake Filling", "Choice of Sauce"],
       "ingredientsAr": ["كريب", "حشوة تشيز كيك", "اختيار صوص"]
     },
@@ -724,7 +724,7 @@ export const fullMenuData = {
       "price": 178,
       "category": "desserts",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3026804/pexels-photo-3026804.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Belgian Chocolate", "Butter", "Eggs", "Vanilla Ice Cream"],
       "ingredientsAr": ["شوكولاتة بلجيكية", "زبدة", "بيض", "آيس كريم فانيليا"]
     }
@@ -738,7 +738,7 @@ export const fullMenuData = {
       "price": 144,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=600&q=80",
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Chocolate", "Milk", "Cream"],
       "ingredientsAr": ["شوكولاتة", "حليب", "كريمة"]
     },
@@ -750,7 +750,7 @@ export const fullMenuData = {
       "price": 169,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=600&q=80",
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Warm Milk", "Lotus Sauce", "Cream"],
       "ingredientsAr": ["حليب دافئ", "صوص لوتس", "كريمة"]
     },
@@ -762,7 +762,7 @@ export const fullMenuData = {
       "price": 104,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1205945/pexels-photo-1205945.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Sahlab Powder", "Milk", "Mixed Nuts", "Cinnamon"],
       "ingredientsAr": ["بودرة سحلب", "حليب", "مكسرات مشكلة", "قرفة"]
     },
@@ -774,7 +774,7 @@ export const fullMenuData = {
       "price": 169,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1205945/pexels-photo-1205945.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Sahlab Powder", "Milk", "Pistachio Sauce"],
       "ingredientsAr": ["بودرة سحلب", "حليب", "صوص فستق"]
     },
@@ -786,7 +786,7 @@ export const fullMenuData = {
       "price": 139,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1205945/pexels-photo-1205945.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Sahlab Powder", "Milk", "Nutella"],
       "ingredientsAr": ["بودرة سحلب", "حليب", "نوتيلا"]
     },
@@ -798,7 +798,7 @@ export const fullMenuData = {
       "price": 88,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80",
+      "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Espresso", "Steamed Milk"],
       "ingredientsAr": ["إسبريسو", "حليب مبخر"]
     },
@@ -810,7 +810,7 @@ export const fullMenuData = {
       "price": 110,
       "category": "hot_drinks",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=600&q=80",
+      "image": "https://images.pexels.com/photos/2396220/pexels-photo-2396220.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Double Espresso", "Microfoam Milk"],
       "ingredientsAr": ["دبل إسبريسو", "رغوة حليب ناعمة"]
     }
@@ -824,7 +824,7 @@ export const fullMenuData = {
       "price": 144,
       "category": "milkshake",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1572490122747-6938a5a5a7e4?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3727250/pexels-photo-3727250.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Vanilla Ice Cream", "Milk", "Cream"],
       "ingredientsAr": ["آيس كريم فانيليا", "حليب", "كريمة"]
     },
@@ -836,7 +836,7 @@ export const fullMenuData = {
       "price": 197,
       "category": "milkshake",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1563805042-7684c019a09d?w=600&q=80",
+      "image": "https://images.pexels.com/photos/3908659/pexels-photo-3908659.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Nutella", "Milk", "Ice Cream"],
       "ingredientsAr": ["نوتيلا", "حليب", "آيس كريم"]
     }
@@ -850,7 +850,7 @@ export const fullMenuData = {
       "price": 65,
       "category": "mocktails",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1536873/pexels-photo-1536873.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Fresh Lemon Juice", "Mint Leaves", "Ice", "Sugar"],
       "ingredientsAr": ["عصير ليمون طازج", "ورق نعناع", "ثلج", "سكر"]
     },
@@ -862,7 +862,7 @@ export const fullMenuData = {
       "price": 129,
       "category": "mocktails",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1536873/pexels-photo-1536873.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Mint", "Lime", "Sugar", "Soda Water"],
       "ingredientsAr": ["نعناع", "ليمون", "سكر", "ماء صودا"]
     },
@@ -874,7 +874,7 @@ export const fullMenuData = {
       "price": 75,
       "category": "mocktails",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&q=80",
+      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Fresh Oranges"],
       "ingredientsAr": ["برتقال طازج"]
     },
@@ -886,7 +886,7 @@ export const fullMenuData = {
       "price": 85,
       "category": "mocktails",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80",
+      "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Espresso", "Cold Milk", "Ice"],
       "ingredientsAr": ["إسبريسو", "حليب بارد", "ثلج"]
     }
@@ -900,7 +900,7 @@ export const fullMenuData = {
       "price": 180,
       "category": "shisha",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1527137342181-19aab11a8ee1?w=600&q=80",
+      "image": "https://images.pexels.com/photos/1580589/pexels-photo-1580589.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Choice of Flavors", "Natural Charcoal"],
       "ingredientsAr": ["اختيار نكهات", "فحم طبيعي"]
     }

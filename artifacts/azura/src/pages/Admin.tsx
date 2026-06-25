@@ -1271,7 +1271,7 @@ export default function Admin() {
                   value={apiSettings.aiProvider}
                   onChange={(e) => setApiSettings(p => ({...p, aiProvider: e.target.value as any}))}
                 >
-                  <option value="groq">Groq (Llama 3.3)</option>
+                  <option value="groq">Groq (DeepSeek Qwen)</option>
                   <option value="pollinations">Pollinations (Free)</option>
                   <option value="openai">OpenAI Compatible</option>
                 </select>
@@ -1339,7 +1339,7 @@ export default function Admin() {
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {tr("The AI service uses Groq Llama 3.3 and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك Llama 3.3 وبولينيشن للنصوص والصوت.")}
+                  {tr("The AI service uses Groq DeepSeek Qwen and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك DeepSeek Qwen وبولينيشن للنصوص والصوت.")}
                 </p>
               </div>
             </div>

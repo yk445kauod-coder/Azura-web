@@ -200,7 +200,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // Using the latest Llama 3.3 for peak performance and multilingual depth
+        model: "deepseek-r1-distill-qwen-32b", // Using DeepSeek Qwen 32B for superior Arabic linguistic depth and reasoning
         messages: [
           { role: "system", content: enhancedSystem },
           ...history.map((h) => ({

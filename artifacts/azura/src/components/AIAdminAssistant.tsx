@@ -485,7 +485,7 @@ Type "help" to see all available commands.`;
             </div>
             <div className="flex gap-1">
               <a
-                href="https://azura-menu.pages.dev"
+                href="https://azura-app.pages.dev"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 hover:bg-muted rounded-lg transition-colors"
@@ -513,7 +513,7 @@ Type "help" to see all available commands.`;
             className="w-full h-48 rounded-lg overflow-hidden border bg-white"
           >
             <iframe 
-              src="https://azura-menu.pages.dev" 
+              src="https://azura-app.pages.dev"
               className="w-full h-full"
               title={tr("Azura Menu", "قائمة أزورا")}
               allowFullScreen

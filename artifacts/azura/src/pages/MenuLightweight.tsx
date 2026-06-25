@@ -8,6 +8,7 @@ interface MenuItem {
   description: string; descriptionAr: string;
   price: number; category: string; available: boolean; image: string;
   ingredients?: string[];
+  ingredientsAr?: string[];
 }
 
 function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
@@ -21,7 +22,8 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
     category: String(raw.category || "food"),
     available: raw.available !== false,
     image: String(raw.image || raw.img || ""),
-    ingredients: Array.isArray(raw.ingredients) ? raw.ingredients as string[] : [],
+  ingredients: Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []),
+  ingredientsAr: Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : (typeof raw.ingredientsAr === "string" ? (raw.ingredientsAr as string).split(",").map(i => i.trim()) : [])),
   };
 }
 
@@ -112,31 +114,29 @@ const MenuItemCard = memo(({
   );
 });
 
-// Item Detail Modal Component
+// Item Detail Modal Component - Fixed for Mobile Comfort
 function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const cat = CATS.find(c => c.id === item.category);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+      style={{ isolation: 'isolate' }}
     >
-      {/* Background Overlay */}
-      <div className="absolute inset-0 bg-primary/20 backdrop-blur-sm" />
-
-      {/* Modal Content */}
+      {/* Background Overlay - Non-scrollable fixed backdrop */}
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-t-[2.5rem] sm:rounded-3xl bg-card shadow-xl border border-border/50"
-        onClick={(e) => e.stopPropagation()}
-        style={{ animation: "ios-modal-in 0.4s cubic-bezier(0.32, 0.72, 0, 1)" }}
-      >
-        {/* Handle for mobile */}
-        <div className="sm:hidden flex justify-center pt-3 pb-1">
-          <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
-        </div>
+        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+      />
 
-        <div className="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
+      {/* Modal Content - Fixed position, centered, comfortable for eyes */}
+      <div
+        className="relative w-full max-w-md bg-card rounded-[2rem] shadow-2xl overflow-hidden border border-border/20 flex flex-col max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: "fadeInSimple 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+      >
+        <div className="overflow-y-auto p-6 sm:p-8 scroll-hide">
           <div className="flex flex-col sm:flex-row gap-6">
             {/* Image */}
             <div className="w-full sm:w-48 h-48 sm:h-48 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
@@ -203,11 +203,11 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
             <div>
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px]">🧾</span>
-                {tr("Ingredients", "المكونات التفصيلية")}
+                {tr("Detailed Ingredients", "المكونات التفصيلية")}
               </h3>
               <div className="grid grid-cols-2 gap-2">
-                {item.ingredients && item.ingredients.length > 0 ? (
-                  item.ingredients.map((ing, idx) => (
+                {((lang === "ar" && item.ingredientsAr && item.ingredientsAr.length > 0) ? item.ingredientsAr : item.ingredients) && ((lang === "ar" && item.ingredientsAr && item.ingredientsAr.length > 0) ? item.ingredientsAr : item.ingredients)!.length > 0 ? (
+                  ((lang === "ar" && item.ingredientsAr && item.ingredientsAr.length > 0) ? item.ingredientsAr : item.ingredients)!.map((ing, idx) => (
                     <div
                       key={idx}
                       className="px-3 py-2 rounded-xl bg-card border border-border/60 text-xs font-medium text-foreground/70 flex items-center gap-2"
@@ -232,22 +232,23 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
             </div>
 
             {/* Info Footer */}
-            <div className="flex items-center justify-between pt-6 border-t border-border/40">
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                  <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+            <div className="flex flex-col gap-4 pt-6 mt-2 border-t border-border/40">
+              <div className="flex items-center justify-around bg-muted/40 p-3 rounded-2xl">
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
                   {tr("Available Now", "متاح الآن")}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                <div className="w-px h-4 bg-border/50" />
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
                   <span>⏱️</span>
-                  {tr("Ready in 5-10 min", "جاهز خلال 5-10 دقائق")}
+                  {tr("5-10 min", "5-10 دق")}
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="btn-primary px-8 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20"
+                className="btn-primary w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
               >
-                {tr("Close", "إغلاق")}
+                {tr("Back to Menu", "العودة للقائمة")}
               </button>
             </div>
           </div>
@@ -419,15 +420,11 @@ export default function MenuLightweight() {
         {loading ? (
           <div className="grid grid-cols-2 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm">
-                <div className="relative h-36 bg-muted overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
-                </div>
+              <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm animate-pulse">
+                <div className="relative h-36 bg-muted" />
                 <div className="p-3 space-y-2">
-                  <div className="h-4 bg-muted rounded relative overflow-hidden">
-                  </div>
-                  <div className="h-3 w-2/3 bg-muted rounded relative overflow-hidden">
-                  </div>
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
                 </div>
               </div>
             ))}

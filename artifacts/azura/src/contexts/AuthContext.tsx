@@ -139,6 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     await set(profileRef, newProfile);
     setProfile(newProfile);
+
+    // Explicitly update Auth display name to ensure Firebase user object also has it
+    await updateProfile(cred.user, { displayName: name });
   };
 
   // Activity tracking / Heartbeat

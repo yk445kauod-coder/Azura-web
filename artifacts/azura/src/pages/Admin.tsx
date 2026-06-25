@@ -22,7 +22,7 @@ import AIAdminAssistant from "@/components/AIAdminAssistant";
 const ADMIN_PIN = "azura2024";
 type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
 
-interface MenuItem { id: string; name: string; nameAr: string; description: string; price: number; category: string; available: boolean; image: string; ingredients?: string; }
+interface MenuItem { id: string; name: string; nameAr: string; description: string; descriptionAr?: string; price: number; category: string; available: boolean; image: string; ingredients?: string; ingredientsAr?: string; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
@@ -96,6 +96,8 @@ export default function Admin() {
   // API settings
   const [apiSettings, setApiSettings] = useState({
     groqKey: "",
+    aiProvider: "groq" as "groq" | "pollinations" | "openai",
+    openaiEndpoint: "",
     aiEnabled: true,
   });
   const [showApiKey, setShowApiKey] = useState(false);
@@ -243,9 +245,11 @@ export default function Admin() {
     // API Settings
     onValue(ref(db, "api-settings"), (snap) => {
       if (!snap.exists()) return;
-      const data = snap.val() as Record<string, unknown>;
+      const data = snap.val() as Record<string, any>;
       setApiSettings({
-        groqKey: (data.groqKey as string) || (data.geminiKey as string) || "",
+        groqKey: data.groqKey || "",
+        aiProvider: data.aiProvider || "groq",
+        openaiEndpoint: data.openaiEndpoint || "",
         aiEnabled: data.aiEnabled !== false,
       });
     });
@@ -379,7 +383,9 @@ export default function Admin() {
   const saveApiSettings = async () => {
     setSavingApiKey(true);
     await smartSet("api-settings", {
-      groqKey: apiSettings.groqKey ? encryptKey(apiSettings.groqKey) : "",
+      groqKey: apiSettings.groqKey ? (apiSettings.groqKey.startsWith("gsk") ? encryptKey(apiSettings.groqKey) : apiSettings.groqKey) : "",
+      aiProvider: apiSettings.aiProvider,
+      openaiEndpoint: apiSettings.openaiEndpoint,
       aiEnabled: apiSettings.aiEnabled,
       updatedAt: Date.now(),
     });
@@ -557,9 +563,15 @@ export default function Admin() {
                             {item.image && <img src={item.image} className="w-10 h-10 rounded-lg object-cover" />}
                           </div>
                         </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (comma separated)","المكونات (مفصولة بفاصلة)")}</label>
-                          <textarea className={`${inp} min-h-[60px] resize-none`} value={item.ingredients || ""} onChange={e => smartUpdate(`menu/items/${item.id}`, { ingredients: e.target.value })} placeholder="Coffee, Milk, Sugar..."/>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (EN)","المكونات (EN)")}</label>
+                            <textarea className={`${inp} min-h-[60px] resize-none text-[11px]`} value={item.ingredients || ""} onChange={e => smartUpdate(`menu/items/${item.id}`, { ingredients: e.target.value })} placeholder="Coffee, Milk..."/>
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (AR)","المكونات (AR)")}</label>
+                            <textarea className={`${inp} min-h-[60px] resize-none text-[11px]`} dir="rtl" value={item.ingredientsAr || ""} onChange={e => smartUpdate(`menu/items/${item.id}`, { ingredientsAr: e.target.value })} placeholder="قهوة، حليب..."/>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -594,7 +606,7 @@ export default function Admin() {
                     {u.name?.[0]?.toUpperCase() || "?"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-foreground truncate">{u.name}</p>
+                    <p className="font-semibold text-sm text-foreground truncate">{u.name || "Unknown Name"}</p>
                     <p className="text-xs text-muted-foreground truncate">
                       {u.loginCount || 0} logins · Table {u.tableNumber || "N/A"}
                     </p>
@@ -631,7 +643,7 @@ export default function Admin() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-bold text-foreground">{u.name}</p>
+                          <p className="font-bold text-foreground">{u.name || "Unknown Name"}</p>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                               Table {u.tableNumber || "N/A"}
@@ -1248,30 +1260,57 @@ export default function Admin() {
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-5">
               <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("Groq & Pollinations AI","ذكاء جروك وبولينيشن")}
+                <Key size={18} className="text-primary"/> {tr("AI Provider Settings","إعدادات مزود الذكاء")}
               </h3>
 
-              {/* Groq API Key */}
+              {/* Provider Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("Groq API Key","مفتاح API Groq")}</label>
+                <label className="text-sm font-semibold text-foreground">{tr("AI Provider","مزود الذكاء")}</label>
+                <select
+                  className={inp}
+                  value={apiSettings.aiProvider}
+                  onChange={(e) => setApiSettings(p => ({...p, aiProvider: e.target.value as any}))}
+                >
+                  <option value="groq">Groq (DeepSeek Qwen)</option>
+                  <option value="pollinations">Pollinations (Free)</option>
+                  <option value="openai">OpenAI Compatible</option>
+                </select>
+              </div>
+
+              {/* API Key */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  {apiSettings.aiProvider === "openai" ? tr("API Key", "مفتاح API") : tr("Groq API Key","مفتاح API Groq")}
+                </label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
                       type={showApiKey ? "text" : "password"}
                       className={`${inp} w-full pr-10`}
-                      placeholder={tr("Enter your Groq API key (gsk_...)","أدخل مفتاح Groq API (gsk_...)")}
+                      placeholder={apiSettings.aiProvider === "pollinations" ? "Not required" : "sk-... / gsk_..."}
                       value={apiSettings.groqKey}
                       onChange={(e) => setApiSettings((p) => ({...p, groqKey: e.target.value}))}
+                      disabled={apiSettings.aiProvider === "pollinations"}
                     />
                     <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                       {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
                     </button>
                   </div>
                 </div>
-                <p className="text-[10px] text-muted-foreground italic">
-                  {tr("Pollinations.ai text API is used as a fallback if Groq fails.","يتم استخدام Pollinations.ai كبديل في حالة فشل Groq.")}
-                </p>
               </div>
+
+              {apiSettings.aiProvider === "openai" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">{tr("API Endpoint", "نقطة اتصال API")}</label>
+                  <input
+                    type="text"
+                    className={inp}
+                    placeholder="https://api.openai.com/v1"
+                    value={apiSettings.openaiEndpoint}
+                    onChange={(e) => setApiSettings(p => ({...p, openaiEndpoint: e.target.value}))}
+                  />
+                </div>
+              )}
 
               {/* AI Toggle */}
               <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-muted/50">
@@ -1300,7 +1339,7 @@ export default function Admin() {
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {tr("The AI service uses Groq Llama 3.3 and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك Llama 3.3 وبولينيشن للنصوص والصوت.")}
+                  {tr("The AI service uses Groq DeepSeek Qwen and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك DeepSeek Qwen وبولينيشن للنصوص والصوت.")}
                 </p>
               </div>
             </div>

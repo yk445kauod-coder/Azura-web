@@ -510,10 +510,22 @@ export function getEmbedHtml(video: ParsedVideo, width = "100%" as string | numb
       return `<iframe src="${video.embedUrl}" width="${width}" height="${height}" allow="autoplay" loading="lazy"></iframe>`;
     
     case "instagram":
-      return `<blockquote class="instagram-media" data-instgrm-permalink="${video.originalUrl}" data-instgrm-width="${width}"></blockquote><script async src="//www.instagram.com/embed.js"></script>`;
+      return `<div style="display: flex; justify-content: center; width: 100%; height: 100%; overflow: hidden;">
+        <blockquote class="instagram-media" data-instgrm-permalink="${video.originalUrl}" data-instgrm-version="14" style="width: 100%; margin: 0; padding: 0;"></blockquote>
+      </div>`;
     
     case "facebook":
-      return `<div id="fb-root"></div><script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0"></script><div class="fb-video" data-href="${video.originalUrl}" data-width="${width}" data-show-text="false" data-lazy="true"></div>`;
+      // Check if it's a reel based on URL or provider info
+      const isReel = video.originalUrl?.includes("/reel/");
+      return `<div class="fb-video"
+        data-href="${video.originalUrl}"
+        data-width="${width}"
+        data-show-text="false"
+        data-allowfullscreen="true"
+        data-autoplay="true"
+        data-lazy="true"
+        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+      ></div>`;
     
     case "tiktok":
       return `<blockquote class="tiktok-embed" cite="${video.embedUrl}" data-video-id="${video.videoId}" style="width:100%;max-width:${width}px;"><section></section></blockquote><script async src="https://www.tiktok.com/embed.js"></script>`;

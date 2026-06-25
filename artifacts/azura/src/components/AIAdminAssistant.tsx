@@ -5,7 +5,8 @@ import { decryptKey, chatWithAI, isValidApiKey } from "@/lib/crypto";
 import { 
   Bot, Send, Loader2, Users, 
   Package, DollarSign, RefreshCw,
-  XCircle, BookOpen, ExternalLink, Maximize2, Minimize2, FileText, Trash2
+  XCircle, BookOpen, ExternalLink, Maximize2, Minimize2, FileText, Trash2,
+  Download, FileSpreadsheet, BarChart3, TrendingUp
 } from "lucide-react";
 
 interface AIMessage {
@@ -329,6 +330,28 @@ ${itemsList}`;
 Type "help" to see all available commands.`;
   };
 
+  const exportToCSV = () => {
+    if (!analytics) return;
+    const rows = [
+      ["Metric", "Value"],
+      ["Total Customers", analytics.totalCustomers],
+      ["Active Today", analytics.activeToday],
+      ["Returning Customers", analytics.returningCustomers],
+      ["Heavy Users", analytics.heavyUsers],
+      ["Total Usage Time (s)", analytics.totalUsageTime],
+      ["Average Rating", analytics.avgRating],
+      ["Menu Items", analytics.totalMenuItems],
+    ];
+    const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `azura_analytics_${new Date().toLocaleDateString()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     
@@ -347,11 +370,18 @@ Type "help" to see all available commands.`;
     try {
       let response = "";
       if (apiKey) {
-        const systemPrompt = `You are the Admin Assistant for Azura Cafe.
+        const systemPrompt = `You are the Expert Media Buyer & CRM Advisor for Azura Cafe.
         Context: ${JSON.stringify(CAFE_CONTEXT)}
-        Analytics: ${JSON.stringify(analytics)}
-        Menu Summary: ${menuItems.length} items.
-        Respond as a professional yet friendly business advisor.`;
+        Real-time Tracking Data: ${JSON.stringify(analytics)}
+        Menu Items: ${menuItems.length}.
+
+        Your goals:
+        1. Analyze user tracking data to suggest high-conversion media buying strategies (Meta Ads, Google Ads).
+        2. Provide CRM advice based on user behavior (returning vs new users).
+        3. Create detailed business reports when asked.
+        4. Help with digital marketing and customer retention.
+
+        Always use the data provided to give specific, actionable advice.`;
 
         const history = messages.slice(-10).map(m => ({
           role: m.role === "assistant" ? "model" : "user",
@@ -414,6 +444,13 @@ Type "help" to see all available commands.`;
           </div>
         </div>
         <div className="flex gap-1">
+          <button
+            onClick={exportToCSV}
+            className="p-2 hover:bg-muted rounded-lg transition-colors text-green-600"
+            title={tr("Export CSV", "تصدير CSV")}
+          >
+            <FileSpreadsheet size={16} />
+          </button>
           <button 
             onClick={() => setShowMenuViewer(!showMenuViewer)}
             className={`p-2 hover:bg-muted rounded-lg transition-colors ${showMenuViewer ? 'bg-primary/10' : ''}`}
@@ -448,7 +485,7 @@ Type "help" to see all available commands.`;
             </div>
             <div className="flex gap-1">
               <a
-                href="https://azura-menu.pages.dev"
+                href="https://azura-app.pages.dev"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 hover:bg-muted rounded-lg transition-colors"
@@ -476,7 +513,7 @@ Type "help" to see all available commands.`;
             className="w-full h-48 rounded-lg overflow-hidden border bg-white"
           >
             <iframe 
-              src="https://azura-menu.pages.dev" 
+              src="https://azura-app.pages.dev"
               className="w-full h-full"
               title={tr("Azura Menu", "قائمة أزورا")}
               allowFullScreen

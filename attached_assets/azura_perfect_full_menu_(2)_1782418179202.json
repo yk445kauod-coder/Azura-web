@@ -1,0 +1,432 @@
+[
+  {
+    "category": "New Items",
+    "category_ar": "أصناف جديدة",
+    "items": [
+      { "name_en": "Chicken Butterfly", "name_ar": "تشيكن باترفلاي", "price": 336, "ingredients_en": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella", "ingredients_ar": "فراخ جريل بصوص البتر فلاي، يقدم مع الأرز وعيش محمص بالثوم والمشروم والموزاريلا" },
+      { "name_en": "Chicken Lemon Pasta", "name_ar": "تشيكن ليمون باستا", "price": 234, "ingredients_en": "Penne pasta with creamy lemon sauce and grilled chicken pieces", "ingredients_ar": "بنا باستا مع صصوص الليمون الكريمي مع قطع الفراخ الجريل" },
+      { "name_en": "Dynamite Chicken", "name_ar": "دايناميت تشيكن", "price": 178, "ingredients_en": "Chicken pieces with special dynamite sauce", "ingredients_ar": "قطع الفراخ مع صوص الدايناميت الخاص" }
+    ]
+  },
+  {
+    "category": "Pancakes",
+    "category_ar": "بان كيك",
+    "items": [
+      { "name_en": "Chocolate Pancakes", "name_ar": "شوكلت بان كيك", "price": 180, "ingredients_en": "3 layers of pancakes with a choice of two types of chocolate", "ingredients_ar": "3 طبقات من البان كيك مع اختيار نوعين من الشوكولاته" },
+      { "name_en": "Mixed Chocolate", "name_ar": "ميكس شوكلت", "price": 234, "ingredients_en": "3 layers of pancakes with 4 types of chocolate (Dark, Milk, White, Nutella)", "ingredients_ar": "3 طبقات من البان كيك مع 4 أنواع من الشوكولاته (دارك، ميلك، وايت، نوتيلا)" },
+      { "name_en": "Brownie Club", "name_ar": "براوني كلوب", "price": 279, "ingredients_en": "3 layers of pancakes with brownie pieces and chocolate mix", "ingredients_ar": "3 طبقات من البان كيك مع قطع البراونيز وميكس الشوكولاته" },
+      { "name_en": "Mix Berry", "name_ar": "ميكس بيري", "price": 259, "ingredients_en": "3 layers of pancakes with mixed berries and white chocolate", "ingredients_ar": "3 طبقات من البان كيك مع الميكس بيري والوايت شوكلت" },
+      { "name_en": "Crunchy Lotus", "name_ar": "كرانشي لوتس", "price": 211, "ingredients_en": "3 layers of pancakes with sauce and Lotus biscuits", "ingredients_ar": "3 طبقات من البان كيك مع صوص وبسكويت اللوتس" },
+      { "name_en": "Strawberry Chocolate", "name_ar": "ستروبري شوكلت", "price": 194, "ingredients_en": "3 layers of pancakes with fresh strawberry pieces and chocolate mix", "ingredients_ar": "3 طبقات من البان كيك مع قطع الفراولة الطازجة وميكس شوكلت" },
+      { "name_en": "Marshmallow S'mores", "name_ar": "مارشميلو سمورز", "price": 189, "ingredients_en": "3 layers of pancakes with marshmallows and dark chocolate, served with a scoop of ice cream", "ingredients_ar": "3 طبقات من البان كيك مع المارشميلو والدارك شوكلت، ويقدم مع بوله ايس كريم" },
+      { "name_en": "Pistachio", "name_ar": "بيستاشيو", "price": 255, "ingredients_en": "3 layers of pancakes with pistachio sauce", "ingredients_ar": "3 طبقات من البان كيك مع صوص البيستاشيو" }
+    ]
+  },
+  {
+    "category": "Crepes",
+    "category_ar": "كريب",
+    "items": [
+      { "name_en": "Banana Caramel", "name_ar": "بنانا كراميل", "price": 180, "ingredients_en": "Crepes filled with bananas and topped with caramel sauce", "ingredients_ar": "كريب محشو موز ومغطى بصوص الكراميل" },
+      { "name_en": "Strawberry Chocolate", "name_ar": "ستروبري شوكلت", "price": 180, "ingredients_en": "Crepes rolled and topped with chocolate sauce", "ingredients_ar": "كريب ملفوف ومغطى بصوص الشوكلت" },
+      { "name_en": "Lotus Crepe", "name_ar": "لوتس كريب", "price": 195, "ingredients_en": "Crepes filled with Lotus biscuits and nuts, topped with Lotus sauce", "ingredients_ar": "كريب محشو ببسكويت اللوتس والمكسرات ومغطى بصوص اللوتس" },
+      { "name_en": "Crepe Brownies", "name_ar": "براوني كريب", "price": 224, "ingredients_en": "Crepes filled with brownies and mixed chocolate", "ingredients_ar": "كريب محشو براونيز مع ميكس شوكلت" },
+      { "name_en": "Cheesecake Crepe", "name_ar": "تشيز كيك كريب", "price": 218, "ingredients_en": "Cheesecake-filled crepe with a choice of sauce", "ingredients_ar": "كريب محشو تشيز كيك مع اختيار الصوص" },
+      { "name_en": "Pistachio Crepe", "name_ar": "بيستاشيو كريب", "price": 225, "ingredients_en": "Crepes filled with pistachio sauce", "ingredients_ar": "كريب محشو بصوص البيستاشيو" }
+    ]
+  },
+  {
+    "category": "Hot Chocolate",
+    "category_ar": "هوت شوكلت",
+    "items": [
+      { "name_en": "Classic Hot Chocolate", "name_ar": "كلاسيك هوت شوكلت", "price": 144 },
+      { "name_en": "Milk Hot Chocolate", "name_ar": "ميلك هوت شوكلت", "price": 169 },
+      { "name_en": "Dark Hot Chocolate", "name_ar": "دارك هوت شوكلت", "price": 169 },
+      { "name_en": "Hot Lotus", "name_ar": "هوت لوتس", "price": 169 },
+      { "name_en": "Hot Pistachio", "name_ar": "هوت بيستاشيو", "price": 179 },
+      { "name_en": "Hot Chocolate Marshmallow", "name_ar": "هوت شوكلت مارشميلو", "price": 169 },
+      { "name_en": "Oreo Hot Chocolate", "name_ar": "اوريو هوت شوكلت", "price": 169 },
+      { "name_en": "Cinnabon Hot Chocolate", "name_ar": "سينابون هوت شوكلت", "price": 169 }
+    ]
+  },
+  {
+    "category": "Sahlab",
+    "category_ar": "سحلب",
+    "items": [
+      { "name_en": "Classic Sahlab (Nuts)", "name_ar": "كلاسيك سحلب", "price": 104 },
+      { "name_en": "Nutella Sahlab", "name_ar": "سحلب نوتيلا", "price": 139 },
+      { "name_en": "Lotus Sahlab", "name_ar": "سحلب لوتس", "price": 149 },
+      { "name_en": "Pistachio Sahlab", "name_ar": "سحلب بيستاشيو", "price": 169 }
+    ]
+  },
+  {
+    "category": "Breakfast",
+    "category_ar": "بريك فاست",
+    "items": [
+      { "name_en": "Azura Breakfast", "name_ar": "ازورا بريك فاست", "price": 204, "ingredients_en": "Cheese Omelette, Hot Dog, Fries, Smoked Turkey, Toast", "ingredients_ar": "تشيز اومليت، هوت دوج، فرايز، سموك تركي، توست" },
+      { "name_en": "Mexican Breakfast", "name_ar": "ميكسيكان بريك فاست", "price": 174, "ingredients_en": "Omelette, Mexican hot dog, Baked potatoes, Toast", "ingredients_ar": "اومليت، ميكسكان هوت دوج، بطاطس بيكد، توست" },
+      { "name_en": "Greek Breakfast", "name_ar": "جريك بريك فاست", "price": 189, "ingredients_en": "Spanish omelet, feta cheese slices, roasted potatoes with mushrooms and olives, toast", "ingredients_ar": "اسبانيش اومليت، جبنه فيتا قطع، بطاطس روستيد بالمشروم والزيتون، توست" }
+    ]
+  },
+  {
+    "category": "Toast",
+    "category_ar": "توست",
+    "items": [
+      { "name_en": "Triple S", "name_ar": "تريبل اس", "price": 218, "ingredients_en": "Smoked Turkey, Beef Bacon, Pepperoni, Lettuce, Tomato, Cheddar Cheese Mix", "ingredients_ar": "سموك تركي، بيف بيكون، ببروني، خس، طماطم، ميكس شيدر تشيز" },
+      { "name_en": "Chicken Cheese", "name_ar": "تشيكن تشيز", "price": 219, "ingredients_en": "Grilled chicken with mushrooms, colored peppers, and mozzarella, cheddar cheese mix, cheese sauce, lettuce, tomatoes", "ingredients_ar": "فراخ جريل مع مشروم وفلفل الوان والموتزريلا، ميكس شيدر تشيز، صوص جبنه، خس، طماطم" },
+      { "name_en": "Mix Cheese", "name_ar": "ميكس تشيز", "price": 147, "ingredients_en": "Cheddar-Mozzarella Mix, Cheese Sauce", "ingredients_ar": "ميكس شيدر والموتزريلا، صوص جبنه" },
+      { "name_en": "Tuna", "name_ar": "تونه", "price": 194, "ingredients_en": "Tuna, mayonnaise, onion, colored pepper, dill, olives", "ingredients_ar": "تونه، مايونيز، بصل، فلفل الوان، شبت، زيتون" }
+    ]
+  },
+  {
+    "category": "Croissant",
+    "category_ar": "كرواسون",
+    "items": [
+      { "name_en": "Classic", "name_ar": "كلاسيك", "price": 71 },
+      { "name_en": "Mix Cheese", "name_ar": "ميكس تشيز", "price": 114, "ingredients_en": "Cheddar, cheese sauce", "ingredients_ar": "شيدر، صوص جبنه" },
+      { "name_en": "Azura Croissant", "name_ar": "ازورا كرواسون", "price": 149, "ingredients_en": "Lettuce, Smoked Turkey, Pepperoni, Cheddar", "ingredients_ar": "خس، سموك تركي، ببروني، شيدر" }
+    ]
+  },
+  {
+    "category": "Soups",
+    "category_ar": "سوب",
+    "items": [
+      { "name_en": "Tomato and Basil Soup", "name_ar": "توماتو اند بازل سوب", "price": 93 },
+      { "name_en": "Mushroom Cream", "name_ar": "مشروم كريم", "price": 102 },
+      { "name_en": "Creamy Chicken", "name_ar": "كريمي تشيكن", "price": 113 },
+      { "name_en": "Creamy Chicken Mushroom", "name_ar": "كريمي تشيكن مشروم", "price": 149 }
+    ]
+  },
+  {
+    "category": "Appetizers",
+    "category_ar": "ابيتيزرز",
+    "items": [
+      { "name_en": "Fries", "name_ar": "فرايز", "price": 86 },
+      { "name_en": "Cheese Fries", "name_ar": "تشيز فرايز", "price": 106 },
+      { "name_en": "Beef Quesadilla", "name_ar": "بيف كاسديا", "price": 211 },
+      { "name_en": "Chicken Quesadilla", "name_ar": "تشيكن كاسديا", "price": 212 },
+      { "name_en": "Nachos", "name_ar": "ناتشوز", "price": 128, "ingredients_en": "Dorito Chips, Beef Bacon, Ranch, Cheddar Mix, Cheese Sauce", "ingredients_ar": "دوريتو شيبس، بيف بيكون، رانش، ميكس شيدر، صوص جينه" },
+      { "name_en": "Chicken Fries", "name_ar": "تشيكن فرايز", "price": 202, "ingredients_en": "Crispy chicken, fries, honey mustard sauce, cheese sauce", "ingredients_ar": "تشيكن كريسبي، فرايز، هوني ماسترد صوص، صوص جبنه" },
+      { "name_en": "Chili Texas Fries", "name_ar": "شيلي تكساس فرايز", "price": 159, "ingredients_en": "Beef bacon, jalapenos, fries, sweet chili sauce, cheese sauce, Texas sauce", "ingredients_ar": "بيف بيكون، هالبينو، فرايز، سويت شيلي صوص، صوص جبنه، صوص تكساس" },
+      { "name_en": "Mozzarella Steak", "name_ar": "موتزريلا استيك", "price": 96 },
+      { "name_en": "Strips", "name_ar": "ستربس", "price": 189 },
+      { "name_en": "Onion Rings", "name_ar": "اونيون رينجز", "price": 88 },
+      { "name_en": "Azura Plate", "name_ar": "ازورا بليت", "price": 256, "ingredients_en": "Mozzarella sticks, strips, onion rings, fries, nachos with three sauces", "ingredients_ar": "موتزريلا ستيك، ستربس، حلقات بصل، فرايز، ناتشوز مع ثلاث صوصات من اختيارك" },
+      { "name_en": "Baked Potato", "name_ar": "بيكد بوتيتو", "price": 92 },
+      { "name_en": "Azura Potato", "name_ar": "ازورا بوتيتو", "price": 123, "ingredients_en": "Mash Potato, Smoked Turkey, Olives, Cheddar Mix, Mozzarella, Ranch Sauce", "ingredients_ar": "ماش بوتيتو، سموك تركي، زيتون، ميكس شيدر، موتزريلا، صوص رانش" }
+    ]
+  },
+  {
+    "category": "Salads",
+    "category_ar": "سالاد",
+    "items": [
+      { "name_en": "Greek Salad", "name_ar": "جريك سالاد", "price": 133, "ingredients_en": "Lettuce, cucumber, tomatoes, Greek cheese, thyme, olive oil", "ingredients_ar": "خس، خيار، طماطم، جبنه جريك، زعتر، زيت زيتون" },
+      { "name_en": "Chicken Caesar Salad", "name_ar": "تشيكن سيزر سالاد", "price": 204, "ingredients_en": "Lettuce, grilled chicken, croutons, Caesar dressing, Parmesan cheese", "ingredients_ar": "خس، فراخ جريل، عيش كريتون، صوص سيزر، جبنه بارميزان" },
+      { "name_en": "Rocca Salad", "name_ar": "روكا سالاد", "price": 124, "ingredients_en": "Lettuce, arugula, hazelnuts, fresh mushrooms, colored peppers, and Parmesan cheese", "ingredients_ar": "خس، جرجير، بندق، مشروم فريش، فلفل الوان، جبنه بارميزان" },
+      { "name_en": "California Salad", "name_ar": "كاليفورنيا سالاد", "price": 193, "ingredients_en": "Lettuce, colored peppers, cucumber, cheddar mix, grilled chicken, sweet corn, Hawaiian sauce", "ingredients_ar": "خس، فلفل الوان، خيار، ميكس شيدر، فراخ جريل، سويت كورن، هاواى صوص" },
+      { "name_en": "Azura Disco Salad", "name_ar": "ازورا ديسكو سالاد", "price": 248, "ingredients_en": "Lettuce, Crispy Chicken, Smoked Turkey, Smoked Beef, Colored Peppers, Cheddar Mix, Nachos, Honey Mustard Sauce", "ingredients_ar": "خس، فراخ كريسبي، سموك تركي، سموك بيف، فلفل الوان، ميكس شيدر، ناتشوز، هوني ماسترد صوص" },
+      { "name_en": "Tuna Salad", "name_ar": "تونه سالاد", "price": 206, "ingredients_en": "Tuna, mayonnaise, colored pepper, onion, olives, lettuce", "ingredients_ar": "تونه، ماينوز، فلفل الوان، بصل، زيتون، خس" }
+    ]
+  },
+  {
+    "category": "Pasta",
+    "category_ar": "باستا",
+    "items": [
+      { "name_en": "Alfredo Pasta", "name_ar": "الفريدو باستا", "price": 249 },
+      { "name_en": "Negresco", "name_ar": "نجرسكو", "price": 258 },
+      { "name_en": "Mac and Cheese", "name_ar": "ماك اند تشيز", "price": 247 },
+      { "name_en": "Pesto Pasta", "name_ar": "بيستو باستا", "price": 216 },
+      { "name_en": "Chicken Gravy Pasta", "name_ar": "تشيكن جريفي باستا", "price": 206 },
+      { "name_en": "Beef Stroganoff Pasta", "name_ar": "بيف ستراجنوف باستا", "price": 279 },
+      { "name_en": "Azura Spicy Pasta", "name_ar": "ازورا سبايسي باستا", "price": 189, "ingredients_en": "Jalapeno, Spices, White Sauce, Pepperoni, Sweet Chili", "ingredients_ar": "هالبينو، توابل، وايت صوص، ببروني، سويت شيلي" },
+      { "name_en": "Pasta Arrabbiata", "name_ar": "اربيتا باستا", "price": 165 },
+      { "name_en": "Pasta Forno", "name_ar": "فورنو باستا", "price": 204 },
+      { "name_en": "Spaghetti Bolognese", "name_ar": "سباجتي بولنيز", "price": 197 },
+      { "name_en": "Cheese Ranch Pasta", "name_ar": "تشيز رانش باستا", "price": 238, "ingredients_en": "Cheese mix, crispy chicken, ranch sauce", "ingredients_ar": "ميكس جبن، فراخ كريسبي، صوص رانش" },
+      { "name_en": "Mammo Pasta", "name_ar": "مامو باستا", "price": 196, "ingredients_en": "Crispy chicken, red sauce spaghetti, parmesan cheese", "ingredients_ar": "فراخ كريسبي، مكرونه ريد صوص، سباجتي، جبنه بارميزان" }
+    ]
+  },
+  {
+    "category": "Tortilla",
+    "category_ar": "تورتيلا",
+    "items": [
+      { "name_en": "Crispy Chicken Tortilla", "name_ar": "كريسبي تشيكن تورتيلا", "price": 196, "ingredients_en": "Lettuce, tomato, cheese sauce, honey mustard, crispy chicken", "ingredients_ar": "خس، طماطم، صوص جبنه، هوني ماسترد، فراخ كريسبي" },
+      { "name_en": "Grilled Chicken Tortilla", "name_ar": "جريلد تشيكن تورتيلا", "price": 186, "ingredients_en": "Lettuce, tomato, ranch, grilled chicken", "ingredients_ar": "خس، طماطم، رانش، فراخ جريل" },
+      { "name_en": "Mexican Chicken Tortilla", "name_ar": "ميكسيكان تشيكن تورتيلا", "price": 199, "ingredients_en": "Lettuce, tomato, Mexican sauce, colored peppers, olives, grilled chicken", "ingredients_ar": "خس، طماطم، صوص ميكسيكان، فلفل الوان، زيتون، فراخ جريل" },
+      { "name_en": "Fajita Chicken Tortilla", "name_ar": "فاجيتا تشيكن تورتيلا", "price": 199, "ingredients_en": "Lettuce, tomato, BBQ sauce, grilled chicken, colored peppers, onion", "ingredients_ar": "خس، طماطم، صوص باربيكيو، فراخ جريل، فلفل الوان، بصل" },
+      { "name_en": "Azura Tortilla", "name_ar": "ازورا تورتيلا", "price": 219, "ingredients_en": "Lettuce, tomato, smoked turkey, smoked beef, cheese sauce, crispy chicken", "ingredients_ar": "خس، طماطم، سموك تركي، سموك بيف، صوص جبنه، فراخ كريسبي" }
+    ]
+  },
+  {
+    "category": "Main Dishes",
+    "category_ar": "أطباق رئيسية",
+    "items": [
+      { "name_en": "Grilled Chicken", "name_ar": "جريلد تشيكن", "price": 314, "ingredients_en": "Grilled chicken breast with your choice of sauce (Mushroom, Pepper, Blue Cheese, Lemon, or Curry)", "ingredients_ar": "صدور فراخ جريل مع اختيارك من الصوص (مشروم، فلفل، بلو تشيز، ليمون، أو كاري)" },
+      { "name_en": "Chicken Mushroom", "name_ar": "تشيكن مشروم", "price": 334, "ingredients_en": "Grilled chicken breast with mushroom sauce", "ingredients_ar": "صدور فراخ جريل مع صوص المشروم" },
+      { "name_en": "Chicken Pane", "name_ar": "تشيكن بانيه", "price": 312, "ingredients_en": "Fried breaded chicken breast", "ingredients_ar": "صدور فراخ بانيه مقلية" },
+      { "name_en": "Chicken Lemon", "name_ar": "تشيكن ليمون", "price": 314, "ingredients_en": "Grilled chicken breast with lemon sauce", "ingredients_ar": "صدور فراخ جريل مع صوص الليمون" },
+      { "name_en": "Chicken Cordon Bleu", "name_ar": "تشيكن كوردون بلو", "price": 349, "ingredients_en": "Fried chicken breast stuffed with smoked turkey, smoked beef, and cheese mix", "ingredients_ar": "صدور فراخ مقلية محشوة سموك تركي، سموك بيف، وميكس جبن" },
+      { "name_en": "Chicken Mexican", "name_ar": "تشيكن ميكسيكان", "price": 329, "ingredients_en": "Grilled chicken with Mexican vegetables and spicy sauce", "ingredients_ar": "فراخ جريل مع خضروات ميكسيكان وصوص حار" },
+      { "name_en": "Chicken Curry", "name_ar": "تشيكن كاري", "price": 319, "ingredients_en": "Grilled chicken breast with curry sauce", "ingredients_ar": "صدور فراخ جريل مع صوص الكاري" },
+      { "name_en": "Beef Mushroom", "name_ar": "بيف مشروم", "price": 389, "ingredients_en": "Grilled beef fillet with mushroom sauce", "ingredients_ar": "فيليه لحم جريل مع صوص المشروم" },
+      { "name_en": "Beef Stroganoff", "name_ar": "بيف ستراجنوف", "price": 389, "ingredients_en": "Beef strips with mushroom, onion, and creamy sauce", "ingredients_ar": "شرايح لحم مع مشروم وبصل وصوص كريمي" },
+      { "name_en": "Beef Fillet", "name_ar": "بيف فيليه", "price": 429, "ingredients_en": "Grilled beef fillet with your choice of sauce (Pepper, Mushroom, or Blue Cheese)", "ingredients_ar": "فيليه لحم جريل مع اختيارك من الصوص (فلفل، مشروم، أو بلو تشيز)" }
+    ]
+  },
+  {
+    "category": "Burgers",
+    "category_ar": "برجر",
+    "items": [
+      { "name_en": "Classic Burger", "name_ar": "كلاسيك برجر", "price": 228, "ingredients_en": "Beef burger, lettuce, tomato, Thousand Island sauce, cucumber", "ingredients_ar": "برجر لحم، خس، طماطم، صوص تاوزن ايلاند، خيار" },
+      { "name_en": "Cheese Burger", "name_ar": "تشيز برجر", "price": 238, "ingredients_en": "Texas sauce, lettuce, tomato, cheddar slices, cheese sauce, beef burger", "ingredients_ar": "تكساس، خس، طماطم، شرايح شيدر، صوص جبنه، برجر لحمه" },
+      { "name_en": "Smoke Burger", "name_ar": "سموك برجر", "price": 264, "ingredients_en": "Texas sauce, burger, smoked turkey, smoked bacon, lettuce, tomato, cheese sauce", "ingredients_ar": "صوص تكساس، برجر، سموك تركي، سموك بيكون، خس، طماطم، صوص جبنة" },
+      { "name_en": "Fire Burger", "name_ar": "فاير برجر", "price": 237, "ingredients_en": "Sweet chili, jalapeno, lettuce, tomato, burger, cheese sauce", "ingredients_ar": "سويت شيلي، هالبينو، خس، طماطم، برجر، صوص جبنه" },
+      { "name_en": "BBQ Burger", "name_ar": "باربيكيو برجر", "price": 244, "ingredients_en": "Burger, BBQ sauce, beef bacon, lettuce, tomato, cheese sauce", "ingredients_ar": "برجر، صوص باربيكيو، بيف بيكون، خس، طماطم، صوص جبنه" },
+      { "name_en": "Texas Burger", "name_ar": "تيكساس برجر", "price": 273, "ingredients_en": "Burger, caramelized onion, caramelized mushroom, Texas sauce, lettuce, tomato", "ingredients_ar": "برجر، بصل مكرمل، مشروم مكرمل، صوص تكساس، خس، طماطم" }
+    ]
+  },
+  {
+    "category": "Smash Burgers",
+    "category_ar": "سماش برجر",
+    "items": [
+      { "name_en": "Classic Smash", "name_ar": "كلاسيك سماش", "price": 227, "ingredients_en": "Lettuce, tomato, caramelized onion, 2 smash pieces, cheese sauce", "ingredients_ar": "خس، طماطم، بصل مكرمل، قطعتين سماش، صوص جينه" },
+      { "name_en": "Smoke Smash Burger", "name_ar": "سموك سماش برجر", "price": 282, "ingredients_en": "Lettuce, tomato, Texas, caramelized onion, beef bacon", "ingredients_ar": "خس، طماطم، تكساس، بصل مكرمل، بيف بيكون" },
+      { "name_en": "Smash Mushroom Boom", "name_ar": "سماش مشروم بووم", "price": 252, "ingredients_en": "Lettuce, tomato, mushroom cheese sauce, caramelized onion, Texas, 2 smash pieces", "ingredients_ar": "خس، طماطم، صوص مشروم تشيز، بصل مكرمل، تكساس، قطعتين سماش" },
+      { "name_en": "Fried Club", "name_ar": "فرايد كلوب", "price": 281, "ingredients_en": "Lettuce, tomato, cheese sauce, onion rings, mozzarella stick, nachos", "ingredients_ar": "خس، طماطم، صوض جبنه، حلقات بصل، موتزريلا استيك، ناتشوز" },
+      { "name_en": "Fire Smash Burger", "name_ar": "فاير سماش برجر", "price": 257, "ingredients_en": "Lettuce, tomato, sweet chili, Stracha, beef bacon with jalapeno", "ingredients_ar": "خس، طماطم، سويت شيلي، ستراتشا، بيف بيكون مع هالبينو" },
+      { "name_en": "Chili Ranch", "name_ar": "تشيلى رانش", "price": 267, "ingredients_en": "Lettuce, tomato, Stracha, jalapeno, cheese sauce, Doritos, ranch", "ingredients_ar": "خس، طماطم، ستراتشا، هالبينو، صوص جبنه، دوريتوس، رانش" },
+      { "name_en": "Oven Baked Smash", "name_ar": "اوفن بيكد سماش", "price": 279, "ingredients_en": "Texas, lettuce, tomato, pepperoni, mozzarella", "ingredients_ar": "تكساس، خس، طماطم، ببروني، موتزريلا" }
+    ]
+  },
+  {
+    "category": "Fried Chicken",
+    "category_ar": "فرايد تشيكن",
+    "items": [
+      { "name_en": "Classic Fried Chicken", "name_ar": "كلاسيك فرايد تشيكن", "price": 216, "ingredients_en": "Lettuce, tomato, honey mustard, crispy chicken", "ingredients_ar": "خس، طماطم، هوني ماسترد، فراخ كريسبي" },
+      { "name_en": "Fire Fried Chicken", "name_ar": "فاير فرايد تشيكن", "price": 221, "ingredients_en": "Sweet chili, Texas, jalapeno, crispy chicken, lettuce, tomato", "ingredients_ar": "سويت شيلي، تكساس، هالبينو، فراخ كريسبي، خس، طماطم" },
+      { "name_en": "Smoke Fried Chicken", "name_ar": "سموك فرايد تشيكن", "price": 249, "ingredients_en": "Crispy chicken, Texas, lettuce, tomato, smoked turkey, smoked bacon", "ingredients_ar": "فراخ كريسبي، تكساس، خس، طماطم، سموك تركي، سموك بيكون" },
+      { "name_en": "Fried Festival", "name_ar": "فرايد فيستيفال", "price": 265, "ingredients_en": "Crispy chicken, mozzarella stick, onion rings, smoked turkey, ranch, cheese sauce, nachos", "ingredients_ar": "فراخ كريسبي، موتزريلا ستيك، حلقات بصل، سموك تركي، رائنش، صوص جبنه، ناتشوز" }
+    ]
+  },
+  {
+    "category": "Hot Drinks",
+    "category_ar": "هوت درينكس",
+    "items": [
+      { "name_en": "Flavor Tea", "name_ar": "فليفر تي", "price": 55 },
+      { "name_en": "Zarda Tea", "name_ar": "زرده تي", "price": 65 },
+      { "name_en": "Mix Herbs", "name_ar": "ميكس هيربس", "price": 60 },
+      { "name_en": "French Coffee", "name_ar": "فرنش كوفي", "price": 65 },
+      { "name_en": "Hazelnut Coffee", "name_ar": "هازلنت كوفي", "price": 95 },
+      { "name_en": "Hot Cider", "name_ar": "هوت سيدر", "price": 55 }
+    ]
+  },
+  {
+    "category": "Coffee",
+    "category_ar": "كوفي",
+    "items": [
+      { "name_en": "Espresso Single", "name_ar": "اسبريسو سنجل", "price": 58 },
+      { "name_en": "Espresso Double", "name_ar": "اسبريسو دبل", "price": 80 },
+      { "name_en": "Macchiato Single", "name_ar": "ميكاتو سنجل", "price": 65 },
+      { "name_en": "Espresso Con Panna", "name_ar": "اسبريسو كون بانا", "price": 78 },
+      { "name_en": "Espresso Affogato", "name_ar": "اسبريسو افوجادوه", "price": 84 },
+      { "name_en": "Bon Bon Coffee", "name_ar": "بون بون كوفي", "price": 85 },
+      { "name_en": "Americano", "name_ar": "امريكانو", "price": 71 },
+      { "name_en": "Cappuccino", "name_ar": "كابتشينو", "price": 104 },
+      { "name_en": "Latte", "name_ar": "لاتيه", "price": 88 },
+      { "name_en": "Flat White", "name_ar": "فلات وايت", "price": 110 },
+      { "name_en": "Caramel Macchiato", "name_ar": "كراميل ميكاتو", "price": 105 },
+      { "name_en": "Mocha", "name_ar": "موكا", "price": 105 },
+      { "name_en": "Hazelnut Mocha (Nutella)", "name_ar": "هازلنت موكا", "price": 110 },
+      { "name_en": "Mint Mocha", "name_ar": "مينت موكا", "price": 107 },
+      { "name_en": "Lotus Latte", "name_ar": "لوتس لاتيه", "price": 125 },
+      { "name_en": "Spanish Latte", "name_ar": "سبانش لاتيه", "price": 115 },
+      { "name_en": "Hazelnut Spanish Latte", "name_ar": "هازلنت سبانش لاتيه", "price": 135 },
+      { "name_en": "Marshmallow Mocha", "name_ar": "مارشميلو موكا", "price": 125 },
+      { "name_en": "Hazelnut Caramel", "name_ar": "هازلنت كراميل", "price": 108 },
+      { "name_en": "Nescafe", "name_ar": "نسكافيه", "price": 80 }
+    ]
+  },
+  {
+    "category": "Corto",
+    "category_ar": "كورتو",
+    "items": [
+      { "name_en": "Classic Corto", "name_ar": "كلاسيك كورتو", "price": 97 },
+      { "name_en": "Mocha Corto", "name_ar": "موكا كورتو", "price": 119 },
+      { "name_en": "Caramel Corto", "name_ar": "كراميل كورتو", "price": 119 },
+      { "name_en": "Black Corto", "name_ar": "بلاك كورتو", "price": 114 }
+    ]
+  },
+  {
+    "category": "Frappuccino & Frappe",
+    "category_ar": "فرابتشينو اند فرابيه",
+    "items": [
+      { "name_en": "Frappuccino", "name_ar": "فرابتشينو", "price": 143 },
+      { "name_en": "Frappe Strong", "name_ar": "فرابيه سترونج", "price": 159 },
+      { "name_en": "Caramel Macchiato Frappe", "name_ar": "كراميل ميكاتو فرابيه", "price": 169 },
+      { "name_en": "Mocha Frappe", "name_ar": "موكا فرابيه", "price": 174 },
+      { "name_en": "Marshmallow Mocha Frappe", "name_ar": "مارشميلو موكا فرابيه", "price": 194 },
+      { "name_en": "White Mocha Frappe", "name_ar": "وايت موكا فرابيه", "price": 174 },
+      { "name_en": "Oreo Frappe", "name_ar": "اوريو فرابيه", "price": 164 },
+      { "name_en": "Lotus Frappe", "name_ar": "لوتس فرابيه", "price": 195 },
+      { "name_en": "Blueberry Vanilla Frappe", "name_ar": "بلوبيري فانيليا فرابيه", "price": 159 },
+      { "name_en": "Strawberry Vanilla Frappe", "name_ar": "ستروبري فانيليا فرابيه", "price": 159 },
+      { "name_en": "Chocolate Frappe", "name_ar": "شوكلت فرابيه", "price": 164 },
+      { "name_en": "Hazelnut Frappe", "name_ar": "هازلنت فرابيه", "price": 149 }
+    ]
+  },
+  {
+    "category": "Iced Coffee & Tea",
+    "category_ar": "ايس كوفي اند تي",
+    "items": [
+      { "name_en": "Iced Cappuccino", "name_ar": "ايس كابتشينو", "price": 119 },
+      { "name_en": "Iced Mocha", "name_ar": "ايس موكا", "price": 139 },
+      { "name_en": "Iced White Mocha", "name_ar": "ايس وايت موكا", "price": 154 },
+      { "name_en": "Iced Caramel Macchiato", "name_ar": "ايس كراميل ميكاتو", "price": 139 },
+      { "name_en": "Iced Spanish Latte", "name_ar": "ايس سبانش لاتيه", "price": 149 },
+      { "name_en": "Iced Hazelnut Spanish Latte", "name_ar": "ايس هازلنت سبانش لاتيه", "price": 149 },
+      { "name_en": "Iced Rose Latte", "name_ar": "ايس روز لاتيه", "price": 154 },
+      { "name_en": "Blue Coffee Ice", "name_ar": "بلو كوفي ايس", "price": 179 },
+      { "name_en": "Iced Boba Coffee", "name_ar": "ايس بوبا كوفي", "price": 189 },
+      { "name_en": "Iced Tea Black", "name_ar": "ايس تي بلاك", "price": 174 },
+      { "name_en": "Iced Tea Peach", "name_ar": "ايس تي بيتش", "price": 174 }
+    ]
+  },
+  {
+    "category": "Mojitos & Cold Drinks",
+    "category_ar": "موهيتو اند كولد درينكس",
+    "items": [
+      { "name_en": "Lemon Mint", "name_ar": "ليمون مينت", "price": 99 },
+      { "name_en": "Lemon Pink", "name_ar": "ليمون بينك", "price": 99 },
+      { "name_en": "Lemon Strawberry", "name_ar": "ليمون ستروبري", "price": 99 },
+      { "name_en": "Lemon Passion", "name_ar": "ليمون باشون", "price": 109 },
+      { "name_en": "Classic Mojito", "name_ar": "كلاسيك موهيتو", "price": 112 },
+      { "name_en": "Blueberry Mojito", "name_ar": "بلوبيري موهيتو", "price": 184 },
+      { "name_en": "Mix Berry Mojito", "name_ar": "ميكس بيري موهيتو", "price": 181 },
+      { "name_en": "Passion Mojito", "name_ar": "باشون موهيتو", "price": 179 },
+      { "name_en": "Strawberry Mojito", "name_ar": "ستروبري موهيتو", "price": 188 },
+      { "name_en": "Peach Mojito", "name_ar": "بيتش موهيتو", "price": 189 },
+      { "name_en": "Apple Mojito", "name_ar": "ابل موهيتو", "price": 184 },
+      { "name_en": "Pineapple Mojito", "name_ar": "باين ابل موهيتو", "price": 197 },
+      { "name_en": "Redbull Mojito", "name_ar": "ريدبول موهيتو", "price": 204 },
+      { "name_en": "Passion Blue", "name_ar": "باشون بلو", "price": 169 },
+      { "name_en": "Redbull Berry", "name_ar": "ريدبول بيري", "price": 209 },
+      { "name_en": "Redbull Blue", "name_ar": "ريدبول بلو", "price": 204 },
+      { "name_en": "Cherry Cola", "name_ar": "شيري كولا", "price": 139 },
+      { "name_en": "French Cola", "name_ar": "فرنش كولا", "price": 144 },
+      { "name_en": "Boba Mojito", "name_ar": "بوبه موهيتو", "price": 224 }
+    ]
+  },
+  {
+    "category": "Boba Tea",
+    "category_ar": "بوبه تي",
+    "items": [
+      { "name_en": "Blueberry Boba Tea", "name_ar": "بلوبيري بوبه تي", "price": 159 },
+      { "name_en": "Passion Fruit Boba Tea", "name_ar": "باشون فروت بوبه تي", "price": 164 },
+      { "name_en": "Strawberry Boba Tea", "name_ar": "ستروبري بوبه تي", "price": 169 },
+      { "name_en": "Green Apple Boba Tea", "name_ar": "جرين ابل بوبه تي", "price": 169 }
+    ]
+  },
+  {
+    "category": "Fresh Juices",
+    "category_ar": "فريش جوس",
+    "items": [
+      { "name_en": "Mango Juice", "name_ar": "مانجو جوس", "price": 134 },
+      { "name_en": "Strawberry Juice", "name_ar": "ستروبري جوس", "price": 125 },
+      { "name_en": "Guava Juice", "name_ar": "جوافه جوس", "price": 133 },
+      { "name_en": "Orange Juice", "name_ar": "اورانج جوس", "price": 121 },
+      { "name_en": "Watermelon Juice", "name_ar": "واتر ميلون جوس", "price": 127 },
+      { "name_en": "Kiwi Juice", "name_ar": "كيوي جوس", "price": 160 },
+      { "name_en": "Dates Juice", "name_ar": "داتس جوس", "price": 130 },
+      { "name_en": "Pomegranate Juice", "name_ar": "بومجرانيت جوس", "price": 118 },
+      { "name_en": "Banana Juice", "name_ar": "بنانا جوس", "price": 129 },
+      { "name_en": "Lemon Juice", "name_ar": "ليمون جوس", "price": 93 },
+      { "name_en": "Lemon Mint Juice", "name_ar": "ليمون مينت جوس", "price": 99 },
+      { "name_en": "Pineapple Juice", "name_ar": "باين ابل جوس", "price": 130 },
+      { "name_en": "Avocado Juice", "name_ar": "افوكادو جوس", "price": 168 },
+      { "name_en": "Peach Juice", "name_ar": "بيتش جوس", "price": 127 }
+    ]
+  },
+  {
+    "category": "Smoothies",
+    "category_ar": "سموزي",
+    "items": [
+      { "name_en": "Strawberry Banana Smoothie", "name_ar": "ستروبري بنانا سموزي", "price": 137 },
+      { "name_en": "Mango Kiwi Smoothie", "name_ar": "مانجو كيوي سموزي", "price": 154 },
+      { "name_en": "Copa Cabana Smoothie", "name_ar": "كوبا كبانا سموزي", "price": 129 },
+      { "name_en": "White Mountain Smoothie", "name_ar": "وايت موانتين سموزي", "price": 139 },
+      { "name_en": "Strawberry Lemonade Smoothie", "name_ar": "ستروبري ليمونيت سموزي", "price": 144 },
+      { "name_en": "Yellow and Green Smoothie", "name_ar": "يالو اند جرين سموزي", "price": 149 },
+      { "name_en": "Lemon Smoothie", "name_ar": "ليمون سموزي", "price": 89 },
+      { "name_en": "Lemon Mint Smoothie", "name_ar": "ليمون مينت سموزي", "price": 104 },
+      { "name_en": "Pina Colada Smoothie", "name_ar": "بينا كولادا سموزي", "price": 154 },
+      { "name_en": "Blueberry Smoothie", "name_ar": "بلوبيري سموزي", "price": 139 },
+      { "name_en": "Mix Berry Smoothie", "name_ar": "ميكس بيري سموزي", "price": 144 },
+      { "name_en": "Mango Peach Smoothie", "name_ar": "مانجو بيتش سموزي", "price": 154 },
+      { "name_en": "Passion Fruit Smoothie", "name_ar": "باشون فروت سموزي", "price": 144 },
+      { "name_en": "Passion Strawberry Smoothie", "name_ar": "باشون ستروبري سموزي", "price": 149 },
+      { "name_en": "Pineapple Smoothie", "name_ar": "باين ابل سموزي", "price": 139 },
+      { "name_en": "Strawberry Smoothie", "name_ar": "ستروبري سموزي", "price": 129 },
+      { "name_en": "Watermelon Smoothie", "name_ar": "واتر ميلون سموزي", "price": 149 },
+      { "name_en": "Mango Passion Smoothie", "name_ar": "مانجو باشون سموزي", "price": 134 },
+      { "name_en": "Blue Passion Smoothie", "name_ar": "بلو باشون سموزي", "price": 159 }
+    ]
+  },
+  {
+    "category": "Milkshakes",
+    "category_ar": "ميلك شيك",
+    "items": [
+      { "name_en": "Vanilla Milkshake", "name_ar": "فانيليا ميلك شيك", "price": 129 },
+      { "name_en": "Chocolate Milkshake", "name_ar": "شوكلت ميلك شيك", "price": 134 },
+      { "name_en": "Strawberry Milkshake", "name_ar": "ستروبري ميلك شيك", "price": 134 },
+      { "name_en": "Mango Milkshake", "name_ar": "مانجو ميلك شيك", "price": 144 },
+      { "name_en": "Oreo Milkshake", "name_ar": "اوريو ميلك شيك", "price": 144 },
+      { "name_en": "Caramel Milkshake", "name_ar": "كراميل ميلك شيك", "price": 144 },
+      { "name_en": "Blueberry Milkshake", "name_ar": "بلوبيري ميلك شيك", "price": 154 },
+      { "name_en": "Lotus Milkshake", "name_ar": "لوتس ميلك شيك", "price": 159 },
+      { "name_en": "Pistachio Milkshake", "name_ar": "بيستاشيو ميلك شيك", "price": 174 }
+    ]
+  },
+  {
+    "category": "Desserts",
+    "category_ar": "ديسيرتس",
+    "items": [
+      { "name_en": "Molten Cake", "name_ar": "مولتن كيك", "price": 159 },
+      { "name_en": "Brownies", "name_ar": "براونيز", "price": 114 },
+      { "name_en": "Cheese Cake", "name_ar": "تشيز كيك", "price": 144 },
+      { "name_en": "San Sebastian", "name_ar": "سان سيباستيان", "price": 184 },
+      { "name_en": "San Sebastian Pistachio", "name_ar": "سان سيباستيان بيستاشيو", "price": 204 },
+      { "name_en": "Fruit Salad", "name_ar": "فروت سالاد", "price": 109 },
+      { "name_en": "Fruit Salad with Ice Cream", "name_ar": "فروت سالاد وذ ايس كريم", "price": 134 },
+      { "name_en": "Ice Cream Scoop", "name_ar": "ايس كريم سكوب", "price": 35 }
+    ]
+  },
+  {
+    "category": "Add-ons",
+    "category_ar": "اد اونس",
+    "items": [
+      { "name_en": "Extra Chicken", "name_ar": "اكسترا تشيكن", "price": 50 },
+      { "name_en": "Extra Cheese", "name_ar": "اكسترا تشيز", "price": 35 },
+      { "name_en": "Extra Bread", "name_ar": "اكسترا بريد", "price": 25 },
+      { "name_en": "Extra Beef", "name_ar": "اكسترا بيف", "price": 70 },
+      { "name_en": "Extra Fries", "name_ar": "اكسترا فرايز", "price": 60 },
+      { "name_en": "Extra Rice", "name_ar": "اكسترا رايس", "price": 45 },
+      { "name_en": "Extra Mushroom", "name_ar": "اكسترا مشروم", "price": 40 },
+      { "name_en": "Extra Sauce", "name_ar": "اكسترا صوص", "price": 35 },
+      { "name_en": "Extra Sweet Pepper", "name_ar": "اكسترا سويت بيبر", "price": 25 },
+      { "name_en": "Extra Jalapeno", "name_ar": "اكسترا هالبينو", "price": 20 }
+    ]
+  },
+  {
+    "category": "Shisha",
+    "category_ar": "شيشة",
+    "items": [
+      { "name_en": "Mix Shisha", "name_ar": "شيشة ميكس", "price": 180 },
+      { "name_en": "Pyrex Shisha", "name_ar": "شيشة بايركس", "price": 190 },
+      { "name_en": "Premium Shisha", "name_ar": "شيشة فاخر", "price": 150 },
+      { "name_en": "Maassel Shisha", "name_ar": "شيشة معسل", "price": 65 },
+      { "name_en": "Pyrex Twin Shisha", "name_ar": "شيشة بايركس توين", "price": 210 },
+      { "name_en": "Azura Shisha", "name_ar": "شيشة ازورا", "price": 220 },
+      { "name_en": "Ice Hose", "name_ar": "ايس لي", "price": 30 },
+      { "name_en": "Maassel Change", "name_ar": "Extra", "price": 35 }
+    ]
+  }
+]

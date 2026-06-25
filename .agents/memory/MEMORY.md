@@ -1,0 +1,1 @@
+- [Azura menu Firebase merge pattern](azura-firebase-merge.md) — ingredient updates use mergeMenuIngredients() via multi-path update() to avoid overwriting existing item fields

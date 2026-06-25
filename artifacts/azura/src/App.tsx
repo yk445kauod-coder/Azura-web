@@ -13,7 +13,7 @@ import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
-import { seedMenuIfEmpty } from "@/lib/firebase";
+import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient({
@@ -27,7 +27,11 @@ const queryClient = new QueryClient({
 
 function AppRoutes() {
   const { user, loading } = useAuth();
-  useEffect(() => { seedMenuIfEmpty().catch(() => {}); }, []);
+  useEffect(() => {
+    seedMenuIfEmpty()
+      .then(() => mergeMenuIngredients())
+      .catch(() => {});
+  }, []);
 
   if (loading) {
     return (

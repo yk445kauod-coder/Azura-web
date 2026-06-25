@@ -142,6 +142,40 @@ export async function seedMenuIfEmpty() {
   await set(ref(db, "ai-config"), aiConfig);
 }
 
+// Merge updated ingredients + add new categories into Firebase menu
+export async function mergeMenuIngredients() {
+  try {
+    const menuSnap = await get(ref(db, "menu"));
+    const existingMenu = menuSnap.exists() ? (menuSnap.val() as Record<string, unknown>) : {};
+    const updates: Record<string, unknown> = {};
+
+    Object.entries(fullMenuData).forEach(([category, items]) => {
+      Object.entries(items as Record<string, Record<string, unknown>>).forEach(([itemKey, itemData]) => {
+        const path = `menu/${category}/${itemKey}`;
+        const categoryExists = !!existingMenu[category];
+        const itemExists = categoryExists && !!(existingMenu[category] as Record<string, unknown>)[itemKey];
+
+        if (!itemExists) {
+          // New item — write the full object
+          updates[path] = itemData;
+        } else {
+          // Existing item — only patch ingredients & descriptions
+          if (itemData.ingredients) updates[`${path}/ingredients`] = itemData.ingredients;
+          if (itemData.ingredientsAr) updates[`${path}/ingredientsAr`] = itemData.ingredientsAr;
+          if (itemData.description) updates[`${path}/description`] = itemData.description;
+          if (itemData.descriptionAr) updates[`${path}/descriptionAr`] = itemData.descriptionAr;
+        }
+      });
+    });
+
+    if (Object.keys(updates).length > 0) {
+      await update(ref(db), updates);
+    }
+  } catch {
+    // Silent fail — non-critical
+  }
+}
+
 // Function to add shisha items to existing menu
 export async function seedShishaItems() {
   const menuRef = ref(db, "menu/shisha");

@@ -28,18 +28,37 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 }
 
 const CATS = [
-  { id: "all",        emoji: "✨",  en: "All",       ar: "الكل"       },
-  { id: "hot_drinks", emoji: "☕",  en: "Hot Drinks",  ar: "ساخن"      },
-  { id: "cold_drinks",emoji: "🥤", en: "Cold Drinks", ar: "بارد"      },
-  { id: "fresh",      emoji: "🍹",  en: "Fresh",       ar: "طازج"      },
-  { id: "milkshake",  emoji: "🥛", en: "Shakes",      ar: "شيك"       },
-  { id: "food",       emoji: "🍴",  en: "Food",        ar: "طعام"      },
-  { id: "sandwiches", emoji: "🥪", en: "Sandwiches",  ar: "ساندوتش"   },
-  { id: "mains",      emoji: "🍖",  en: "Mains",       ar: "أطباق"     },
-  { id: "burgers",    emoji: "🍔", en: "Burgers",     ar: "برجر"      },
-  { id: "desserts",   emoji: "🍰", en: "Desserts",     ar: "حلويات"    },
-  { id: "shisha",     emoji: "💨", en: "Shisha",       ar: "شيشة"      },
+  { id: "all",        emoji: "✨",  en: "All",         ar: "الكل"      },
+  { id: "food",       emoji: "🍗",  en: "Main",        ar: "أطباق"     },
+  { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
+  { id: "burgers",    emoji: "🍔",  en: "Burgers",     ar: "برجر"      },
+  { id: "pasta",      emoji: "🍝",  en: "Pasta",       ar: "مكرونة"    },
+  { id: "salads",     emoji: "🥗",  en: "Salads",      ar: "سلطات"     },
+  { id: "soups",      emoji: "🍲",  en: "Soups",       ar: "شوربة"     },
+  { id: "appetizers", emoji: "🍟",  en: "Starters",    ar: "مقبلات"    },
+  { id: "breakfast",  emoji: "🍳",  en: "Breakfast",   ar: "إفطار"     },
+  { id: "desserts",   emoji: "🍰",  en: "Sweets",      ar: "حلويات"    },
+  { id: "hot_drinks", emoji: "☕",  en: "Hot",         ar: "ساخن"      },
+  { id: "milkshake",  emoji: "🥛",  en: "Shakes",      ar: "شيك"       },
+  { id: "mocktails",  emoji: "🍹",  en: "Cold",        ar: "بارد"      },
+  { id: "shisha",     emoji: "💨",  en: "Shisha",      ar: "شيشة"      },
 ];
+
+const CAT_ALIASES: Record<string, string[]> = {
+  food:        ["food", "mains", "main"],
+  sandwiches:  ["sandwich", "sandwiches", "toast", "croissant"],
+  burgers:     ["burger", "burgers"],
+  pasta:       ["pasta", "noodles"],
+  salads:      ["salad", "salads"],
+  soups:       ["soup", "soups"],
+  appetizers:  ["appetizer", "appetizers", "starters", "sides", "extras"],
+  breakfast:   ["breakfast", "brunch"],
+  desserts:    ["dessert", "desserts", "sweet", "sweets", "pancakes", "crepes"],
+  hot_drinks:  ["hot", "hot_drinks", "coffee", "tea"],
+  milkshake:   ["milkshake", "shake", "milkshakes"],
+  mocktails:   ["mocktail", "mocktails", "cold", "cold_drinks", "juice", "fresh"],
+  shisha:      ["shisha", "hookah", "sheesha"],
+};
 
 const ITEMS_PER_PAGE = 12;
 
@@ -321,12 +340,14 @@ export default function MenuLightweight() {
 
   // Filtered items
   const filtered = useMemo(() => {
+    const aliasSet = cat !== "all" ? new Set(CAT_ALIASES[cat] ?? [cat]) : null;
     return items.filter((item) => {
       if (!item.available) return false;
-      if (cat !== "all" && item.category !== cat) return false;
+      if (aliasSet && !aliasSet.has(item.category.toLowerCase())) return false;
       if (debouncedSearch) {
         const q = debouncedSearch.toLowerCase();
-        return item.name.toLowerCase().includes(q) || item.nameAr.includes(q);
+        const ingMatch = (item.ingredients ?? []).some(i => i.toLowerCase().includes(q));
+        return item.name.toLowerCase().includes(q) || item.nameAr.includes(q) || ingMatch;
       }
       return true;
     });
@@ -343,7 +364,8 @@ export default function MenuLightweight() {
   // Category counts
   const catCount = useCallback((c: string) => {
     if (c === "all") return items.filter((i) => i.available).length;
-    return items.filter((i) => i.available && i.category === c).length;
+    const aliasSet = new Set(CAT_ALIASES[c] ?? [c]);
+    return items.filter((i) => i.available && aliasSet.has(i.category.toLowerCase())).length;
   }, [items]);
 
   return (

@@ -1,22 +1,22 @@
-// Full Azura Restaurant Menu with Complete Data and Detailed Ingredients from provided images
+// Full Azura Restaurant Menu — complete data with detailed ingredients
 
 export const fullMenuData = {
   "food": {
     "chicken-butterfly": {
       "name": "Chicken Butterfly",
-      "nameAr": "دجاج باترفلاي",
-      "description": "Grilled chicken with butterfly sauce, served with rice and toasted bread with garlic, mushrooms, and mozzarella.",
-      "descriptionAr": "دجاج مشوي مع صوص الباترفلاي، يقدم مع أرز وخبز محمحم بالثوم والمشروم والموتزاريلا.",
+      "nameAr": "تشيكن باترفلاي",
+      "description": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella.",
+      "descriptionAr": "دجاج مشوي مع صوص الباترفلاي، يقدم مع أرز وخبز محمص بالثوم والمشروم والموزاريلا.",
       "price": 336,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=80",
       "ingredients": ["Grilled Chicken", "Butterfly Sauce", "Rice", "Toasted Bread", "Garlic", "Mushrooms", "Mozzarella"],
-      "ingredientsAr": ["دجاج مشوي", "صوص باترفلاي", "أرز", "خبز محمص", "ثوم", "مشروم", "موتزاريلا"]
+      "ingredientsAr": ["دجاج مشوي", "صوص باترفلاي", "أرز", "خبز محمص", "ثوم", "مشروم", "موزاريلا"]
     },
     "chicken-lemon-pasta": {
       "name": "Chicken Lemon Pasta",
-      "nameAr": "مكرونة دجاج بالليمون",
+      "nameAr": "باستا دجاج بالليمون",
       "description": "Penne pasta with creamy lemon sauce and grilled chicken pieces.",
       "descriptionAr": "مكرونة بيني مع صوص الليمون الكريمي وقطع الدجاج المشوي.",
       "price": 234,
@@ -28,71 +28,83 @@ export const fullMenuData = {
     },
     "dynamite-chicken": {
       "name": "Dynamite Chicken",
-      "nameAr": "دجاج داينمايت",
+      "nameAr": "دايناميت تشيكن",
       "description": "Chicken pieces with special dynamite sauce.",
-      "descriptionAr": "قطع دجاج مع صوص الداينمايت الخاص.",
+      "descriptionAr": "قطع دجاج مع صوص الدايناميت الخاص.",
       "price": 178,
       "category": "food",
       "available": true,
       "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&q=80",
       "ingredients": ["Chicken Pieces", "Special Dynamite Sauce"],
-      "ingredientsAr": ["قطع دجاج", "صوص داينمايت خاص"]
+      "ingredientsAr": ["قطع دجاج", "صوص دايناميت خاص"]
     },
-    "negresco": {
-      "name": "Negresco",
-      "nameAr": "نجرسكو",
-      "description": "Baked pasta with chicken, mushrooms, and mozzarella.",
-      "descriptionAr": "مكرونة فرن مع الدجاج والمشروم والموتزاريلا.",
-      "price": 258,
+    "grilled-chicken": {
+      "name": "Grilled Chicken",
+      "nameAr": "دجاج مشوي",
+      "description": "Grilled chicken breasts with your choice of sauce.",
+      "descriptionAr": "صدور دجاج مشوية مع اختيارك من الصوص.",
+      "price": 310,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
-      "ingredients": ["Pasta", "Chicken", "Mushrooms", "Mozzarella", "Bechamel Sauce"],
-      "ingredientsAr": ["مكرونة", "دجاج", "مشروم", "موتزاريلا", "صوص بشاميل"]
+      "image": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=80",
+      "ingredients": ["Grilled Chicken Breast", "Choice of Sauce", "Side Salad"],
+      "ingredientsAr": ["صدر دجاج مشوي", "اختيار صوص", "سلطة جانبية"]
     },
-    "mac-and-cheese": {
-      "name": "Mac and Cheese",
-      "nameAr": "ماك آند تشيز",
-      "description": "Classic macaroni with rich cheese sauce.",
-      "descriptionAr": "مكرونة كلاسيكية مع صوص الجبن الغني.",
-      "price": 247,
+    "chicken-mushroom": {
+      "name": "Chicken Mushroom",
+      "nameAr": "دجاج بالمشروم",
+      "description": "Grilled chicken with creamy mushroom sauce.",
+      "descriptionAr": "دجاج مشوي مع صوص المشروم الكريمي.",
+      "price": 325,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=600&q=80",
-      "ingredients": ["Macaroni", "Cheese Sauce", "Cheddar Mix"],
-      "ingredientsAr": ["مكرونة", "صوص جبنة", "ميكس شيدر"]
+      "image": "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=600&q=80",
+      "ingredients": ["Grilled Chicken", "Mushroom Cream Sauce", "Herbs"],
+      "ingredientsAr": ["دجاج مشوي", "صوص مشروم كريمي", "أعشاب"]
     },
-    "alfredo-pasta": {
-      "name": "Alfredo Pasta",
-      "nameAr": "مكرونة ألفريدو",
-      "description": "Pasta with creamy white sauce and parmesan.",
-      "descriptionAr": "مكرونة مع صوص أبيض كريمي وبارميزان.",
-      "price": 249,
+    "beef-fillet": {
+      "name": "Beef Fillet",
+      "nameAr": "فيليه لحم",
+      "description": "Tender beef fillet with your choice of sauce (Pepper, Mushroom, or Blue Cheese).",
+      "descriptionAr": "فيليه لحم طري مع اختيارك من الصوص (فلفل، مشروم، أو بلو تشيز).",
+      "price": 450,
       "category": "food",
       "available": true,
-      "image": "https://images.unsplash.com/photo-1645112481351-9f2043657803?w=600&q=80",
-      "ingredients": ["Pasta", "White Cream Sauce", "Parmesan Cheese"],
-      "ingredientsAr": ["مكرونة", "صوص كريمي أبيض", "جبنة بارميزان"]
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80",
+      "ingredients": ["Beef Fillet", "Choice of Sauce (Pepper / Mushroom / Blue Cheese)"],
+      "ingredientsAr": ["فيليه لحم", "اختيار صوص (فلفل / مشروم / بلو تشيز)"]
+    },
+    "crispy-chicken-tortilla": {
+      "name": "Crispy Chicken Tortilla",
+      "nameAr": "تورتيلا دجاج كريسبي",
+      "description": "Crispy chicken wrapped in soft tortilla bread.",
+      "descriptionAr": "دجاج كريسبي ملفوف في خبز التورتيلا الطري.",
+      "price": 194,
+      "category": "food",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=600&q=80",
+      "ingredients": ["Crispy Chicken", "Tortilla Bread", "Lettuce", "Sauce"],
+      "ingredientsAr": ["دجاج كريسبي", "خبز تورتيلا", "خس", "صوص"]
     }
   },
   "breakfast": {
     "azura-breakfast": {
       "name": "Azura Breakfast",
       "nameAr": "إفطار أزورا",
-      "description": "Cheese Omelette, Hot Dog, Fries, Turkey Smoke, and Toast.",
+      "description": "Cheese Omelette, Hot Dog, Fries, Smoked Turkey, and Toast.",
       "descriptionAr": "أومليت بالجبنة، هوت دوج، بطاطس، تركي مدخن، وتوست.",
       "price": 204,
       "category": "breakfast",
       "available": true,
       "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
-      "ingredients": ["Cheese Omelette", "Hot Dog", "Fries", "Turkey Smoke", "Toast"],
+      "ingredients": ["Cheese Omelette", "Hot Dog", "Fries", "Smoked Turkey", "Toast"],
       "ingredientsAr": ["أومليت بالجبنة", "هوت دوج", "بطاطس", "تركي مدخن", "توست"]
     },
     "mexican-breakfast": {
       "name": "Mexican Breakfast",
       "nameAr": "إفطار مكسيكي",
-      "description": "Omelette with Mexican hot dog and baked potatoes.",
-      "descriptionAr": "أومليت مع هوت دوج مكسيكي وبطاطس مخبوزة.",
+      "description": "Omelette, Mexican hot dog, baked potatoes, and toast.",
+      "descriptionAr": "أومليت، هوت دوج مكسيكي، بطاطس مخبوزة، وتوست.",
       "price": 174,
       "category": "breakfast",
       "available": true,
@@ -103,14 +115,14 @@ export const fullMenuData = {
     "greek-breakfast": {
       "name": "Greek Breakfast",
       "nameAr": "إفطار يوناني",
-      "description": "Spanish omelet, feta cheese slices, and roasted potatoes with mushrooms and olives.",
-      "descriptionAr": "أومليت إسباني، شرائح جبنة فيتا، وبطاطس مشوية مع مشروم وزيتون.",
+      "description": "Spanish omelet, feta cheese slices, roasted potatoes with mushrooms and olives, toast.",
+      "descriptionAr": "أومليت إسباني، شرائح جبنة فيتا، بطاطس روستو مع مشروم وزيتون، توست.",
       "price": 189,
       "category": "breakfast",
       "available": true,
       "image": "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?w=600&q=80",
       "ingredients": ["Spanish Omelet", "Feta Cheese Slices", "Roasted Potatoes", "Mushrooms", "Olives", "Toast"],
-      "ingredientsAr": ["أومليت إسباني", "شرائح جبنة فيتا", "بطاطس مشوية", "مشروم", "زيتون", "توست"]
+      "ingredientsAr": ["أومليت إسباني", "شرائح جبنة فيتا", "بطاطس روستو", "مشروم", "زيتون", "توست"]
     }
   },
   "sandwiches": {
@@ -118,37 +130,97 @@ export const fullMenuData = {
       "name": "Triple S",
       "nameAr": "تريبل إس",
       "description": "Smoked Turkey, Beef Bacon, Pepperoni, Lettuce, Tomato, and Cheddar Cheese Mix.",
-      "descriptionAr": "تركي مدخن، بيف بيكون، بيبيروني، خس، طماطم، ومزيج جبنة شيدر.",
+      "descriptionAr": "تركي مدخن، بيف بيكون، بيبيروني، خس، طماطم، وميكس جبن شيدر.",
       "price": 218,
       "category": "sandwiches",
       "available": true,
       "image": "https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=600&q=80",
       "ingredients": ["Smoked Turkey", "Beef Bacon", "Pepperoni", "Lettuce", "Tomato", "Cheddar Cheese Mix"],
-      "ingredientsAr": ["تركي مدخن", "بيف بيكون", "بيبيروني", "خس", "طماطم", "ميكس شيدر"]
+      "ingredientsAr": ["تركي مدخن", "بيف بيكون", "بيبيروني", "خس", "طماطم", "ميكس جبن شيدر"]
     },
     "chicken-cheese": {
       "name": "Chicken Cheese",
       "nameAr": "دجاج بالجبنة",
-      "description": "Grilled chicken with mushrooms, colored peppers, mozzarella, cheddar mix, and cheese sauce.",
-      "descriptionAr": "دجاج مشوي مع مشروم، فلفل ألوان، موتزاريلا، ميكس شيدر، وصوص جبنة.",
+      "description": "Grilled chicken with mushrooms, colored peppers, mozzarella, cheddar mix, cheese sauce, lettuce, and tomatoes.",
+      "descriptionAr": "دجاج مشوي مع مشروم وفلفل ألوان وموزاريلا، ميكس جبن شيدر، صوص جبنة، خس، طماطم.",
       "price": 219,
       "category": "sandwiches",
       "available": true,
       "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
       "ingredients": ["Grilled Chicken", "Mushrooms", "Colored Peppers", "Mozzarella", "Cheddar Cheese Mix", "Cheese Sauce", "Lettuce", "Tomatoes"],
-      "ingredientsAr": ["دجاج مشوي", "مشروم", "فلفل ألوان", "موتزاريلا", "ميكس شيدر", "صوص جبنة", "خس", "طماطم"]
+      "ingredientsAr": ["دجاج مشوي", "مشروم", "فلفل ألوان", "موزاريلا", "ميكس جبن شيدر", "صوص جبنة", "خس", "طماطم"]
+    },
+    "mix-cheese-toast": {
+      "name": "Mix Cheese Toast",
+      "nameAr": "توست ميكس جبن",
+      "description": "Cheddar-Mozzarella mix with cheese sauce on toasted bread.",
+      "descriptionAr": "ميكس شيدر وموزاريلا مع صوص جبنة على خبز محمص.",
+      "price": 147,
+      "category": "sandwiches",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1528736235302-52922df5c122?w=600&q=80",
+      "ingredients": ["Cheddar", "Mozzarella", "Cheese Sauce", "Toast Bread"],
+      "ingredientsAr": ["شيدر", "موزاريلا", "صوص جبنة", "خبز توست"]
+    },
+    "tuna-toast": {
+      "name": "Tuna Toast",
+      "nameAr": "توست تونة",
+      "description": "Tuna with mayonnaise, onion, colored peppers, dill, and olives on toasted bread.",
+      "descriptionAr": "تونة مع مايونيز وبصل وفلفل ألوان وشبت وزيتون على خبز محمص.",
+      "price": 194,
+      "category": "sandwiches",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=600&q=80",
+      "ingredients": ["Tuna", "Mayonnaise", "Onion", "Colored Peppers", "Dill", "Olives"],
+      "ingredientsAr": ["تونة", "مايونيز", "بصل", "فلفل ألوان", "شبت", "زيتون"]
+    },
+    "classic-croissant": {
+      "name": "Classic Croissant",
+      "nameAr": "كرواسون كلاسيك",
+      "description": "Classic butter croissant.",
+      "descriptionAr": "كرواسون زبدة كلاسيكي.",
+      "price": 71,
+      "category": "sandwiches",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "ingredients": ["Butter Croissant"],
+      "ingredientsAr": ["كرواسون زبدة"]
+    },
+    "mix-cheese-croissant": {
+      "name": "Mix Cheese Croissant",
+      "nameAr": "كرواسون ميكس جبن",
+      "description": "Croissant with cheddar and cheese sauce.",
+      "descriptionAr": "كرواسون مع شيدر وصوص جبنة.",
+      "price": 114,
+      "category": "sandwiches",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "ingredients": ["Croissant", "Cheddar Cheese", "Cheese Sauce"],
+      "ingredientsAr": ["كرواسون", "جبنة شيدر", "صوص جبنة"]
+    },
+    "azura-croissant": {
+      "name": "Azura Croissant",
+      "nameAr": "كرواسون أزورا",
+      "description": "Croissant with lettuce, smoked turkey, pepperoni, and cheddar.",
+      "descriptionAr": "كرواسون مع خس وتركي مدخن وبيبيروني وشيدر.",
+      "price": 149,
+      "category": "sandwiches",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80",
+      "ingredients": ["Croissant", "Lettuce", "Smoked Turkey", "Pepperoni", "Cheddar"],
+      "ingredientsAr": ["كرواسون", "خس", "تركي مدخن", "بيبيروني", "شيدر"]
     },
     "fillet-cheese-steak": {
       "name": "Fillet Cheese Steak",
       "nameAr": "فيليه تشيز ستيك",
-      "description": "Emansieh meat, colored peppers, mushrooms, onions, brown sauce, and cheese.",
-      "descriptionAr": "لحم إيمانسيه، فلفل ألوان، مشروم، بصل، صوص بني، وجبنة.",
+      "description": "Tender beef, colored peppers, mushrooms, onions, brown sauce, and cheese.",
+      "descriptionAr": "لحم طري، فلفل ألوان، مشروم، بصل، صوص بني، وجبنة.",
       "price": 256,
       "category": "sandwiches",
       "available": true,
       "image": "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&q=80",
-      "ingredients": ["Emansieh Meat", "Colored Peppers", "Mushrooms", "Onions", "Brown Sauce", "Cheese"],
-      "ingredientsAr": ["لحم إيمانسيه", "فلفل ألوان", "مشروم", "بصل", "صوص بني", "جبنة"]
+      "ingredients": ["Beef Fillet", "Colored Peppers", "Mushrooms", "Onions", "Brown Sauce", "Cheese"],
+      "ingredientsAr": ["فيليه لحم", "فلفل ألوان", "مشروم", "بصل", "صوص بني", "جبنة"]
     }
   },
   "burgers": {
@@ -156,7 +228,7 @@ export const fullMenuData = {
       "name": "Classic Burger",
       "nameAr": "كلاسيك برجر",
       "description": "Beef burger with lettuce, tomato, thousand island sauce, and cucumber.",
-      "descriptionAr": "برجر لحم مع خس، طماطم، صوص ثاوزند آيلاند، وخيار.",
+      "descriptionAr": "برجر لحم مع خس وطماطم وصوص ثاوزند آيلاند وخيار.",
       "price": 228,
       "category": "burgers",
       "available": true,
@@ -168,7 +240,7 @@ export const fullMenuData = {
       "name": "Cheese Burger",
       "nameAr": "تشيز برجر",
       "description": "Beef burger with Texas sauce, lettuce, tomato, cheddar slices, and cheese sauce.",
-      "descriptionAr": "برجر لحم مع صوص تكساس، خس، طماطم، شرائح شيدر، وصوص جبنة.",
+      "descriptionAr": "برجر لحم مع صوص تكساس وخس وطماطم وشرائح شيدر وصوص جبنة.",
       "price": 238,
       "category": "burgers",
       "available": true,
@@ -179,8 +251,8 @@ export const fullMenuData = {
     "smoke-burger": {
       "name": "Smoke Burger",
       "nameAr": "سموك برجر",
-      "description": "Texas sauce, burger, smoked turkey, smoked bacon, lettuce, and tomato.",
-      "descriptionAr": "صوص تكساس، برجر، تركي مدخن، بيكون مدخن، خس، وطماطم.",
+      "description": "Texas sauce, beef burger, smoked turkey, smoked bacon, lettuce, and tomato.",
+      "descriptionAr": "صوص تكساس، برجر لحم، تركي مدخن، بيكون مدخن، خس، وطماطم.",
       "price": 264,
       "category": "burgers",
       "available": true,
@@ -192,7 +264,7 @@ export const fullMenuData = {
       "name": "BBQ Burger",
       "nameAr": "بي بي كيو برجر",
       "description": "Burger with BBQ sauce, beef bacon, lettuce, tomato, and cheese sauce.",
-      "descriptionAr": "برجر مع صوص الباربيكيو، بيف بيكون، خس، طماطم، وصوص جبنة.",
+      "descriptionAr": "برجر مع صوص الباربيكيو وبيف بيكون وخس وطماطم وصوص جبنة.",
       "price": 244,
       "category": "burgers",
       "available": true,
@@ -202,13 +274,49 @@ export const fullMenuData = {
     }
   },
   "appetizers": {
+    "fries": {
+      "name": "Fries",
+      "nameAr": "بطاطس محمرة",
+      "description": "Crispy golden french fries.",
+      "descriptionAr": "بطاطس محمرة ذهبية مقرمشة.",
+      "price": 86,
+      "category": "appetizers",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&q=80",
+      "ingredients": ["Potatoes", "Vegetable Oil", "Salt"],
+      "ingredientsAr": ["بطاطس", "زيت نباتي", "ملح"]
+    },
+    "cheese-fries": {
+      "name": "Cheese Fries",
+      "nameAr": "بطاطس بالجبنة",
+      "description": "Crispy french fries topped with cheese sauce.",
+      "descriptionAr": "بطاطس محمرة مع صوص الجبنة.",
+      "price": 106,
+      "category": "appetizers",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&q=80",
+      "ingredients": ["French Fries", "Cheese Sauce"],
+      "ingredientsAr": ["بطاطس محمرة", "صوص جبنة"]
+    },
+    "chicken-quesadilla": {
+      "name": "Chicken Quesadilla",
+      "nameAr": "كاساديا دجاج",
+      "description": "Tortilla filled with grilled chicken and melted cheese.",
+      "descriptionAr": "تورتيلا محشوة بالدجاج والجبنة.",
+      "price": 212,
+      "category": "appetizers",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1618040996337-56904b7850b9?w=600&q=80",
+      "ingredients": ["Tortilla", "Grilled Chicken", "Cheese"],
+      "ingredientsAr": ["تورتيلا", "دجاج مشوي", "جبنة"]
+    },
     "nachos": {
       "name": "Nachos",
-      "nameAr": "نايتشوز",
-      "description": "Dorito chips with beef bacon, ranch, and cheese sauce.",
-      "descriptionAr": "دوريتوس مع بيف بيكون، رانش، وصوص جبنة.",
+      "nameAr": "ناتشوز",
+      "description": "Dorito chips with beef bacon, ranch, cheddar mix, and cheese sauce.",
+      "descriptionAr": "شيبس دوريتوس مع بيف بيكون ورانش وميكس شيدر وصوص جبنة.",
       "price": 128,
-      "category": "food",
+      "category": "appetizers",
       "available": true,
       "image": "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=600&q=80",
       "ingredients": ["Dorito Chips", "Beef Bacon", "Ranch", "Cheddar Mix", "Cheese Sauce"],
@@ -216,71 +324,365 @@ export const fullMenuData = {
     },
     "chicken-fries": {
       "name": "Chicken Fries",
-      "nameAr": "تشيكن فرايز",
-      "description": "Crispy chicken with fries, honey mustard, and cheese sauce.",
-      "descriptionAr": "دجاج مقرمش مع بطاطس، هاني مسترد، وصوص جبنة.",
+      "nameAr": "بطاطس بالدجاج",
+      "description": "Crispy chicken with fries, honey mustard sauce, and cheese sauce.",
+      "descriptionAr": "دجاج كريسبي مع بطاطس وصوص هاني مسترد وصوص جبنة.",
       "price": 202,
-      "category": "food",
+      "category": "appetizers",
       "available": true,
       "image": "https://images.unsplash.com/photo-1562059390-a76e3c14af26?w=600&q=80",
       "ingredients": ["Crispy Chicken", "Fries", "Honey Mustard Sauce", "Cheese Sauce"],
-      "ingredientsAr": ["دجاج مقرمش", "بطاطس", "صوص هاني مسترد", "صوص جبنة"]
+      "ingredientsAr": ["دجاج كريسبي", "بطاطس", "صوص هاني مسترد", "صوص جبنة"]
     },
     "azura-plate": {
       "name": "Azura Plate",
       "nameAr": "طبق أزورا",
-      "description": "Mozzarella sticks, strips, onion rings, fries, and nachos.",
-      "descriptionAr": "أصابع موتزاريلا، ستربس، حلقات بصل، بطاطس، ونايتشوز.",
+      "description": "Mozzarella sticks, strips, onion rings, fries, and nachos with three sauces.",
+      "descriptionAr": "أصابع موزاريلا وستربس وحلقات بصل وبطاطس وناتشوز مع ثلاث صوصات.",
       "price": 256,
-      "category": "food",
+      "category": "appetizers",
       "available": true,
       "image": "https://images.unsplash.com/photo-1541529086526-db283c563270?w=600&q=80",
       "ingredients": ["Mozzarella Sticks", "Strips", "Onion Rings", "Fries", "Nachos", "Three Sauces"],
-      "ingredientsAr": ["أصابع موتزاريلا", "ستربس", "حلقات بصل", "بطاطس", "نايتشوز", "ثلاث صوصات"]
+      "ingredientsAr": ["أصابع موزاريلا", "ستربس", "حلقات بصل", "بطاطس", "ناتشوز", "ثلاث صوصات"]
+    },
+    "azura-potato": {
+      "name": "Azura Potato",
+      "nameAr": "بطاطس أزورا",
+      "description": "Mash potato with smoked turkey, olives, cheddar mix, mozzarella, and ranch sauce.",
+      "descriptionAr": "بطاطس مهروسة مع تركي مدخن وزيتون وميكس شيدر وموزاريلا وصوص رانش.",
+      "price": 123,
+      "category": "appetizers",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80",
+      "ingredients": ["Mash Potato", "Smoked Turkey", "Olives", "Cheddar Mix", "Mozzarella", "Ranch Sauce"],
+      "ingredientsAr": ["بطاطس مهروسة", "تركي مدخن", "زيتون", "ميكس شيدر", "موزاريلا", "صوص رانش"]
+    }
+  },
+  "soups": {
+    "tomato-basil-soup": {
+      "name": "Tomato and Basil Soup",
+      "nameAr": "شوربة طماطم بالريحان",
+      "description": "Rich tomato and fresh basil soup.",
+      "descriptionAr": "شوربة طماطم غنية بالريحان الطازج.",
+      "price": 93,
+      "category": "soups",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "ingredients": ["Tomato", "Fresh Basil", "Cream", "Spices"],
+      "ingredientsAr": ["طماطم", "ريحان طازج", "كريمة", "توابل"]
+    },
+    "mushroom-cream-soup": {
+      "name": "Mushroom Cream",
+      "nameAr": "كريمة المشروم",
+      "description": "Silky creamy mushroom soup.",
+      "descriptionAr": "شوربة كريمة المشروم الناعمة.",
+      "price": 102,
+      "category": "soups",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "ingredients": ["Fresh Mushrooms", "Cream", "Butter", "Onion", "Spices"],
+      "ingredientsAr": ["مشروم طازج", "كريمة", "زبدة", "بصل", "توابل"]
+    },
+    "creamy-chicken-soup": {
+      "name": "Creamy Chicken",
+      "nameAr": "كريمة الدجاج",
+      "description": "Hearty creamy chicken soup.",
+      "descriptionAr": "شوربة كريمة الدجاج الشهية.",
+      "price": 113,
+      "category": "soups",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "ingredients": ["Chicken", "Cream", "Vegetables", "Spices"],
+      "ingredientsAr": ["دجاج", "كريمة", "خضروات", "توابل"]
+    },
+    "chicken-mushroom-soup": {
+      "name": "Creamy Chicken Mushroom",
+      "nameAr": "دجاج بالمشروم",
+      "description": "Creamy chicken and mushroom soup.",
+      "descriptionAr": "شوربة كريمة الدجاج والمشروم.",
+      "price": 140,
+      "category": "soups",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80",
+      "ingredients": ["Chicken", "Fresh Mushrooms", "Cream", "Butter", "Spices"],
+      "ingredientsAr": ["دجاج", "مشروم طازج", "كريمة", "زبدة", "توابل"]
+    }
+  },
+  "salads": {
+    "greek-salad": {
+      "name": "Greek Salad",
+      "nameAr": "سلطة يونانية",
+      "description": "Lettuce, cucumber, tomatoes, Greek cheese, thyme, and olive oil.",
+      "descriptionAr": "خس وخيار وطماطم وجبنة يوناني وزعتر وزيت زيتون.",
+      "price": 133,
+      "category": "salads",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80",
+      "ingredients": ["Lettuce", "Cucumber", "Tomatoes", "Greek Feta Cheese", "Thyme", "Olive Oil"],
+      "ingredientsAr": ["خس", "خيار", "طماطم", "جبنة فيتا يونانية", "زعتر", "زيت زيتون"]
+    },
+    "chicken-caesar-salad": {
+      "name": "Chicken Caesar Salad",
+      "nameAr": "سلطة سيزر دجاج",
+      "description": "Lettuce, grilled chicken, croutons, Caesar dressing, and Parmesan cheese.",
+      "descriptionAr": "خس ودجاج مشوي وكروتون ودريسنج سيزر وجبنة بارميزان.",
+      "price": 204,
+      "category": "salads",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80",
+      "ingredients": ["Lettuce", "Grilled Chicken", "Croutons", "Caesar Dressing", "Parmesan Cheese"],
+      "ingredientsAr": ["خس", "دجاج مشوي", "كروتون", "دريسنج سيزر", "جبنة بارميزان"]
+    },
+    "rocca-salad": {
+      "name": "Rocca Salad",
+      "nameAr": "سلطة جرجير",
+      "description": "Lettuce, arugula, hazelnuts, fresh mushrooms, colored peppers, and Parmesan cheese.",
+      "descriptionAr": "خس وجرجير وبندق ومشروم طازج وفلفل ألوان وجبنة بارميزان.",
+      "price": 124,
+      "category": "salads",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
+      "ingredients": ["Lettuce", "Arugula (Rocca)", "Hazelnuts", "Fresh Mushrooms", "Colored Peppers", "Parmesan Cheese"],
+      "ingredientsAr": ["خس", "جرجير", "بندق", "مشروم طازج", "فلفل ألوان", "جبنة بارميزان"]
+    },
+    "california-salad": {
+      "name": "California Salad",
+      "nameAr": "سلطة كاليفورنيا",
+      "description": "Lettuce, colored peppers, cucumber, cheddar mix, grilled chicken, sweet corn, and Hawaiian sauce.",
+      "descriptionAr": "خس وفلفل ألوان وخيار وميكس شيدر ودجاج مشوي وذرة حلوة وصوص هاوايان.",
+      "price": 193,
+      "category": "salads",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80",
+      "ingredients": ["Lettuce", "Colored Peppers", "Cucumber", "Cheddar Mix", "Grilled Chicken", "Sweet Corn", "Hawaiian Sauce"],
+      "ingredientsAr": ["خس", "فلفل ألوان", "خيار", "ميكس شيدر", "دجاج مشوي", "ذرة حلوة", "صوص هاوايان"]
+    },
+    "azura-disco-salad": {
+      "name": "Azura Disco Salad",
+      "nameAr": "سلطة أزورا ديسكو",
+      "description": "Lettuce, crispy chicken, smoked turkey, smoked beef, colored peppers, cheddar mix, nachos, and honey mustard sauce.",
+      "descriptionAr": "خس ودجاج كريسبي وتركي مدخن وبيف مدخن وفلفل ألوان وميكس شيدر وناتشوز وصوص هاني مسترد.",
+      "price": 248,
+      "category": "salads",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
+      "ingredients": ["Lettuce", "Crispy Chicken", "Smoked Turkey", "Smoked Beef", "Colored Peppers", "Cheddar Mix", "Nachos", "Honey Mustard Sauce"],
+      "ingredientsAr": ["خس", "دجاج كريسبي", "تركي مدخن", "بيف مدخن", "فلفل ألوان", "ميكس شيدر", "ناتشوز", "صوص هاني مسترد"]
+    },
+    "tuna-salad": {
+      "name": "Tuna Salad",
+      "nameAr": "سلطة تونة",
+      "description": "Tuna, mayonnaise, colored peppers, onion, olives, and lettuce.",
+      "descriptionAr": "تونة ومايونيز وفلفل ألوان وبصل وزيتون وخس.",
+      "price": 206,
+      "category": "salads",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
+      "ingredients": ["Tuna", "Mayonnaise", "Colored Peppers", "Onion", "Olives", "Lettuce"],
+      "ingredientsAr": ["تونة", "مايونيز", "فلفل ألوان", "بصل", "زيتون", "خس"]
+    }
+  },
+  "pasta": {
+    "alfredo-pasta": {
+      "name": "Alfredo Pasta",
+      "nameAr": "باستا ألفريدو",
+      "description": "Fettuccine with creamy white sauce and chicken.",
+      "descriptionAr": "فيتوتشيني مع صوص أبيض كريمي ودجاج.",
+      "price": 249,
+      "category": "pasta",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1645112481351-9f2043657803?w=600&q=80",
+      "ingredients": ["Fettuccine Pasta", "Creamy White Sauce", "Chicken", "Parmesan Cheese"],
+      "ingredientsAr": ["مكرونة فيتوتشيني", "صوص أبيض كريمي", "دجاج", "جبنة بارميزان"]
+    },
+    "negresco": {
+      "name": "Negresco",
+      "nameAr": "نجرسكو",
+      "description": "Baked pasta with chicken and bechamel.",
+      "descriptionAr": "مكرونة فرن بالدجاج والبشاميل.",
+      "price": 258,
+      "category": "pasta",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "ingredients": ["Pasta", "Chicken", "Bechamel Sauce", "Mozzarella"],
+      "ingredientsAr": ["مكرونة", "دجاج", "صوص بشاميل", "موزاريلا"]
+    },
+    "mac-and-cheese": {
+      "name": "Mac and Cheese",
+      "nameAr": "ماك آند تشيز",
+      "description": "Macaroni with rich cheese sauce.",
+      "descriptionAr": "مكرونة مع صوص الجبن الغني.",
+      "price": 247,
+      "category": "pasta",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=600&q=80",
+      "ingredients": ["Macaroni", "Cheese Sauce", "Cheddar Mix"],
+      "ingredientsAr": ["مكرونة", "صوص جبنة", "ميكس شيدر"]
+    },
+    "azura-spicy-pasta": {
+      "name": "Azura Spicy Pasta",
+      "nameAr": "باستا أزورا الحارة",
+      "description": "Jalapeno, spices, white sauce, pepperoni, and sweet chili.",
+      "descriptionAr": "هالبينو وتوابل وصوص أبيض وبيبيروني وسويت تشيلي.",
+      "price": 189,
+      "category": "pasta",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "ingredients": ["Pasta", "Jalapeno", "Spices", "White Sauce", "Pepperoni", "Sweet Chili"],
+      "ingredientsAr": ["مكرونة", "هالبينو", "توابل", "صوص أبيض", "بيبيروني", "سويت تشيلي"]
+    },
+    "cheese-ranch-pasta": {
+      "name": "Cheese Ranch Pasta",
+      "nameAr": "باستا تشيز رانش",
+      "description": "Cheese mix, crispy chicken, and ranch sauce.",
+      "descriptionAr": "ميكس جبن ودجاج كريسبي وصوص رانش.",
+      "price": 238,
+      "category": "pasta",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1645112481351-9f2043657803?w=600&q=80",
+      "ingredients": ["Pasta", "Cheese Mix", "Crispy Chicken", "Ranch Sauce"],
+      "ingredientsAr": ["مكرونة", "ميكس جبن", "دجاج كريسبي", "صوص رانش"]
+    },
+    "mammo-pasta": {
+      "name": "Mammo Pasta",
+      "nameAr": "مامو باستا",
+      "description": "Crispy chicken, red sauce spaghetti, and parmesan cheese.",
+      "descriptionAr": "دجاج كريسبي وسباغيتي بالصوص الأحمر وجبنة بارميزان.",
+      "price": 196,
+      "category": "pasta",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80",
+      "ingredients": ["Spaghetti", "Red Tomato Sauce", "Crispy Chicken", "Parmesan Cheese"],
+      "ingredientsAr": ["سباغيتي", "صوص طماطم أحمر", "دجاج كريسبي", "جبنة بارميزان"]
     }
   },
   "desserts": {
     "chocolate-pancakes": {
       "name": "Chocolate Pancakes",
-      "nameAr": "بانكيك شوكولاتة",
-      "description": "3 layers of pancakes with choice of two types of chocolate.",
-      "descriptionAr": "3 طبقات بانكيك مع اختيارك من نوعين شوكولاتة.",
+      "nameAr": "بان كيك شوكولاتة",
+      "description": "3 layers of fluffy pancakes with a choice of two types of chocolate.",
+      "descriptionAr": "3 طبقات من البان كيك مع اختيارك من نوعين من الشوكولاتة.",
       "price": 180,
       "category": "desserts",
       "available": true,
       "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
-      "ingredients": ["3 Layers of Pancakes", "Double Chocolate Choice"],
-      "ingredientsAr": ["3 طبقات بانكيك", "اختيار نوعين شوكولاتة"]
+      "ingredients": ["3 Layers of Pancakes", "Choice of Two Chocolate Types"],
+      "ingredientsAr": ["3 طبقات بان كيك", "اختيار نوعين شوكولاتة"]
     },
     "mixed-chocolate-pancakes": {
-      "name": "Mixed Chocolate Pancakes",
-      "nameAr": "ميكس شوكولاتة بانكيك",
-      "description": "3 layers of pancakes with 4 types of chocolate (Dark - Milk - White - Nutella).",
-      "descriptionAr": "3 طبقات بانكيك مع 4 أنواع شوكولاتة (داكنة - حليب - بيضاء - نوتيلا).",
+      "name": "Mixed Chocolate",
+      "nameAr": "ميكس شوكولاتة",
+      "description": "3 layers of pancakes with 4 types of chocolate: Dark, Milk, White, and Nutella.",
+      "descriptionAr": "3 طبقات من البان كيك مع 4 أنواع من الشوكولاتة: داكنة وحليب وبيضاء ونوتيلا.",
       "price": 234,
       "category": "desserts",
       "available": true,
       "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
       "ingredients": ["3 Layers of Pancakes", "Dark Chocolate", "Milk Chocolate", "White Chocolate", "Nutella"],
-      "ingredientsAr": ["3 طبقات بانكيك", "شوكولاتة داكنة", "شوكولاتة بالحليب", "شوكولاتة بيضاء", "نوتيلا"]
+      "ingredientsAr": ["3 طبقات بان كيك", "شوكولاتة داكنة", "شوكولاتة حليب", "شوكولاتة بيضاء", "نوتيلا"]
     },
     "brownie-club": {
       "name": "Brownie Club",
       "nameAr": "براوني كلوب",
       "description": "3 layers of pancakes with brownie pieces and chocolate mix.",
-      "descriptionAr": "3 طبقات بانكيك مع قطع براوني وميكس شوكولاتة.",
+      "descriptionAr": "3 طبقات من البان كيك مع قطع البراوني ومزيج الشوكولاتة.",
       "price": 279,
       "category": "desserts",
       "available": true,
       "image": "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=600&q=80",
-      "ingredients": ["3 Layers of Pancakes", "Brownie Pieces", "Chocolate Mix", "Ice Cream Scoop"],
-      "ingredientsAr": ["3 طبقات بانكيك", "قطع براوني", "ميكس شوكولاتة", "بول آيس كريم"]
+      "ingredients": ["3 Layers of Pancakes", "Brownie Pieces", "Chocolate Mix"],
+      "ingredientsAr": ["3 طبقات بان كيك", "قطع براوني", "ميكس شوكولاتة"]
+    },
+    "mix-berry-pancakes": {
+      "name": "Mix Berry",
+      "nameAr": "ميكس بيري",
+      "description": "3 layers of pancakes with mixed berries and white chocolate.",
+      "descriptionAr": "3 طبقات من البان كيك مع التوت المشكل والشوكولاتة البيضاء.",
+      "price": 259,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "ingredients": ["3 Layers of Pancakes", "Mixed Berries", "White Chocolate"],
+      "ingredientsAr": ["3 طبقات بان كيك", "توت مشكل", "شوكولاتة بيضاء"]
+    },
+    "crunchy-lotus-pancakes": {
+      "name": "Crunchy Lotus",
+      "nameAr": "كرانشي لوتس",
+      "description": "3 layers of pancakes with lotus sauce and Lotus biscuits.",
+      "descriptionAr": "3 طبقات من البان كيك مع الصوص وبسكويت اللوتس.",
+      "price": 211,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "ingredients": ["3 Layers of Pancakes", "Lotus Sauce", "Lotus Biscuits"],
+      "ingredientsAr": ["3 طبقات بان كيك", "صوص لوتس", "بسكويت لوتس"]
+    },
+    "strawberry-chocolate-pancakes": {
+      "name": "Strawberry Chocolate",
+      "nameAr": "شوكولاتة بالفراولة",
+      "description": "3 layers of pancakes with fresh strawberry pieces and chocolate mix.",
+      "descriptionAr": "3 طبقات من البان كيك مع قطع الفراولة الطازجة ومزيج الشوكولاتة.",
+      "price": 194,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "ingredients": ["3 Layers of Pancakes", "Fresh Strawberry Pieces", "Chocolate Mix"],
+      "ingredientsAr": ["3 طبقات بان كيك", "قطع فراولة طازجة", "ميكس شوكولاتة"]
+    },
+    "marshmallow-smores-pancakes": {
+      "name": "Marshmallow S'mores",
+      "nameAr": "مارشميلو سمورز",
+      "description": "3 layers of pancakes with marshmallows and dark chocolate, served with a scoop of ice cream.",
+      "descriptionAr": "3 طبقات من البان كيك مع المارشميلو والشوكولاتة الداكنة، تقدم مع بوله آيس كريم.",
+      "price": 189,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "ingredients": ["3 Layers of Pancakes", "Marshmallows", "Dark Chocolate", "Ice Cream Scoop"],
+      "ingredientsAr": ["3 طبقات بان كيك", "مارشميلو", "شوكولاتة داكنة", "بوله آيس كريم"]
+    },
+    "pistachio-pancakes": {
+      "name": "Pistachio",
+      "nameAr": "فستق",
+      "description": "3 layers of pancakes with pistachio sauce.",
+      "descriptionAr": "3 طبقات من البان كيك مع صوص الفستق.",
+      "price": 255,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=600&q=80",
+      "ingredients": ["3 Layers of Pancakes", "Pistachio Sauce"],
+      "ingredientsAr": ["3 طبقات بان كيك", "صوص فستق"]
+    },
+    "banana-caramel-crepe": {
+      "name": "Banana Caramel Crepe",
+      "nameAr": "كريب موز كراميل",
+      "description": "Crepes filled with bananas and topped with caramel sauce.",
+      "descriptionAr": "كريب محشو بالموز ومغطى بصوص الكراميل.",
+      "price": 180,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "ingredients": ["Crepe", "Bananas", "Caramel Sauce"],
+      "ingredientsAr": ["كريب", "موز", "صوص كراميل"]
+    },
+    "strawberry-chocolate-crepe": {
+      "name": "Strawberry Chocolate Crepe",
+      "nameAr": "كريب شوكولاتة بالفراولة",
+      "description": "Rolled crepe topped with chocolate sauce.",
+      "descriptionAr": "كريب رول مغطى بصوص الشوكولاتة.",
+      "price": 180,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "ingredients": ["Crepe", "Chocolate Sauce"],
+      "ingredientsAr": ["كريب", "صوص شوكولاتة"]
     },
     "lotus-crepe": {
       "name": "Lotus Crepe",
       "nameAr": "كريب لوتس",
       "description": "Crepes filled with Lotus biscuits and nuts, topped with Lotus sauce.",
-      "descriptionAr": "كريب محشو بسكويت لوتس ومكسرات، مغطى بصوص لوتس.",
+      "descriptionAr": "كريب محشو ببسكويت اللوتس والمكسرات ومغطى بصوص اللوتس.",
       "price": 195,
       "category": "desserts",
       "available": true,
@@ -288,10 +690,34 @@ export const fullMenuData = {
       "ingredients": ["Crepe", "Lotus Biscuits", "Nuts", "Lotus Sauce"],
       "ingredientsAr": ["كريب", "بسكويت لوتس", "مكسرات", "صوص لوتس"]
     },
+    "brownie-crepe": {
+      "name": "Crepe Brownies",
+      "nameAr": "كريب براوني",
+      "description": "Crepes filled with brownies and mixed chocolate.",
+      "descriptionAr": "كريب محشو بالبراوني ومزيج الشوكولاتة.",
+      "price": 224,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "ingredients": ["Crepe", "Brownie Pieces", "Mixed Chocolate"],
+      "ingredientsAr": ["كريب", "قطع براوني", "ميكس شوكولاتة"]
+    },
+    "cheesecake-crepe": {
+      "name": "Cheesecake Crepe",
+      "nameAr": "كريب تشيز كيك",
+      "description": "Cheesecake-filled crepe with your choice of sauce.",
+      "descriptionAr": "كريب محشو بالتشيز كيك مع اختيارك من الصوص.",
+      "price": 218,
+      "category": "desserts",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80",
+      "ingredients": ["Crepe", "Cheesecake Filling", "Choice of Sauce"],
+      "ingredientsAr": ["كريب", "حشوة تشيز كيك", "اختيار صوص"]
+    },
     "molten-cake": {
       "name": "Molten Lava Cake",
       "nameAr": "مولتن كيك",
-      "description": "Warm chocolate cake with a gooey center.",
+      "description": "Warm chocolate cake with a gooey molten center.",
       "descriptionAr": "كيك شوكولاتة دافئ بقلب سائل.",
       "price": 178,
       "category": "desserts",
@@ -304,59 +730,95 @@ export const fullMenuData = {
   "hot_drinks": {
     "classic-hot-chocolate": {
       "name": "Classic Hot Chocolate",
-      "nameAr": "هوت شوكليت كلاسيك",
+      "nameAr": "شوكولاتة ساخنة كلاسيك",
+      "description": "Rich classic hot chocolate.",
+      "descriptionAr": "شوكولاتة ساخنة كلاسيكية غنية.",
       "price": 144,
       "category": "hot_drinks",
       "available": true,
       "image": "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=600&q=80",
-      "ingredients": ["Chocolate", "Milk"],
-      "ingredientsAr": ["شوكولاتة", "حليب"]
+      "ingredients": ["Chocolate", "Milk", "Cream"],
+      "ingredientsAr": ["شوكولاتة", "حليب", "كريمة"]
     },
     "hot-lotus": {
       "name": "Hot Lotus",
-      "nameAr": "هوت لوتس",
+      "nameAr": "لوتس ساخن",
+      "description": "Hot chocolate with Lotus sauce.",
+      "descriptionAr": "شوكولاتة ساخنة مع صوص اللوتس.",
       "price": 169,
       "category": "hot_drinks",
       "available": true,
       "image": "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=600&q=80",
-      "ingredients": ["Warm Milk", "Lotus Sauce"],
-      "ingredientsAr": ["حليب دافئ", "صوص لوتس"]
+      "ingredients": ["Warm Milk", "Lotus Sauce", "Cream"],
+      "ingredientsAr": ["حليب دافئ", "صوص لوتس", "كريمة"]
+    },
+    "classic-sahlab": {
+      "name": "Classic Sahlab (Nuts)",
+      "nameAr": "سحلب كلاسيك (مكسرات)",
+      "description": "Traditional Sahlab with nuts.",
+      "descriptionAr": "سحلب تقليدي مع المكسرات.",
+      "price": 104,
+      "category": "hot_drinks",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80",
+      "ingredients": ["Sahlab Powder", "Milk", "Mixed Nuts", "Cinnamon"],
+      "ingredientsAr": ["بودرة سحلب", "حليب", "مكسرات مشكلة", "قرفة"]
+    },
+    "pistachio-sahlab": {
+      "name": "Pistachio Sahlab",
+      "nameAr": "سحلب فستق",
+      "description": "Sahlab with pistachio sauce.",
+      "descriptionAr": "سحلب مع صوص الفستق.",
+      "price": 169,
+      "category": "hot_drinks",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80",
+      "ingredients": ["Sahlab Powder", "Milk", "Pistachio Sauce"],
+      "ingredientsAr": ["بودرة سحلب", "حليب", "صوص فستق"]
     },
     "nutella-sahlab": {
       "name": "Nutella Sahlab",
       "nameAr": "سحلب نوتيلا",
+      "description": "Sahlab with Nutella.",
+      "descriptionAr": "سحلب مع النوتيلا.",
       "price": 139,
       "category": "hot_drinks",
       "available": true,
       "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80",
-      "ingredients": ["Milk", "Sahlab Powder", "Nutella"],
-      "ingredientsAr": ["حليب", "بودرة سحلب", "نوتيلا"]
+      "ingredients": ["Sahlab Powder", "Milk", "Nutella"],
+      "ingredientsAr": ["بودرة سحلب", "حليب", "نوتيلا"]
     },
     "latte": {
       "name": "Caffè Latte",
       "nameAr": "كافيه لاتيه",
+      "description": "Espresso with steamed milk.",
+      "descriptionAr": "إسبريسو مع حليب مبخر.",
       "price": 88,
       "category": "hot_drinks",
       "available": true,
       "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80",
       "ingredients": ["Espresso", "Steamed Milk"],
-      "ingredientsAr": ["اسبريسو", "حليب مبخر"]
+      "ingredientsAr": ["إسبريسو", "حليب مبخر"]
     },
     "flat-white": {
       "name": "Flat White",
       "nameAr": "فلات وايت",
+      "description": "Double espresso with microfoam milk.",
+      "descriptionAr": "دبل إسبريسو مع رغوة حليب ناعمة.",
       "price": 110,
       "category": "hot_drinks",
       "available": true,
       "image": "https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=600&q=80",
       "ingredients": ["Double Espresso", "Microfoam Milk"],
-      "ingredientsAr": ["دبل اسبريسو", "رغوة حليب"]
+      "ingredientsAr": ["دبل إسبريسو", "رغوة حليب ناعمة"]
     }
   },
   "milkshake": {
     "vanilla-milkshake": {
       "name": "Vanilla Milkshake",
       "nameAr": "ميلك شيك فانيليا",
+      "description": "Creamy vanilla ice cream milkshake.",
+      "descriptionAr": "ميلك شيك كريمي بآيس كريم الفانيليا.",
       "price": 144,
       "category": "milkshake",
       "available": true,
@@ -367,6 +829,8 @@ export const fullMenuData = {
     "nutella-milkshake": {
       "name": "Nutella Milkshake",
       "nameAr": "ميلك شيك نوتيلا",
+      "description": "Rich Nutella milkshake.",
+      "descriptionAr": "ميلك شيك نوتيلا الغني.",
       "price": 197,
       "category": "milkshake",
       "available": true,
@@ -379,28 +843,58 @@ export const fullMenuData = {
     "lemon-mint": {
       "name": "Lemon Mint",
       "nameAr": "ليمون نعناع",
-      "price": 99,
+      "description": "Fresh lemon juice with mint.",
+      "descriptionAr": "عصير ليمون طازج بالنعناع.",
+      "price": 65,
       "category": "mocktails",
       "available": true,
       "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80",
-      "ingredients": ["Fresh Lemon", "Mint Leaves", "Ice", "Sugar"],
-      "ingredientsAr": ["ليمون فريش", "ورق نعناع", "ثلج", "سكر"]
+      "ingredients": ["Fresh Lemon Juice", "Mint Leaves", "Ice", "Sugar"],
+      "ingredientsAr": ["عصير ليمون طازج", "ورق نعناع", "ثلج", "سكر"]
     },
     "classic-mojito": {
       "name": "Classic Mojito",
       "nameAr": "موهيتو كلاسيك",
+      "description": "Mint, lime, sugar, and soda.",
+      "descriptionAr": "نعناع وليمون وسكر وصودا.",
       "price": 129,
       "category": "mocktails",
       "available": true,
       "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80",
-      "ingredients": ["Mint", "Lime", "Sugar", "Soda"],
-      "ingredientsAr": ["نعناع", "ليمون", "سكر", "صودا"]
+      "ingredients": ["Mint", "Lime", "Sugar", "Soda Water"],
+      "ingredientsAr": ["نعناع", "ليمون", "سكر", "ماء صودا"]
+    },
+    "fresh-orange-juice": {
+      "name": "Fresh Orange Juice",
+      "nameAr": "عصير برتقال طازج",
+      "description": "Freshly squeezed orange juice.",
+      "descriptionAr": "عصير برتقال طازج معصور.",
+      "price": 75,
+      "category": "mocktails",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&q=80",
+      "ingredients": ["Fresh Oranges"],
+      "ingredientsAr": ["برتقال طازج"]
+    },
+    "iced-latte": {
+      "name": "Iced Latte",
+      "nameAr": "آيس لاتيه",
+      "description": "Espresso with cold milk and ice.",
+      "descriptionAr": "إسبريسو مع حليب بارد وثلج.",
+      "price": 85,
+      "category": "mocktails",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80",
+      "ingredients": ["Espresso", "Cold Milk", "Ice"],
+      "ingredientsAr": ["إسبريسو", "حليب بارد", "ثلج"]
     }
   },
   "shisha": {
     "hookah-mix": {
       "name": "Hookah Mix",
       "nameAr": "شيشة ميكس",
+      "description": "Premium hookah with your choice of flavors.",
+      "descriptionAr": "شيشة بريميوم مع اختيارك من النكهات.",
       "price": 180,
       "category": "shisha",
       "available": true,

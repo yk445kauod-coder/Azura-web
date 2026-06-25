@@ -1,0 +1,506 @@
+[
+  {
+    "category": "New Items",
+    "category_ar": "أصناف جديدة",
+    "items": [
+      {
+        "name_en": "Chicken Butterfly",
+        "name_ar": "تشيكن باترفلاي",
+        "price": 336,
+        "ingredients_en": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella",
+        "ingredients_ar": "دجاج مشوي مع صوص الباترفلاي، يقدم مع أرز وخبز محمص بالثوم والمشروم والموزاريلا"
+      },
+      {
+        "name_en": "Chicken Lemon Pasta",
+        "name_ar": "باستا دجاج بالليمون",
+        "price": 234,
+        "ingredients_en": "Penne pasta with creamy lemon sauce and grilled chicken pieces",
+        "ingredients_ar": "مكرونة بيني مع صوص الليمون الكريمي وقطع الدجاج المشوي"
+      },
+      {
+        "name_en": "Dynamite Chicken",
+        "name_ar": "دايناميت تشيكن",
+        "price": 178,
+        "ingredients_en": "Chicken pieces with special dynamite sauce",
+        "ingredients_ar": "قطع دجاج مع صوص الدايناميت الخاص"
+      }
+    ]
+  },
+  {
+    "category": "Pancakes",
+    "category_ar": "بان كيك",
+    "items": [
+      {
+        "name_en": "Chocolate Pancakes",
+        "name_ar": "بان كيك شوكولاتة",
+        "price": 180,
+        "ingredients_en": "3 layers of pancakes with a choice of two types of chocolate",
+        "ingredients_ar": "3 طبقات من البان كيك مع اختيارك من نوعين من الشوكولاتة"
+      },
+      {
+        "name_en": "Mixed Chocolate",
+        "name_ar": "ميكس شوكولاتة",
+        "price": 234,
+        "ingredients_en": "3 layers of pancakes with 4 types of chocolate (Dark, Milk, White, Nutella)",
+        "ingredients_ar": "3 طبقات من البان كيك مع 4 أنواع من الشوكولاتة (داكنة، حليب، بيضاء، نوتيلا)"
+      },
+      {
+        "name_en": "Brownie Club",
+        "name_ar": "براوني كلوب",
+        "price": 279,
+        "ingredients_en": "3 layers of pancakes with brownie pieces and chocolate mix",
+        "ingredients_ar": "3 طبقات من البان كيك مع قطع البراوني ومزيج الشوكولاتة"
+      },
+      {
+        "name_en": "Mix Berry",
+        "name_ar": "ميكس بيري",
+        "price": 259,
+        "ingredients_en": "3 layers of pancakes with mixed berries and white chocolate",
+        "ingredients_ar": "3 طبقات من البان كيك مع التوت المشكل والشوكولاتة البيضاء"
+      },
+      {
+        "name_en": "Crunchy Lotus",
+        "name_ar": "كرانشي لوتس",
+        "price": 211,
+        "ingredients_en": "3 layers of pancakes with sauce and Lotus biscuits",
+        "ingredients_ar": "3 طبقات من البان كيك مع الصوص وبسكويت اللوتس"
+      },
+      {
+        "name_en": "Strawberry Chocolate",
+        "name_ar": "شوكولاتة بالفراولة",
+        "price": 194,
+        "ingredients_en": "3 layers of pancakes with fresh strawberry pieces and chocolate mix",
+        "ingredients_ar": "3 طبقات من البان كيك مع قطع الفراولة الطازجة ومزيج الشوكولاتة"
+      },
+      {
+        "name_en": "Marshmallow S'mores",
+        "name_ar": "مارشميلو سمورز",
+        "price": 189,
+        "ingredients_en": "3 layers of pancakes with marshmallows and dark chocolate, served with a scoop of ice cream",
+        "ingredients_ar": "3 طبقات من البان كيك مع المارشميلو والشوكولاتة الداكنة، تقدم مع بوله آيس كريم"
+      },
+      {
+        "name_en": "Pistachio",
+        "name_ar": "فستق",
+        "price": 255,
+        "ingredients_en": "3 layers of pancakes with pistachio sauce",
+        "ingredients_ar": "3 طبقات من البان كيك مع صوص الفستق"
+      }
+    ]
+  },
+  {
+    "category": "Crepes",
+    "category_ar": "كريب",
+    "items": [
+      {
+        "name_en": "Banana Caramel",
+        "name_ar": "موز كراميل",
+        "price": 180,
+        "ingredients_en": "Crepes filled with bananas and topped with caramel sauce",
+        "ingredients_ar": "كريب محشو بالموز ومغطى بصوص الكراميل"
+      },
+      {
+        "name_en": "Strawberry Chocolate",
+        "name_ar": "شوكولاتة بالفراولة",
+        "price": 180,
+        "ingredients_en": "Crepes rolled and topped with chocolate sauce",
+        "ingredients_ar": "كريب رول مغطى بصوص الشوكولاتة"
+      },
+      {
+        "name_en": "Lotus Crepe",
+        "name_ar": "كريب لوتس",
+        "price": 195,
+        "ingredients_en": "Crepes filled with Lotus biscuits and nuts, topped with Lotus sauce",
+        "ingredients_ar": "كريب محشو ببسكويت اللوتس والمكسرات ومغطى بصوص اللوتس"
+      },
+      {
+        "name_en": "Crepe Brownies",
+        "name_ar": "كريب براوني",
+        "price": 224,
+        "ingredients_en": "Crepes filled with brownies and mixed chocolate",
+        "ingredients_ar": "كريب محشو بالبراوني ومزيج الشوكولاتة"
+      },
+      {
+        "name_en": "Cheesecake Crepe",
+        "name_ar": "كريب تشيز كيك",
+        "price": 218,
+        "ingredients_en": "Cheesecake-filled crepe with a choice of sauce",
+        "ingredients_ar": "كريب محشو بالتشيز كيك مع اختيارك من الصوص"
+      }
+    ]
+  },
+  {
+    "category": "Hot Chocolate & Sahlab",
+    "category_ar": "شوكولاتة ساخنة وسحلب",
+    "items": [
+      {
+        "name_en": "Classic Hot Chocolate",
+        "name_ar": "شوكولاتة ساخنة كلاسيك",
+        "price": 144,
+        "ingredients_en": "Classic hot chocolate",
+        "ingredients_ar": "شوكولاتة ساخنة كلاسيكية"
+      },
+      {
+        "name_en": "Hot Lotus",
+        "name_ar": "لوتس ساخن",
+        "price": 169,
+        "ingredients_en": "Hot chocolate with Lotus sauce",
+        "ingredients_ar": "شوكولاتة ساخنة مع صوص اللوتس"
+      },
+      {
+        "name_en": "Classic Sahlab (Nuts)",
+        "name_ar": "سحلب كلاسيك (مكسرات)",
+        "price": 104,
+        "ingredients_en": "Traditional Sahlab with nuts",
+        "ingredients_ar": "سحلب تقليدي مع المكسرات"
+      },
+      {
+        "name_en": "Pistachio Sahlab",
+        "name_ar": "سحلب فستق",
+        "price": 169,
+        "ingredients_en": "Sahlab with pistachio sauce",
+        "ingredients_ar": "سحلب مع صوص الفستق"
+      }
+    ]
+  },
+  {
+    "category": "Breakfast",
+    "category_ar": "الإفطار",
+    "items": [
+      {
+        "name_en": "Azura Breakfast",
+        "name_ar": "إفطار أزورا",
+        "price": 204,
+        "ingredients_en": "Cheese Omelette, Hot Dog, Fries, Smoked Turkey, Toast",
+        "ingredients_ar": "أومليت بالجبنة، هوت دوج، بطاطس، تركي مدخن، توست"
+      },
+      {
+        "name_en": "Mexican Breakfast",
+        "name_ar": "إفطار مكسيكي",
+        "price": 174,
+        "ingredients_en": "Omelette, Mexican hot dog, Baked potatoes, Toast",
+        "ingredients_ar": "أومليت، هوت دوج مكسيكي، بطاطس مخبوزة، توست"
+      },
+      {
+        "name_en": "Greek Breakfast",
+        "name_ar": "إفطار يوناني",
+        "price": 189,
+        "ingredients_en": "Spanish omelet, feta cheese slices, roasted potatoes with mushrooms and olives, toast",
+        "ingredients_ar": "أومليت إسباني، شرائح جبنة فيتا، بطاطس روستو مع المشروم والزيتون، توست"
+      }
+    ]
+  },
+  {
+    "category": "Toast",
+    "category_ar": "توست",
+    "items": [
+      {
+        "name_en": "Triple S",
+        "name_ar": "تريبل إس",
+        "price": 218,
+        "ingredients_en": "Smoked Turkey, Beef Bacon, Pepperoni, Lettuce, Tomato, Cheddar Cheese Mix",
+        "ingredients_ar": "تركي مدخن، بيف بيكون، بيبيروني، خس، طماطم، ميكس جبن شيدر"
+      },
+      {
+        "name_en": "Chicken Cheese",
+        "name_ar": "دجاج بالجبنة",
+        "price": 219,
+        "ingredients_en": "Grilled chicken with mushrooms, colored peppers, and mozzarella, cheddar cheese mix, cheese sauce, lettuce, tomatoes",
+        "ingredients_ar": "دجاج مشوي مع مشروم وفلفل ألوان وموزاريلا، ميكس جبن شيدر، صوص جبنة، خس، طماطم"
+      },
+      {
+        "name_en": "Mix Cheese",
+        "name_ar": "ميكس جبن",
+        "price": 147,
+        "ingredients_en": "Cheddar-Mozzarella Mix, Cheese Sauce",
+        "ingredients_ar": "ميكس شيدر وموزاريلا، صوص جبنة"
+      },
+      {
+        "name_en": "Tuna",
+        "name_ar": "تونة",
+        "price": 194,
+        "ingredients_en": "Tuna, mayonnaise, onion, colored pepper, dill, olives",
+        "ingredients_ar": "تونة، مايونيز، بصل، فلفل ألوان، شبت، زيتون"
+      }
+    ]
+  },
+  {
+    "category": "Croissant",
+    "category_ar": "كرواسون",
+    "items": [
+      {
+        "name_en": "Classic Croissant",
+        "name_ar": "كرواسون كلاسيك",
+        "price": 71,
+        "ingredients_en": "Classic butter croissant",
+        "ingredients_ar": "كرواسون زبدة كلاسيكي"
+      },
+      {
+        "name_en": "Mix Cheese Croissant",
+        "name_ar": "كرواسون ميكس جبن",
+        "price": 114,
+        "ingredients_en": "Croissant with cheddar and cheese sauce",
+        "ingredients_ar": "كرواسون مع شيدر وصوص جبنة"
+      },
+      {
+        "name_en": "Azura Croissant",
+        "name_ar": "كرواسون أزورا",
+        "price": 149,
+        "ingredients_en": "Lettuce, Smoked Turkey, Pepperoni, Cheddar",
+        "ingredients_ar": "خس، تركي مدخن، بيبيروني، شيدر"
+      }
+    ]
+  },
+  {
+    "category": "Soups",
+    "category_ar": "شوربة",
+    "items": [
+      {
+        "name_en": "Tomato and Basil Soup",
+        "name_ar": "شوربة طماطم بالريحان",
+        "price": 93,
+        "ingredients_en": "Tomato and basil soup",
+        "ingredients_ar": "شوربة طماطم وريحان"
+      },
+      {
+        "name_en": "Mushroom Cream",
+        "name_ar": "كريمة المشروم",
+        "price": 102,
+        "ingredients_en": "Creamy mushroom soup",
+        "ingredients_ar": "شوربة كريمة المشروم"
+      },
+      {
+        "name_en": "Creamy Chicken",
+        "name_ar": "كريمة الدجاج",
+        "price": 113,
+        "ingredients_en": "Creamy chicken soup",
+        "ingredients_ar": "شوربة كريمة الدجاج"
+      },
+      {
+        "name_en": "Creamy Chicken Mushroom",
+        "name_ar": "دجاج بالمشروم",
+        "price": 140,
+        "ingredients_en": "Creamy chicken and mushroom soup",
+        "ingredients_ar": "شوربة كريمة الدجاج والمشروم"
+      }
+    ]
+  },
+  {
+    "category": "Appetizers",
+    "category_ar": "مقبلات",
+    "items": [
+      {
+        "name_en": "Fries",
+        "name_ar": "بطاطس محمرة",
+        "price": 86,
+        "ingredients_en": "French fries",
+        "ingredients_ar": "بطاطس محمرة"
+      },
+      {
+        "name_en": "Cheese Fries",
+        "name_ar": "بطاطس بالجبنة",
+        "price": 106,
+        "ingredients_en": "French fries with cheese sauce",
+        "ingredients_ar": "بطاطس محمرة مع صوص الجبنة"
+      },
+      {
+        "name_en": "Chicken Quesadilla",
+        "name_ar": "كاساديا دجاج",
+        "price": 212,
+        "ingredients_en": "Tortilla filled with chicken and cheese",
+        "ingredients_ar": "تورتيلا محشوة بالدجاج والجبنة"
+      },
+      {
+        "name_en": "Nachos",
+        "name_ar": "ناتشوز",
+        "price": 128,
+        "ingredients_en": "Dorito Chips, Beef Bacon, Ranch, Cheddar Mix, Cheese Sauce",
+        "ingredients_ar": "شيبس دوريتوس، بيف بيكون، رانش، ميكس شيدر، صوص جبنة"
+      },
+      {
+        "name_en": "Chicken Fries",
+        "name_ar": "بطاطس بالدجاج",
+        "price": 202,
+        "ingredients_en": "Crispy chicken, fries, honey mustard sauce, cheese sauce",
+        "ingredients_ar": "دجاج كريسبي، بطاطس، صوص هاني مسترد، صوص جبنة"
+      },
+      {
+        "name_en": "Azura Plate",
+        "name_ar": "طبق أزورا",
+        "price": 256,
+        "ingredients_en": "Mozzarella sticks, strips, onion rings, fries, nachos with three sauces",
+        "ingredients_ar": "أصابع موزاريلا، ستربس، حلقات بصل، بطاطس، ناتشوز مع ثلاث صوصات"
+      },
+      {
+        "name_en": "Azura Potato",
+        "name_ar": "بطاطس أزورا",
+        "price": 123,
+        "ingredients_en": "Mash Potato, Smoked Turkey, Olives, Cheddar Mix, Mozzarella, Ranch Sauce",
+        "ingredients_ar": "بطاطس مهروسة، تركي مدخن، زيتون، ميكس شيدر، موزاريلا، صوص رانش"
+      }
+    ]
+  },
+  {
+    "category": "Salads",
+    "category_ar": "سلطات",
+    "items": [
+      {
+        "name_en": "Greek Salad",
+        "name_ar": "سلطة يونانية",
+        "price": 133,
+        "ingredients_en": "Lettuce, cucumber, tomatoes, Greek cheese, thyme, olive oil",
+        "ingredients_ar": "خس، خيار، طماطم، جبنة يوناني، زعتر، زيت زيتون"
+      },
+      {
+        "name_en": "Chicken Caesar Salad",
+        "name_ar": "سلطة سيزر دجاج",
+        "price": 204,
+        "ingredients_en": "Lettuce, grilled chicken, croutons, Caesar dressing, Parmesan cheese",
+        "ingredients_ar": "خس، دجاج مشوي، كروتون، دريسنج سيزر، جبنة بارميزان"
+      },
+      {
+        "name_en": "Rocca Salad",
+        "name_ar": "سلطة جرجير",
+        "price": 124,
+        "ingredients_en": "Lettuce, arugula, hazelnuts, fresh mushrooms, colored peppers, and Parmesan cheese",
+        "ingredients_ar": "خس، جرجير، بندق، مشروم طازج، فلفل ألوان، جبنة بارميزان"
+      },
+      {
+        "name_en": "California Salad",
+        "name_ar": "سلطة كاليفورنيا",
+        "price": 193,
+        "ingredients_en": "Lettuce, colored peppers, cucumber, cheddar mix, grilled chicken, sweet corn, Hawaiian sauce",
+        "ingredients_ar": "خس، فلفل ألوان، خيار، ميكس شيدر، دجاج مشوي، ذرة حلوة، صوص هاوايان"
+      },
+      {
+        "name_en": "Azura Disco Salad",
+        "name_ar": "سلطة أزورا ديسكو",
+        "price": 248,
+        "ingredients_en": "Lettuce, Crispy Chicken, Smoked Turkey, Smoked Beef, Colored Peppers, Cheddar Mix, Nachos, Honey Mustard Sauce",
+        "ingredients_ar": "خس، دجاج كريسبي، تركي مدخن، بيف مدخن، فلفل ألوان، ميكس شيدر، ناتشوز، صوص هاني مسترد"
+      },
+      {
+        "name_en": "Tuna Salad",
+        "name_ar": "سلطة تونة",
+        "price": 206,
+        "ingredients_en": "Tuna, mayonnaise, colored pepper, onion, olives, lettuce",
+        "ingredients_ar": "تونة، مايونيز، فلفل ألوان، بصل، زيتون، خس"
+      }
+    ]
+  },
+  {
+    "category": "Pasta",
+    "category_ar": "مكرونة",
+    "items": [
+      {
+        "name_en": "Alfredo Pasta",
+        "name_ar": "باستا ألفريدو",
+        "price": 249,
+        "ingredients_en": "Fettuccine with creamy white sauce and chicken",
+        "ingredients_ar": "فيتوتشيني مع صوص أبيض كريمي ودجاج"
+      },
+      {
+        "name_en": "Negresco",
+        "name_ar": "نجرسكو",
+        "price": 258,
+        "ingredients_en": "Baked pasta with chicken and bechamel",
+        "ingredients_ar": "مكرونة فرن بالدجاج والبشاميل"
+      },
+      {
+        "name_en": "Mac and Cheese",
+        "name_ar": "ماك آند تشيز",
+        "price": 247,
+        "ingredients_en": "Macaroni with rich cheese sauce",
+        "ingredients_ar": "مكرونة مع صوص الجبن الغني"
+      },
+      {
+        "name_en": "Azura Spicy Pasta",
+        "name_ar": "باستا أزورا الحارة",
+        "price": 189,
+        "ingredients_en": "Jalapeno, Spices, White Sauce, Pepperoni, Sweet Chili",
+        "ingredients_ar": "هالبينو، توابل، صوص أبيض، بيبيروني، سويت تشيلي"
+      },
+      {
+        "name_en": "Cheese Ranch Pasta",
+        "name_ar": "باستا تشيز رانش",
+        "price": 238,
+        "ingredients_en": "Cheese mix, crispy chicken, ranch sauce",
+        "ingredients_ar": "ميكس جبن، دجاج كريسبي، صوص رانش"
+      },
+      {
+        "name_en": "Mammo Pasta",
+        "name_ar": "مامو باستا",
+        "price": 196,
+        "ingredients_en": "Crispy chicken, red sauce spaghetti, parmesan cheese",
+        "ingredients_ar": "دجاج كريسبي، سباغيتي بالصوص الأحمر، جبنة بارميزان"
+      }
+    ]
+  },
+  {
+    "category": "Tortilla",
+    "category_ar": "تورتيلا",
+    "items": [
+      {
+        "name_en": "Crispy Chicken Tortilla",
+        "name_ar": "تورتيلا دجاج كريسبي",
+        "price": 194,
+        "ingredients_en": "Crispy chicken wrapped in tortilla",
+        "ingredients_ar": "دجاج كريسبي ملفوف في خبز التورتيلا"
+      }
+    ]
+  },
+  {
+    "category": "Main Dishes",
+    "category_ar": "الأطباق الرئيسية",
+    "items": [
+      {
+        "name_en": "Grilled Chicken",
+        "name_ar": "دجاج مشوي",
+        "price": 310,
+        "ingredients_en": "Grilled chicken breasts with your choice of sauce",
+        "ingredients_ar": "صدور دجاج مشوية مع اختيارك من الصوص"
+      },
+      {
+        "name_en": "Chicken Mushroom",
+        "name_ar": "دجاج بالمشروم",
+        "price": 325,
+        "ingredients_en": "Grilled chicken with mushroom sauce",
+        "ingredients_ar": "دجاج مشوي مع صوص المشروم"
+      },
+      {
+        "name_en": "Beef Fillet",
+        "name_ar": "فيليه لحم",
+        "price": 450,
+        "ingredients_en": "Beef fillet with your choice of sauce (Pepper, Mushroom, Blue Cheese)",
+        "ingredients_ar": "فيليه لحم مع اختيارك من الصوص (فلفل، مشروم، بلو تشيز)"
+      }
+    ]
+  },
+  {
+    "category": "Cold Drinks",
+    "category_ar": "مشروبات باردة",
+    "items": [
+      {
+        "name_en": "Fresh Orange Juice",
+        "name_ar": "عصير برتقال طازج",
+        "price": 75,
+        "ingredients_en": "Freshly squeezed orange juice",
+        "ingredients_ar": "عصير برتقال طازج"
+      },
+      {
+        "name_en": "Lemon Mint",
+        "name_ar": "ليمون نعناع",
+        "price": 65,
+        "ingredients_en": "Fresh lemon juice with mint",
+        "ingredients_ar": "عصير ليمون طازج بالنعناع"
+      },
+      {
+        "name_en": "Iced Latte",
+        "name_ar": "آيس لاتيه",
+        "price": 85,
+        "ingredients_en": "Espresso with cold milk and ice",
+        "ingredients_ar": "إسبريسو مع حليب بارد وثلج"
+      }
+    ]
+  }
+]

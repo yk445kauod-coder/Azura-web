@@ -1,14 +1,14 @@
 // Full Azura Restaurant Menu — complete data with detailed ingredients
 
 export const fullMenuData = {
-  "food": {
+  "new_items": {
     "chicken-butterfly": {
       "name": "Chicken Butterfly",
       "nameAr": "تشيكن باترفلاي",
       "description": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella.",
       "descriptionAr": "دجاج مشوي مع صوص الباترفلاي، يقدم مع أرز وخبز محمص بالثوم والمشروم والموزاريلا.",
       "price": 336,
-      "category": "food",
+      "category": "new_items",
       "available": true,
       "image": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=80",
       "ingredients": ["Grilled Chicken", "Butterfly Sauce", "Rice", "Toasted Bread", "Garlic", "Mushrooms", "Mozzarella"],
@@ -20,7 +20,7 @@ export const fullMenuData = {
       "description": "Penne pasta with creamy lemon sauce and grilled chicken pieces.",
       "descriptionAr": "مكرونة بيني مع صوص الليمون الكريمي وقطع الدجاج المشوي.",
       "price": 234,
-      "category": "food",
+      "category": "new_items",
       "available": true,
       "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=600&q=80",
       "ingredients": ["Penne Pasta", "Creamy Lemon Sauce", "Grilled Chicken Pieces"],
@@ -32,12 +32,14 @@ export const fullMenuData = {
       "description": "Chicken pieces with special dynamite sauce.",
       "descriptionAr": "قطع دجاج مع صوص الدايناميت الخاص.",
       "price": 178,
-      "category": "food",
+      "category": "new_items",
       "available": true,
       "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&q=80",
       "ingredients": ["Chicken Pieces", "Special Dynamite Sauce"],
       "ingredientsAr": ["قطع دجاج", "صوص دايناميت خاص"]
-    },
+    }
+  },
+  "food": {
     "grilled-chicken": {
       "name": "Grilled Chicken",
       "nameAr": "دجاج مشوي",

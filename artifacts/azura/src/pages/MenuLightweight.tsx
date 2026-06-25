@@ -29,6 +29,7 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 
 const CATS = [
   { id: "all",        emoji: "✨",  en: "All",         ar: "الكل"      },
+  { id: "new_items",  emoji: "🆕",  en: "New",         ar: "جديد"      },
   { id: "food",       emoji: "🍗",  en: "Main",        ar: "أطباق"     },
   { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
   { id: "burgers",    emoji: "🍔",  en: "Burgers",     ar: "برجر"      },
@@ -45,7 +46,8 @@ const CATS = [
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
-  food:        ["food", "mains", "main"],
+  new_items:   ["new_items", "new", "featured"],
+  food:        ["food", "mains", "main", "new_items"],
   sandwiches:  ["sandwich", "sandwiches", "toast", "croissant"],
   burgers:     ["burger", "burgers"],
   pasta:       ["pasta", "noodles"],
@@ -108,6 +110,12 @@ const MenuItemCard = memo(({
             <span>{cat?.emoji}</span>
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
+          {/* NEW badge */}
+          {item.category === "new_items" && (
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black tracking-wide shadow-lg">
+              {lang === "ar" ? "جديد" : "NEW"}
+            </div>
+          )}
         </div>
 
         {/* Info */}

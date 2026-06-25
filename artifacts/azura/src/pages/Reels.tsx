@@ -70,7 +70,7 @@ export default function Reels() {
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  // Load reels and re-parse FB XFBML
+  // Load reels
   useEffect(() => {
     const reelsRef = ref(db, "reels");
     onValue(reelsRef, (snap) => {
@@ -85,26 +85,11 @@ export default function Reels() {
         });
       setReels(list);
       setLoading(false);
-
-      // Trigger Social SDK re-parsing
-      setTimeout(() => {
-        if (window.FB) window.FB.XFBML.parse();
-        if (window.instgrm) window.instgrm.Embeds.process();
-      }, 800);
     });
     return () => off(reelsRef);
   }, []);
 
-  // Re-parse Social Embeds when current reel changes
-  // NOTE: currentReelId is derived below — keep this effect AFTER the state declarations
-  // but the dep value is captured via the state array (safe, no TDZ)
   const currentReelId = reels[currentIndex]?.id;
-  useEffect(() => {
-    setTimeout(() => {
-      if (window.FB) window.FB.XFBML.parse();
-      if (window.instgrm) window.instgrm.Embeds.process();
-    }, 300);
-  }, [currentIndex, currentReelId]);
 
   // Load ratings
   useEffect(() => {
@@ -259,7 +244,7 @@ export default function Reels() {
       {/* Main Reel View */}
       <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
         {currentReel.videoUrl ? (
-          <div className="w-full h-full">
+          <div key={currentReelId} className="w-full h-full">
             <div
               className="w-full h-full"
               dangerouslySetInnerHTML={{

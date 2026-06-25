@@ -93,41 +93,110 @@ const CATS = [
   { id: "hot_drinks", emoji: "☕",  en: "Hot",        ar: "ساخن"      },
   { id: "milkshake",  emoji: "🥛",  en: "Shakes",     ar: "شيك"       },
   { id: "mocktails",  emoji: "🍹",  en: "Cold",       ar: "بارد"      },
+  { id: "extras",     emoji: "➕",  en: "Extras",     ar: "إضافات"    },
   { id: "shisha",     emoji: "💨",  en: "Shisha",     ar: "شيشة"      },
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
-  food:        ["food", "mains", "main"],
+  food:        ["food", "mains", "main", "main_dishes", "fried_chicken"],
   sandwiches:  ["sandwich", "sandwiches", "toast", "croissant"],
-  burgers:     ["burger", "burgers"],
+  burgers:     ["burger", "burgers", "smash_burgers", "smash"],
   pasta:       ["pasta", "noodles"],
   salads:      ["salad", "salads"],
   soups:       ["soup", "soups"],
-  appetizers:  ["appetizer", "appetizers", "starters", "sides", "extras"],
+  appetizers:  ["appetizer", "appetizers", "starters", "sides"],
+  extras:      ["extras", "extra", "add_ons", "corto", "new_items"],
   breakfast:   ["breakfast", "brunch"],
   desserts:    ["dessert", "desserts", "sweet", "sweets", "pancakes", "crepes"],
-  hot_drinks:  ["hot", "hot_drinks", "coffee", "tea"],
-  milkshake:   ["milkshake", "shake", "milkshakes"],
-  mocktails:   ["mocktail", "mocktails", "cold", "cold_drinks", "juice", "fresh"],
+  hot_drinks:  ["hot", "hot_drinks", "coffee", "tea", "hot_chocolate", "sahlab", "frappuccino"],
+  milkshake:   ["milkshake", "shake", "milkshakes", "smoothies", "boba_tea"],
+  mocktails:   ["mocktail", "mocktails", "cold", "cold_drinks", "juice", "fresh", "fresh_juices", "mojitos"],
   shisha:      ["shisha", "hookah", "sheesha"],
 };
 
-const FALLBACK: Record<string, string> = {
-  food:        "https://images.unsplash.com/photo-1568471173242-461f0a730452?w=500&q=80",
-  sandwiches:  "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80",
-  burgers:     "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
-  pasta:       "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=500&q=80",
-  salads:      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80",
-  soups:       "https://images.unsplash.com/photo-1547592180-85f173990554?w=500&q=80",
-  appetizers:  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80",
-  breakfast:   "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&q=80",
-  desserts:    "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80",
-  hot_drinks:  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80",
-  milkshake:   "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80",
-  mocktails:   "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=500&q=80",
-  shisha:      "https://images.unsplash.com/photo-1527137342181-19aab11a8ee1?w=500&q=80",
-  default:     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80",
+const CAT_COLORS: Record<string, string> = {
+  food:        "#d97706",
+  sandwiches:  "#f97316",
+  burgers:     "#ef4444",
+  pasta:       "#b45309",
+  salads:      "#16a34a",
+  soups:       "#ea580c",
+  appetizers:  "#65a30d",
+  extras:      "#7c3aed",
+  breakfast:   "#ca8a04",
+  desserts:    "#db2777",
+  hot_drinks:  "#92400e",
+  milkshake:   "#7c3aed",
+  mocktails:   "#0891b2",
+  shisha:      "#4338ca",
+  default:     "#8b5cf6",
 };
+
+function ItemImage({ src, alt, category, className }: {
+  src: string; alt: string; category: string; className?: string;
+}) {
+  const [state, setState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
+  const [inView, setInView] = useState(false);
+  const divRef = useRef<HTMLDivElement>(null);
+  const color = CAT_COLORS[category] || CAT_COLORS.default;
+  const catEmoji = CATS.find(c => c.id === category)?.emoji || "🍽️";
+  const hasImage = Boolean(src);
+
+  useEffect(() => {
+    if (!hasImage) return;
+    setState("loading");
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { rootMargin: "200px 0px", threshold: 0 }
+    );
+    if (divRef.current) obs.observe(divRef.current);
+    return () => obs.disconnect();
+  }, [src, hasImage]);
+
+  useEffect(() => {
+    if (!inView || !src) return;
+    const img = new Image();
+    img.src = src;
+    img.onload = () => setState("loaded");
+    img.onerror = () => setState("error");
+    return () => { img.onload = null; img.onerror = null; };
+  }, [inView, src]);
+
+  const showPlaceholder = !hasImage || state === "error";
+
+  return (
+    <div ref={divRef} className={`relative overflow-hidden ${className || ""}`}
+      style={showPlaceholder ? { background: `linear-gradient(135deg, ${color}18, ${color}38)` } : {}}>
+      {showPlaceholder ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2">
+          <span className="text-4xl leading-none select-none">{catEmoji}</span>
+          <span className="text-[10px] font-bold text-center leading-tight line-clamp-2 select-none" style={{ color }}>
+            {alt}
+          </span>
+        </div>
+      ) : (
+        <>
+          <img
+            src={src}
+            alt={alt}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${state === "loaded" ? "opacity-100" : "opacity-0"}`}
+            loading="lazy"
+            decoding="async"
+          />
+          {state !== "loaded" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2"
+              style={{ background: `linear-gradient(135deg, ${color}18, ${color}38)` }}>
+              <span className="text-4xl leading-none select-none">{catEmoji}</span>
+              <span className="text-[10px] font-bold text-center leading-tight line-clamp-2 select-none" style={{ color }}>
+                {alt}
+              </span>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 function greeting(lang: "en" | "ar") {
   const h = new Date().getHours();
@@ -138,14 +207,13 @@ function greeting(lang: "en" | "ar") {
 
 // Item detail modal
 const ItemModal = memo(({
-  item, lang, isRTL, inCart, qty, added, onAdd, onClose, tr, FALLBACK
+  item, lang, isRTL, inCart, qty, added, onAdd, onClose, tr
 }: {
   item: MenuItem; lang: string; isRTL: boolean;
   inCart: boolean; qty: number; added: boolean;
   onAdd: (item: MenuItem) => void; onClose: () => void;
-  tr: (en: string, ar: string) => string; FALLBACK: Record<string, string>;
+  tr: (en: string, ar: string) => string;
 }) => {
-  const imgSrc = item.image || FALLBACK[item.category] || FALLBACK.default;
   const ingredients = lang === "ar" ? (item.ingredientsAr || item.ingredients || []) : (item.ingredients || []);
 
   useEffect(() => {
@@ -167,11 +235,11 @@ const ItemModal = memo(({
       >
         {/* Image */}
         <div className="relative flex-shrink-0" style={{ paddingTop: "55%" }}>
-          <LazyImage
-            src={imgSrc}
-            alt={item.name}
+          <ItemImage
+            src={item.image || ""}
+            alt={lang === "ar" ? (item.nameAr || item.name) : item.name}
+            category={item.category}
             className="absolute inset-0 w-full h-full"
-            fallback={FALLBACK[item.category] || FALLBACK.default}
           />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)" }} />
           <button
@@ -251,7 +319,7 @@ const ItemModal = memo(({
 });
 
 const MenuItemCard = memo(({
-  item, lang, isRTL, inCart, qty, added, visible, idx, onAdd, onOpenDetail, tr, FALLBACK
+  item, lang, isRTL, inCart, qty, added, visible, idx, onAdd, onOpenDetail, tr
 }: {
   item: MenuItem; lang: string; isRTL: boolean;
   inCart: boolean; qty: number; added: boolean;
@@ -259,9 +327,7 @@ const MenuItemCard = memo(({
   onAdd: (item: MenuItem) => void;
   onOpenDetail: (item: MenuItem) => void;
   tr: (en: string, ar: string) => string;
-  FALLBACK: Record<string, string>;
 }) => {
-  const imgSrc = item.image || FALLBACK[item.category] || FALLBACK.default;
   const ingredients = lang === "ar" ? (item.ingredientsAr || item.ingredients || []) : (item.ingredients || []);
 
   return (
@@ -279,12 +345,12 @@ const MenuItemCard = memo(({
       onClick={() => onOpenDetail(item)}
     >
       {/* Image */}
-      <div className="relative overflow-hidden bg-muted flex-shrink-0" style={{ paddingTop: "65%" }}>
-        <LazyImage
-          src={imgSrc}
-          alt={lang === "ar" ? item.nameAr : item.name}
+      <div className="relative overflow-hidden flex-shrink-0" style={{ paddingTop: "65%" }}>
+        <ItemImage
+          src={item.image || ""}
+          alt={lang === "ar" ? (item.nameAr || item.name) : item.name}
+          category={item.category}
           className="absolute inset-0 w-full h-full"
-          fallback={FALLBACK[item.category] || FALLBACK.default}
         />
         {inCart && qty > 0 && (
           <span
@@ -557,11 +623,11 @@ export default function Menu() {
                   style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12)" }}
                   onClick={() => setSelectedItem(item)}
                 >
-                  <LazyImage
-                    src={item.image || FALLBACK[item.category] || FALLBACK.default}
+                  <ItemImage
+                    src={item.image || ""}
                     alt={lang === "ar" ? item.nameAr : item.name}
+                    category={item.category}
                     className="w-full h-24"
-                    fallback={FALLBACK[item.category] || FALLBACK.default}
                   />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
                   <div className="absolute bottom-0 left-0 right-0 p-2">
@@ -630,7 +696,6 @@ export default function Menu() {
                 onAdd={handleAdd}
                 onOpenDetail={setSelectedItem}
                 tr={tr}
-                FALLBACK={FALLBACK}
               />
             ))}
           </div>
@@ -651,7 +716,6 @@ export default function Menu() {
           onAdd={handleAdd}
           onClose={() => setSelectedItem(null)}
           tr={tr}
-          FALLBACK={FALLBACK}
         />
       )}
     </div>

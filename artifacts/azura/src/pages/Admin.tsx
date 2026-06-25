@@ -197,7 +197,7 @@ export default function Admin() {
     "fresh_juices","smoothies","milkshakes","mojitos","boba_tea",
     "burgers","smash_burgers","fried_chicken","main_dishes","pasta",
     "salads","soups","appetizers","breakfast","toast","croissant",
-    "pancakes","crepes","desserts","corto","add_ons","shisha","new_items",
+    "pancakes","crepes","desserts","extras","corto","add_ons","shisha","new_items",
   ];
 
   // Broadcast form

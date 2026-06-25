@@ -1,0 +1,35 @@
+nrecognized feature: 'web-share'.
+ut @ index-Bfp4zNSS.js:9
+Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.
+Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'browsing-topics'.
+Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.
+Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'unload'.
+Error with Permissions-Policy header: Unrecognized feature: 'window-management'.
+web.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F844863218315110%2F&show_text=false&autoplay=true&width=506&_rdc=1&_rdr#:1 Document-Policy HTTP header: Unrecognized document policy feature name include-js-call-stacks-in-crash-reports.
+chrome-extension://ggjmjkeaeojfdcbafefloifeaepeaeah/emojiSwap.js:445 TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.
+    at emojiSwap.js:439:13
+index-Bfp4zNSS.js:9 [Violation] 'setInterval' handler took 96ms
+[Violation] Forced reflow while executing JavaScript took 34ms
+[Violation] Forced reflow while executing JavaScript took 35ms
+-MiLwDFVI2F.js:329 [Violation] 'requestAnimationFrame' handler took 62ms
+Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.
+Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'browsing-topics'.
+Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.
+Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'unload'.
+Error with Permissions-Policy header: Unrecognized feature: 'window-management'.
+web.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F844863218315110%2F&show_text=false&autoplay=true&width=506&_rdc=1&_rdr#:1 Document-Policy HTTP header: Unrecognized document policy feature name include-js-call-stacks-in-crash-reports.
+-MiLwDFVI2F.js?_nc_eui2=AeEsRjaK8lXDZ5xLLpoJPM13w7D2zfXdLfbDsPbN9d0t9rA5DvWKOW6ZpERUF1U0Tn8f6C3Bt4l_grseux1k8fgg:329 [Violation] 'requestAnimationFrame' handler took 52ms

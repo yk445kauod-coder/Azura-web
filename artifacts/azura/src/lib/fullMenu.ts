@@ -31,32 +31,41 @@
       "available": true,
       "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": [
-        "Grilled chicken with butterfly sauce",
-        "served with rice",
-        "toasted bread with garlic",
+        "Grilled chicken",
+        "butterfly sauce",
+        "rice",
+        "toasted garlic bread",
         "mushrooms",
-        "and mozzarella"
+        "mozzarella"
       ],
       "ingredientsAr": [
-        "فراخ جريل بصوص البتر فلاي",
-        "يقدم مع الأرز وعيش محمص بالثوم والمشروم والموزاريلا"
+        "فراخ جريل",
+        "صوص البتر فلاي",
+        "أرز",
+        "عيش محمص بالثوم",
+        "مشروم",
+        "موزاريلا"
       ]
     },
     "chicken-lemon-pasta": {
       "name": "Chicken Lemon Pasta",
       "nameAr": "تشيكن ليمون باستا",
       "description": "Penne pasta with creamy lemon sauce and grilled chicken pieces",
-      "descriptionAr": "بنا باستا مع صصوص الليمون الكريمي مع قطع الفراخ الجريل",
+      "descriptionAr": "بنا باستا مع صوص الليمون الكريمي مع قطع الفراخ الجريل",
       "price": 234,
       "category": "new_items",
       "categoryAr": "أصناف جديدة",
       "available": true,
       "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": [
-        "Penne pasta with creamy lemon sauce and grilled chicken pieces"
+        "Penne pasta",
+        "creamy lemon sauce",
+        "grilled chicken"
       ],
       "ingredientsAr": [
-        "بنا باستا مع صصوص الليمون الكريمي مع قطع الفراخ الجريل"
+        "باستا بنا",
+        "صوص الليمون الكريمي",
+        "فراخ جريل"
       ]
     },
     "dynamite-chicken": {
@@ -70,10 +79,12 @@
       "available": true,
       "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": [
-        "Chicken pieces with special dynamite sauce"
+        "Crispy chicken pieces",
+        "special dynamite sauce"
       ],
       "ingredientsAr": [
-        "قطع الفراخ مع صوص الدايناميت الخاص"
+        "قطع فراخ كريسبي",
+        "صوص الدايناميت الخاص"
       ]
     }
   },
@@ -697,47 +708,55 @@
   "soups": {
     "tomato-and-basil-soup": {
       "name": "Tomato and Basil Soup",
-      "nameAr": "توماتو اند بازل سوب",
-      "description": "Tomato and Basil Soup",
-      "descriptionAr": "توماتو اند بازل سوب",
+      "nameAr": "شوربة طماطم بالريحان",
+      "description": "Creamy tomato soup with fresh basil",
+      "descriptionAr": "شوربة طماطم كريمية بالريحان الطازج",
       "price": 93,
       "category": "soups",
-      "categoryAr": "سوب",
+      "categoryAr": "شوربة",
       "available": true,
-      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Tomato", "basil", "cream"],
+      "ingredientsAr": ["طماطم", "ريحان", "كريمة"]
     },
     "mushroom-cream": {
-      "name": "Mushroom Cream",
-      "nameAr": "مشروم كريم",
-      "description": "Mushroom Cream",
-      "descriptionAr": "مشروم كريم",
+      "name": "Mushroom Cream Soup",
+      "nameAr": "كريم مشروم",
+      "description": "Creamy mushroom soup",
+      "descriptionAr": "شوربة مشروم كريمية",
       "price": 102,
       "category": "soups",
-      "categoryAr": "سوب",
+      "categoryAr": "شوربة",
       "available": true,
-      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Mushrooms", "cream", "onion", "spices"],
+      "ingredientsAr": ["مشروم", "كريمة", "بصل", "توابل"]
     },
     "creamy-chicken": {
-      "name": "Creamy Chicken",
-      "nameAr": "كريمي تشيكن",
-      "description": "Creamy Chicken",
-      "descriptionAr": "كريمي تشيكن",
+      "name": "Creamy Chicken Soup",
+      "nameAr": "تشيكن كريمي",
+      "description": "Creamy chicken soup",
+      "descriptionAr": "شوربة فراخ كريمية",
       "price": 113,
       "category": "soups",
-      "categoryAr": "سوب",
+      "categoryAr": "شوربة",
       "available": true,
-      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Chicken", "cream", "spices"],
+      "ingredientsAr": ["فراخ", "كريمة", "توابل"]
     },
     "creamy-chicken-mushroom": {
-      "name": "Creamy Chicken Mushroom",
-      "nameAr": "كريمي تشيكن مشروم",
-      "description": "Creamy Chicken Mushroom",
-      "descriptionAr": "كريمي تشيكن مشروم",
+      "name": "Creamy Chicken Mushroom Soup",
+      "nameAr": "تشيكن كريمي مشروم",
+      "description": "Creamy chicken and mushroom soup",
+      "descriptionAr": "شوربة فراخ ومشروم كريمية",
       "price": 149,
       "category": "soups",
-      "categoryAr": "سوب",
+      "categoryAr": "شوربة",
       "available": true,
-      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Chicken", "mushrooms", "cream", "spices"],
+      "ingredientsAr": ["فراخ", "مشروم", "كريمة", "توابل"]
     }
   },
   "appetizers": {
@@ -1129,68 +1148,80 @@
     "alfredo-pasta": {
       "name": "Alfredo Pasta",
       "nameAr": "الفريدو باستا",
-      "description": "Alfredo Pasta",
-      "descriptionAr": "الفريدو باستا",
+      "description": "Creamy Alfredo pasta with Parmesan",
+      "descriptionAr": "باستا بصوص الفريدو الكريمي والبارميزان",
       "price": 249,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "Alfredo cream sauce", "Parmesan"],
+      "ingredientsAr": ["باستا", "صوص الفريدو الكريمي", "بارميزان"]
     },
     "negresco": {
       "name": "Negresco",
       "nameAr": "نجرسكو",
-      "description": "Negresco",
-      "descriptionAr": "نجرسكو",
+      "description": "Negresco pasta with creamy sauce",
+      "descriptionAr": "باستا نجرسكو بالصوص الكريمي",
       "price": 258,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "creamy Negresco sauce", "Parmesan"],
+      "ingredientsAr": ["باستا", "صوص نجرسكو الكريمي", "بارميزان"]
     },
     "mac-and-cheese": {
       "name": "Mac and Cheese",
       "nameAr": "ماك اند تشيز",
-      "description": "Mac and Cheese",
-      "descriptionAr": "ماك اند تشيز",
+      "description": "Macaroni with creamy cheese sauce",
+      "descriptionAr": "مكرونه بصوص الجبنه الكريمي",
       "price": 247,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Macaroni", "cheddar cheese sauce", "mozzarella"],
+      "ingredientsAr": ["مكرونه", "صوص شيدر", "موتزريلا"]
     },
     "pesto-pasta": {
       "name": "Pesto Pasta",
       "nameAr": "بيستو باستا",
-      "description": "Pesto Pasta",
-      "descriptionAr": "بيستو باستا",
+      "description": "Pasta with basil pesto sauce and Parmesan",
+      "descriptionAr": "باستا بصوص البيستو والريحان والبارميزان",
       "price": 216,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "basil pesto sauce", "Parmesan", "pine nuts"],
+      "ingredientsAr": ["باستا", "صوص البيستو والريحان", "بارميزان", "صنوبر"]
     },
     "chicken-gravy-pasta": {
       "name": "Chicken Gravy Pasta",
       "nameAr": "تشيكن جريفي باستا",
-      "description": "Chicken Gravy Pasta",
-      "descriptionAr": "تشيكن جريفي باستا",
+      "description": "Pasta with grilled chicken and gravy sauce",
+      "descriptionAr": "باستا مع فراخ جريل وصوص الجريفي",
       "price": 206,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "grilled chicken", "gravy sauce"],
+      "ingredientsAr": ["باستا", "فراخ جريل", "صوص الجريفي"]
     },
     "beef-stroganoff-pasta": {
       "name": "Beef Stroganoff Pasta",
       "nameAr": "بيف ستراجنوف باستا",
-      "description": "Beef Stroganoff Pasta",
-      "descriptionAr": "بيف ستراجنوف باستا",
+      "description": "Pasta with beef strips, mushroom, onion, and creamy sauce",
+      "descriptionAr": "باستا مع شرايح لحم ومشروم وبصل وصوص كريمي",
       "price": 279,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "beef strips", "mushrooms", "onion", "cream sauce"],
+      "ingredientsAr": ["باستا", "شرايح لحم", "مشروم", "بصل", "صوص كريمي"]
     },
     "azura-spicy-pasta": {
       "name": "Azura Spicy Pasta",
@@ -1220,35 +1251,41 @@
     "pasta-arrabbiata": {
       "name": "Pasta Arrabbiata",
       "nameAr": "اربيتا باستا",
-      "description": "Pasta Arrabbiata",
-      "descriptionAr": "اربيتا باستا",
+      "description": "Pasta with spicy tomato sauce, garlic, and chili",
+      "descriptionAr": "باستا بصوص الطماطم الحار والثوم والفلفل",
       "price": 165,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "spicy tomato sauce", "garlic", "chili"],
+      "ingredientsAr": ["باستا", "صوص الطماطم الحار", "ثوم", "فلفل"]
     },
     "pasta-forno": {
       "name": "Pasta Forno",
       "nameAr": "فورنو باستا",
-      "description": "Pasta Forno",
-      "descriptionAr": "فورنو باستا",
+      "description": "Baked pasta with béchamel and cheese",
+      "descriptionAr": "باستا مخبوزة بصوص البيشاميل والجبنه",
       "price": 204,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "béchamel sauce", "cheese", "beef"],
+      "ingredientsAr": ["باستا", "صوص بيشاميل", "جبنه", "لحم"]
     },
     "spaghetti-bolognese": {
       "name": "Spaghetti Bolognese",
       "nameAr": "سباجتي بولنيز",
-      "description": "Spaghetti Bolognese",
-      "descriptionAr": "سباجتي بولنيز",
+      "description": "Spaghetti with Bolognese meat sauce and Parmesan",
+      "descriptionAr": "سباجتي بصوص البولنيز اللحم والبارميزان",
       "price": 197,
       "category": "pasta",
       "categoryAr": "باستا",
       "available": true,
-      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Spaghetti", "Bolognese meat sauce", "tomato", "Parmesan"],
+      "ingredientsAr": ["سباجتي", "صوص بولنيز اللحم", "طماطم", "بارميزان"]
     },
     "cheese-ranch-pasta": {
       "name": "Cheese Ranch Pasta",

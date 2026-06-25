@@ -228,40 +228,43 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
   }
 }
 
-// ── High-Quality TTS via StreamElements (AWS Polly voices, free, no API key) ──
+// ── TTS via Web Speech API (browser built-in, zero CORS, no API key) ──
 /**
- * Returns a URL for a natural-sounding human voice (AWS Polly via StreamElements).
- * Arabic → Zeina (native Egyptian-Arabic female).
- * English → Ivy (warm female voice).
- * No CORS issues when set as <audio> src directly (no crossOrigin attribute).
+ * Speaks text using the browser's built-in SpeechSynthesis engine.
+ * Arabic → ar-EG locale.  English → en-US locale.
+ * Falls back silently if the browser does not support speechSynthesis.
  */
-export async function textToSpeech(text: string, lang: string = "en"): Promise<string> {
-  // Strip markdown / HTML tags, limit to 250 chars (StreamElements limit)
-  const cleanText = text
-    .replace(/[*_`#\[\]]/g, "")
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 250);
+export function speakText(text: string, lang: string = "en"): Promise<void> {
+  return new Promise((resolve) => {
+    if (!("speechSynthesis" in window)) { resolve(); return; }
+    window.speechSynthesis.cancel();
 
-  if (!cleanText) return "";
+    const clean = text
+      .replace(/[*_`#\[\]]/g, "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 300);
 
-  const voice = lang === "ar" ? "Zeina" : "Joanna";
-  const encoded = encodeURIComponent(cleanText);
-  return `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encoded}`;
+    if (!clean) { resolve(); return; }
+
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.lang    = lang === "ar" ? "ar-EG" : "en-US";
+    utterance.rate    = lang === "ar" ? 0.88 : 1.0;
+    utterance.pitch   = 1.0;
+    utterance.volume  = 1.0;
+    utterance.onend   = () => resolve();
+    utterance.onerror = () => resolve();
+    window.speechSynthesis.speak(utterance);
+  });
 }
 
-// Play audio from URL — no crossOrigin attribute so any URL works without CORS headers
-export function playAudioFromUrl(url: string): Promise<void> {
-  return new Promise((resolve) => {
-    const audio = new Audio();
-    // Do NOT set crossOrigin — lets audio load from any URL without CORS headers
-    audio.src = url;
-    audio.onended = () => resolve();
-    audio.onerror = () => {
-      console.warn("TTS playback failed (StreamElements)");
-      resolve();
-    };
-    audio.play().catch(() => resolve());
-  });
+/** @deprecated Use speakText() directly */
+export async function textToSpeech(_text: string, _lang: string = "en"): Promise<string> {
+  return "";
+}
+
+/** @deprecated Use speakText() directly */
+export function playAudioFromUrl(_url: string): Promise<void> {
+  return Promise.resolve();
 }

@@ -494,6 +494,30 @@ export default function Menu() {
 
   const featured = useMemo(() => items.filter(i => i.available && i.image).slice(0, 10), [items]);
 
+  const SECTION_ORDER = [
+    "hot_drinks", "milkshake", "mocktails",
+    "food", "sandwiches", "burgers", "pasta",
+    "salads", "soups", "appetizers", "breakfast",
+    "desserts", "extras", "shisha",
+  ];
+
+  const sections = useMemo(() => {
+    if (cat !== "all" || debouncedSearch) return null;
+    const placed = new Set<string>();
+    const groups: { catId: string; def: typeof CATS[0]; items: typeof filtered }[] = [];
+    for (const catId of SECTION_ORDER) {
+      const catItems = filtered.filter(item => !placed.has(item.id) && matchesCategory(item.category, catId));
+      if (catItems.length === 0) continue;
+      catItems.forEach(i => placed.add(i.id));
+      const def = CATS.find(c => c.id === catId);
+      if (def) groups.push({ catId, def, items: catItems });
+    }
+    const leftover = filtered.filter(i => !placed.has(i.id));
+    if (leftover.length > 0) groups.push({ catId: "other", def: { id: "other", emoji: "🍽️", en: "Other", ar: "أخرى" }, items: leftover });
+    return groups;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, cat, debouncedSearch, matchesCategory]);
+
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: 0 };
     items.forEach(item => {
@@ -679,6 +703,39 @@ export default function Menu() {
             <p className="text-sm text-muted-foreground">
               {debouncedSearch ? tr("Try another keyword", "جرب كلمة أخرى") : tr("Check back soon!", "قريباً!")}
             </p>
+          </div>
+        ) : sections ? (
+          <div className="space-y-5">
+            {sections.map(({ catId, def, items: sItems }) => (
+              <div key={catId}>
+                <div className="flex items-center gap-2 mb-3 px-0.5">
+                  <span className="text-xl leading-none">{def.emoji}</span>
+                  <h2 className="font-extrabold text-foreground text-sm">
+                    {lang === "ar" ? def.ar : def.en}
+                  </h2>
+                  <span className="text-[10px] font-semibold text-muted-foreground">({sItems.length})</span>
+                  <div className="flex-1 h-px" style={{ background: "hsl(var(--border)/0.5)" }} />
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {sItems.map((item, idx) => (
+                    <MenuItemCard
+                      key={item.id}
+                      item={item}
+                      lang={lang}
+                      isRTL={isRTL}
+                      inCart={isInCart(item.id)}
+                      qty={getQty(item.id)}
+                      added={justAdded === item.id}
+                      visible={visible}
+                      idx={idx}
+                      onAdd={handleAdd}
+                      onOpenDetail={setSelectedItem}
+                      tr={tr}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2.5">

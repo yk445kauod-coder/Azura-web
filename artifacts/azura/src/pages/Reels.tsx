@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update, push, remove } from "@/lib/firebase";
 import { parseVideoUrl, getEmbedHtml } from "@/lib/videoProviders";
-import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star, MoreHorizontal, Trash2, Reply, ThumbsUp } from "lucide-react";
+import { Heart, MessageCircle, Share2, ChevronRight, ChevronLeft, Send, X, Star, MoreHorizontal, Trash2, Reply, ThumbsUp, Play } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
 
 interface Comment {
@@ -90,6 +90,8 @@ export default function Reels() {
   }, []);
 
   const currentReelId = reels[currentIndex]?.id;
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => { setPlaying(false); }, [currentIndex]);
 
   // Load ratings
   useEffect(() => {
@@ -244,13 +246,32 @@ export default function Reels() {
       {/* Main Reel View */}
       <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
         {currentReel.videoUrl ? (
-          <div key={currentReelId} className="w-full h-full">
-            <div
-              className="w-full h-full"
-              dangerouslySetInnerHTML={{
-                __html: getEmbedHtml(parseVideoUrl(currentReel.videoUrl), "100%", "100%")
-              }}
-            />
+          <div key={currentReelId} className="w-full h-full relative">
+            {playing ? (
+              <div
+                className="w-full h-full"
+                dangerouslySetInnerHTML={{
+                  __html: getEmbedHtml(parseVideoUrl(currentReel.videoUrl), "100%", "100%")
+                }}
+              />
+            ) : (
+              <div
+                className="w-full h-full flex flex-col items-center justify-center bg-black cursor-pointer select-none"
+                onClick={() => setPlaying(true)}
+              >
+                <img
+                  src={currentReel.image || PLACEHOLDER}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover opacity-40"
+                />
+                <div className="relative z-10 flex flex-col items-center gap-3">
+                  <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center shadow-2xl">
+                    <Play size={36} className="text-white ms-1" fill="white" />
+                  </div>
+                  <p className="text-white/80 text-sm font-semibold">{tr("Tap to play", "اضغط للتشغيل")}</p>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <img

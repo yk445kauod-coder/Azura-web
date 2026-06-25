@@ -4,7 +4,7 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
-import { decryptKey, isValidApiKey, chatWithAI, textToSpeech, playAudioFromUrl } from "@/lib/crypto";
+import { decryptKey, isValidApiKey, chatWithAI, speakText } from "@/lib/crypto";
 import { Send, Eye, RefreshCw, Volume2, VolumeX, ArrowLeft, Check } from "lucide-react";
 
 interface SuggestedItem {
@@ -75,7 +75,7 @@ export default function AIBarista() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const { user } = useAuth();
 
   // Load chat history from Firebase
@@ -128,17 +128,10 @@ export default function AIBarista() {
     if (!ttsEnabled) return;
     setSpeaking(true);
     try {
-      const audioUrl = await textToSpeech(text, lang === "ar" ? "ar" : "en");
-      if (audioUrl) {
-        audioRef.current?.pause();
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-        audio.onended = () => setSpeaking(false);
-        audio.onerror = () => setSpeaking(false);
-        await audio.play();
-      }
+      await speakText(text, lang === "ar" ? "ar" : "en");
     } catch (err) {
       console.error("TTS error:", err);
+    } finally {
       setSpeaking(false);
     }
   }, [ttsEnabled, lang]);

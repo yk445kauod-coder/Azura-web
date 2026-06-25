@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
-import { X } from "lucide-react";
+import { X, Bell } from "lucide-react";
 import { 
   HomeIcon, 
   SparklesIcon, 
@@ -57,37 +57,48 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { profile } = useAuth();
   const [location] = useLocation();
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
+  const [allBroadcasts, setAllBroadcasts] = useState<Broadcast[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const isActive = (p: string) => location === p || (p === "/menu" && (location === "/" || location === ""));
+
+  const getReadIds = (): string[] => JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
+  const saveReadIds = (ids: string[]) => localStorage.setItem("azura-read-broadcasts", JSON.stringify(ids));
 
   // Listen for admin broadcasts OR show default welcome
   useEffect(() => {
     const bRef = ref(db, "broadcast");
     onValue(bRef, (snap) => {
+      const readIds = getReadIds();
       if (!snap.exists()) {
-        // Show default welcome broadcast if none in Firebase
-        const readIds: string[] = JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
-        if (!readIds.includes("welcome-new")) {
-          setBroadcast(DEFAULT_BROADCAST);
-        }
+        setAllBroadcasts([DEFAULT_BROADCAST]);
+        if (!readIds.includes("welcome-new")) setBroadcast(DEFAULT_BROADCAST);
         return;
       }
       const data = snap.val() as Record<string, Omit<Broadcast, "id">>;
-      const readIds: string[] = JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
-      const latest = Object.entries(data)
+      const all = Object.entries(data)
         .map(([id, v]) => ({ id, ...v }))
-        .filter((b) => !readIds.includes(b.id))
-        .sort((a, b) => b.createdAt - a.createdAt)[0];
+        .sort((a, b) => b.createdAt - a.createdAt);
+      setAllBroadcasts(all.length > 0 ? all : [DEFAULT_BROADCAST]);
+      const latest = all.filter((b) => !readIds.includes(b.id))[0];
       if (latest) setBroadcast(latest);
     });
     return () => off(ref(db, "broadcast"));
   }, []);
 
+  const unreadCount = allBroadcasts.filter(b => !getReadIds().includes(b.id)).length;
+
   const dismissBroadcast = () => {
     if (!broadcast) return;
-    const readIds: string[] = JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
-    localStorage.setItem("azura-read-broadcasts", JSON.stringify([...readIds, broadcast.id]));
+    const readIds = getReadIds();
+    saveReadIds([...readIds, broadcast.id]);
     setBroadcast(null);
+  };
+
+  const markAllRead = () => {
+    saveReadIds(allBroadcasts.map(b => b.id));
+    setBroadcast(null);
+    setNotifOpen(false);
   };
 
   return (
@@ -114,8 +125,71 @@ export default function Layout({ children }: { children: ReactNode }) {
               Table {profile.tableNumber}
             </span>
           )}
+          {/* Notification Bell */}
+          <button
+            onClick={() => setNotifOpen(true)}
+            className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-muted active:scale-95"
+            aria-label="Notifications"
+          >
+            <Bell size={18} className="text-foreground" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -end-0.5 min-w-[16px] h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-extrabold flex items-center justify-center px-1 shadow-sm">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
       </header>
+
+      {/* Notification Drawer */}
+      {notifOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end" onClick={() => setNotifOpen(false)}>
+          <div
+            className="bg-background rounded-t-3xl px-4 pt-4 pb-8 space-y-3 max-h-[72vh] overflow-y-auto shadow-2xl"
+            style={{ borderTop: "1px solid hsl(var(--border))" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-2" />
+            <div className="flex items-center justify-between">
+              <h2 className="font-extrabold text-foreground text-base">
+                {lang === "ar" ? "الإشعارات" : "Notifications"}
+              </h2>
+              <button onClick={markAllRead} className="text-xs font-semibold text-primary py-1 px-2 rounded-lg hover:bg-primary/10 transition-all">
+                {lang === "ar" ? "مسح الكل" : "Mark all read"}
+              </button>
+            </div>
+            {allBroadcasts.length === 0 ? (
+              <p className="text-center text-muted-foreground text-sm py-8">
+                {lang === "ar" ? "لا توجد إشعارات" : "No notifications yet"}
+              </p>
+            ) : (
+              allBroadcasts.map((b) => {
+                const isUnread = !getReadIds().includes(b.id);
+                return (
+                  <div
+                    key={b.id}
+                    className={`rounded-2xl px-3 py-3 border flex items-start gap-3 transition-all ${BROADCAST_TYPE_STYLE[b.type] || BROADCAST_TYPE_STYLE.info} ${isUnread ? "ring-1 ring-primary/30" : "opacity-60"}`}
+                  >
+                    <span className="text-xl flex-shrink-0 mt-0.5">{b.emoji || "✨"}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-sm leading-tight">
+                          {lang === "ar" ? (b.titleAr || b.title) : b.title}
+                        </p>
+                        {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
+                      </div>
+                      <p className="text-xs opacity-80 leading-snug mt-0.5">
+                        {lang === "ar" ? (b.messageAr || b.message) : b.message}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Broadcast Banner */}
       {broadcast && (

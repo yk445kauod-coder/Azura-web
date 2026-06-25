@@ -11,7 +11,7 @@ import { encryptKey } from "@/lib/crypto";
 import { parseVideoUrl, getProviderName, getProviderIcon, type VideoProvider } from "@/lib/videoProviders";
 import {
   MessageCircle, Star,
-  TrendingUp, ShieldCheck, ArrowLeft, Plus, Trash2,
+  ShieldCheck, ArrowLeft, Plus, Trash2,
   Send, CheckCircle, XCircle,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Save, X,
@@ -122,13 +122,12 @@ function ImagePicker({
     </div>
   );
 }
-type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "reports" | "broadcast" | "reels" | "api" | "system" | "ai";
+type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai";
 
 interface MenuItem { id: string; name: string; nameAr: string; description: string; descriptionAr?: string; price: number; category: string; available: boolean; image: string; ingredients?: string; ingredientsAr?: string; recommended?: boolean; }
 interface ChatSession { uid: string; userName: string; lastMessage: string; lastAt: number; unreadAdmin: number; }
 interface ChatMsg { id: string; text: string; sender: "user" | "admin"; createdAt: number; }
 interface Feedback { id: string; userName: string; rating: number; comment: string; orderId?: string; createdAt: number; read: boolean; }
-interface Report { id: string; userName: string; description: string; type: string; status: string; createdAt: number; }
 interface Broadcast { id: string; title: string; titleAr: string; message: string; messageAr: string; type: "info" | "promo" | "alert"; emoji: string; createdAt: number; }
 interface Reel { id: string; image: string; caption: string; captionAr: string; likes: number; createdAt: number; authorName: string; pinned?: boolean; mediaType?: "image" | "video"; videoUrl?: string; videoProvider?: VideoProvider; videoThumbnail?: string; videoChunks?: string[]; chunkCount?: number; }
 
@@ -173,7 +172,6 @@ export default function Admin() {
   const [users, setUsers]         = useState<any[]>([]);
   const [chats, setChats]         = useState<ChatSession[]>([]);
   const [feedback, setFeedback]   = useState<Feedback[]>([]);
-  const [reports, setReports]     = useState<Report[]>([]);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [reels, setReels]         = useState<Reel[]>([]);
 
@@ -328,13 +326,6 @@ export default function Admin() {
       setFeedback(Object.entries(data).map(([id, f]) => ({ id, ...f })).sort((a, b) => b.createdAt - a.createdAt));
     });
 
-    // User Reports
-    onValue(ref(db, "reports"), (snap) => {
-      if (!snap.exists()) { setReports([]); return; }
-      const data = snap.val() as Record<string, Omit<Report, "id">>;
-      setReports(Object.entries(data).map(([id, r]) => ({ id, ...r })).sort((a, b) => b.createdAt - a.createdAt));
-    });
-
     // Support chat
     onValue(ref(db, "support-chat"), (snap) => {
       if (!snap.exists()) { setChats([]); return; }
@@ -377,7 +368,7 @@ export default function Admin() {
     });
 
     return () => {
-      ["menu","users","feedback","reports","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
+      ["menu","users","feedback","support-chat","broadcast","reels","api-settings"].forEach((p) => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -413,9 +404,6 @@ export default function Admin() {
   // ── Feedback helpers ──────────────────────────────────────────
   const markFeedbackRead = (id: string) => smartUpdate(`feedback/${id}`, { read: true });
 
-  // ── Report helpers ──────────────────────────────────────────
-  const updateReportStatus = (id: string, status: string) =>
-    smartUpdate(`reports/${id}`, { status });
 
   const deleteUser = async (uid: string, name: string) => {
     if (await swalConfirm(tr(`Delete User ${name}?`, `حذف المستخدم ${name}؟`), tr("This will remove all user data. Chat logs will remain in conversations.", "سيتم حذف بيانات المستخدم. ستبقى سجلات الدردشة."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
@@ -553,7 +541,6 @@ export default function Admin() {
     { id: "users",      icon: <Users size={14}/>,           en: "Users",       ar: "المستخدمين" },
     { id: "chat",       icon: <MessageCircle size={14}/>,  en: "Chat",        ar: "الدردشة",   badge: unreadChats || 0 },
     { id: "reviews",    icon: <Star size={14}/>,           en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
-    { id: "reports",    icon: <TrendingUp size={14}/>,    en: "Reports",     ar: "التقارير",  badge: reports.filter((r) => r.status === "pending").length || 0 },
     { id: "broadcast",  icon: <Megaphone size={14}/>,      en: "Broadcast",   ar: "إشعارات"    },
     { id: "reels",      icon: <Film size={14}/>,           en: "Reels",       ar: "ريلز"       },
     { id: "ai",         icon: <Bot size={14}/>,             en: "AI Assistant", ar: "المساعد الذكي" },
@@ -1102,44 +1089,6 @@ export default function Admin() {
           </div>
         )}
 
-
-        {/* ━━━ USER REPORTS ━━━ */}
-        {tab === "reports" && (
-          <div className="space-y-3 page-enter">
-            <div className="card rounded-xl p-3 bg-red-50 border border-red-200">
-              <p className="text-xs text-red-800 font-semibold">📋 {tr("Customer reports and feedback about issues with the restaurant.","تقارير العملاء وم反馈 حول مشاكل المطعم")}</p>
-            </div>
-            {reports.length === 0 && (
-              <div className="text-center py-12"><AlertTriangle size={40} className="mx-auto text-muted-foreground/25 mb-2"/><p className="text-muted-foreground text-sm">{tr("No reports yet","لا يوجد تقارير")}</p></div>
-            )}
-            {reports.map((report) => (
-              <div key={report.id} className="card rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-bold text-foreground">{tr("Issue Report","بلاغ")}</span>
-                      <span className={`badge px-2 py-0.5 ${report.status==="resolved"?"status-ready":report.status==="declined"?"status-cancelled":"status-pending"}`}>
-                        {report.status === "resolved" ? tr("Resolved","تم الحل") : report.status === "declined" ? tr("Dismissed","مرفوض") : tr("Pending","انتظار")}
-                      </span>
-                    </div>
-                    <p className="text-sm text-foreground leading-relaxed">{report.description}</p>
-                    <p className="text-[10px] text-muted-foreground mt-2">{tr("From","من")} {report.userName || "Guest"} · {new Date(report.createdAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                {report.status === "pending" && (
-                  <div className="flex gap-2 mt-3 pt-3" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                    <button onClick={() => updateReportStatus(report.id, "resolved")} className="flex-1 py-2 rounded-xl text-xs font-bold status-ready flex items-center justify-center gap-1">
-                      <CheckCircle size={12}/> {tr("Resolve","تم الحل")}
-                    </button>
-                    <button onClick={() => updateReportStatus(report.id, "declined")} className="flex-1 py-2 rounded-xl text-xs font-bold status-cancelled flex items-center justify-center gap-1">
-                      <XCircle size={12}/> {tr("Dismiss","رفض")}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* ━━━ BROADCAST ━━━ */}
         {tab === "broadcast" && (

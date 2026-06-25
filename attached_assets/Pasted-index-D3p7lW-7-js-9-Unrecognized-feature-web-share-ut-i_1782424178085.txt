@@ -1,0 +1,38 @@
+index-D3p7lW-7.js:9 Unrecognized feature: 'web-share'.
+ut @ index-D3p7lW-7.js:9
+hn @ index-D3p7lW-7.js:9
+m6 @ index-D3p7lW-7.js:8
+zd @ index-D3p7lW-7.js:8
+S2 @ index-D3p7lW-7.js:8
+v6 @ index-D3p7lW-7.js:8
+Qp @ index-D3p7lW-7.js:8
+y2 @ index-D3p7lW-7.js:8
+P2 @ index-D3p7lW-7.js:8
+z @ index-D3p7lW-7.js:1
+Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.
+Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'browsing-topics'.
+Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.
+Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'unload'.
+Error with Permissions-Policy header: Unrecognized feature: 'window-management'.
+web.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F844863218315110%2F&show_text=false&autoplay=true&width=506&_rdc=1&_rdr#:1 Document-Policy HTTP header: Unrecognized document policy feature name include-js-call-stacks-in-crash-reports.
+lock-screen.tsx-a1QTg6hR.js:1 [Violation] 'visibilitychange' handler took 214ms
+Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.
+Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'browsing-topics'.
+Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.
+Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.
+Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.
+Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'unload'.
+Error with Permissions-Policy header: Unrecognized feature: 'window-management'.
+web.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F844863218315110%2F&show_text=false&autoplay=true&width=506&_rdc=1&_rdr#:1 Document-Policy HTTP header: Unrecognized document policy feature name include-js-call-stacks-in-crash-reports.

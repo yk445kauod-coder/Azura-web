@@ -58,6 +58,8 @@ export default function Admin() {
   const [pinErr, setPinErr] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
   const [dbMode, setDbModeState] = useState(getDBMode());
+  const [menuEdits, setMenuEdits] = useState<Record<string, Partial<MenuItem>>>({});
+  const [savingMenuId, setSavingMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onModeChange(() => setDbModeState(getDBMode()));
@@ -425,13 +427,14 @@ export default function Admin() {
           </div>
           <h1 className="text-xl font-bold text-primary mb-1" style={{ fontFamily: "var(--font-heading)" }}>{tr("Admin Panel", "لوحة الإدارة")}</h1>
           <p className="text-xs text-muted-foreground mb-5">{tr("Enter the admin PIN to continue", "أدخل رمز المدير للمتابعة")}</p>
-          <input type="password" autoFocus placeholder={tr("Admin PIN", "رمز الدخول")}
-            value={pin} onChange={(e) => { setPin(e.target.value); setPinErr(""); }}
-            onKeyDown={(e) => e.key === "Enter" && login()}
-            className={`${inp} mb-3 text-center text-xl font-bold tracking-[0.3em]`}
-          />
-          {pinErr && <p className="text-destructive text-xs mb-3 font-semibold">{pinErr}</p>}
-          <button onClick={login} className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold">{tr("Login", "دخول")}</button>
+          <form onSubmit={(e) => { e.preventDefault(); login(); }} autoComplete="off">
+            <input type="password" autoFocus placeholder={tr("Admin PIN", "رمز الدخول")}
+              value={pin} onChange={(e) => { setPin(e.target.value); setPinErr(""); }}
+              className={`${inp} mb-3 text-center text-xl font-bold tracking-[0.3em]`}
+            />
+            {pinErr && <p className="text-destructive text-xs mb-3 font-semibold">{pinErr}</p>}
+            <button type="submit" className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold">{tr("Login", "دخول")}</button>
+          </form>
           <button onClick={() => navigate("/menu")} className="btn-ghost w-full py-2.5 text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
             <ArrowLeft size={12}/> {tr("Back to App", "العودة للتطبيق")}
           </button>
@@ -630,7 +633,7 @@ export default function Admin() {
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {menu.length === 0 && (
                   <div className="text-center py-10">
                     <p className="text-muted-foreground">{tr("No menu items found.","لا توجد عناصر في القائمة.")}</p>
@@ -646,87 +649,143 @@ export default function Admin() {
                     </button>
                   </div>
                 )}
-                {menu.map((item) => (
-                  <div key={item.id} className="card rounded-2xl p-4 border border-border/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <div className="flex gap-2">
-                          <div className="flex-1">
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (EN)","الاسم إنجليزي")}</label>
-                            <input className={inp} value={item.name} onChange={e => smartUpdate(`menu/items/${item.id}`, { name: e.target.value })}/>
-                          </div>
-                          <div className="flex-1">
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (AR)","الاسم عربي")}</label>
-                            <input className={inp} dir="rtl" value={item.nameAr} onChange={e => smartUpdate(`menu/items/${item.id}`, { nameAr: e.target.value })}/>
+                {menu.map((item) => {
+                  const edits = menuEdits[item.id] || {};
+                  const val = (field: keyof MenuItem) => (field in edits ? edits[field] : item[field]) as any;
+                  const isDirty = Object.keys(edits).length > 0;
+                  const isSaving = savingMenuId === item.id;
+                  const menuPath = `menu/${item.category}/${item.id}`;
+
+                  const patch = (field: keyof MenuItem, value: unknown) =>
+                    setMenuEdits(prev => ({ ...prev, [item.id]: { ...prev[item.id], [field]: value } }));
+
+                  const saveItem = async () => {
+                    if (!isDirty) return;
+                    setSavingMenuId(item.id);
+                    try {
+                      await smartUpdate(menuPath, edits);
+                      setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; });
+                      swalSuccess(tr("Saved!", "تم الحفظ!"));
+                    } catch (e) {
+                      swalError(tr("Save failed", "فشل الحفظ"));
+                    }
+                    setSavingMenuId(null);
+                  };
+
+                  return (
+                    <div key={item.id} className={`card rounded-2xl p-4 border transition-colors ${isDirty ? "border-primary/40 bg-primary/3" : "border-border/50"}`}>
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {val("image") && (
+                            <img src={val("image")} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                              onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm text-foreground truncate">{val("name") || item.name}</p>
+                            <p className="text-xs text-muted-foreground">{val("category") || item.category} · {val("price") || item.price} EGP</p>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <div className="flex-1">
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Price","السعر")}</label>
-                            <input type="number" className={inp} value={item.price} onChange={e => smartUpdate(`menu/items/${item.id}`, { price: Number(e.target.value) })}/>
-                          </div>
-                          <div className="flex-1">
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Category","الفئة")}</label>
-                            <input className={inp} value={item.category} onChange={e => smartUpdate(`menu/items/${item.id}`, { category: e.target.value })}/>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 pt-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
                           <button
-                            onClick={() => smartUpdate(`menu/items/${item.id}`, { available: !item.available })}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                            onClick={async () => {
+                              await smartUpdate(menuPath, { available: !item.available });
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
                           >
-                            {item.available ? tr("Available", "متاح") : tr("Sold Out", "نفذ")}
+                            {item.available ? tr("In Stock","متاح") : tr("Sold Out","نفذ")}
                           </button>
                           <button
-                            title={item.recommended ? "Remove from Recommended" : "Mark as Recommended"}
+                            title={item.recommended ? "Remove recommendation" : "Mark recommended"}
                             onClick={async () => {
-                              await smartUpdate(`menu/items/${item.id}`, { recommended: !item.recommended });
+                              await smartUpdate(menuPath, { recommended: !item.recommended });
                               if (!item.recommended) {
                                 await set(ref(db, "notifications/recommended"), {
                                   message: `⭐ ${item.name} is now recommended!`,
-                                  messageAr: `⭐ ${item.nameAr} مُوصى به الآن!`,
+                                  messageAr: `⭐ ${item.nameAr || item.name} مُوصى به الآن!`,
                                   updatedAt: Date.now(),
                                 });
                               }
                             }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${item.recommended ? "bg-amber-400 text-white shadow-md shadow-amber-200" : "bg-gray-100 text-gray-500 hover:bg-amber-50 hover:text-amber-600"}`}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${item.recommended ? "bg-amber-400 text-white" : "bg-gray-100 text-gray-500 hover:bg-amber-50 hover:text-amber-600"}`}
                           >
-                            {item.recommended ? `⭐ ${tr("Recommended","موصى به")}` : `☆ ${tr("Recommend","أوصِ به")}`}
+                            {item.recommended ? "⭐" : "☆"} {tr("Rec","موصى")}
                           </button>
                           <button
                             onClick={async () => {
-                              if (await swalConfirm("Delete Item?", "Are you sure?", "Delete", "Cancel")) {
-                                smartRemove(`menu/items/${item.id}`);
+                              if (await swalConfirm(tr("Delete Item?","حذف الصنف؟"), tr(`Delete "${item.name}"?`,`حذف "${item.nameAr || item.name}"؟`), tr("Delete","حذف"), tr("Cancel","إلغاء"))) {
+                                await smartRemove(menuPath);
+                                setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; });
                               }
                             }}
-                            className="p-1.5 text-destructive/50 hover:text-destructive ml-auto"
+                            className="p-1.5 text-destructive/40 hover:text-destructive transition-colors"
                           >
-                            <Trash2 size={16}/>
+                            <Trash2 size={15}/>
                           </button>
                         </div>
                       </div>
-                      <div className="space-y-3">
+
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Image URL","رابط الصورة")}</label>
-                          <div className="flex gap-2">
-                            <input className={inp} value={item.image} onChange={e => smartUpdate(`menu/items/${item.id}`, { image: e.target.value })}/>
-                            {item.image && <img src={item.image} className="w-10 h-10 rounded-lg object-cover" />}
-                          </div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (EN)","اسم EN")}</label>
+                          <input className={inp} value={val("name")} onChange={e => patch("name", e.target.value)}/>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (EN)","المكونات (EN)")}</label>
-                            <textarea className={`${inp} min-h-[60px] resize-none text-[11px]`} value={item.ingredients || ""} onChange={e => smartUpdate(`menu/items/${item.id}`, { ingredients: e.target.value })} placeholder="Coffee, Milk..."/>
-                          </div>
-                          <div>
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (AR)","المكونات (AR)")}</label>
-                            <textarea className={`${inp} min-h-[60px] resize-none text-[11px]`} dir="rtl" value={item.ingredientsAr || ""} onChange={e => smartUpdate(`menu/items/${item.id}`, { ingredientsAr: e.target.value })} placeholder="قهوة، حليب..."/>
-                          </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Name (AR)","اسم AR")}</label>
+                          <input className={inp} dir="rtl" value={val("nameAr")} onChange={e => patch("nameAr", e.target.value)}/>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Price (EGP)","السعر")}</label>
+                          <input type="number" className={inp} value={val("price")} onChange={e => patch("price", Number(e.target.value))}/>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Category","الفئة")}</label>
+                          <select className={inp} value={val("category")} onChange={e => patch("category", e.target.value)}>
+                            {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
                         </div>
                       </div>
+                      <div className="mt-2">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Image URL","رابط الصورة")}</label>
+                        <div className="flex gap-2 items-center">
+                          <input className={`${inp} flex-1`} value={val("image")} onChange={e => patch("image", e.target.value)}/>
+                          {val("image") && (
+                            <img src={val("image")} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0"
+                              onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (EN)","مكونات EN")}</label>
+                          <textarea className={`${inp} min-h-[52px] resize-none text-[11px]`} value={val("ingredients") || ""} onChange={e => patch("ingredients", e.target.value)} placeholder="Coffee, Milk..."/>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (AR)","مكونات AR")}</label>
+                          <textarea className={`${inp} min-h-[52px] resize-none text-[11px]`} dir="rtl" value={val("ingredientsAr") || ""} onChange={e => patch("ingredientsAr", e.target.value)} placeholder="قهوة، حليب..."/>
+                        </div>
+                      </div>
+
+                      {isDirty && (
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-primary/20">
+                          <button
+                            onClick={saveItem}
+                            disabled={isSaving}
+                            className="btn-primary flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-50"
+                          >
+                            {isSaving ? <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={12}/>}
+                            {tr("Save Changes","حفظ التعديلات")}
+                          </button>
+                          <button
+                            onClick={() => setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; })}
+                            className="px-4 py-2 rounded-xl text-xs font-semibold text-muted-foreground bg-muted hover:bg-muted/80 transition-colors"
+                          >
+                            {tr("Discard","تجاهل")}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

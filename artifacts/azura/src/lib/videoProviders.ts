@@ -199,7 +199,7 @@ export function parseFacebook(url: string): ParsedVideo | null {
     return {
       provider: "facebook",
       embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(canonicalUrl)}&show_text=false&autoplay=true&width=506`,
-      thumbnail: videoId ? `https://graph.facebook.com/${videoId}/picture` : "",
+      thumbnail: "",
       title: isReel ? "Facebook Reel" : "Facebook Video",
       isEmbeddable: true,
       videoId,

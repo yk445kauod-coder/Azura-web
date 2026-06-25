@@ -246,7 +246,7 @@ export async function textToSpeech(text: string, lang: string = "en"): Promise<s
 
   if (!cleanText) return "";
 
-  const voice = lang === "ar" ? "Zeina" : "Ivy";
+  const voice = lang === "ar" ? "Zeina" : "Joanna";
   const encoded = encodeURIComponent(cleanText);
   return `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encoded}`;
 }

@@ -511,8 +511,11 @@ Menu Data:\n${menuCtx}`}`;
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
-              e.target.style.height = "auto";
-              e.target.style.height = `${Math.min(e.target.scrollHeight, 96)}px`;
+              const el = e.target;
+              requestAnimationFrame(() => {
+                el.style.height = "auto";
+                el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
+              });
             }}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
             placeholder="Ask me about our menu, recommendations, ingredients..."

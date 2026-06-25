@@ -1,1 +1,3 @@
 - [Azura menu Firebase merge pattern](azura-firebase-merge.md) — ingredient updates use mergeMenuIngredients() via multi-path update() to avoid overwriting existing item fields
+- [Azura Facebook reel embed](azura-facebook-embed.md) — use iframe with plugins/video.php (not fb-video div + SDK); normalize web.facebook.com → www.facebook.com before encoding href
+- [Azura guest login race condition](azura-guest-login.md) — onAuthStateChanged must skip profile creation for anonymous users (u.isAnonymous); loginAnonymous() handles it to avoid "Guest" name race

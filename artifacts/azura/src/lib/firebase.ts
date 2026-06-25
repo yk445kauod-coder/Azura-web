@@ -142,6 +142,11 @@ export async function seedMenuIfEmpty() {
   await set(ref(db, "ai-config"), aiConfig);
 }
 
+// Force reseed: overwrite Firebase menu with the full local menu (admin use only)
+export async function forceReseedMenu() {
+  await set(ref(db, "menu"), fullMenuData);
+}
+
 // Merge updated ingredients + add new categories into Firebase menu
 export async function mergeMenuIngredients() {
   try {

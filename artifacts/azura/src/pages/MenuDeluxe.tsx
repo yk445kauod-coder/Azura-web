@@ -179,6 +179,7 @@ function CategorySection({ catId, catName, emoji, items, lang, isRTL, colors, is
   onAdd: (item: MenuItem) => void; onRemove?: (item: MenuItem) => void;
   justAdded: string | null; defaultOpen?: boolean;
 }) {
+  const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const ITEMS_PER_PAGE = 6;
   const [page, setPage] = useState(0);

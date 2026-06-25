@@ -81,14 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
           await set(profileRef, updated);
           setProfile(updated);
-        } else {
+        } else if (!u.isAnonymous) {
           const newProfile: UserProfile = {
             uid: u.uid,
-            name: u.displayName || "Guest",
+            name: u.displayName || u.email?.split("@")[0] || "User",
             email: u.email,
             tableNumber: sessionStorage.getItem("azura-table"),
             deviceId: deviceId,
-            isGuest: u.isAnonymous,
+            isGuest: false,
             photoURL: u.photoURL,
             createdAt: Date.now(),
             lastLoginAt: Date.now(),
@@ -101,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await set(profileRef, newProfile);
           setProfile(newProfile);
         }
+        // Anonymous users: profile is created by loginAnonymous() — skip here to prevent race condition
       } else {
         setProfile(null);
       }
@@ -133,7 +134,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       photoURL: null,
       createdAt: Date.now(),
       lastLoginAt: Date.now(),
+      lastSeenAt: Date.now(),
       loginCount: 1,
+      totalUsageSeconds: 0,
       orderCount: 0,
       preferences: { lang: "en", barista: "female" },
     };

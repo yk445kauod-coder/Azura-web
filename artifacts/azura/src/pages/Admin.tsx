@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { db, ref, onValue, off, update, set, push, remove, get } from "@/lib/firebase";
+import { db, ref, onValue, off, update, set, push, remove, get, forceReseedMenu, mergeMenuIngredients } from "@/lib/firebase";
 import { smartGet, smartSet, smartUpdate, smartRemove, smartPush, getDBMode, setDBMode, onModeChange } from "@/lib/dbWrapper";
 import { testR2Connection, type R2Config, listR2Objects, downloadFromR2, uploadToR2 } from "@/lib/r2";
 import { useLang } from "@/contexts/LanguageContext";
@@ -60,7 +60,8 @@ export default function Admin() {
   const [dbMode, setDbModeState] = useState(getDBMode());
 
   useEffect(() => {
-    return onModeChange(() => setDbModeState(getDBMode()));
+    const unsub = onModeChange(() => setDbModeState(getDBMode()));
+    return () => { unsub(); };
   }, []);
 
   // Data
@@ -342,6 +343,7 @@ export default function Admin() {
         const fullVideo = newReel.videoChunks.join("");
         await saveToIndexedDB(`reel_${reelId}`, fullVideo);
         
+        const chunksRef = ref(db, `reelChunks/${reelId}`);
         const batchSize = 5;
         for (let i = 0; i < newReel.videoChunks.length; i += batchSize) {
           const batch: Record<string, string> = {};
@@ -478,22 +480,48 @@ export default function Admin() {
         {tab === "menu" && (
           <div className="space-y-4 page-enter">
             <div className="card-elevated rounded-2xl p-5 space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
                   <Plus size={18} className="text-primary"/> {tr("Menu Management","إدارة القائمة")}
                 </h3>
-                <button
-                  onClick={() => {
-                    const id = prompt("Item ID (e.g. espresso_1):");
-                    if (!id) return;
-                    smartSet(`menu/items/${id}`, {
-                      name: "New Item", nameAr: "صنف جديد", price: 50, category: "coffee", available: true, image: "", description: "", ingredients: ""
-                    });
-                  }}
-                  className="btn-primary px-4 py-2 rounded-xl text-xs font-bold"
-                >
-                  {tr("Add Item", "إضافة صنف")}
-                </button>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={async () => {
+                      if (!confirm(tr("Merge new items & ingredients into Firebase without overwriting prices/availability?", "دمج العناصر الجديدة في Firebase بدون حذف الأسعار؟"))) return;
+                      swalLoading(tr("Merging menu…", "جار الدمج…"));
+                      await mergeMenuIngredients();
+                      swalClose();
+                      swalSuccess(tr("Menu merged! New items added.", "تم الدمج! تمت إضافة العناصر الجديدة."));
+                    }}
+                    className="btn-secondary px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1"
+                  >
+                    <RotateCcw size={13}/> {tr("Merge Menu", "دمج القائمة")}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm(tr("⚠️ FORCE RESEED: This will OVERWRITE the entire Firebase menu with the latest 251-item menu. Prices you changed in Firebase will be reset. Continue?", "⚠️ سيتم الكتابة فوق القائمة بالكامل في Firebase. الأسعار المعدّلة ستُعاد. متأكد؟"))) return;
+                      swalLoading(tr("Reseeding 251 items…", "جار رفع 251 صنف…"));
+                      await forceReseedMenu();
+                      swalClose();
+                      swalSuccess(tr("✅ Full menu (251 items, 30 categories) pushed to Firebase!", "✅ تم رفع القائمة الكاملة (251 صنف, 30 قسم) إلى Firebase!"));
+                    }}
+                    className="px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
+                  >
+                    <UploadCloud size={13}/> {tr("Force Reseed", "رفع القائمة الكاملة")}
+                  </button>
+                  <button
+                    onClick={() => {
+                      const id = prompt("Item ID (e.g. espresso_1):");
+                      if (!id) return;
+                      smartSet(`menu/items/${id}`, {
+                        name: "New Item", nameAr: "صنف جديد", price: 50, category: "coffee", available: true, image: "", description: "", ingredients: ""
+                      });
+                    }}
+                    className="btn-primary px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1"
+                  >
+                    <Plus size={13}/> {tr("Add Item", "إضافة صنف")}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">

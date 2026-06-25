@@ -8,13 +8,12 @@ import {
   Sequence,
   Audio,
   Img,
-  useRemotionAudio,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts";
 import { useContext, createContext } from "react";
 
-const { family: PlayfairDisplay } = loadFont({ fontFamily: "Playfair Display" });
-const { family: Poppins } = loadFont({ fontFamily: "Poppins" });
+const PlayfairDisplay = "Georgia, serif";
+const Poppins = "system-ui, sans-serif";
+void PlayfairDisplay; void Poppins;
 
 const FALLBACK_LOGO = "data:image/svg+xml," + encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">

@@ -195,12 +195,10 @@ export function parseFacebook(url: string): ParsedVideo | null {
   }
   
   if (videoId || reelMatch || watchMatch || videoMatch) {
+    const canonicalUrl = normalizeFbUrl(url);
     return {
       provider: "facebook",
-      // Use Facebook's video embed player
-      embedUrl: isReel
-        ? `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`
-        : `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&mute=false`,
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(canonicalUrl)}&show_text=false&autoplay=true&width=506`,
       thumbnail: videoId ? `https://graph.facebook.com/${videoId}/picture` : "",
       title: isReel ? "Facebook Reel" : "Facebook Video",
       isEmbeddable: true,
@@ -464,9 +462,13 @@ export function parseDirectVideo(url: string): ParsedVideo | null {
   return null;
 }
 
+// Normalize Facebook domain (web.facebook.com → www.facebook.com for embed compatibility)
+function normalizeFbUrl(url: string): string {
+  return url.replace(/^https?:\/\/web\.facebook\.com/, "https://www.facebook.com");
+}
+
 // Main parser function
 export function parseVideoUrl(url: string): ParsedVideo {
-  // Clean URL
   const cleanUrl = url.trim().split("?")[0];
   
   // Try each provider in order of priority
@@ -514,20 +516,15 @@ export function getEmbedHtml(video: ParsedVideo, width = "100%" as string | numb
         <blockquote class="instagram-media" data-instgrm-permalink="${video.originalUrl}" data-instgrm-version="14" style="width: 100%; margin: 0; padding: 0;"></blockquote>
       </div>`;
     
-    case "facebook": {
-      // Check if it's a reel based on URL or provider info
-      const isReel = video.originalUrl?.includes("/reel/");
-      void isReel; // consumed by data-href / URL — kept for future use
-      return `<div class="fb-video"
-        data-href="${video.originalUrl}"
-        data-width="${width}"
-        data-show-text="false"
-        data-allowfullscreen="true"
-        data-autoplay="true"
-        data-lazy="true"
-        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
-      ></div>`;
-    }
+    case "facebook":
+      return `<iframe
+        src="${video.embedUrl}"
+        style="border:none;overflow:hidden;width:100%;height:100%;"
+        scrolling="no"
+        frameborder="0"
+        allowfullscreen="true"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      ></iframe>`;
     
     case "tiktok":
       return `<blockquote class="tiktok-embed" cite="${video.embedUrl}" data-video-id="${video.videoId}" style="width:100%;max-width:${width}px;"><section></section></blockquote><script async src="https://www.tiktok.com/embed.js"></script>`;

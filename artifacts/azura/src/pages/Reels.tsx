@@ -1,4 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+
+declare global {
+  interface Window {
+    instgrm?: { Embeds: { process(): void } };
+  }
+}
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, off, update, push, remove } from "@/lib/firebase";
@@ -122,7 +128,7 @@ export default function Reels() {
   const getCommentsArray = useCallback(() => {
     if (!currentReel?.comments) return [];
     return Object.entries(currentReel.comments)
-      .map(([id, c]) => ({ id, ...c }))
+      .map(([id, c]) => ({ ...c, id }))
       .sort((a, b) => b.createdAt - a.createdAt);
   }, [currentReel?.comments]);
 

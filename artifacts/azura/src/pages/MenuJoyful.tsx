@@ -87,7 +87,7 @@ export default function MenuJoyful() {
   }, [items, activeCat, searchQuery]);
 
   const handleAdd = (item: MenuItem) => {
-    addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image });
+    addItem({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
     setJustAdded(item.id);
     setTimeout(() => setJustAdded(null), 800);
   };

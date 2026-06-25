@@ -1,0 +1,382 @@
+Add more better ux text , more detailed ingredient for itenms , error 404 images error , the items card without any effects or shimmer + the modal not good , the ui on it not comfort , and finally use more comfort arabic font , not tajawal not amiri and not cairo
+
+delete crud in admin panel , delete order eciving , delete anybad thing , add ai agent in admin panle using groq api , then pollination.ai text api , and also for client ai assistant same workflow , improve it the assistant ai in client make it have always saved chat logs and histroy and not delete ven open new tab , in admin panel delete any finaniical stuff, in admin panel make admin see and manage evrything in client app or admin , can see who login , whose news, who is re login ,a nd whose a lot using our app , and every user how much open the app even he still login , make the login without googel just name and table , inadmin panel the thing that differ every user is naem and uuid and device id
+https://jules.google.com/session/2656817596293114520/code/.jules/bolt.md#:~:text=Push%20it%20to%20github%20repo%20%2C%20and%20make%20sure%20the%20deploying%20in%20production%20work%20cloudlfare
+
+هيا ابدا و أيضا اعطني screenshot من داخل التطبيق لأرى التعديلات
+Create readme.md و design.md و skills.md و prompt.md لجعل هذا المشروع مقروء الai Agent حتى بدون مراجعة ملفات الكود و اصنع firebaseconfugs Md ، و انشره على الmain
+ل المشروع وزود طبقة Fallback للأدمن Admin Panel فقط.
+
+المطلوب:
+
+لو مصدر الداتا الأساسي وقع بسبب كوتا أو نت، لوحة الأدمن تقلب أوتوماتيك على مصدر بديل. البديل ده لازم يكون R2 S3-Compatible بس مش Hardcoded.
+
+الـ R2 لازم يكون Editable من لوحة الأدمن:
+
+صفحة إعدادات فيها فورم الـ R2 Keys: endpoint, accessKey, secretKey, bucket
+الأدمن يغيرهم في أي وقت ويعمل Test Connection
+مفيش ولا حرف Key في الكود أو .env. كله بيتقرأ من الداتا بيز وقت الـ Runtime
+أول تشغيل لو مفيش Config، السيستم يطلب من الأدمن يدخل الـ R2 Keys دي
+الـ Sync لازم يبقى Global لكل حاجة: أي CRUD الأدمن بيعمله في أي صفحة وهو في وضع Fallback R2 يتسجل على R2 كملفات JSON/DB لما الأساسي يرجع، زرار "Global Sync" في إعدادات الأدمن ياخد كل الداتا اللي على R2 ويرفعها للمصدر الأساسي ويحل التعارضات.
+
+سكريبت تشغيل وتسطيب كامل run.bat + run.sh للـ Admin Panel:
+
+يكتشف الـ OS ويسطب الناقص أوتوماتيك
+يشغل السيرفر
+Portable: الفولدر كله يتنقل ويشتغل
+Zero-config للكود، بس أول مرة الأدمن يدخل R2 Keys من الـ Panel
+القواعد:
+
+Fallback للأدمن فقط.
+R2 مش Hardcoded ومش في .env. كله Dynamic من الـ Admin Panel.
+الـ Sync شامل لكل أنواع الداتا والـ Features. أي Action بيحصل لازم يتنفذ على R2 بنفس النتيجة.
+متشرحليش التكنولوجيا. ابعت PR + سكريبت + فيديو توريني إني غيرت R2 Keys من الـ Panel + عملت عمليات في Fallback + عملت Sync رجعت الأساسي.
+فاجئني بحل نضيف.
+عدل المشروع وزود طبقة Fallback
+
+المطلوب:
+
+لو مصدر الداتا الأساسيfirebase rtdb وقع بسبب كوتا أو نت، لوحة الأدمن تقلب أوتوماتيك على مصدر بديل. البديل ده لازم يكون R2 S3-Compatible بس مش Hardcoded.
+
+الـ R2 لازم يكون Editable من لوحة الأدمن:
+
+صفحة إعدادات فيها فورم الـ R2 Keys: endpoint, accessKey, secretKey, bucket الأدمن يغيرهم في أي وقت ويعمل Test Connection مفيش ولا حرف Key في الكود أو .env. كله بيتقرأ من الداتا بيز وقت الـ Runtime أول تشغيل لو مفيش Config، السيستم يطلب من الأدمن يدخل الـ R2 Keys دي الـ Sync لازم يبقى Global لكل حاجة: أي CRUD الأدمن بيعمله في أي صفحة وهو في وضع Fallback R2 يتسجل على R2 كملفات JSON/DB لما الأساسي يرجع، زرار "Global Sync" في إعدادات الأدمن ياخد كل الداتا اللي على R2 ويرفعها للمصدر الأساسي ويحل التعارضات.
+make the ibx font more thick , ,dont let user can choose ai persona , maek ai tts freely and without register just via client api using natural langugae high quality gemini like sound that support arabci and egyptian adn english , biut not web speech apior googl translate tts beacuse its very weak , photo-1553979459-d5f9a8a9a9a8:1 Failed to load resource: the server responded with a status of 404 () photo-1586190848861-99aa4a171f90:1 Failed to load resource: the server responded with a status of 404 () graph.facebook.com/844863218315110/picture:1 Failed to load resource: the server responded with a status of 400 () index-tk4Ex82G.js:12 Uncaught (in promise) Error: set failed: value argument contains undefined in property 'conversations.AVQCRulLgshEHAAt2Or4MGHcVbt2.barista.a1782167348127.suggestedItems' at Af (index-tk4Ex82G.js:12:62475) at index-tk4Ex82G.js:12:63122 at dn (index-tk4Ex82G.js:9:244602) at Af (index-tk4Ex82G.js:12:62883) at nE (index-tk4Ex82G.js:12:62375) at Ht (index-tk4Ex82G.js:12:79716) at B (index-tk4Ex82G.js:108:2259) at O (index-tk4Ex82G.js:121:653) graph.facebook.com/844863218315110/picture:1 Failed to load resource: the server responded with a status of 400 () photo-1553979459-d5f9a8a9a9a8:1 Failed to load resource: the server responded with a status of 404 () photo-1586190848861-99aa4a171f90:1 Failed to load resource: the server responded with a status of 404 ()
+make the reels parsing work good make the app can parse the reels embed url and id from facebook or insta read the doucumntation first to knoW
+
+make the font more bold , make ai more smart , more pretty display resposne md , and more , make the app ready to edit all images and ingredient
+a performance-obsessed agent who makes the codebase faster, one optimization at a time.
+
+Your mission is to identify and implement ONE small performance improvement that makes the application measurably faster or more efficient.
+
+Boundaries
+✅ Always do:
+
+Run commands like pnpm lint and pnpm test (or associated equivalents) before creating PR
+Add comments explaining the optimization
+Measure and document expected performance impact
+⚠️ Ask first:
+
+Adding any new dependencies
+Making architectural changes
+🚫 Never do:
+
+Modify package.json or tsconfig.json without instruction
+Make breaking changes
+Optimize prematurely without actual bottleneck
+Sacrifice code readability for micro-optimizations
+BOLT'S PHILOSOPHY:
+
+Speed is a feature
+Every millisecond counts
+Measure first, optimize second
+Don't sacrifice readability for micro-optimizations
+BOLT'S JOURNAL - CRITICAL LEARNINGS ONLY: Before starting, read .jules/bolt.md (create if missing).
+
+Your journal is NOT a log - only add entries for CRITICAL learnings that will help you avoid mistakes or make better decisions.
+
+⚠️ ONLY add journal entries when you discover:
+
+A performance bottleneck specific to this codebase's architecture
+An optimization that surprisingly DIDN'T work (and why)
+A rejected change with a valuable lesson
+A codebase-specific performance pattern or anti-pattern
+A surprising edge case in how this app handles performance
+❌ DO NOT journal routine work like:
+
+"Optimized component X today" (unless there's a learning)
+Generic React performance tips
+Successful optimizations without surprises
+Format: ## YYYY-MM-DD - [Title] **Learning:** [Insight] **Action:** [How to apply next time]
+
+BOLT'S DAILY PROCESS:
+
+🔍 PROFILE - Hunt for performance opportunities:
+FRONTEND PERFORMANCE:
+
+Unnecessary re-renders in React/Vue/Angular components
+Missing memoization for expensive computations
+Large bundle sizes (opportunities for code splitting)
+Unoptimized images (missing lazy loading, wrong formats)
+Missing virtualization for long lists
+Synchronous operations blocking the main thread
+Missing debouncing/throttling on frequent events
+Unused CSS or JavaScript being loaded
+Missing resource preloading for critical assets
+Inefficient DOM manipulations
+BACKEND PERFORMANCE:
+
+N+1 query problems in database calls
+Missing database indexes on frequently queried fields
+Expensive operations without caching
+Synchronous operations that could be async
+Missing pagination on large data sets
+Inefficient algorithms (O(n²) that could be O(n))
+Missing connection pooling
+Repeated API calls that could be batched
+Large payloads that could be compressed
+GENERAL OPTIMIZATIONS:
+
+Missing caching for expensive operations
+Redundant calculations in loops
+Inefficient data structures for the use case
+Missing early returns in conditional logic
+Unnecessary deep cloning or copying
+Missing lazy initialization
+Inefficient string concatenation in loops
+Missing request/response compression
+⚡ SELECT - Choose your daily boost: Pick the BEST opportunity that:
+Has measurable performance impact (faster load, less memory, fewer requests)
+Can be implemented cleanly in < 50 lines
+Doesn't sacrifice code readability significantly
+Has low risk of introducing bugs
+Follows existing patterns
+🔧 OPTIMIZE - Implement with precision:
+Write clean, understandable optimized code
+Add comments explaining the optimization
+Preserve existing functionality exactly
+Consider edge cases
+Ensure the optimization is safe
+Add performance metrics in comments if possible
+✅ VERIFY - Measure the impact:
+Run format and lint checks
+Run the full test suite
+Verify the optimization works as expected
+Add benchmark comments if possible
+Ensure no functionality is broken
+🎁 PRESENT - Share your speed boost: Create a PR with:
+Title: "⚡ Bolt: [performance improvement]"
+Description with:
+💡 What: The optimization implemented
+🎯 Why: The performance problem it solves
+📊 Impact: Expected performance improvement (e.g., "Reduces re-renders by ~50%")
+🔬 Measurement: How to verify the improvement
+Reference any related performance issues
+BOLT'S FAVORITE OPTIMIZATIONS: ⚡ Add React.memo() to prevent unnecessary re-renders ⚡ Add database index on frequently queried field ⚡ Cache expensive API call results ⚡ Add lazy loading to images below the fold ⚡ Debounce search input to reduce API calls ⚡ Replace O(n²) nested loop with O(n) hash map lookup ⚡ Add pagination to large data fetch ⚡ Memoize expensive calculation with useMemo/computed ⚡ Add early return to skip unnecessary processing ⚡ Batch multiple API calls into single request ⚡ Add virtualization to long list rendering ⚡ Move expensive operation outside of render loop ⚡ Add code splitting for large route components ⚡ Replace large library with smaller alternative
+
+BOLT AVOIDS (not worth the complexity): ❌ Micro-optimizations with no measurable impact ❌ Premature optimization of cold paths ❌ Optimizations that make code unreadable ❌ Large architectural changes ❌ Optimizations that require extensive testing ❌ Changes to critical algorithms without thorough testing
+
+Remember: You're Bolt, making things lightning fast. But speed without correctness is useless. Measure, optimize, verify. If you can't find a clear performance win today, wait for tomorrow's opportunity.
+
+If no suitable performance optimization can be identified, stop and do not create a PR. .
+
+use more better smart model not llama 3 more better and esbcially inenglish and arabic , with the same groq provider and key and biling "free qouta" and calls make suire it work , amek the app fast and smooth espcially the menu tab
+error in ai ui page the ai respnse display before usermessage bubble , delete page of suggestion in admin panel , add more robust , content realated , images of urls in the cards of menu items for every item image
+
+
+مشغل فيديو البث المباشر والفيديو المضمن يتيح لك مشغل الفيديو المضمن إضافة مقاطع فيديو على فيسبوك ومقاطع فيديو بث مباشر على فيسبوك إلى موقعك على الويب بسهولة. ويمكنك استخدام أي منشور فيديو عام تم نشره من جانب صفحة أو شخص كمصدر فيديو عادي أو كمصدر فيديو بث مباشر.
+
+أداة تكوين مشغل الفيديو المضمّنمثال على الرمزالإعداداتإضافة الرمز يدويًا الخطوات التفصيلية
+
+اختيار عنوان URL أو صفحة اختر عنوان URL لمقطع فيديو فيسبوك الذي تريد تضمينه.
+
+أداة تكوين الرموز الصق عنوان URL في أداة تكوين الرموز ثم انقر على الزر "الحصول على الرمز" لإنشاء رمز مشغل الفيديو المضمن.
+
+نسخ جزء رمز HTML البرمجي ولصقه انسخ جزء الرمز البرمجي والصقه داخل HTML بموقع الويب المقصود.
+
+أداة تكوين مشغل الفيديو المضمّن href https://web.facebook.com/reel/844863218315110/ width 500 show_text الحصول على الرمز مثال على الرمز بالكامل انسخ نموذج الرمز والصقه بموقعك على الويب. واضبط القيمة data-href في عنوان URL للفيديو لديك. كما يمكنك التحكم في حجم المشغل باستخدام السمة data-width.
+
+How to Share With Just Friends
+How to share with just friends.
+
+Posted by Facebook on Friday, December 5, 2014
+الإعدادات لا تشتمل أداة التكوين الموضحة أعلاه على كل الإعدادات الممكنة لمشغل الفيديو المضمن. ويمكنك أيضًا تغيير الإعدادات التالية:
+الإعداد الوصف القيمة الافتراضية data-href
+
+يمثل عنوان URL المطلق الخاص بالفيديو.
+
+n/a
+
+data-allowfullscreen
+
+يتيح تشغيل الفيديو في وضع ملء الشاشة. ويمكن أن يكون بالقيمة false أو true.
+
+false
+
+data-autoplay
+
+يبدأ تشغيل الفيديو تلقائيًا عند تحميل الصفحة. وسيتم عرض الفيديو دون صوت (كتم الصوت). يمكن للأشخاص تشغيل الصوت من خلال عناصر التحكم في مشغل الفيديو. علمًا بأن هذا الإعداد لا ينطبق على الأجهزة المحمولة. ويمكن أن يكون بالقيمة false أو true.
+
+false
+
+data-lazy
+
+تشير القيمة true إلى استخدام آلية التحميل البطيء في المتصفح من خلال تعيين السمة loading="lazy" لإطار iframe. ويتمثل التأثير في عدم قدرة المتصفح على عرض المكون الإضافي إذا لم يكن بالقرب من منطقة العرض وربما لا يمكن عرضه أبدًا. ويمكن أن يكون بالقيمة true أو false (افتراضي).
+
+false
+
+data-width
+
+يمثل عرض حاوية الفيديو. علمًا بأن الحد الأدنى هو 220px.
+
+auto
+
+data-show-text
+
+يتم تعيين القيمة إلى true لتضمين النص من منشور فيسبوك المرتبط بالفيديو، إن وُجد. ولا يتوفر إلا لمواقع الكمبيوتر.
+
+false
+
+data-show-captions
+
+يتم تعيين القيمة إلى true لعرض الشروحات التوضيحية (إذا كانت متوفرة) بشكل افتراضي. ولا تتوفر الشروحات التوضيحية إلا على الكمبيوتر.
+
+false
+
+مثال على التكوين
+
+الحصول على الرمز من منشور فيديو 1. الانتقال إلى منشور الفيديو في حالة نشر فيديو عام (راجع الأسئلة المتكررة)، يمكنك الحصول على رمز التضمين مباشرةً من منشور الفيديو نفسه.
+اختر Embed Video من قائمة الخيارات:
+
+أو عند مشاهدة الفيديو بطريقة عرض ملء الصفحة، حدّد الزر Embed Video الموجود في الزاوية السفلية اليسرى:
+
+للصفحات فقط عند نشر مقطع فيديو عام على صفحة (راجع الأسئلة المتكررة)، يمكنك الحصول على رمز التضمين مباشرةً من اليوميات. وانقر على الأيقونة التي تظهر في الزاوية العلوية اليسرى للمنشور في فيسبوك.
+
+اختر Embed Video من القائمة المنسدلة: (للصفحات فقط)
+
+نسخ الرمز ولصقه سيظهر مربع حوار به رمز تضمين منشور الفيديو. وانسخ هذا الرمز والصقه في صفحة الويب لديك في المكان الذي تريد عرضه فيه.
+للحصول على التفاصيل الفنية، يرجى الرجوع إلى القسم إضافة الرمز يدويًا
+
+إضافة الرمز يدويًا إلى جانب استخدام أداة إنشاء الرموز، يمكنك أيضًا تضمين الرمز يدويًا.
+
+الحصول على عنوان URL خاص بمنشور الفيديو يجب أولاً الحصول على عنوان URL خاص بمنشور الفيديو الذي تريد مشاركته. ويجب أن يكون منشور الفيديو عامًا (راجع الأسئلة المتكررة)، والذي يكون محددًا بأيقونة الكرة الأرضية رمادية اللون الموجودة بجانب وقت نشر المنشور:
+لأغراض الاختبار، يمكنك استخدام هذا المثال على عنوان URL:
+
+"https://www.facebook.com/FacebookDevelopers/videos/10152454700553553/" 2. تحميل مجموعة JavaScript SDK لاستخدام المكون الإضافي لمشغل الفيديو المضمن أو أي مكون إضافي للتواصل الاجتماعي، ستحتاج إلى إضافة مجموعة Facebook SDK للغة JavaScript إلى موقعك على الويب. ويجب تحميل مجموعة SDK مرة واحدة فقط بأي صفحة، ومن الأفضل إجراء ذلك بعد الإشارة الافتتاحية مباشرة:
+
+يمكنك العثور على مساعدة إضافية بشأن تنفيذ مجموعة JavaScript SDK في مجموعةJavaScript SDK - البدء السريع.
+وضع إشارة مشغل الفيديو المضمن بعد ذلك، ضع علامة مشغل الفيديو المضمن في أي مكان بموقعك على الويب. واستبدل عنوان {your-video-post-url} بعنوان URL الخاص بمنشوراتك.
+4. الاختبار بعد إكمال هذه الخطوات، ستتمكن من اختبار مشغل الفيديو المضمن. وسيبدو الدمج المكتمل على نحو مشابه لما يلي:
+My Video Player
+يتم عرض نتيجة مثال الاختبار في لقطة الشاشة أدناه.
+التخصيص اتبع الإرشادات الواردة أسفل هذه الصفحة لضبط الحجم واللغة والإعدادات الأخرى.
+الحصول على عنوان URL لمنشور الفيديو قد تتوفر سيناريوهات يتم فيها إنشاء رمز التضمين من خلال نظام إدارة المحتوى وتحتاج فقط حينها إلى عنوان URL للمنشور الأولي. وتتوفر طريقتان للحصول على عنوان URL الخاص بأي منشور:
+
+نسخ عنوان URL للرابط الثابت من شريط عنوان المتصفح. النقر بزر الماوس الأيمن على وقت نشر المنشور ونسخ عنوان الرابط. يتم تمييز الطريقتين باللون الأحمر في لقطة الشاشة التالية.
+
+عبر واجهة Graph API إذا كنت تريد دمج مشغلات الفيديو المضمنة تلقائيًا في موقعك على الويب، فعلى الأرجح يمكنك استخدام واجهة Graph API لجمع مقاطع الفيديو. فعلى سبيل المثال، يمكنك استخدام نقطة نهاية API مقاطع فيديو الصفحة والتي سترسل بدورها استجابة لطلبك إلى /{page-id}/videos بالتنسيق التالي (مختصر):
+
+{ "data": [ { "id": "1234567890", "created_time": "2015-02-25T23:22:06+0000", "description": "My Video Caption", "embed_html": "<iframe src="https://www.facebook.com/video/embed?video_id=1234567890" width="1280" height="720" frameborder="0">", "format": [] } ] } للحصول على عنوان URL للفيديو:
+
+استخدم القيمة id لإنشاء عنوان URL وفقًا للبنية التالية:
+
+"https://www.facebook.com/video.php?v={id}" لا تستخدم الخاصية embed_html لتضمين مقاطع الفيديو. ولمزيد من المعلومات حول هذا الموضوع، يرجى الرجوع إلى قسم الأسئلة المتكررة
+
+التخطيط على الكمبيوتر يمكنك ضبط عرض مشغل الفيديو المضمّن على الكمبيوتر عبر السمة data-width في علامة مشغل الفيديو المضمّن كما هو موضح في المثال التالي. ويجب أن يكون بالقيمة 220 على الأقل. لا يوجد حد أقصى للقيمة، ورغم ذلك لن يزيد حجم المشغل عن حجم العنصر الأصل المرتبط به.
+
+لا تستخدم إشارات نمط CSS لضبط حجم أحد المكونات الإضافية. وقد يؤدي ذلك إلى حدوث أخطاء في العرض.
+
+ملء الشاشة يمكنك إضافة الخاصية data-allowfullscreen="true" للسماح بتشغيل الفيديو في وضع ملء الشاشة.
+التخطيط على ويب الهواتف المحمولة في ويب الهاتف المحمول، يتم ضبط حجم مشغل الفيديو المضمن تلقائيًا حسب العرض الداخلي للعنصر الأصل.
+
+تغيير اللغة يمكنك تغيير لغة المكون الإضافي لمشغل الفيديو المضمن من خلال تحميل الإصدار المحلي لمجموعة Facebook SDK بلغة JavaScript. وعند تحميل مجموعة SDK، يمكنك تغيير قيمة src لاستخدام لغتك المحلية. واستبدل رمز اللغة en_US بلغتك المحلية، فعلى سبيل المثال الرمز fr_FR مخصص للغة الفرنسية (فرنسا):
+
+src="https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&amp;version=v3.2" وقد يتطلب الأمر ضبط عرض المكون الإضافي للتواصل الاجتماعي بحيث يتوافق مع اللغات المختلفة. يمكنك العثور على المزيد من المعلومات في صفحة التطويع المحلي والترجمة.
+
+Wordpress إذا كنت تستخدم مجموعة Facebook SDK للغة JavaScript بالفعل في موقع Wordpress لديك، فيمكنك استخدام المكون الإضافي لمشغل الفيديو المضمن من خلال إضافة الإشارة fb-video ببساطة إلى منشورك:
+
+إذا كنت لا تستخدم مجموعة Facebook SDK للغة JavaScript وحاولت تضمين فيديو عبر نسخ جزء من الرمز ولصقه، والذي يمكنك الحصول عليه من منشور الفيديو، فلن يتم على الأرجح عرض المكون الإضافي لمشغل الفيديو المضمّن نظرًا لأن Wordpress سيحول كل حروف & إلى #038; مما يؤدي إلى تعطيل المشغل.
+وبدلاً من ذلك، يمكنك استخدام الرمز التالي لإضافة المكون الإضافي:
+
+سيتم قريبًا طرح ميزة دمج جديدة وسهلة في Wordpress.
+الأسئلة المتكررة هل يمكنني استخدام embed_html للخاصية video في واجهة Graph API؟ لا، لا يجب استخدام الخاصية embed_html. ويجب استخدم المكون الإضافي لمشغل الفيديو المضمن بدلاً من ذلك!
+
+حول الخاصية embed_html: ستعرض نقطة نهاية واجهة Graph API video خاصية تحمل الاسم embed_html. وتحتوي قيمة هذه الخاصية على عنصر HTML يمكن تضمينه في صفحة الويب لتشغيل الفيديو المطلوب.
+
+يجب عدم الخلط بين هذه القيمة وبين المكون الإضافي لمشغل الفيديو المضمن. ونوصي بعدم استخدام هذه الخاصية بعد الآن، حيث يمكن استخدام المكون الإضافي لمشغل الفيديو المضمن بدلاً من ذلك!
+
+إذا كنت تستخدم قيمة الخاصية embed_html، فإن مشغّل الفيديو:
+
+لن يعمل على الأجهزة المحمولة والأجهزة اللوحية لن يحتوي على أي معلومات إضافية، مثل المشاهدات، عنوان الفيديو، وغير ذلك مثال على الخاصية embed_html (تم إيقاف استخدامها): { "embed_html": "<iframe src="https://www.facebook.com/video/embed?video_id=1234567890\" width="1280" height="720" frameborder="0"> " }
+
+fix the reels system مشغل فيديو البث المباشر والفيديو المضمن يتيح لك مشغل الفيديو المضمن إضافة مقاطع فيديو على فيسبوك ومقاطع فيديو بث مباشر على فيسبوك إلى موقعك على الويب بسهولة. ويمكنك استخدام أي منشور فيديو عام تم نشره من جانب صفحة أو شخص كمصدر فيديو عادي أو كمصدر فيديو بث مباشر.
+
+أداة تكوين مشغل الفيديو المضمّنمثال على الرمزالإعداداتإضافة الرمز يدويًا الخطوات التفصيلية
+
+اختيار عنوان URL أو صفحة اختر عنوان URL لمقطع فيديو فيسبوك الذي تريد تضمينه.
+
+أداة تكوين الرموز الصق عنوان URL في أداة تكوين الرموز ثم انقر على الزر "الحصول على الرمز" لإنشاء رمز مشغل الفيديو المضمن.
+
+نسخ جزء رمز HTML البرمجي ولصقه انسخ جزء الرمز البرمجي والصقه داخل HTML بموقع الويب المقصود.
+
+أداة تكوين مشغل الفيديو المضمّن href https://web.facebook.com/reel/844863218315110/ width 500 show_text الحصول على الرمز مثال على الرمز بالكامل انسخ نموذج الرمز والصقه بموقعك على الويب. واضبط القيمة data-href في عنوان URL للفيديو لديك. كما يمكنك التحكم في حجم المشغل باستخدام السمة data-width.
+
+How to Share With Just Friends How to share with just friends.
+
+Posted by Facebook on Friday, December 5, 2014 الإعدادات لا تشتمل أداة التكوين الموضحة أعلاه على كل الإعدادات الممكنة لمشغل الفيديو المضمن. ويمكنك أيضًا تغيير الإعدادات التالية: الإعداد الوصف القيمة الافتراضية data-href
+
+يمثل عنوان URL المطلق الخاص بالفيديو.
+
+n/a
+
+data-allowfullscreen
+
+يتيح تشغيل الفيديو في وضع ملء الشاشة. ويمكن أن يكون بالقيمة false أو true.
+
+false
+
+data-autoplay
+
+يبدأ تشغيل الفيديو تلقائيًا عند تحميل الصفحة. وسيتم عرض الفيديو دون صوت (كتم الصوت). يمكن للأشخاص تشغيل الصوت من خلال عناصر التحكم في مشغل الفيديو. علمًا بأن هذا الإعداد لا ينطبق على الأجهزة المحمولة. ويمكن أن يكون بالقيمة false أو true.
+
+false
+
+data-lazy
+
+تشير القيمة true إلى استخدام آلية التحميل البطيء في المتصفح من خلال تعيين السمة loading="lazy" لإطار iframe. ويتمثل التأثير في عدم قدرة المتصفح على عرض المكون الإضافي إذا لم يكن بالقرب من منطقة العرض وربما لا يمكن عرضه أبدًا. ويمكن أن يكون بالقيمة true أو false (افتراضي).
+
+false
+
+data-width
+
+يمثل عرض حاوية الفيديو. علمًا بأن الحد الأدنى هو 220px.
+
+auto
+
+data-show-text
+
+يتم تعيين القيمة إلى true لتضمين النص من منشور فيسبوك المرتبط بالفيديو، إن وُجد. ولا يتوفر إلا لمواقع الكمبيوتر.
+
+false
+
+data-show-captions
+
+يتم تعيين القيمة إلى true لعرض الشروحات التوضيحية (إذا كانت متوفرة) بشكل افتراضي. ولا تتوفر الشروحات التوضيحية إلا على الكمبيوتر.
+
+false
+
+مثال على التكوين
+
+الحصول على الرمز من منشور فيديو 1. الانتقال إلى منشور الفيديو في حالة نشر فيديو عام (راجع الأسئلة المتكررة)، يمكنك الحصول على رمز التضمين مباشرةً من منشور الفيديو نفسه. اختر Embed Video من قائمة الخيارات:
+
+أو عند مشاهدة الفيديو بطريقة عرض ملء الصفحة، حدّد الزر Embed Video الموجود في الزاوية السفلية اليسرى:
+
+للصفحات فقط عند نشر مقطع فيديو عام على صفحة (راجع الأسئلة المتكررة)، يمكنك الحصول على رمز التضمين مباشرةً من اليوميات. وانقر على الأيقونة التي تظهر في الزاوية العلوية اليسرى للمنشور في فيسبوك.
+
+اختر Embed Video من القائمة المنسدلة: (للصفحات فقط)
+
+نسخ الرمز ولصقه سيظهر مربع حوار به رمز تضمين منشور الفيديو. وانسخ هذا الرمز والصقه في صفحة الويب لديك في المكان الذي تريد عرضه فيه. للحصول على التفاصيل الفنية، يرجى الرجوع إلى القسم إضافة الرمز يدويًا
+
+إضافة الرمز يدويًا إلى جانب استخدام أداة إنشاء الرموز، يمكنك أيضًا تضمين الرمز يدويًا.
+
+الحصول على عنوان URL خاص بمنشور الفيديو يجب أولاً الحصول على عنوان URL خاص بمنشور الفيديو الذي تريد مشاركته. ويجب أن يكون منشور الفيديو عامًا (راجع الأسئلة المتكررة)، والذي يكون محددًا بأيقونة الكرة الأرضية رمادية اللون الموجودة بجانب وقت نشر المنشور: لأغراض الاختبار، يمكنك استخدام هذا المثال على عنوان URL:
+
+"https://www.facebook.com/FacebookDevelopers/videos/10152454700553553/" 2. تحميل مجموعة JavaScript SDK لاستخدام المكون الإضافي لمشغل الفيديو المضمن أو أي مكون إضافي للتواصل الاجتماعي، ستحتاج إلى إضافة مجموعة Facebook SDK للغة JavaScript إلى موقعك على الويب. ويجب تحميل مجموعة SDK مرة واحدة فقط بأي صفحة، ومن الأفضل إجراء ذلك بعد الإشارة الافتتاحية مباشرة:
+
+يمكنك العثور على مساعدة إضافية بشأن تنفيذ مجموعة JavaScript SDK في مجموعةJavaScript SDK - البدء السريع. وضع إشارة مشغل الفيديو المضمن بعد ذلك، ضع علامة مشغل الفيديو المضمن في أي مكان بموقعك على الويب. واستبدل عنوان {your-video-post-url} بعنوان URL الخاص بمنشوراتك. 4. الاختبار بعد إكمال هذه الخطوات، ستتمكن من اختبار مشغل الفيديو المضمن. وسيبدو الدمج المكتمل على نحو مشابه لما يلي: My Video Player يتم عرض نتيجة مثال الاختبار في لقطة الشاشة أدناه. التخصيص اتبع الإرشادات الواردة أسفل هذه الصفحة لضبط الحجم واللغة والإعدادات الأخرى. الحصول على عنوان URL لمنشور الفيديو قد تتوفر سيناريوهات يتم فيها إنشاء رمز التضمين من خلال نظام إدارة المحتوى وتحتاج فقط حينها إلى عنوان URL للمنشور الأولي. وتتوفر طريقتان للحصول على عنوان URL الخاص بأي منشور:
+
+نسخ عنوان URL للرابط الثابت من شريط عنوان المتصفح. النقر بزر الماوس الأيمن على وقت نشر المنشور ونسخ عنوان الرابط. يتم تمييز الطريقتين باللون الأحمر في لقطة الشاشة التالية.
+
+عبر واجهة Graph API إذا كنت تريد دمج مشغلات الفيديو المضمنة تلقائيًا في موقعك على الويب، فعلى الأرجح يمكنك استخدام واجهة Graph API لجمع مقاطع الفيديو. فعلى سبيل المثال، يمكنك استخدام نقطة نهاية API مقاطع فيديو الصفحة والتي سترسل بدورها استجابة لطلبك إلى /{page-id}/videos بالتنسيق التالي (مختصر):
+
+{ "data": [ { "id": "1234567890", "created_time": "2015-02-25T23:22:06+0000", "description": "My Video Caption", "embed_html": "
+
+erorr you forget the ingredients add it please and make it ediable , this is theingredients :dont mind the unreadeabele mistakes"
+
+and the things in english :the ingredaients " try to make a copy of uit in arabic to arabic ui please , use 18in translate , make sure when click on item to see ingredient the modal appear in the visiable area for use in mobile and non moveable , fixed and clear ,error in deploying , make sure reels is work test it yourself , make very thing production work in production and zero erros , and mobile first repsonsive
+
+,please make facbook and insta parser work propaly please Error handling response: TypeError: Cannot read properties of undefined (reading 'service') at chrome-extension://fpfpcficbjpanlhdcjmkhopnbafbmpfa/scripts/content.js:37:129715 reels:1 Unchecked runtime.lastError: IO error: .../LOCK: File currently in use. (ChromeMethodBFE: 15::LockFile::2) [Violation] Forced reflow while executing JavaScript took 41ms photo-1553979459-d5f9a8a9a9a8:1 GET https://images.unsplash.com/photo-1553979459-d5f9a8a9a9a8?w=400&q=80 404 photo-1586190848861-99aa4a171f90:1 GET https://images.unsplash.com/photo-1586190848861-99aa4a171f90?w=400&q=80 404
+
+make sure reels work and parsing the embed url into display it inapp work , error in user tracking in amdin pael it just type " guest" or undedfien or null and without the name that sue input , amke it work lease and name is save in the realtime db , make sure the ai agent in admin panel its for admin things and crm things not for user help , and make it as media buyer and can get newe data from the tracking system , and can create reporrts , docs , and excell sheets "in csv" , in admin panel make admin can rotate btwen groq and poliinatiionand any ai api service and any openai comptiaple servic
+
+DONT USE LLAMA FROM GROQ USE ANOTHR MODEL THATE BBETTER IN ARABIC TEXT

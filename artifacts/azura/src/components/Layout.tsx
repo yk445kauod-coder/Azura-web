@@ -260,14 +260,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 inset-x-0 z-40 px-1 pb-safe">
         <div 
-          className="mx-3 mb-2 rounded-2xl overflow-hidden"
-          style={{ 
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(24px) saturate(200%)",
-            WebkitBackdropFilter: "blur(24px) saturate(200%)",
-            boxShadow: "0 -8px 40px rgba(0,0,0,0.15), 0 -4px 16px rgba(0,0,0,0.08), inset 0 0.5px 0 rgba(255,255,255,1)",
-            border: "0.5px solid rgba(255,255,255,0.8)"
-          }}
+          className="mx-3 mb-2 rounded-2xl overflow-hidden shadow-lg bg-background border"
         >
           <div className="flex items-stretch justify-around py-2 px-1">
             {NAV.map((item) => {
@@ -278,50 +271,25 @@ export default function Layout({ children }: { children: ReactNode }) {
               return (
                 <Link key={item.path} href={item.path} className="flex-1">
                   <button 
-                    className={`
-                      relative flex flex-col items-center justify-center gap-1 px-1 py-1.5 w-full
-                      transition-all duration-300 ease-out
-                      ${active ? "" : "hover:scale-[1.08] active:scale-[0.92]"}
-                    `}
+                    className="relative flex flex-col items-center justify-center gap-1 px-1 py-1.5 w-full"
                   >
                     {active && (
                       <div 
                         className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full"
-                        style={{ 
-                          background: "linear-gradient(180deg, hsl(22,55%,28%), hsl(22,55%,18%))",
-                          boxShadow: "0 3px 10px rgba(93,62,35,0.5), 0 1px 3px rgba(93,62,35,0.3)"
-                        }}
+                        style={{ background: "hsl(22,55%,28%)" }}
                       />
                     )}
                     <div className="relative">
                       <div 
-                        className={`
-                          p-1.5 rounded-xl transition-all duration-300 ease-out
-                          ${active 
-                            ? "bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg ring-2 ring-primary/20" 
-                            : "bg-transparent hover:bg-muted/60 active:bg-muted/80"
-                          }
-                        `}
+                        className={`p-1.5 rounded-xl ${active ? "bg-primary/20" : ""}`}
                       >
                         <Icon 
-                          className={`
-                            w-5 h-5 transition-all duration-300 ease-out
-                            ${active 
-                              ? "text-primary scale-110 drop-shadow-md" 
-                              : "text-muted-foreground group-hover:text-foreground"
-                            }
-                          `} 
+                          className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} 
                         />
                       </div>
                     </div>
                     <span 
-                      className={`
-                        text-[10px] font-semibold leading-none tracking-wide transition-all duration-300
-                        ${active 
-                          ? "text-primary font-bold" 
-                          : "text-muted-foreground"
-                        }
-                      `}
+                      className={`text-[10px] font-semibold leading-none ${active ? "text-primary font-bold" : "text-muted-foreground"}`}
                     >
                       {displayLabel}
                     </span>

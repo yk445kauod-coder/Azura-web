@@ -1,10 +1,9 @@
 /**
  * Video URL Provider Parser
- * Extracts embeddable URLs from various video platforms with API and RSS support
- * Enhanced with better Facebook and Instagram support
+ * Simplified for Facebook Reels and thumbnails display
  */
 
-export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "rss" | "unknown";
+export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "unknown";
 
 export interface ParsedVideo {
   provider: VideoProvider;
@@ -14,20 +13,15 @@ export interface ParsedVideo {
   title: string;
   isEmbeddable: boolean;
   videoId?: string;
-  apiEndpoint?: string;
-  downloadUrl?: string;
 }
 
-// RSS Feed Item for social media content
-export interface RSSFeedItem {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  videoUrl?: string;
-  link: string;
-  pubDate: string;
-  provider: VideoProvider;
+// Normalize Facebook URL to ensure proper embed
+function normalizeFbUrl(url: string): string {
+  // Convert mobile URLs to web URLs
+  return url
+    .replace(/m\.facebook\.com/, "web.facebook.com")
+    .replace(/m\.fb\.com/, "web.facebook.com")
+    .replace(/fb\.watch/, "web.facebook.com/plugins/video.php?href=https://fb.watch");
 }
 
 // Instagram oEmbed API (for public posts with access token)
@@ -460,11 +454,6 @@ export function parseDirectVideo(url: string): ParsedVideo | null {
     };
   }
   return null;
-}
-
-// Normalize Facebook domain (web.facebook.com → www.facebook.com for embed compatibility)
-function normalizeFbUrl(url: string): string {
-  return url.replace(/^https?:\/\/web\.facebook\.com/, "https://www.facebook.com");
 }
 
 // Main parser function

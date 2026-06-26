@@ -868,7 +868,11 @@ export default function Admin() {
                     className="px-3 py-2.5 rounded-xl bg-muted text-sm border-0 focus:ring-2 focus:ring-primary/30"
                   >
                     <option value="all">{tr("All Categories", "كل الأقسام")}</option>
-                    {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {MENU_CATEGORIES.map(c => (
+                      <option key={c} value={c}>
+                        {CAT_META[c] ? tr(CAT_META[c].en, CAT_META[c].ar) : c}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

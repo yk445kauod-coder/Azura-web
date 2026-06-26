@@ -1996,7 +1996,6 @@ export default function Admin() {
                   ))}
                 </div>
         )}
-
         {tab === "ai" && (
           <div className="page-enter">
             <AIAdminAssistant />

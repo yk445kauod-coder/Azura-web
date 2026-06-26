@@ -1047,6 +1047,16 @@ export default function Admin() {
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Description (EN)","الوصف EN")}</label>
+                          <input className={`${inp} text-[11px]`} value={val("description") || ""} onChange={e => patch("description", e.target.value)} placeholder="Short description..."/>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Description (AR)","الوصف AR")}</label>
+                          <input className={`${inp} text-[11px]`} dir="rtl" value={val("descriptionAr") || ""} onChange={e => patch("descriptionAr", e.target.value)} placeholder="وصف قصير..."/>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div>
                           <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Ingredients (EN)","مكونات EN")}</label>
                           <textarea className={`${inp} min-h-[52px] resize-none text-[11px]`} value={val("ingredients") || ""} onChange={e => patch("ingredients", e.target.value)} placeholder="Coffee, Milk..."/>
                         </div>

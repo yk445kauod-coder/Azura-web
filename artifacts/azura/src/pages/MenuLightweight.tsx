@@ -417,45 +417,98 @@ export default function MenuLightweight() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FDF5E6] to-[#FAF0E6]" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div 
-        className="sticky top-0 z-30 px-4 pt-4 pb-3"
-        style={{ 
-          background: "linear-gradient(180deg, hsl(30, 59%, 26%) 0%, hsl(25, 50%, 30%) 100%)",
-          boxShadow: "0 4px 20px rgba(101, 67, 33, 0.3)"
+      <div
+        className="sticky top-0 z-30"
+        style={{
+          background: "linear-gradient(180deg, hsl(22, 65%, 14%) 0%, hsl(25, 55%, 20%) 100%)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
         }}
       >
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h1 className="text-xl font-bold text-white drop-shadow-sm">{tr("Our Menu", "قائمتنا")}</h1>
-            <p className="text-xs text-white/80">{filtered.length} {tr("delicious items", "عنصر لذيذ")}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <a
-              href="https://azura-menu.pages.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-2 rounded-xl bg-white/20 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 hover:bg-white/30 transition-colors"
-              title={tr("View Full Menu (Read-only)", "عرض القائمة الكاملة (للقراءة فقط)")}
+        {/* Hero band — logo + branding */}
+        <div className="relative px-4 pt-4 pb-3 flex items-center gap-3 overflow-hidden">
+          {/* subtle texture overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.06] pointer-events-none"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)",
+              backgroundSize: "6px 6px",
+            }}
+          />
+
+          {/* Logo */}
+          <div className="relative flex-shrink-0">
+            <div
+              className="absolute inset-0 rounded-2xl blur-lg opacity-40"
+              style={{ background: "rgba(255,200,80,0.6)", transform: "scale(1.2) translateY(4px)" }}
+            />
+            <div
+              className="relative rounded-2xl p-[3px] border border-white/20"
+              style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(6px)" }}
             >
-              <span>📖</span>
-              <span className="hidden sm:inline">{tr("Full Menu", "القائمة الكاملة")}</span>
-            </a>
+              <img
+                src="/logo.jpg"
+                alt="Azura"
+                className="w-14 h-14 rounded-[14px] object-cover"
+                style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
+              />
+            </div>
           </div>
+
+          {/* Brand text */}
+          <div className="flex-1 min-w-0 z-10">
+            <h1
+              className="text-xl font-extrabold text-white leading-tight tracking-tight"
+              style={{ fontFamily: "var(--font-heading)", textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}
+            >
+              {lang === "ar" ? "أزورا كافيه" : "Azura Cafe"}
+            </h1>
+            <p
+              className="text-[11px] font-medium mt-0.5 italic"
+              style={{ color: "rgba(255,210,100,0.85)", fontFamily: "var(--font-handwritten)", fontSize: "0.85rem" }}
+            >
+              {tr("The quality is a habit", "الجودة عادة")}
+            </p>
+            <p className="text-[10px] text-white/50 mt-0.5">
+              {filtered.length} {tr("items", "صنف")}
+            </p>
+          </div>
+
+          {/* Full menu link */}
+          <a
+            href="https://azura-menu.pages.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 z-10 px-3 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+            style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(6px)" }}
+            title={tr("View Full Menu", "القائمة الكاملة")}
+          >
+            <span>📖</span>
+            <span className="hidden sm:inline">{tr("Full Menu", "القائمة الكاملة")}</span>
+          </a>
         </div>
-        
+
         {/* Search */}
-        <div className="relative">
-          <Search size={18} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "right-3" : "left-3"} text-gray-400`} />
+        <div className="relative px-4 pb-3">
+          <Search size={16} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "right-7" : "left-7"} text-gray-400`} />
           <input
             ref={searchRef}
             type="text"
             placeholder={tr("Search for something tasty...", "ابحث عن شيء لذيذ...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full py-3 pl-10 pr-4 rounded-2xl text-sm bg-white shadow-lg border-0 focus:ring-2 focus:ring-amber-300 ${
-              isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+            className={`w-full py-2.5 rounded-2xl text-sm bg-white shadow-lg border-0 focus:ring-2 focus:ring-amber-300 ${
+              isRTL ? "pr-9 pl-4" : "pl-9 pr-4"
             }`}
           />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-7" : "right-7"} text-gray-400 hover:text-gray-600`}
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 

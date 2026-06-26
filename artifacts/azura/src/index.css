@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -51,9 +51,10 @@
   --destructive-foreground: 0 0% 100%;
 
   /* ── Typography — IBM Plex Sans Arabic (primary for both LTR & RTL) ── */
-  --font-heading: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-body:    'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-arabic:  'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-heading:      'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body:         'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-arabic:       'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-handwritten:  'Dancing Script', cursive;
   --radius: 1rem;
   --safe-area-bottom: env(safe-area-inset-bottom, 20px);
   --safe-area-top: env(safe-area-inset-top, 47px);

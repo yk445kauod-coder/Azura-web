@@ -869,63 +869,6 @@ export default function Admin() {
         )}
 
         {/* dead block removed */}
-        {false && (
-          <div>
-                
-                {/* Search Bar */}
-                <div className="w-full flex gap-2 mt-2">
-                  <div className="relative flex-1">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="text"
-                      placeholder={tr("Search menu items...", "البحث في القائمة...")}
-                      value={menuSearch}
-                      onChange={(e) => setMenuSearch(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-muted text-sm focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-                  <select
-                    value={menuCategoryFilter}
-                    onChange={(e) => setMenuCategoryFilter(e.target.value)}
-                    className="px-3 py-2.5 rounded-xl bg-muted text-sm border-0 focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="all">{tr("All Categories", "كل الأقسام")}</option>
-                    {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    onClick={async () => {
-                      if (!confirm(tr("Merge new items & ingredients into Firebase without overwriting prices/availability?", "دمج العناصر الجديدة في Firebase بدون حذف الأسعار؟"))) return;
-                      swalLoading(tr("Merging menu…", "جار الدمج…"));
-                      await mergeMenuIngredients();
-                      swalClose();
-                      swalSuccess(tr("Menu merged! New items added.", "تم الدمج! تمت إضافة العناصر الجديدة."));
-                    }}
-                    className="btn-secondary px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1"
-                  >
-                    <RotateCcw size={13}/> {tr("Merge Menu", "دمج القائمة")}
-                  </button>
-                  <button
-                    onClick={async () => {
-                      if (!confirm(tr("⚠️ FORCE RESEED: This will OVERWRITE the entire Firebase menu with the latest 251-item menu. Prices you changed in Firebase will be reset. Continue?", "⚠️ سيتم الكتابة فوق القائمة بالكامل في Firebase. الأسعار المعدّلة ستُعاد. متأكد؟"))) return;
-                      swalLoading(tr("Reseeding 251 items…", "جار رفع 251 صنف…"));
-                      await forceReseedMenu();
-                      swalClose();
-                      swalSuccess(tr("✅ Full menu (251 items, 30 categories) pushed to Firebase!", "✅ تم رفع القائمة الكاملة (251 صنف, 30 قسم) إلى Firebase!"));
-                    }}
-                    className="px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
-                  >
-                    <UploadCloud size={13}/> {tr("Force Reseed", "رفع القائمة الكاملة")}
-                  </button>
-                  <button
-                    onClick={() => setShowAddForm(v => !v)}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors ${showAddForm ? "bg-muted text-foreground" : "btn-primary"}`}
-                  >
-                    <Plus size={13}/> {showAddForm ? tr("Cancel", "إلغاء") : tr("Add Item", "إضافة صنف")}
-                  </button>
-                </div>
-              </div>
 
               {/* -- Inline Add Item Form -- */}
               {showAddForm && (

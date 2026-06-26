@@ -407,8 +407,17 @@ export default function MenuLightweight() {
             <h1 className="text-xl font-bold text-white drop-shadow-sm">{tr("Our Menu", "قائمتنا")}</h1>
             <p className="text-xs text-white/80">{filtered.length} {tr("delicious items", "عنصر لذيذ")}</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-            <span className="text-2xl">☕</span>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://azura-menu.pages.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 rounded-xl bg-white/20 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 hover:bg-white/30 transition-colors"
+              title={tr("View Full Menu (Read-only)", "عرض القائمة الكاملة (للقراءة فقط)")}
+            >
+              <span>📖</span>
+              <span className="hidden sm:inline">{tr("Full Menu", "القائمة الكاملة")}</span>
+            </a>
           </div>
         </div>
         

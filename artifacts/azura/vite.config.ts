@@ -13,7 +13,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "firebase", "@firebase/app", "@firebase/auth", "@firebase/database"],
   },
   root: path.resolve(import.meta.dirname),
   build: {

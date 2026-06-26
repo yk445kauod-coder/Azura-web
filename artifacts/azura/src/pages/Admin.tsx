@@ -15,7 +15,7 @@ import {
   Send, CheckCircle, XCircle,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Save, X,
-  Video, AlertTriangle, Bot, LayoutDashboard, Users, ToggleLeft, ToggleRight, Sparkles, Search, LayoutGrid, Armchair, CheckCircle, Circle,
+  Video, AlertTriangle, Bot, LayoutDashboard, Users, ToggleLeft, ToggleRight, Sparkles, Search, LayoutGrid, Armchair, Circle,
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { ref, onValue } from "@/lib/firebase";
+import { db, ref, onValue } from "@/lib/firebase";
 
 export type BaristaPersona = "female" | "male";
 
@@ -33,7 +33,7 @@ export function BaristaProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Load barista & cafe config from Firebase
-    const unsub = onValue(ref("ai-config"), (snap) => {
+    const unsub = onValue(ref(db, "ai-config"), (snap) => {
       if (snap.exists()) {
         const cfg = snap.val() as any;
         if (cfg.baristaName) setBaristaName(cfg.baristaName);

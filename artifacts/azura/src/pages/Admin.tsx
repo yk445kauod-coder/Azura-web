@@ -152,7 +152,7 @@ function CssBar({ pct, color = "hsl(var(--primary))" }: { pct: number; color?: s
   );
 }
 
-// ── Module-level menu constants (stable references for useMemo) ──────────────
+// -- Module-level menu constants (stable references for useMemo) --------------
 const MENU_CATS_ORDER = [
   "new_items","recommended",
   "coffee","espresso","corto","iced_coffee","hot_drinks","hot_chocolate","frappuccino","frappe","sahlab",
@@ -415,7 +415,7 @@ export default function Admin() {
     return `${s}s`;
   };
 
-  // ── Load all data ──────────────────────────────────────────────
+  // -- Load all data ----------------------------------------------
   useEffect(() => {
     if (!authed) return;
 
@@ -526,13 +526,13 @@ export default function Admin() {
 
   useEffect(() => { chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMsgs]);
 
-  // ── Auth ──────────────────────────────────────────────────────
+  // -- Auth ------------------------------------------------------
   const login = () => {
     if (pin === ADMIN_PIN) { sessionStorage.setItem("azura-admin", "true"); setAuthed(true); }
     else setPinErr(tr("Wrong PIN. Try: azura2026", "PIN خاطئ. جرب: azura2026"));
   };
 
-  // ── Chat helpers ──────────────────────────────────────────────
+  // -- Chat helpers ----------------------------------------------
   const sendReply = async () => {
     if (!chatInput.trim() || !selectedChat) return;
     await smartPush(`support-chat/${selectedChat}/messages`, { text: chatInput.trim(), sender: "admin", createdAt: Date.now(), readByAdmin: true });
@@ -540,7 +540,7 @@ export default function Admin() {
     setChatInput("");
   };
 
-  // ── Feedback helpers ──────────────────────────────────────────
+  // -- Feedback helpers ------------------------------------------
   const markFeedbackRead = (id: string) => smartUpdate(`feedback/${id}`, { read: true });
 
 
@@ -559,7 +559,7 @@ export default function Admin() {
     }
   };
 
-  // ── Broadcast helpers ─────────────────────────────────────────
+  // -- Broadcast helpers ----------------------------------------─
   const sendBroadcast = async () => {
     if (!newBroadcast.title || !newBroadcast.message) return;
     setSendingBroadcast(true);
@@ -569,7 +569,7 @@ export default function Admin() {
   };
   const deleteBroadcast = (id: string) => smartRemove(`broadcast/${id}`);
 
-  // ── Reels helpers ─────────────────────────────────────────────
+  // -- Reels helpers --------------------------------------------─
   const createReel = async () => {
     if (!newReel.image || (!newReel.caption && !newReel.captionAr)) return;
     setUploading(true);
@@ -637,7 +637,7 @@ export default function Admin() {
     }
   };
 
-  // ── API Settings helpers ────────────────────────────────────
+  // -- API Settings helpers ------------------------------------
   const saveApiSettings = async () => {
     setSavingApiKey(true);
     await smartSet("api-settings", {
@@ -654,7 +654,7 @@ export default function Admin() {
   const ratingDist = [5,4,3,2,1].map((r) => ({ r, count: feedback.filter((f) => f.rating === r).length }));
   const maxRatingCount = Math.max(...ratingDist.map((d) => d.count), 1);
 
-  // ── PIN screen ────────────────────────────────────────────────
+  // -- PIN screen ------------------------------------------------
   if (!authed) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(160deg,hsl(38,50%,90%),hsl(22,40%,82%))" }}>
@@ -927,7 +927,7 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* ── Inline Add Item Form ── */}
+              {/* -- Inline Add Item Form -- */}
               {showAddForm && (
                 <div className="rounded-2xl border border-primary/20 bg-primary/3 p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
                   <p className="text-xs font-black text-primary uppercase tracking-widest">{tr("New Menu Item", "صنف جديد")}</p>

@@ -56,10 +56,24 @@ export default function AIAdminAssistant() {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
   useEffect(() => {
-    loadAllData();
     loadApiKey();
     loadChatHistory();
-    return () => off(ref(db, "conversations/admin/assistant"));
+    // Real-time listeners for live data sync
+    const unsubUsers = onValue(ref(db, "users"), (snap) => {
+      updateAnalytics({ users: snap.exists() ? Object.values(snap.val()) : [] });
+    });
+    const unsubFeedback = onValue(ref(db, "feedback"), (snap) => {
+      updateAnalytics({ feedback: snap.exists() ? Object.values(snap.val()) : [] });
+    });
+    const unsubMenu = onValue(ref(db, "menu"), (snap) => {
+      loadMenuItems(snap);
+    });
+    return () => {
+      unsubUsers();
+      unsubFeedback();
+      unsubMenu();
+      off(ref(db, "conversations/admin/assistant"));
+    };
   }, []);
 
   const loadApiKey = async () => {
@@ -93,105 +107,77 @@ export default function AIAdminAssistant() {
     setMessages([]);
   };
 
-  const loadAllData = async () => {
-    await Promise.all([loadAnalytics(), loadMenuItems()]);
-  };
-
-  const loadAnalytics = async () => {
-    try {
-      const usersSnap = await get(ref(db, "users"));
-      const feedbackSnap = await get(ref(db, "feedback"));
-      const menuSnap = await get(ref(db, "menu/items"));
+  const updateAnalytics = ({ users = undefined, feedback = undefined }: { users?: any[]; feedback?: any[] }) => {
+    setAnalytics(prev => {
+      const currentUsers = users ?? prev ? [prev] : [];
+      const currentFeedback = feedback ?? [];
+      const allUsers = Array.isArray(currentUsers) ? currentUsers.filter(Boolean) : [];
+      const allFeedback = Array.isArray(currentFeedback) ? currentFeedback.filter(Boolean) : [];
       
-      let users: any[] = [];
-      let feedback: any[] = [];
-      let menuCount = 0;
-      
-      if (usersSnap.exists()) {
-        users = Object.values(usersSnap.val());
-      }
-      
-      if (feedbackSnap.exists()) {
-        feedback = Object.values(feedbackSnap.val());
-      }
-
-      if (menuSnap.exists()) {
-        menuCount = Object.keys(menuSnap.val()).length;
-      }
-
       const today = new Date().setHours(0, 0, 0, 0);
-      const activeToday = users.filter(u => (u.lastLoginAt || 0) >= today).length;
-      const returning = users.filter(u => (u.loginCount || 0) > 1).length;
-      const heavy = users.filter(u => (u.totalUsageSeconds || 0) > 1800).length;
-      const totalUsage = users.reduce((sum, u) => sum + (u.totalUsageSeconds || 0), 0);
-
-      const avgRating = feedback.length > 0 
-        ? (feedback.reduce((sum, f) => sum + (f.rating || 0), 0) / feedback.length).toFixed(1)
+      const activeToday = allUsers.filter((u: any) => (u.lastLoginAt || 0) >= today).length;
+      const returning = allUsers.filter((u: any) => (u.loginCount || 0) > 1).length;
+      const heavy = allUsers.filter((u: any) => (u.totalUsageSeconds || 0) > 1800).length;
+      const totalUsage = allUsers.reduce((sum: number, u: any) => sum + (u.totalUsageSeconds || 0), 0);
+      const avgRating = allFeedback.length > 0 
+        ? (allFeedback.reduce((sum: number, f: any) => sum + (f.rating || 0), 0) / allFeedback.length).toFixed(1)
         : "0.0";
 
-      setAnalytics({
-        totalCustomers: users.length,
+      return {
+        totalCustomers: allUsers.length,
         returningCustomers: returning,
         heavyUsers: heavy,
         activeToday,
         totalUsageTime: totalUsage,
         avgRating: parseFloat(avgRating),
-        totalMenuItems: menuCount,
-      });
-    } catch (error) {
-      console.error("Error loading analytics:", error);
-    }
+        totalMenuItems: prev?.totalMenuItems || 0,
+      };
+    });
   };
 
-  const loadMenuItems = async () => {
+  const loadMenuItems = (snap?: any) => {
     try {
-      const snap = await get(ref(db, "menu"));
-      if (snap.exists()) {
-        const data = snap.val();
-        const items: MenuItemData[] = [];
-        
-        Object.entries(data).forEach(([category, val]) => {
-          if (val && typeof val === "object") {
-            const firstItem = Object.values(val as object)[0] as any;
-            if (firstItem && (firstItem.price !== undefined || firstItem.name)) {
-              Object.entries(val as Record<string, any>).forEach(([id, item]) => {
-                if (item && typeof item === "object") {
-                  items.push({
-                    id,
-                    name: item.name || item.nameEn || id,
-                    nameAr: item.nameAr || "",
-                    price: item.price || 0,
-                    category: item.category || category,
-                    description: item.description || "",
-                  });
-                }
-              });
-            } else {
-              Object.entries(val as Record<string, any>).forEach(([subCat, subItems]) => {
-                if (subItems && typeof subItems === "object") {
-                  Object.entries(subItems as Record<string, any>).forEach(([id, item]) => {
-                    if (item && typeof item === "object") {
-                      items.push({
-                        id,
-                        name: item.name || item.nameEn || id,
-                        nameAr: item.nameAr || "",
-                        price: item.price || 0,
-                        category: item.category || subCat,
-                        description: item.description || "",
-                      });
-                    }
-                  });
-                }
+      const data = snap?.val ? snap.val() : snap;
+      if (!data) return;
+      const items: MenuItemData[] = [];
+      
+      Object.entries(data).forEach(([category, val]: [string, any]) => {
+        if (val && typeof val === "object" && !Array.isArray(val)) {
+          Object.entries(val).forEach(([id, item]: [string, any]) => {
+            if (item && typeof item === "object" && (item.price !== undefined || item.name)) {
+              items.push({
+                id,
+                name: item.name || item.nameEn || id,
+                nameAr: item.nameAr || "",
+                price: item.price || 0,
+                category: item.category || category,
+                description: item.description || item.desc || "",
               });
             }
-          }
-        });
-        
-        setMenuItems(items);
-      }
+          });
+        }
+      });
+      
+      setMenuItems(items);
+      // Update menu count in analytics
+      setAnalytics(prev => prev ? { ...prev, totalMenuItems: items.length } : null);
     } catch (error) {
       console.error("Error loading menu:", error);
     }
+  };
+
+  const loadAllData = async () => {
+    // Get initial data for all
+    const [usersSnap, feedbackSnap, menuSnap] = await Promise.all([
+      get(ref(db, "users")),
+      get(ref(db, "feedback")),
+      get(ref(db, "menu"))
+    ]);
+    updateAnalytics({ 
+      users: usersSnap.exists() ? Object.values(usersSnap.val()) : [], 
+      feedback: feedbackSnap.exists() ? Object.values(feedbackSnap.val()) : [] 
+    });
+    loadMenuItems(menuSnap);
   };
 
   useEffect(() => {

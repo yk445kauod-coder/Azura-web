@@ -9,3 +9,6 @@
   ➜  Network: http://192.168.0.2:5000/
 9:03:43 PM [vite] (client) hmr update /src/index.css, /src/pages/Admin.tsx
 9:22:00 PM [vite] (client) hmr update /src/pages/Admin.tsx, /src/index.css
+9:28:00 PM [vite] vite.config.ts changed, restarting server...
+9:28:00 PM [vite] (client) Re-optimizing dependencies because vite config has changed
+9:28:00 PM [vite] server restarted.

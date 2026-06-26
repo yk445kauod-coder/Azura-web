@@ -178,9 +178,20 @@ export default function AIBarista() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const buildSystemPrompt = () => {
-    const menuCtx = menuItems.slice(0, 50)
-      .map((i) => `- ${i.name}: ${i.price} EGP [ID:${i.id}] [Category: ${i.category}] ${i.ingredients ? `[Ingredients: ${i.ingredients}]` : ""}`)
+    // Group items by category for better context
+    const byCategory = menuItems.reduce((acc, item) => {
+      const cat = item.category || "other";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(item);
+      return acc;
+    }, {} as Record<string, MenuItem[]>);
+    
+    const menuCtx = Object.entries(byCategory)
+      .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
+        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}] ${i.ingredients ? `[${i.ingredients}]` : ""}`)
+        .join("\n"))
       .join("\n");
+    
     return `${systemPrompt || `You are ${baristaName}, the expert head barista at Azura Cafe & Restaurant, Tivoli Dome, Alexandria. You are professional, knowledgeable about every ingredient, and incredibly proactive.
 
 Your Personality:

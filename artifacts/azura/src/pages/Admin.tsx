@@ -178,6 +178,8 @@ export default function Admin() {
 
   // Chat
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [menuSearch, setMenuSearch] = useState("");
+  const [menuCategoryFilter, setMenuCategoryFilter] = useState<string>("all");
   const [chatMsgs, setChatMsgs]         = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput]       = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
@@ -772,6 +774,28 @@ export default function Admin() {
                 <h3 className="font-bold text-foreground flex items-center gap-2">
                   <Plus size={18} className="text-primary"/> {tr("Menu Management","إدارة القائمة")}
                 </h3>
+                
+                {/* Search Bar */}
+                <div className="w-full flex gap-2 mt-2">
+                  <div className="relative flex-1">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder={tr("Search menu items...", "البحث في القائمة...")}
+                      value={menuSearch}
+                      onChange={(e) => setMenuSearch(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-muted text-sm focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <select
+                    value={menuCategoryFilter}
+                    onChange={(e) => setMenuCategoryFilter(e.target.value)}
+                    className="px-3 py-2.5 rounded-xl bg-muted text-sm border-0 focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="all">{tr("All Categories", "كل الأقسام")}</option>
+                    {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={async () => {
@@ -896,22 +920,30 @@ export default function Admin() {
               )}
 
               <div className="space-y-3">
-                {menu.length === 0 && (
-                  <div className="text-center py-10">
-                    <p className="text-muted-foreground">{tr("No menu items found.","لا توجد عناصر في القائمة.")}</p>
-                    <button
-                      onClick={async () => {
-                        const { fullMenuData } = await import("@/lib/fullMenu");
-                        await smartSet("menu", fullMenuData);
-                        swalSuccess(tr("Menu data restored!","تم استعادة بيانات القائمة!"));
-                      }}
-                      className="mt-3 text-primary text-xs font-bold underline"
-                    >
-                      {tr("Restore default menu data","استعادة القائمة الافتراضية")}
-                    </button>
-                  </div>
-                )}
-                {menu.map((item) => {
+                {/* Filter Logic */}
+                {(() => {
+                  const filteredMenu = menu.filter(item => {
+                    const matchesSearch = !menuSearch || 
+                      item.name?.toLowerCase().includes(menuSearch.toLowerCase()) ||
+                      item.nameAr?.includes(menuSearch) ||
+                      item.description?.toLowerCase().includes(menuSearch.toLowerCase()) ||
+                      item.id?.toLowerCase().includes(menuSearch.toLowerCase());
+                    const matchesCategory = menuCategoryFilter === "all" || item.category === menuCategoryFilter;
+                    return matchesSearch && matchesCategory;
+                  });
+                  
+                  if (filteredMenu.length === 0 && menu.length > 0) {
+                    return (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground mb-2">{tr("No items match your search.", "لا توجد عناصر تطابق بحثك.")}</p>
+                        <button onClick={() => { setMenuSearch(""); setMenuCategoryFilter("all"); }} className="text-primary text-xs font-bold underline">
+                          {tr("Clear filters", "مسح الفلاتر")}
+                        </button>
+                      </div>
+                    );
+                  }
+                  
+                  return filteredMenu.map((item) => {
                   const edits = menuEdits[item.id] || {};
                   const val = (field: keyof MenuItem) => (field in edits ? edits[field] : item[field]) as any;
                   const isDirty = Object.keys(edits).length > 0;
@@ -1044,6 +1076,7 @@ export default function Admin() {
                       )}
                     </div>
                   );
+                });
                 })}
               </div>
             </div>

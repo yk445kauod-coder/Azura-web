@@ -2175,6 +2175,17 @@
       "categoryAr": "هوت درينكس",
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "americano-white-black": {
+      "name": "Americano (white-black)",
+      "nameAr": "أمريكانو (وايت-بلاك)",
+      "description": "Americano white-black style",
+      "descriptionAr": "أمريكانو ستايل وايت-بلاك",
+      "price": 91,
+      "category": "hot_drinks",
+      "categoryAr": "هوت درينكس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     }
   },
   "coffee": {

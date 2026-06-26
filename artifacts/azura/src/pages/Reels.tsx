@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { db, ref, onValue, update, push, remove } from "@/lib/firebase";
-import { Heart, MessageCircle, ChevronRight, ChevronLeft, Send, X, Star, Play, ExternalLink, ThumbsUp, Trash2, Reply } from "lucide-react";
+import { Heart, MessageCircle, ChevronRight, ChevronLeft, Send, X, Star, ThumbsUp, Trash2, Reply } from "lucide-react";
 import { swalInfo } from "@/lib/swal";
 
 interface Comment {
@@ -40,7 +40,6 @@ export default function Reels() {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hoverRating, setHoverRating] = useState(0);
   const [commentPage, setCommentPage] = useState(0);
-  const [showFullVideo, setShowFullVideo] = useState(false);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
@@ -142,30 +141,37 @@ export default function Reels() {
 
   return (
     <div className="min-h-screen bg-black relative">
-      {showFullVideo && currentReel?.videoUrl && (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col">
-          <button onClick={() => setShowFullVideo(false)} className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white"><X size={20} /></button>
-          {isFacebookUrl(currentReel.videoUrl) ? (
-            <iframe src={getFacebookEmbedUrl(currentReel.videoUrl)} className="w-full h-full" frameBorder="0" allow="autoplay; fullscreen" allowFullScreen />
+      <div className="h-screen w-full flex flex-col relative overflow-hidden">
+        {/* Video/Image Section */}
+        <div className="flex-1 relative">
+          {currentReel?.videoUrl ? (
+            isFacebookUrl(currentReel.videoUrl) ? (
+              <iframe 
+                src={getFacebookEmbedUrl(currentReel.videoUrl)} 
+                className="w-full h-full" 
+                frameBorder="0" 
+                allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture" 
+                allowFullScreen
+              />
+            ) : (
+              <video 
+                src={currentReel.videoUrl} 
+                className="w-full h-full object-contain bg-black" 
+                controls 
+                autoPlay 
+                playsInline
+              />
+            )
           ) : (
-            <video src={currentReel.videoUrl} className="w-full h-full object-contain" controls autoPlay />
+            <img src={currentReel.image || PLACEHOLDER} alt="" className="w-full h-full object-cover" loading="eager" />
           )}
         </div>
-      )}
-
-      <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
-        <div className="w-full h-full cursor-pointer select-none" onClick={() => { if (currentReel?.videoUrl) setShowFullVideo(true); }}>
-          <img src={currentReel.image || PLACEHOLDER} alt="" className="w-full h-full object-cover" loading="eager" />
-          {currentReel?.videoUrl && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/50 flex items-center justify-center transition-transform hover:scale-110">
-                <Play size={40} className="text-white ms-1" fill="white" />
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute bottom-20 left-4 right-16">
+        
+        {/* Overlay with content */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+        
+        {/* Author/Caption */}
+        <div className="absolute bottom-20 left-4 right-16 pointer-events-none">
           <p className="text-white font-bold text-lg mb-1">{currentReel.authorName}</p>
           <p className="text-white/90 text-sm line-clamp-2">{lang === "ar" ? currentReel.captionAr : currentReel.caption}</p>
         </div>
@@ -183,25 +189,19 @@ export default function Reels() {
             <Star size={30} className="text-white" />
             <span className="text-white text-[11px] mt-0.5">{tr("Rate", "تقييم")}</span>
           </button>
-          {currentReel.videoUrl && (
-            <button onClick={() => window.open(isFacebookUrl(currentReel.videoUrl) ? normalizeFacebookUrl(currentReel.videoUrl) : currentReel.videoUrl, "_blank")} className="flex flex-col items-center">
-              <ExternalLink size={28} className="text-white" />
-              <span className="text-white text-[11px] mt-0.5">{tr("Open", "فتح")}</span>
-            </button>
-          )}
         </div>
 
         {reels.length > 1 && (
           <>
-            <button onClick={() => { setCurrentIndex(prev => Math.max(0, prev - 1)); setShowComments(false); setShowFullVideo(false); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white disabled:opacity-30" disabled={currentIndex === 0}><ChevronLeft size={24} /></button>
-            <button onClick={() => { setCurrentIndex(prev => Math.min(reels.length - 1, prev + 1)); setShowComments(false); setShowFullVideo(false); }} className="absolute right-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white disabled:opacity-30" disabled={currentIndex === reels.length - 1}><ChevronRight size={24} /></button>
+            <button onClick={() => { setCurrentIndex(prev => Math.max(0, prev - 1)); setShowComments(false); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white disabled:opacity-30" disabled={currentIndex === 0}><ChevronLeft size={24} /></button>
+            <button onClick={() => { setCurrentIndex(prev => Math.min(reels.length - 1, prev + 1)); setShowComments(false); }} className="absolute right-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white disabled:opacity-30" disabled={currentIndex === reels.length - 1}><ChevronRight size={24} /></button>
           </>
         )}
 
         {reels.length > 1 && (
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-1.5">
             {reels.map((_, i) => (
-              <button key={i} onClick={() => { setCurrentIndex(i); setShowComments(false); setShowFullVideo(false); }} className={`w-2 h-2 rounded-full transition-all ${i === currentIndex ? "bg-white w-4" : "bg-white/40"}`} />
+              <button key={i} onClick={() => { setCurrentIndex(i); setShowComments(false); }} className={`w-2 h-2 rounded-full transition-all ${i === currentIndex ? "bg-white w-4" : "bg-white/40"}`} />
             ))}
           </div>
         )}

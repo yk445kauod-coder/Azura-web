@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { db, ref, onValue, off, update, set, push, remove, get, forceReseedMenu, mergeMenuIngredients } from "@/lib/firebase";
 import { smartGet, smartSet, smartUpdate, smartRemove, smartPush, getDBMode, setDBMode, onModeChange } from "@/lib/dbWrapper";
 import { testR2Connection, type R2Config, listR2Objects, downloadFromR2, uploadToR2 } from "@/lib/r2";
@@ -16,6 +16,7 @@ import {
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Save, X,
   Video, AlertTriangle, Bot, LayoutDashboard, Users, ToggleLeft, ToggleRight, Sparkles, Search, LayoutGrid, Armchair, Circle,
+  ChevronDown, Pencil,
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
@@ -151,6 +152,68 @@ function CssBar({ pct, color = "hsl(var(--primary))" }: { pct: number; color?: s
   );
 }
 
+// ── Module-level menu constants (stable references for useMemo) ──────────────
+const MENU_CATS_ORDER = [
+  "new_items","recommended",
+  "coffee","espresso","corto","iced_coffee","hot_drinks","hot_chocolate","frappuccino","frappe","sahlab",
+  "fresh_juices","fresh_juice","smoothies","smoothie","milkshakes","milkshake","mojitos","mocktails",
+  "cocktails","boba_tea","soft_drinks","extra_drinks",
+  "soups","appetizers","salads","pasta","tortilla","sandwiches","vina_sandwiches",
+  "main_dishes","beef_burgers","burgers","smash_burgers","fried_chicken","extra_kitchen",
+  "breakfast","toast","croissant","pancakes","crepes","crepe","waffle","desserts",
+  "extras","add_ons","shisha",
+];
+
+const CAT_META_MAP: Record<string, { emoji: string; en: string; ar: string }> = {
+  recommended:    { emoji: "⭐",  en: "Top Picks",       ar: "الأفضل"          },
+  new_items:      { emoji: "🆕",  en: "New Items",       ar: "جديد"            },
+  coffee:         { emoji: "☕",  en: "Coffee",          ar: "قهوة"            },
+  espresso:       { emoji: "☕",  en: "Espresso",        ar: "إسبريسو"         },
+  corto:          { emoji: "🥛",  en: "Corto",           ar: "كورتو"           },
+  iced_coffee:    { emoji: "🧋",  en: "Iced Coffee",     ar: "قهوة مثلجة"      },
+  hot_drinks:     { emoji: "🍵",  en: "Hot Drinks",      ar: "مشروبات ساخنة"   },
+  hot_chocolate:  { emoji: "🍫",  en: "Hot Chocolate",   ar: "شوكولاتة ساخنة"  },
+  frappuccino:    { emoji: "🧊",  en: "Frappuccino",     ar: "فرابيه"          },
+  frappe:         { emoji: "🧊",  en: "Frappe",          ar: "فرابيه"          },
+  sahlab:         { emoji: "🍶",  en: "Sahlab",          ar: "سحلب"            },
+  fresh_juices:   { emoji: "🍊",  en: "Fresh Juice",     ar: "عصير طازج"       },
+  fresh_juice:    { emoji: "🍊",  en: "Fresh Juice",     ar: "عصير طازج"       },
+  smoothies:      { emoji: "🥤",  en: "Smoothie",        ar: "سموذي"           },
+  smoothie:       { emoji: "🥤",  en: "Smoothie",        ar: "سموذي"           },
+  milkshakes:     { emoji: "🥛",  en: "Milkshake",       ar: "ميلك شيك"        },
+  milkshake:      { emoji: "🥛",  en: "Milkshake",       ar: "ميلك شيك"        },
+  mojitos:        { emoji: "🍹",  en: "Mocktails",       ar: "موكتيل"          },
+  mocktails:      { emoji: "🍹",  en: "Mocktails",       ar: "موكتيل"          },
+  cocktails:      { emoji: "🍸",  en: "Cocktails",       ar: "كوكتيل"          },
+  boba_tea:       { emoji: "🧋",  en: "Boba Tea",        ar: "بوبا تي"         },
+  soft_drinks:    { emoji: "🥤",  en: "Soft Drinks",     ar: "مشروبات غازية"   },
+  extra_drinks:   { emoji: "🥤",  en: "Extra Drinks",    ar: "مشروبات إضافية"  },
+  soups:          { emoji: "🍲",  en: "Soup",            ar: "شوربة"           },
+  appetizers:     { emoji: "🍟",  en: "Appetizers",      ar: "مقبلات"          },
+  salads:         { emoji: "🥗",  en: "Salads",          ar: "سلطات"           },
+  pasta:          { emoji: "🍝",  en: "Pasta",           ar: "مكرونة"          },
+  tortilla:       { emoji: "🌯",  en: "Tortilla",        ar: "تورتيلا"         },
+  sandwiches:     { emoji: "🥪",  en: "Sandwiches",      ar: "ساندوتش"         },
+  vina_sandwiches:{ emoji: "🥖",  en: "Vina Sandwiches", ar: "ساندوتش فينا"    },
+  main_dishes:    { emoji: "🍽️", en: "Main Dishes",     ar: "أطباق رئيسية"    },
+  beef_burgers:   { emoji: "🍔",  en: "Beef Burgers",    ar: "برجر لحم"        },
+  burgers:        { emoji: "🍔",  en: "Burgers",         ar: "برجر"            },
+  smash_burgers:  { emoji: "🔥",  en: "Smash Burgers",   ar: "سماش برجر"       },
+  fried_chicken:  { emoji: "🍗",  en: "Fried Chicken",   ar: "فراخ مقلية"      },
+  extra_kitchen:  { emoji: "➕",  en: "Extra Kitchen",   ar: "إضافات مطبخ"     },
+  breakfast:      { emoji: "🍳",  en: "Breakfast",       ar: "فطار"            },
+  toast:          { emoji: "🍞",  en: "Toast",           ar: "توست"            },
+  croissant:      { emoji: "🥐",  en: "Croissant",       ar: "كرواسون"         },
+  pancakes:       { emoji: "🥞",  en: "Pancakes",        ar: "بان كيك"         },
+  crepes:         { emoji: "🥞",  en: "Crepes",          ar: "كريب"            },
+  crepe:          { emoji: "🥞",  en: "Crepe",           ar: "كريب"            },
+  waffle:         { emoji: "🧇",  en: "Waffle",          ar: "وافل"            },
+  desserts:       { emoji: "🍰",  en: "Desserts",        ar: "حلويات"          },
+  extras:         { emoji: "➕",  en: "Extras",          ar: "إضافات"          },
+  add_ons:        { emoji: "➕",  en: "Add-ons",         ar: "إضافات"          },
+  shisha:         { emoji: "💨",  en: "Hookah / Shisha", ar: "شيشة"            },
+};
+
 export default function Admin() {
   const { lang, isRTL } = useLang();
   const [, navigate] = useLocation();
@@ -161,6 +224,8 @@ export default function Admin() {
   const [dbMode, setDbModeState] = useState(getDBMode());
   const [menuEdits, setMenuEdits] = useState<Record<string, Partial<MenuItem>>>({});
   const [savingMenuId, setSavingMenuId] = useState<string | null>(null);
+  const [selectedMenuItemId, setSelectedMenuItemId] = useState<string | null>(null);
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const unsub = onModeChange(() => setDbModeState(getDBMode()));
@@ -193,13 +258,34 @@ export default function Admin() {
   });
   const [savingItem, setSavingItem] = useState(false);
 
-  const MENU_CATEGORIES = [
-    "coffee","iced_coffee","hot_drinks","hot_chocolate","frappuccino","sahlab",
-    "fresh_juices","smoothies","milkshakes","mojitos","boba_tea",
-    "burgers","smash_burgers","fried_chicken","main_dishes","pasta",
-    "salads","soups","appetizers","breakfast","toast","croissant",
-    "pancakes","crepes","desserts","extras","corto","add_ons","shisha","new_items",
-  ];
+  // Menu computed values (stable module-level MENU_CATS_ORDER / CAT_META_MAP used as deps)
+  const menuFiltered = useMemo(() => {
+    if (!menuSearch) return menu;
+    const q = menuSearch.toLowerCase();
+    return menu.filter(item =>
+      item.name?.toLowerCase().includes(q) ||
+      item.nameAr?.includes(menuSearch) ||
+      item.description?.toLowerCase().includes(q) ||
+      item.category?.toLowerCase().includes(q) ||
+      String(item.price).includes(q)
+    );
+  }, [menu, menuSearch]);
+
+  const menuGrouped = useMemo(() => {
+    const g: Record<string, MenuItem[]> = {};
+    menuFiltered.forEach(item => {
+      const cat = item.category || "other";
+      if (!g[cat]) g[cat] = [];
+      g[cat].push(item);
+    });
+    return g;
+  }, [menuFiltered]);
+
+  const menuCatOrder = useMemo(() => {
+    const known = MENU_CATS_ORDER.filter(c => menuGrouped[c]);
+    const unknown = Object.keys(menuGrouped).filter(c => !MENU_CATS_ORDER.includes(c)).sort();
+    return [...known, ...unknown];
+  }, [menuGrouped]);
 
   // Broadcast form
   const [newBroadcast, setNewBroadcast] = useState<{
@@ -768,12 +854,23 @@ export default function Admin() {
 
         {/* ━━━ MENU MANAGEMENT ━━━ */}
         {tab === "menu" && (
-          <div className="space-y-4 page-enter">
-            <div className="card-elevated rounded-2xl p-5 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <Plus size={18} className="text-primary"/> {tr("Menu Management","إدارة القائمة")}
-                </h3>
+          <MenuTab
+            menu={menu} menuSearch={menuSearch} setMenuSearch={setMenuSearch}
+            menuEdits={menuEdits} setMenuEdits={setMenuEdits}
+            savingMenuId={savingMenuId} setSavingMenuId={setSavingMenuId}
+            selectedMenuItemId={selectedMenuItemId} setSelectedMenuItemId={setSelectedMenuItemId}
+            expandedCats={expandedCats} setExpandedCats={setExpandedCats}
+            showAddForm={showAddForm} setShowAddForm={setShowAddForm}
+            addForm={addForm} setAddForm={setAddForm}
+            savingItem={savingItem} setSavingItem={setSavingItem}
+            MENU_CATEGORIES={MENU_CATEGORIES} CAT_META={CAT_META}
+            inp={inp} tr={tr} lang={lang}
+          />
+        )}
+
+        {/* dead block removed */}
+        {false && (
+          <div>
                 
                 {/* Search Bar */}
                 <div className="w-full flex gap-2 mt-2">

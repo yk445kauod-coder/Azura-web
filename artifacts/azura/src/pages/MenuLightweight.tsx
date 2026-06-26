@@ -30,13 +30,16 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 }
 
 const CATS = [
+  { id: "recommended",emoji: "⭐",  en: "Top Picks",   ar: "الأفضل"    },
+  { id: "new_items",  emoji: "🆕",  en: "New",         ar: "جديد"      },
+  { id: "toast",      emoji: "🍞",  en: "Toast",       ar: "توست"      },
+  { id: "croissant",  emoji: "🥐",  en: "Croissant",   ar: "كروسان"    },
+  { id: "breakfast",  emoji: "🍳",  en: "Breakfast",   ar: "إفطار"     },
   { id: "hot_drinks", emoji: "☕",  en: "Hot Drinks",  ar: "مشروبات ساخنة" },
   { id: "iced_coffee",emoji: "🧊",  en: "Iced Coffee", ar: "ايس كوفي"  },
   { id: "mocktails",  emoji: "🍹",  en: "Cold Drinks", ar: "مشروبات باردة" },
   { id: "milkshake",  emoji: "🥛",  en: "Shakes",      ar: "شيك"       },
   { id: "all",        emoji: "✨",  en: "All",         ar: "الكل"      },
-  { id: "recommended",emoji: "⭐",  en: "Top Picks",   ar: "الأفضل"    },
-  { id: "new_items",  emoji: "🆕",  en: "New",         ar: "جديد"      },
   { id: "burgers",    emoji: "🍔",  en: "Burgers",     ar: "برجر"      },
   { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
   { id: "food",       emoji: "🍗",  en: "Main",        ar: "أطباق"     },
@@ -44,7 +47,6 @@ const CATS = [
   { id: "salads",     emoji: "🥗",  en: "Salads",      ar: "سلطات"     },
   { id: "soups",      emoji: "🍲",  en: "Soups",       ar: "شوربة"     },
   { id: "appetizers", emoji: "🍟",  en: "Starters",    ar: "مقبلات"    },
-  { id: "breakfast",  emoji: "🍳",  en: "Breakfast",   ar: "إفطار"     },
   { id: "desserts",   emoji: "🍰",  en: "Sweets",      ar: "حلويات"    },
   { id: "shisha",     emoji: "💨",  en: "Shisha",      ar: "شيشة"      },
 ];
@@ -54,7 +56,9 @@ const CAT_ALIASES: Record<string, string[]> = {
   recommended: ["recommended"],
   new_items:   ["new_items", "new", "featured"],
   food:        ["food", "mains", "main", "main_dishes", "fried_chicken"],
-  sandwiches:  ["sandwich", "sandwiches", "toast", "croissant", "tortilla"],
+  sandwiches:  ["sandwich", "sandwiches", "tortilla"],
+  toast:       ["toast"],
+  croissant:   ["croissant"],
   burgers:     ["burger", "burgers", "smash_burgers"],
   pasta:       ["pasta", "noodles"],
   salads:      ["salad", "salads"],
@@ -274,17 +278,6 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
 
             {/* Info Footer */}
             <div className="flex flex-col gap-4 pt-6 mt-2 border-t border-border/40">
-              <div className="flex items-center justify-around bg-muted/40 p-3 rounded-2xl">
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  {tr("Available Now", "متاح الآن")}
-                </div>
-                <div className="w-px h-4 bg-border/50" />
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
-                  <span>⏱️</span>
-                  {tr("5-10 min", "5-10 دق")}
-                </div>
-              </div>
               <button
                 onClick={onClose}
                 className="btn-primary w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
@@ -393,13 +386,13 @@ export default function MenuLightweight() {
   }, [items]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-gradient-to-b from-[#FDF5E6] to-[#FAF0E6]" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <div 
         className="sticky top-0 z-30 px-4 pt-4 pb-3"
         style={{ 
-          background: "linear-gradient(180deg, hsl(38, 92%, 50%) 0%, hsl(38, 92%, 45%) 100%)",
-          boxShadow: "0 4px 20px rgba(180, 120, 40, 0.3)"
+          background: "linear-gradient(180deg, hsl(30, 59%, 26%) 0%, hsl(25, 50%, 30%) 100%)",
+          boxShadow: "0 4px 20px rgba(101, 67, 33, 0.3)"
         }}
       >
         <div className="flex items-center justify-between mb-3">
@@ -438,7 +431,7 @@ export default function MenuLightweight() {
       </div>
 
       {/* Categories - Premium Horizontal Scroll */}
-      <div className="sticky top-[105px] z-20 bg-white/80 backdrop-blur-md px-4 py-3 border-b border-amber-100">
+      <div className="sticky top-[105px] z-20 bg-[#FDF5E6]/90 backdrop-blur-md px-4 py-3 border-b border-[#D2B48C]">
         <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1">
           {CATS.map((c, idx) => (
             <button
@@ -448,8 +441,8 @@ export default function MenuLightweight() {
                 flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
                 transition-all duration-300 ease-out shadow-sm
                 ${cat === c.id 
-                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-200 scale-105" 
-                  : "bg-white text-gray-600 hover:bg-amber-50 hover:scale-102"
+                  ? "bg-gradient-to-r from-[#654321] to-[#8B4513] text-white shadow-lg shadow-[#D2B48C] scale-105" 
+                  : "bg-white text-[#654321] hover:bg-[#FDF5E6] hover:scale-102"
                 }
               `}
               style={{ 
@@ -461,7 +454,7 @@ export default function MenuLightweight() {
               <span>{lang === "ar" ? c.ar : c.en}</span>
               <span className={`
                 text-[10px] px-1.5 py-0.5 rounded-full font-bold
-                ${cat === c.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"}
+                ${cat === c.id ? "bg-white/20 text-white" : "bg-[#D2B48C] text-[#654321]"}
               `}>
                 {catCount(c.id)}
               </span>
@@ -523,8 +516,8 @@ export default function MenuLightweight() {
                   onClick={() => setPage(i + 1)}
                   className={`w-8 h-8 rounded-lg text-sm font-bold transition-all ${
                     page === i + 1 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
-                      : "bg-white text-gray-500 hover:bg-amber-50"
+                      ? "bg-gradient-to-r from-[#654321] to-[#8B4513] text-white shadow-md" 
+                      : "bg-white text-[#654321] hover:bg-[#FDF5E6]"
                   }`}
                 >
                   {i + 1}

@@ -86,6 +86,32 @@
         "قطع فراخ كريسبي",
         "صوص الدايناميت الخاص"
       ]
+    },
+    "honey-lavender-tea": {
+      "name": "Honey Lavender Tea",
+      "nameAr": "شاي لافندر بعسل",
+      "description": "Calming herbal tea with honey and lavender",
+      "descriptionAr": "شاي عشبي مهدئ بالعسل واللافندر",
+      "price": 65,
+      "category": "new_items",
+      "categoryAr": "أصناف جديدة",
+      "available": true,
+      "image": "https://images.pexels.com/photos/3953882/pexels-photo-3953882.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Herbal tea", "lavender", "honey"],
+      "ingredientsAr": ["شاي عشبي", "لافندر", "عسل"]
+    },
+    "smoky-bbq-wings": {
+      "name": "Smoky BBQ Wings",
+      "nameAr": "أجنحة بباربكيو مدخنة",
+      "description": "Smoky BBQ glazed chicken wings with crispy texture",
+      "descriptionAr": "أجنحة فراخ بصوص الباربكيو المدخن المقرمش",
+      "price": 145,
+      "category": "new_items",
+      "categoryAr": "أصناف جديدة",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Chicken wings", "BBQ sauce", "smoked paprika"],
+      "ingredientsAr": ["أجنحة فراخ", "صوص باربكيو", "بابريكا مدخنة"]
     }
   },
   "pancakes": {
@@ -546,6 +572,45 @@
         "بطاطس روستيد بالمشروم والزيتون",
         "توست"
       ]
+    },
+    "english-breakfast": {
+      "name": "English Breakfast",
+      "nameAr": "إنجلش بريكفاست",
+      "description": "Classic English breakfast with eggs, bacon, sausages, beans, and toast",
+      "descriptionAr": "إفطار إنجليزي كلاسيكي بالبيض واللحم المقدد والنقانق والفول والتوست",
+      "price": 195,
+      "category": "breakfast",
+      "categoryAr": "بريك فاست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1542635/pexels-photo-1542635.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Eggs", "bacon", "sausages", "baked beans", "toast"],
+      "ingredientsAr": ["بيض", "لحم مقدد", "نقانق", "فول", "توست"]
+    },
+    "shakshuka-deluxe": {
+      "name": "Shakshuka Deluxe",
+      "nameAr": "شكشوكة ديلوكس",
+      "description": "Eggs poached in rich tomato sauce with peppers, onions, and feta cheese, served with fresh pita",
+      "descriptionAr": "بيض مطبوخ في صوص طماطم غني مع الفلفل والبصل وجبنه الفيتا، يقدم مع خبز pita طازج",
+      "price": 125,
+      "category": "breakfast",
+      "categoryAr": "بريك فاست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1620697/pexels-photo-1620697.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Eggs", "tomato sauce", "peppers", "onions", "feta cheese", "pita bread"],
+      "ingredientsAr": ["بيض", "صوص طماطم", "فلفل", "بصل", "جبنه فيتا", "خبز pita"]
+    },
+    "avocado-eggs": {
+      "name": "Avocado & Eggs",
+      "nameAr": "أفوكادو وبيض",
+      "description": "Smashed avocado with poached eggs on sourdough, topped with cherry tomatoes and microgreens",
+      "descriptionAr": "أفوكادو مهروس مع بيض مسلوق على خبز sourdough مع طماطم cherry و microgreens",
+      "price": 135,
+      "category": "breakfast",
+      "categoryAr": "بريك فاست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1546055/pexels-photo-1546055.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Avocado", "poached eggs", "sourdough bread", "cherry tomatoes", "microgreens"],
+      "ingredientsAr": ["أفوكادو", "بيض مسلوق", "خبز sourdough", "طماطم cherry", "microgreens"]
     }
   },
   "toast": {
@@ -648,9 +713,105 @@
         "شبت",
         "زيتون"
       ]
+    },
+    "nutella-banana": {
+      "name": "Nutella Banana Toast",
+      "nameAr": "توست نوتيلا وموز",
+      "description": "Toasted bread with Nutella and fresh banana slices",
+      "descriptionAr": "خبز محمص مع نوتيلا وشرائح موز طازج",
+      "price": 89,
+      "category": "toast",
+      "categoryAr": "توست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Toasted bread", "Nutella", "fresh banana"],
+      "ingredientsAr": ["خبز محمص", "نوتيلا", "موز طازج"]
+    },
+    "garlic-butter": {
+      "name": "Garlic Butter Toast",
+      "nameAr": "توست ثوم وزبدة",
+      "description": "Crispy toast with garlic butter and herbs",
+      "descriptionAr": "خبز مقرمش بالثوم وزبدة والأعشاب",
+      "price": 65,
+      "category": "toast",
+      "categoryAr": "توست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Toasted bread", "garlic butter", "herbs"],
+      "ingredientsAr": ["خبز محمص", "زبدة ثوم", "أعشاب"]
+    },
+    "cheese-melt": {
+      "name": "Cheese Melt Toast",
+      "nameAr": "توست تشيز ميلت",
+      "description": "Grilled toast with melted cheese and butter",
+      "descriptionAr": "خبز مشوي بالجبنه المذابة والزبدة",
+      "price": 75,
+      "category": "toast",
+      "categoryAr": "توست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Toasted bread", "melted cheese", "butter"],
+      "ingredientsAr": ["خبز محمص", "جبنه مذابة", "زبدة"]
+    },
+    "honey-oats": {
+      "name": "Honey Oats Toast",
+      "nameAr": "توست عسل وشوفان",
+      "description": "Toasted bread with honey, oats, and butter",
+      "descriptionAr": "خبز محمص بالعسل والشوفان والزبدة",
+      "price": 79,
+      "category": "toast",
+      "categoryAr": "توست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Toasted bread", "honey", "oats", "butter"],
+      "ingredientsAr": ["خبز محمص", "عسل", "شوفان", "زبدة"]
     }
   },
   "croissant": {
+    "nutella-croissant": {
+      "name": "Nutella Croissant",
+      "nameAr": "كروسان نوتيلا",
+      "description": "Fresh croissant filled with Nutella hazelnut spread",
+      "descriptionAr": "كروسان طازج محشي بسبريد النوتيلا",
+      "price": 85,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "chocolate-croissant": {
+      "name": "Chocolate Croissant",
+      "nameAr": "كروسان شوكولاته",
+      "description": "Buttery croissant with rich chocolate filling",
+      "descriptionAr": "كروسان بالزبدة مع حشوة شوكولاته غنية",
+      "price": 79,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "almond-croissant": {
+      "name": "Almond Croissant",
+      "nameAr": "كروسان لوز",
+      "description": "Croissant filled with almond cream and topped with sliced almonds",
+      "descriptionAr": "كروسان محشي كريمة لوز مع شرائح لوز من فوق",
+      "price": 95,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "cream-croissant": {
+      "name": "Cream Croissant",
+      "nameAr": "كروسان كريمة",
+      "description": "Light croissant filled with fresh whipped cream",
+      "descriptionAr": "كروسان خفيف محشي بكريمة مخفوقة طازجة",
+      "price": 69,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600"
+    },
     "classic": {
       "name": "Classic",
       "nameAr": "كلاسيك",

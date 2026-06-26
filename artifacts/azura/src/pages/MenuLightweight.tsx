@@ -35,6 +35,7 @@ const CATS = [
   { id: "mocktails",  emoji: "🍹",  en: "Cold Drinks", ar: "مشروبات باردة" },
   { id: "milkshake",  emoji: "🥛",  en: "Shakes",      ar: "شيك"       },
   { id: "all",        emoji: "✨",  en: "All",         ar: "الكل"      },
+  { id: "recommended",emoji: "⭐",  en: "Top Picks",   ar: "الأفضل"    },
   { id: "new_items",  emoji: "🆕",  en: "New",         ar: "جديد"      },
   { id: "burgers",    emoji: "🍔",  en: "Burgers",     ar: "برجر"      },
   { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
@@ -49,6 +50,8 @@ const CATS = [
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
+  beverages:   ["beverages", "drinks", "drink", "hot_drinks", "iced_coffee", "mocktails", "milkshake"],
+  recommended: ["recommended"],
   new_items:   ["new_items", "new", "featured"],
   food:        ["food", "mains", "main", "main_dishes", "fried_chicken"],
   sandwiches:  ["sandwich", "sandwiches", "toast", "croissant", "tortilla"],

@@ -15,7 +15,7 @@ import {
   Send, CheckCircle, XCircle,
   ImageIcon, Megaphone, Film, Pin, Key, Settings, Eye, EyeOff,
   RotateCcw, Download, Archive, UploadCloud, Save, X,
-  Video, AlertTriangle, Bot, LayoutDashboard, Users, ToggleLeft, ToggleRight, Sparkles,
+  Video, AlertTriangle, Bot, LayoutDashboard, Users, ToggleLeft, ToggleRight, Sparkles, Search,
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
@@ -239,6 +239,9 @@ export default function Admin() {
   });
   const [savingFlag, setSavingFlag] = useState<string | null>(null);
 
+  // User search
+  const [userSearch, setUserSearch] = useState("");
+
   // Load banner from Firebase
   useEffect(() => {
     if (!authed) return;
@@ -426,7 +429,7 @@ export default function Admin() {
   // ── Auth ──────────────────────────────────────────────────────
   const login = () => {
     if (pin === ADMIN_PIN) { sessionStorage.setItem("azura-admin", "true"); setAuthed(true); }
-    else setPinErr(tr("Wrong PIN", "PIN خاطئ"));
+    else setPinErr(tr("Wrong PIN. Try: azura2026", "PIN خاطئ. جرب: azura2026"));
   };
 
   // ── Chat helpers ──────────────────────────────────────────────
@@ -1086,8 +1089,25 @@ export default function Admin() {
                 <span className="badge bg-primary/10 text-primary font-bold">{users.length}</span>
               </div>
 
+              {/* Search */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={tr("Search users...", "البحث عن مستخدمين...")}
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  className="w-full px-4 py-2.5 pl-10 rounded-xl bg-muted text-sm focus:ring-2 focus:ring-primary/30"
+                />
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              </div>
+
               <div className="space-y-3">
-                {users.map((u) => (
+                {users.filter(u => 
+                  !userSearch || 
+                  u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                  u.email?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                  u.uid?.includes(userSearch)
+                ).map((u) => (
                   <div key={u.uid} className="card rounded-2xl p-4 border border-border/50 hover:shadow-md transition-all">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground text-xl font-black shadow-lg">
@@ -1192,10 +1212,7 @@ export default function Admin() {
                 )}
                 {chats.map((c) => (
                   <div key={c.uid} className="card rounded-xl p-3 flex items-center gap-3 hover:shadow-md transition-shadow">
-                    <div
-                      className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
-                      onClick={() => setSelectedChat(c.uid)}
-                    >
+                    <button onClick={() => setSelectedChat(c.uid)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">
                         {c.userName?.[0]?.toUpperCase() || "?"}
                       </div>
@@ -1207,13 +1224,24 @@ export default function Admin() {
                         <p className="text-[10px] text-muted-foreground">{c.lastAt ? new Date(c.lastAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : ""}</p>
                         {c.unreadAdmin > 0 && <span className="badge px-1.5 py-0.5 bg-red-500 text-white text-[9px]">{c.unreadAdmin}</span>}
                       </div>
-                    </div>
+                    </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); deleteChat(c.uid, c.userName); }}
-                      className="p-2 text-destructive/40 hover:text-destructive transition-colors flex-shrink-0"
-                      title={tr("Delete chat", "حذف المحادثة")}
+                      onClick={async () => {
+                        if (await swalConfirm(
+                          tr(`Delete chat with ${c.userName}?`, `حذف محادثة ${c.userName}؟`),
+                          tr("This will permanently delete the entire conversation.", "سيتم حذف المحادثة نهائياً."),
+                          tr("Delete", "حذف"),
+                          tr("Cancel", "إلغاء")
+                        )) {
+                          await smartRemove(`support-chat/${c.uid}`);
+                          setChats(prev => prev.filter(ch => ch.uid !== c.uid));
+                          swalSuccess(tr("Chat deleted", "تم حذف المحادثة"));
+                        }
+                      }}
+                      className="p-2 text-destructive/50 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex-shrink-0"
+                      title={tr("Delete Chat", "حذف المحادثة")}
                     >
-                      <Trash2 size={14}/>
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 ))}

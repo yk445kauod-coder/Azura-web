@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BaristaProvider } from "@/contexts/BaristaContext";
+import { db, ref, onValue, off } from "@/lib/firebase";
 import Layout from "@/components/Layout";
 import Welcome from "@/pages/Welcome";
 import MenuLightweight from "@/pages/MenuLightweight";
@@ -13,7 +14,6 @@ import Reels from "@/pages/Reels";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
-import { db, ref, onValue, off } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
@@ -45,6 +45,7 @@ function AppRoutes() {
       .catch(() => {});
   }, []);
 
+  // Listen for feature flags globally
   useEffect(() => {
     const ffRef = ref(db, "feature-flags");
     onValue(ffRef, (snap) => {

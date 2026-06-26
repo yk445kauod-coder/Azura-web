@@ -3,7 +3,7 @@
  * Simplified for Facebook Reels and thumbnails display
  */
 
-export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "unknown";
+export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "rss" | "unknown";
 
 export interface ParsedVideo {
   provider: VideoProvider;
@@ -13,6 +13,18 @@ export interface ParsedVideo {
   title: string;
   isEmbeddable: boolean;
   videoId?: string;
+  apiEndpoint?: string;
+  downloadUrl?: string;
+}
+
+export interface RSSFeedItem {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  link: string;
+  pubDate: string;
+  provider: VideoProvider;
 }
 
 // Normalize Facebook URL to ensure proper embed

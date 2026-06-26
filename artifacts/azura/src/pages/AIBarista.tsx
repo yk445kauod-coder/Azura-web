@@ -52,6 +52,9 @@ function renderMarkdown(text: string): string {
     .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
     .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
+    // Instagram handle
+    .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>')
+    // Line breaks
     .replace(/\n/g, '<br/>');
 }
 
@@ -345,19 +348,19 @@ MENU DATA:\n${menuCtx}`}`;
   };
 
   const quickPrompts = lang === "ar" ? [
-    "أفضل قهوة لديكم؟",
-    "أريد شيئاً حلواً!",
-    "ما الأكثر طلباً؟",
-    "أريد شيئاً بارداً",
-    "أوصيني بكومبو",
-    "أنا جائع!"
+    "☕ أوصني بقهوة",
+    "🍰 أريد حلويات",
+    "⭐ الأكثر شعبية؟",
+    "🧊 شيء بارد منعش",
+    "🌟 كومبو مثالي",
+    "🍔 أنا جائع"
   ] : [
-    "What's your best coffee?",
-    "Something sweet!",
-    "What's popular?",
-    "I want something cold",
-    "Recommend a combo",
-    "I'm hungry!"
+    "☕ Best coffee?",
+    "🍰 Something sweet",
+    "⭐ What's popular?",
+    "🧊 Something cold",
+    "🌟 Perfect combo",
+    "🍔 I'm hungry"
   ];
 
   return (
@@ -374,9 +377,14 @@ MENU DATA:\n${menuCtx}`}`;
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-primary text-sm leading-tight">{baristaName}</p>
-            <p className="text-[11px] text-muted-foreground">
-              {lang === "ar" ? "باريستا أزورا · متصل" : "Azura Barista · Online"}
-            </p>
+            <a 
+              href={`https://instagram.com/${instagram.replace('@','')}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[11px] text-pink-500 font-medium hover:underline flex items-center gap-1"
+            >
+              <Instagram size={12} /> {instagram}
+            </a>
           </div>
           <button onClick={() => {
             if (user) remove(ref(db, `conversations/${user.uid}/barista`));

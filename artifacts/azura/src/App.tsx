@@ -11,12 +11,12 @@ import Reels from "@/pages/Reels";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 
 // Lazy load heavy pages only
-const AIBarista = lazy(() => import("@/pages/AIBarista"));
-const Admin = lazy(() => import("@/pages/Admin"));
-const Profile = lazy(() => import("@/pages/Profile"));
+const AIBarista = lazy(() => import("@/pages/AIBarista").then(m => ({ default: m.default })));
+const Admin = lazy(() => import("@/pages/Admin").then(m => ({ default: m.default })));
+const Profile = lazy(() => import("@/pages/Profile").then(m => ({ default: m.default })));
 
 const queryClient = new QueryClient({
   defaultOptions: {

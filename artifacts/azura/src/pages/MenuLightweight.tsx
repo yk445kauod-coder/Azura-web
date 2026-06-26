@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
-import { Search, X, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
@@ -30,39 +30,39 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 }
 
 const CATS = [
+  { id: "hot_drinks", emoji: "☕",  en: "Hot Drinks",  ar: "مشروبات ساخنة" },
+  { id: "iced_coffee",emoji: "🧊",  en: "Iced Coffee", ar: "ايس كوفي"  },
+  { id: "mocktails",  emoji: "🍹",  en: "Cold Drinks", ar: "مشروبات باردة" },
+  { id: "milkshake",  emoji: "🥛",  en: "Shakes",      ar: "شيك"       },
   { id: "all",        emoji: "✨",  en: "All",         ar: "الكل"      },
-  { id: "recommended",emoji: "⭐",  en: "Top Picks",   ar: "الأفضل"    },
   { id: "new_items",  emoji: "🆕",  en: "New",         ar: "جديد"      },
-  { id: "food",       emoji: "🍗",  en: "Main",        ar: "أطباق"     },
-  { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
   { id: "burgers",    emoji: "🍔",  en: "Burgers",     ar: "برجر"      },
+  { id: "sandwiches", emoji: "🥪",  en: "Sandwiches",  ar: "ساندوتش"   },
+  { id: "food",       emoji: "🍗",  en: "Main",        ar: "أطباق"     },
   { id: "pasta",      emoji: "🍝",  en: "Pasta",       ar: "مكرونة"    },
   { id: "salads",     emoji: "🥗",  en: "Salads",      ar: "سلطات"     },
   { id: "soups",      emoji: "🍲",  en: "Soups",       ar: "شوربة"     },
   { id: "appetizers", emoji: "🍟",  en: "Starters",    ar: "مقبلات"    },
   { id: "breakfast",  emoji: "🍳",  en: "Breakfast",   ar: "إفطار"     },
   { id: "desserts",   emoji: "🍰",  en: "Sweets",      ar: "حلويات"    },
-  { id: "hot_drinks", emoji: "☕",  en: "Hot",         ar: "ساخن"      },
-  { id: "milkshake",  emoji: "🥛",  en: "Shakes",      ar: "شيك"       },
-  { id: "mocktails",  emoji: "🍹",  en: "Cold",        ar: "بارد"      },
   { id: "shisha",     emoji: "💨",  en: "Shisha",      ar: "شيشة"      },
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
-  recommended: ["recommended"],
   new_items:   ["new_items", "new", "featured"],
-  food:        ["food", "mains", "main", "new_items"],
-  sandwiches:  ["sandwich", "sandwiches", "toast", "croissant"],
-  burgers:     ["burger", "burgers"],
+  food:        ["food", "mains", "main", "main_dishes", "fried_chicken"],
+  sandwiches:  ["sandwich", "sandwiches", "toast", "croissant", "tortilla"],
+  burgers:     ["burger", "burgers", "smash_burgers"],
   pasta:       ["pasta", "noodles"],
   salads:      ["salad", "salads"],
   soups:       ["soup", "soups"],
-  appetizers:  ["appetizer", "appetizers", "starters", "sides", "extras"],
+  appetizers:  ["appetizer", "appetizers", "starters", "sides", "extras", "add_ons"],
   breakfast:   ["breakfast", "brunch"],
   desserts:    ["dessert", "desserts", "sweet", "sweets", "pancakes", "crepes"],
-  hot_drinks:  ["hot", "hot_drinks", "coffee", "tea"],
+  hot_drinks:  ["hot_drinks", "coffee", "tea", "corto", "hot_chocolate", "sahlab"],
+  iced_coffee: ["iced_coffee", "frappuccino"],
   milkshake:   ["milkshake", "shake", "milkshakes"],
-  mocktails:   ["mocktail", "mocktails", "cold", "cold_drinks", "juice", "fresh"],
+  mocktails:   ["mocktail", "mocktails", "cold", "cold_drinks", "juice", "fresh_juices", "mojitos", "boba_tea", "smoothies"],
   shisha:      ["shisha", "hookah", "sheesha"],
 };
 
@@ -314,15 +314,12 @@ export default function MenuLightweight() {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("all");
+  const [cat, setCat] = useState("hot_drinks");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [showRecToast, setShowRecToast] = useState(false);
-  const [recToastMsg, setRecToastMsg] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
-  const toastShownRef = useRef(false);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
 
@@ -360,27 +357,10 @@ export default function MenuLightweight() {
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
-  // Recommendation notification toast — fires once when recommended items load
-  useEffect(() => {
-    if (toastShownRef.current || items.length === 0) return;
-    const recItems = items.filter(i => i.available && i.recommended);
-    if (recItems.length === 0) return;
-    toastShownRef.current = true;
-    const firstName = lang === "ar" ? (recItems[0].nameAr || recItems[0].name) : recItems[0].name;
-    const msg = lang === "ar"
-      ? `⭐ ${recItems.length > 1 ? `${recItems.length} أصناف` : firstName} مُوصى بها الآن!`
-      : `⭐ ${recItems.length > 1 ? `${recItems.length} items` : firstName} recommended today!`;
-    setRecToastMsg(msg);
-    setShowRecToast(true);
-    const t = setTimeout(() => setShowRecToast(false), 4000);
-    return () => clearTimeout(t);
-  }, [items, lang]);
-
-  // Filtered items — "recommended" tab uses the flag, not category string
+  // Filtered items
   const filtered = useMemo(() => {
     return items.filter((item) => {
       if (!item.available) return false;
-      if (cat === "recommended") return item.recommended === true;
       if (cat !== "all") {
         const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
         if (!aliasSet.has(item.category.toLowerCase())) return false;
@@ -405,7 +385,6 @@ export default function MenuLightweight() {
   // Category counts
   const catCount = useCallback((c: string) => {
     if (c === "all") return items.filter((i) => i.available).length;
-    if (c === "recommended") return items.filter((i) => i.available && i.recommended).length;
     const aliasSet = new Set(CAT_ALIASES[c] ?? [c]);
     return items.filter((i) => i.available && aliasSet.has(i.category.toLowerCase())).length;
   }, [items]);

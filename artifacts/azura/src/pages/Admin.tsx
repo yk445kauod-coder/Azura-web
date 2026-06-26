@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import AIAdminAssistant from "@/components/AIAdminAssistant";
 
-const ADMIN_PIN = "azura2024";
+const ADMIN_PIN = "azura2026";
 
 const IMG_INPUT_CLS = "input-field px-3 py-2.5 text-sm";
 
@@ -426,7 +426,7 @@ export default function Admin() {
   // ── Auth ──────────────────────────────────────────────────────
   const login = () => {
     if (pin === ADMIN_PIN) { sessionStorage.setItem("azura-admin", "true"); setAuthed(true); }
-    else setPinErr(tr("Wrong PIN. Try: azura2024", "PIN خاطئ. جرب: azura2024"));
+    else setPinErr(tr("Wrong PIN", "PIN خاطئ"));
   };
 
   // ── Chat helpers ──────────────────────────────────────────────
@@ -445,6 +445,14 @@ export default function Admin() {
     if (await swalConfirm(tr(`Delete User ${name}?`, `حذف المستخدم ${name}؟`), tr("This will remove all user data. Chat logs will remain in conversations.", "سيتم حذف بيانات المستخدم. ستبقى سجلات الدردشة."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
       await smartRemove(`users/${uid}`);
       swalSuccess(tr("User deleted", "تم حذف المستخدم"));
+    }
+  };
+
+  const deleteChat = async (uid: string, name: string) => {
+    if (await swalConfirm(tr(`Delete chat with ${name}?`, `حذف محادثة ${name}؟`), tr("All messages in this chat will be permanently deleted.", "سيتم حذف جميع رسائل هذه المحادثة نهائياً."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) {
+      if (selectedChat === uid) setSelectedChat(null);
+      await smartRemove(`support-chat/${uid}`);
+      swalSuccess(tr("Chat deleted", "تم حذف المحادثة"));
     }
   };
 
@@ -1183,19 +1191,31 @@ export default function Admin() {
                   </div>
                 )}
                 {chats.map((c) => (
-                  <button key={c.uid} onClick={() => setSelectedChat(c.uid)} className="card rounded-xl p-3 w-full flex items-center gap-3 hover:shadow-md transition-shadow text-left">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">
-                      {c.userName?.[0]?.toUpperCase() || "?"}
+                  <div key={c.uid} className="card rounded-xl p-3 flex items-center gap-3 hover:shadow-md transition-shadow">
+                    <div
+                      className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+                      onClick={() => setSelectedChat(c.uid)}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">
+                        {c.userName?.[0]?.toUpperCase() || "?"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-foreground truncate">{c.userName}</p>
+                        <p className="text-xs text-muted-foreground truncate">{c.lastMessage}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <p className="text-[10px] text-muted-foreground">{c.lastAt ? new Date(c.lastAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : ""}</p>
+                        {c.unreadAdmin > 0 && <span className="badge px-1.5 py-0.5 bg-red-500 text-white text-[9px]">{c.unreadAdmin}</span>}
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-foreground truncate">{c.userName}</p>
-                      <p className="text-xs text-muted-foreground truncate">{c.lastMessage}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <p className="text-[10px] text-muted-foreground">{c.lastAt ? new Date(c.lastAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : ""}</p>
-                      {c.unreadAdmin > 0 && <span className="badge px-1.5 py-0.5 bg-red-500 text-white text-[9px]">{c.unreadAdmin}</span>}
-                    </div>
-                  </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deleteChat(c.uid, c.userName); }}
+                      className="p-2 text-destructive/40 hover:text-destructive transition-colors flex-shrink-0"
+                      title={tr("Delete chat", "حذف المحادثة")}
+                    >
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
                 ))}
               </div>
             )}

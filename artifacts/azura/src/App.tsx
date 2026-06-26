@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,8 @@ import Reels from "@/pages/Reels";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
-import { useEffect } from "react";
+import { db, ref, onValue, off } from "@/lib/firebase";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,12 +25,39 @@ const queryClient = new QueryClient({
   },
 });
 
+interface FeatureFlags {
+  baristaEnabled: boolean;
+  reelsEnabled: boolean;
+  supportEnabled: boolean;
+}
+
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const [flags, setFlags] = useState<FeatureFlags>({
+    baristaEnabled: true,
+    reelsEnabled: true,
+    supportEnabled: true,
+  });
+
   useEffect(() => {
     seedMenuIfEmpty()
       .then(() => mergeMenuIngredients())
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const ffRef = ref(db, "feature-flags");
+    onValue(ffRef, (snap) => {
+      if (snap.exists()) {
+        const d = snap.val();
+        setFlags({
+          baristaEnabled: d.baristaEnabled !== false,
+          reelsEnabled: d.reelsEnabled !== false,
+          supportEnabled: d.supportEnabled !== false,
+        });
+      }
+    });
+    return () => off(ffRef);
   }, []);
 
   if (loading) {
@@ -53,9 +81,15 @@ function AppRoutes() {
             <Switch>
               <Route path="/" component={MenuLightweight} />
               <Route path="/menu" component={MenuLightweight} />
-              <Route path="/barista" component={AIBarista} />
-              <Route path="/reels" component={Reels} />
-              <Route path="/support" component={SupportChat} />
+              <Route path="/barista">
+                {flags.baristaEnabled ? <AIBarista /> : <Redirect to="/menu" />}
+              </Route>
+              <Route path="/reels">
+                {flags.reelsEnabled ? <Reels /> : <Redirect to="/menu" />}
+              </Route>
+              <Route path="/support">
+                {flags.supportEnabled ? <SupportChat /> : <Redirect to="/menu" />}
+              </Route>
               <Route path="/profile" component={Profile} />
               <Route component={NotFound} />
             </Switch>

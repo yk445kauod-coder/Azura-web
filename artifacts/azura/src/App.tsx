@@ -7,14 +7,16 @@ import { db, ref, onValue, off } from "@/lib/firebase";
 import Layout from "@/components/Layout";
 import Welcome from "@/pages/Welcome";
 import MenuLightweight from "@/pages/MenuLightweight";
-import AIBarista from "@/pages/AIBarista";
-import Profile from "@/pages/Profile";
-import Admin from "@/pages/Admin";
 import Reels from "@/pages/Reels";
 import SupportChat from "@/pages/SupportChat";
 import NotFound from "@/pages/not-found";
 import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
+
+// Lazy load heavy pages only
+const AIBarista = lazy(() => import("@/pages/AIBarista"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const Profile = lazy(() => import("@/pages/Profile"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,7 +75,11 @@ function AppRoutes() {
 
   return (
     <Switch>
-      <Route path="/admin" component={Admin} />
+      <Route path="/admin">
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>}>
+          <Admin />
+        </Suspense>
+      </Route>
       {!user ? (
         <Route component={Welcome} />
       ) : (
@@ -83,7 +89,11 @@ function AppRoutes() {
               <Route path="/" component={MenuLightweight} />
               <Route path="/menu" component={MenuLightweight} />
               <Route path="/barista">
-                {flags.baristaEnabled ? <AIBarista /> : <Redirect to="/menu" />}
+                {flags.baristaEnabled ? (
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>}>
+                    <AIBarista />
+                  </Suspense>
+                ) : <Redirect to="/menu" />}
               </Route>
               <Route path="/reels">
                 {flags.reelsEnabled ? <Reels /> : <Redirect to="/menu" />}
@@ -91,7 +101,11 @@ function AppRoutes() {
               <Route path="/support">
                 {flags.supportEnabled ? <SupportChat /> : <Redirect to="/menu" />}
               </Route>
-              <Route path="/profile" component={Profile} />
+              <Route path="/profile">
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>}>
+                  <Profile />
+                </Suspense>
+              </Route>
               <Route component={NotFound} />
             </Switch>
           </Layout>

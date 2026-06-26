@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "pnpm": {
+    "overrides": {
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "@types/react": "^18.2.0",
+      "@types/react-dom": "^18.2.0"
+    }
+  },
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
     "build": "vite build --config vite.config.ts",

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState, memo, useMemo } from "react";
 import { useLocation, Link } from "wouter";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -126,14 +126,20 @@ export default function Layout({ children }: { children: ReactNode }) {
     setNotifOpen(false);
   };
 
-  // Filter nav based on feature flags
-  const NAV = ALL_NAV.filter(item => {
-    if (item.alwaysOn) return true;
-    if (item.key === "barista") return featureFlags.baristaEnabled;
-    if (item.key === "reels") return featureFlags.reelsEnabled;
-    if (item.key === "support") return featureFlags.supportEnabled;
-    return true;
-  });
+  // Filter nav based on feature flags - memoized
+  const NAV = useMemo(() => 
+    ALL_NAV.filter(item => {
+      if (item.alwaysOn) return true;
+      if (item.key === "barista") return featureFlags.baristaEnabled;
+      if (item.key === "reels") return featureFlags.reelsEnabled;
+      if (item.key === "support") return featureFlags.supportEnabled;
+      return true;
+    }), [featureFlags]);
+
+  // Memoized broadcast style
+  const broadcastStyle = useMemo(() => 
+    BROADCAST_TYPE_STYLE[broadcast?.type || "info"] || BROADCAST_TYPE_STYLE.info,
+    [broadcast?.type]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? "rtl" : "ltr"}>

@@ -86,21 +86,7 @@
         "قطع فراخ كريسبي",
         "صوص الدايناميت الخاص"
       ]
-    },
-    "honey-lavender-tea": {
-      "name": "Honey Lavender Tea",
-      "nameAr": "شاي لافندر بعسل",
-      "description": "Calming herbal tea with honey and lavender",
-      "descriptionAr": "شاي عشبي مهدئ بالعسل واللافندر",
-      "price": 65,
-      "category": "new_items",
-      "categoryAr": "أصناف جديدة",
-      "available": true,
-      "image": "https://images.pexels.com/photos/3953882/pexels-photo-3953882.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "ingredients": ["Herbal tea", "lavender", "honey"],
-      "ingredientsAr": ["شاي عشبي", "لافندر", "عسل"]
-    },
-    "smoky-bbq-wings": {
+    }, "smoky-bbq-wings": {
       "name": "Smoky BBQ Wings",
       "nameAr": "أجنحة بباربكيو مدخنة",
       "description": "Smoky BBQ glazed chicken wings with crispy texture",

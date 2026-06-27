@@ -87,10 +87,10 @@ const CAT_ALIASES: Record<string, string[]> = {
   hot_chocolate:  ["hot_chocolate", "chocolate"],
   frappe:         ["frappe", "frappuccino", "iced_coffee"],
   iced_coffee:    ["iced_coffee"],
-  mocktails:      ["mocktails", "mocktail", "mojitos"],
+  mocktails:      ["mocktails", "mocktail"],
   boba_tea:       ["boba_tea", "boba", "bubble_tea"],
   fresh_juice:    ["fresh_juice", "juice", "fresh_juices"],
-  cocktails:      ["cocktails", "cocktail"],
+  cocktails:      ["cocktails", "cocktail", "mojitos", "mocktails", "mocktail"],
   smoothie:       ["smoothie", "smoothies"],
   milkshake:      ["milkshake", "shake", "milkshakes"],
   waffle:         ["waffle", "waffles"],
@@ -604,36 +604,57 @@ export default function MenuLightweight() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-8">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center disabled:opacity-40 disabled:shadow-none hover:shadow-lg transition-all"
-            >
-              {isRTL ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-            </button>
-            <div className="flex items-center gap-1">
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`w-8 h-8 rounded-lg text-sm font-bold transition-all ${
-                    page === i + 1 
-                      ? "bg-gradient-to-r from-[#654321] to-[#8B4513] text-white shadow-md" 
-                      : "bg-white text-[#654321] hover:bg-[#FDF5E6]"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+          <div className="flex flex-col items-center gap-4 mt-8 mb-4">
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+              >
+                {isRTL ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                <span>{tr("Prev", "السابق")}</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 mx-1">
+                {(() => {
+                  const maxVisible = 4;
+                  const chunkIndex = Math.floor((page - 1) / maxVisible);
+                  const start = (chunkIndex * maxVisible) + 1;
+                  const end = Math.min(totalPages, start + maxVisible - 1);
+
+                  const pages = [];
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => setPage(i)}
+                        className={`w-9 h-9 rounded-xl text-sm font-bold transition-all active:scale-90 ${
+                          page === i
+                            ? "bg-[#654321] text-white shadow-md scale-105"
+                            : "bg-white text-[#654321] border border-border/40 hover:bg-muted"
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+                  return pages;
+                })()}
+              </div>
+
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+              >
+                <span>{tr("Next", "التالي")}</span>
+                {isRTL ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+              </button>
             </div>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center disabled:opacity-40 disabled:shadow-none hover:shadow-lg transition-all"
-            >
-              {isRTL ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-            </button>
+
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
+              {tr("Page", "صفحة")} {page} {tr("of", "من")} {totalPages}
+            </p>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
+import { fullMenuData } from "@/lib/fullMenu";
 import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2 } from "lucide-react";
 
 interface SuggestedItem {
@@ -43,6 +44,19 @@ function normalizeItem(id: string, raw: RawMenuItem & { ingredients?: any }): Me
   };
 }
 
+// Convert fullMenuData to flat array for initial state/fallback
+const STATIC_MENU: MenuItem[] = Object.entries(fullMenuData).flatMap(([catId, items]) =>
+  Object.entries(items).map(([id, item]) => ({
+    id,
+    name: item.name,
+    nameAr: item.nameAr,
+    price: item.price,
+    category: catId,
+    image: item.image,
+    ingredients: item.ingredients?.join(", ")
+  }))
+);
+
 function renderMarkdown(text: string): string {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
@@ -66,7 +80,7 @@ export default function AIBarista() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(STATIC_MENU);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -191,7 +205,7 @@ export default function AIBarista() {
     
     const menuCtx = Object.entries(byCategory)
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
-        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}] ${i.ingredients ? `[${i.ingredients}]` : ""}`)
+        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}]`)
         .join("\n"))
       .join("\n");
     
@@ -204,23 +218,18 @@ export default function AIBarista() {
 
 YOUR PERSONALITY:
 - Warm, welcoming, and genuinely passionate about coffee and food
-- You remember previous conversations and preferences
-- You're an expert in flavor profiles, ingredients, and perfect pairings
-- You speak naturally - not robotic, but like a knowledgeable friend
+- You speak naturally - not robotic, but like a knowledgeable friend (Ammiya Egyptian dialect if speaking Arabic).
 - You use emojis strategically to add warmth ✨☕
 
 YOUR EXPERTISE:
-- Deep knowledge of Egyptian coffee culture and traditions ☕
-- Global specialty coffee drinks and brewing methods
-- Perfect food & drink pairings
-- Allergen and dietary information (lactose-free, sugar-free options)
-- Seasonal and trending recommendations
+- Deep knowledge of the Azura Menu provided below.
+- You STRICTLY follow the prices and names in the MENU DATA section.
+- You can explain ingredients based on your general knowledge if not specified, but stay true to the Azura style.
 
 WHEN RECOMMENDING:
-1. Ask follow-up questions to understand preferences
-2. Explain WHY you recommend something (flavor notes, popularity, pairings)
-3. Suggest combos that work beautifully together
-4. Consider the occasion (morning boost, afternoon treat, romantic date, study session)
+1. Always suggest items that EXACTLY match the provided menu names.
+2. Mention the correct price in EGP as listed in the menu.
+3. Recommend perfect pairings (e.g., a specific Dessert with a specific Coffee).
 
 TOOLS:
 • [ADD_ITEM:id] - Show one item (e.g., [ADD_ITEM:latte-hazelnut])
@@ -229,18 +238,12 @@ TOOLS:
 • Use *italics* for flavor descriptions
 • Use emojis: ☕🍰🌟✨🔥❤️
 
-EXAMPLE RECOMMENDATION:
-"If you're in the mood for something *indulgent*, I'd absolutely recommend our **Nutella Latte** ✨ - the hazelnut and chocolate create this *cozy, dessert-like* experience! 
-
-Want me to show you that along with one of our famous brownies? [ADD_ITEM:nutella-latte] [ADD_ITEM:brownie]"
-
 IMPORTANT:
-- NEVER mention cart, checkout, or payment
-- Keep recommendations personalized based on conversation
-- If unsure about an item's availability, suggest it positively
-- Be enthusiastic about new items and specials!
+- NEVER mention checkout or payment.
+- STAY 100% FACTUAL about the prices. If an item is 91 EGP, don't say 90.
+- If a user asks for something not on the menu, politely steer them to a similar available item.
 
-MENU DATA:\n${menuCtx}`}`;
+MENU DATA (STRICT NAMES & PRICES):\n${menuCtx}`}`;
   };
 
   const parseMessage = (raw: string) => {

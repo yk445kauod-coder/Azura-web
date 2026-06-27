@@ -9,6 +9,7 @@ export default function NotFound() {
           src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80"
           alt="404"
           className="w-48 h-48 object-cover rounded-full shadow-2xl border-4 border-white/50 relative z-10"
+          loading="lazy"
         />
         <div className="absolute -bottom-4 -right-4 bg-primary text-primary-foreground w-16 h-16 rounded-full flex items-center justify-center text-xl font-black shadow-lg z-20">
           404

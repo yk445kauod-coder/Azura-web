@@ -155,6 +155,7 @@ export default function Welcome() {
                   alt="Azura"
                   className="w-[88px] h-[88px] rounded-[18px] object-cover"
                   style={{ boxShadow: "0 6px 28px rgba(0,0,0,0.45)" }}
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -303,7 +304,7 @@ export default function Welcome() {
           <div className="relative mb-4">
             <div className="absolute inset-0 rounded-[28px] blur-xl opacity-35" style={{ background: "hsl(var(--primary))", transform: "scale(0.9) translateY(8px)" }} />
             <div className="relative rounded-[28px] p-1.5" style={{ background: "hsl(var(--card))", boxShadow: "0 20px 50px rgba(93,62,35,0.22)" }}>
-              <img src="/logo.jpg" alt="Azura" className="w-24 h-24 rounded-[22px] object-cover" />
+              <img src="/logo.jpg" alt="Azura" className="w-24 h-24 rounded-[22px] object-cover" loading="lazy" />
               {/* Summer edition badge */}
               <div
                 className="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-lg"

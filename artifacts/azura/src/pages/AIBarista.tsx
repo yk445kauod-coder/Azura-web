@@ -372,7 +372,7 @@ MENU DATA:\n${menuCtx}`}`;
             <ArrowLeft size={16} />
           </button>
           <div className="relative flex-shrink-0">
-            <img src={baristaAvatar} alt={baristaName} className="w-11 h-11 rounded-full object-cover object-top" style={{ boxShadow: "var(--shadow-sm)" }} />
+            <img src={baristaAvatar} alt={baristaName} className="w-11 h-11 rounded-full object-cover object-top" style={{ boxShadow: "var(--shadow-sm)" }} loading="lazy" />
             <span className="badge-online absolute -bottom-0.5 -right-0.5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -413,7 +413,7 @@ MENU DATA:\n${menuCtx}`}`;
             className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "ai" && (
-              <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0 mb-1" />
+              <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0 mb-1" loading="lazy" />
             )}
             <div className="max-w-[85%] space-y-2">
               <div className={`px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "bubble-user" : "bubble-ai"}`}>
@@ -443,6 +443,7 @@ MENU DATA:\n${menuCtx}`}`;
                           src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
                           alt={item.name}
                           className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                          loading="lazy"
                           onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
                         />
                         <div className="flex-1 min-w-0">
@@ -470,7 +471,7 @@ MENU DATA:\n${menuCtx}`}`;
 
         {loading && (
           <div className="flex items-end gap-2">
-            <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" />
+            <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" loading="lazy" />
             <div className="bubble-ai px-4 py-3">
               <div className="flex gap-1.5 items-center">
                 {[0, 1, 2].map((i) => (

@@ -72,7 +72,7 @@ export default function Profile() {
     <div className="px-4 py-4 max-w-lg mx-auto" dir={isRTL ? "rtl" : "ltr"}>
       {/* Profile Card */}
       <div className="neo rounded-3xl p-5 mb-4 flex items-center gap-4">
-        <img src={avatar} alt={profile?.name || "User"} className="w-16 h-16 rounded-full neo-sm flex-shrink-0 object-cover" />
+        <img src={avatar} alt={profile?.name || "User"} className="w-16 h-16 rounded-full neo-sm flex-shrink-0 object-cover" loading="lazy" />
         <div className="flex-1 min-w-0">
           <h2 className="font-bold text-primary text-lg truncate" style={{ fontFamily: "'Playfair Display', serif" }}>
             {profile?.name || tr.guestUser}

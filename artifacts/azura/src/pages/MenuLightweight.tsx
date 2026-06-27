@@ -102,7 +102,7 @@ const CAT_ALIASES: Record<string, string[]> = {
   shisha:         ["shisha", "hookah", "sheesha", "hookah"],
 };
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 // Memoized individual item card for peak scroll performance
 const MenuItemCard = memo(({
@@ -124,62 +124,56 @@ const MenuItemCard = memo(({
       className="group cursor-pointer"
       onClick={() => onClick(item)}
       style={{
-        animationDelay: `${idx * 30}ms`,
-        animation: "fadeInSimple 0.3s ease-out forwards"
+        animationDelay: `${idx * 20}ms`,
+        animation: "fadeInSimple 0.25s ease-out forwards",
+        contentVisibility: "auto",
+        containIntrinsicSize: "0 200px"
       }}
     >
-      {/* Card - Removed all hover shimmer and heavy effects as requested */}
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm active:scale-95 transition-transform duration-200">
-        {/* Image Container */}
-        <div className="relative h-36 overflow-hidden">
+      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm active:scale-[0.97] transition-all duration-150">
+        <div className="relative h-36 overflow-hidden bg-muted/30">
           {item.image ? (
             <img
               src={item.image}
               alt={item.name}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-4xl opacity-40">{cat?.emoji || "🍽️"}</span>
             </div>
           )}
 
-          {/* Category badge */}
-          <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[9px] font-bold flex items-center gap-1">
             <span>{cat?.emoji}</span>
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
-          {/* RECOMMENDED gold badge — highest priority */}
           {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-[9px] font-black tracking-wide shadow-lg shadow-amber-200 flex items-center gap-1">
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
               <span>⭐</span>
-              <span>{lang === "ar" ? "مُوصى به" : "TOP PICK"}</span>
+              <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
             </div>
           )}
-          {/* NEW badge — shown only when not recommended */}
           {!item.recommended && item.category === "new_items" && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black tracking-wide shadow-lg">
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] font-black tracking-wide">
               {lang === "ar" ? "جديد" : "NEW"}
             </div>
           )}
         </div>
 
-        {/* Info */}
         <div className="p-3">
           <h3 className="font-bold text-sm text-foreground truncate">
             {lang === "ar" ? item.nameAr : item.name}
           </h3>
-          {item.nameAr && lang !== "ar" && (
-            <p className="text-[11px] text-muted-foreground truncate mt-0.5" dir="rtl">{item.nameAr}</p>
-          )}
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-extrabold text-primary">{item.price}</span>
-              <span className="text-[10px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
+          <div className="flex items-center justify-between mt-2.5">
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-base font-black text-primary">{item.price}</span>
+              <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
             </div>
-            <div className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary text-[10px] font-bold">
-              {lang === "ar" ? "التفاصيل" : "Details"}
+            <div className="px-2 py-0.5 rounded-lg bg-primary/5 text-primary text-[9px] font-bold">
+              {lang === "ar" ? "تفاصيل" : "Details"}
             </div>
           </div>
         </div>
@@ -373,30 +367,64 @@ export default function MenuLightweight() {
     return () => off(ref(db, "menu"));
   }, []);
 
-  // Debounced search
+  // Debounced search - faster for snappier feel
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 200);
+    const timer = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(timer);
   }, [search]);
 
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
-  // Filtered items
-  const filtered = useMemo(() => {
-    return items.filter((item) => {
+  // Unified filtering and counting in a single pass for optimization
+  const { filtered, counts } = useMemo(() => {
+    const countsMap: Record<string, number> = {};
+    CATS.forEach(c => countsMap[c.id] = 0);
+
+    const filteredList = items.filter((item) => {
       if (!item.available) return false;
-      if (cat !== "all") {
-        const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
-        if (!aliasSet.has(item.category.toLowerCase())) return false;
-      }
+
+      // Update counts for ALL categories this item belongs to
+      CATS.forEach(c => {
+        if (c.id === "all") {
+          countsMap["all"]++;
+        } else if (c.id === "recommended") {
+          if (item.recommended) countsMap["recommended"]++;
+        } else {
+          const aliasSet = new Set(CAT_ALIASES[c.id] ?? [c.id]);
+          if (aliasSet.has(item.category.toLowerCase())) {
+            countsMap[c.id]++;
+          }
+        }
+      });
+
+      // Search filter (Global search)
       if (debouncedSearch) {
         const q = debouncedSearch.toLowerCase();
         const ingMatch = (item.ingredients ?? []).some(i => i.toLowerCase().includes(q));
-        return item.name.toLowerCase().includes(q) || item.nameAr.includes(q) || ingMatch;
+        const descMatch = (item.description || "").toLowerCase().includes(q) || (item.descriptionAr || "").includes(q);
+        const nameMatch = item.name.toLowerCase().includes(q) || item.nameAr.includes(q);
+        if (!(nameMatch || ingMatch || descMatch)) return false;
+      } else {
+        // Category filter (only apply if NOT searching, or decide if search should be scoped)
+        // User wants stability, usually global search is better but let's see.
+        // If they chose a category, they probably want to search in it.
+        // Actually, "conflict on section" might mean they want to see it everywhere.
+        // Let's make it scoped search if category is not "all".
+        if (cat !== "all") {
+           if (cat === "recommended") {
+             if (!item.recommended) return false;
+           } else {
+             const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
+             if (!aliasSet.has(item.category.toLowerCase())) return false;
+           }
+        }
       }
+
       return true;
     });
+
+    return { filtered: filteredList, counts: countsMap };
   }, [items, cat, debouncedSearch]);
 
   // Paginated items
@@ -407,21 +435,14 @@ export default function MenuLightweight() {
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // Category counts
-  const catCount = useCallback((c: string) => {
-    if (c === "all") return items.filter((i) => i.available).length;
-    const aliasSet = new Set(CAT_ALIASES[c] ?? [c]);
-    return items.filter((i) => i.available && aliasSet.has(i.category.toLowerCase())).length;
-  }, [items]);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FDF5E6] to-[#FAF0E6]" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <div
-        className="sticky top-0 z-30"
+        className="sticky top-0 z-30 bg-[#2D1B0F]"
         style={{
-          background: "linear-gradient(180deg, hsl(22, 65%, 14%) 0%, hsl(25, 55%, 20%) 100%)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+          background: "linear-gradient(180deg, #1A0F08 0%, #2D1B0F 100%)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
         }}
       >
         {/* Hero band — logo + branding */}
@@ -512,9 +533,9 @@ export default function MenuLightweight() {
         </div>
       </div>
 
-      {/* Categories - Premium Horizontal Scroll */}
-      <div className="sticky top-[105px] z-20 bg-[#FDF5E6]/90 backdrop-blur-md px-4 py-3 border-b border-[#D2B48C]">
-        <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1">
+      {/* Categories - Simplified for performance on weak devices (removed backdrop-blur) */}
+      <div className="sticky top-[105px] z-20 bg-[#FDF5E6] px-4 py-3 border-b border-[#D2B48C]">
+        <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1 will-change-transform">
           {CATS.map((c, idx) => (
             <button
               key={c.id}
@@ -538,7 +559,7 @@ export default function MenuLightweight() {
                 text-[10px] px-1.5 py-0.5 rounded-full font-bold
                 ${cat === c.id ? "bg-white/20 text-white" : "bg-[#D2B48C] text-[#654321]"}
               `}>
-                {catCount(c.id)}
+                {counts[c.id] || 0}
               </span>
             </button>
           ))}

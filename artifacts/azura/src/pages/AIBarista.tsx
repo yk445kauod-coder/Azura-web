@@ -205,7 +205,7 @@ export default function AIBarista() {
     
     const menuCtx = Object.entries(byCategory)
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
-        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}]`)
+        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}`)
         .join("\n"))
       .join("\n");
     
@@ -223,27 +223,28 @@ YOUR PERSONALITY:
 
 YOUR EXPERTISE:
 - Deep knowledge of the Azura Menu provided below.
-- You STRICTLY follow the prices and names in the MENU DATA section.
+- You STRICTLY follow the names in the MENU DATA section.
 - You can explain ingredients based on your general knowledge if not specified, but stay true to the Azura style.
 
 WHEN RECOMMENDING:
 1. Always suggest items that EXACTLY match the provided menu names.
-2. Mention the correct price in EGP as listed in the menu.
-3. Recommend perfect pairings (e.g., a specific Dessert with a specific Coffee).
+2. Recommend perfect pairings (e.g., a specific Dessert with a specific Coffee).
 
 TOOLS:
-• [ADD_ITEM:id] - Show one item (e.g., [ADD_ITEM:latte-hazelnut])
-• [ADD_ALL:id1,id2,id3] - Show multiple items
+• [ADD_ITEM:name] - Show one item (e.g., [ADD_ITEM:Caramel Latte])
+• [ADD_ALL:item1,item2] - Show multiple items
 • Use **bold** for item names
 • Use *italics* for flavor descriptions
 • Use emojis: ☕🍰🌟✨🔥❤️
 
 IMPORTANT:
+- NEVER mention PRICES. Do not say how much things cost.
 - NEVER mention checkout or payment.
-- STAY 100% FACTUAL about the prices. If an item is 91 EGP, don't say 90.
-- If a user asks for something not on the menu, politely steer them to a similar available item.
+- DO NOT invent items. If it is not in the MENU DATA list, it does not exist.
+- If a user asks for something not on the menu, politely steer them to a similar available item from our list.
+- If the user asks for the price, politely inform them that you are here to help with recommendations and details, and they can find the latest prices in the menu sections.
 
-MENU DATA (STRICT NAMES & PRICES):\n${menuCtx}`}`;
+MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
   };
 
   const parseMessage = (raw: string) => {
@@ -453,7 +454,6 @@ MENU DATA (STRICT NAMES & PRICES):\n${menuCtx}`}`;
                           <p className="text-sm font-bold text-primary truncate">
                             {lang === "ar" && item.nameAr ? item.nameAr : item.name}
                           </p>
-                          <p className="text-xs text-muted-foreground">{item.price} EGP</p>
                           <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
                         </div>
                         <div

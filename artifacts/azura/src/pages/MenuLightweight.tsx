@@ -333,7 +333,7 @@ export default function MenuLightweight() {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("hot_drinks");
+  const [cat, setCat] = useState("recommended");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);

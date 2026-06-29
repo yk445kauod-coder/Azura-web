@@ -19,11 +19,8 @@ export default function SplashScreen() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [phase, setPhase] = useState<0 | 1 | 2>(0); // 0=loading bg, 1=animate, 2=login
-  const [typed, setTyped] = useState("");
-  const [cursorOn, setCursorOn] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const typingDone = typed.length === SUMMER_PHRASE.length;
 
   const tr = (en: string, ar: string) => (lang === "ar" ? ar : en);
 
@@ -33,27 +30,9 @@ export default function SplashScreen() {
     getRedirectResult(auth).then((r) => { if (r?.user) navigate("/menu"); });
 
     const t1 = setTimeout(() => setPhase(1), 200);
-    const t2 = setTimeout(() => setPhase(2), 2000);
+    const t2 = setTimeout(() => setPhase(2), 2200);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [user, navigate]);
-
-  /* ── typing effect ── */
-  useEffect(() => {
-    if (phase < 1) return;
-    if (typed.length >= SUMMER_PHRASE.length) return;
-    const delay = typed.length === 0 ? 600 : 55 + Math.random() * 35;
-    const t = setTimeout(
-      () => setTyped(SUMMER_PHRASE.slice(0, typed.length + 1)),
-      delay
-    );
-    return () => clearTimeout(t);
-  }, [phase, typed]);
-
-  /* ── blinking cursor ── */
-  useEffect(() => {
-    const id = setInterval(() => setCursorOn((v) => !v), 520);
-    return () => clearInterval(id);
-  }, []);
 
   /* ── Google login ── */
   const handleGoogleLogin = async () => {
@@ -145,12 +124,13 @@ export default function SplashScreen() {
           </p>
         </div>
 
-        {/* ── "Summer Edition" hero typing text ── */}
+        {/* ── "Summer Edition" Handwritten Open Effect ── */}
         <div
           className={`text-center mb-2 transition-all duration-700 ${phase >= 1 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           style={{ transitionDelay: "0.5s" }}
         >
           <h1
+            className={`summer-handwritten ${phase >= 1 ? "animate-handwritten" : "opacity-0"}`}
             style={{
               fontFamily: "var(--font-handwritten)",
               fontSize: "clamp(2.6rem, 8vw, 3.4rem)",
@@ -160,23 +140,14 @@ export default function SplashScreen() {
               letterSpacing: "0.01em",
             }}
           >
-            {typed}
-            <span
-              style={{
-                opacity: typingDone && !cursorOn ? 0 : cursorOn ? 1 : 0,
-                color: "#FFD97D",
-                transition: "opacity 0.1s",
-              }}
-            >
-              |
-            </span>
+            {SUMMER_PHRASE}
           </h1>
         </div>
 
         {/* Slogan */}
         <div
-          className={`text-center mb-8 transition-all duration-700 ${typed.length > 4 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-          style={{ transitionDelay: "0s", transition: "opacity 0.8s ease, transform 0.8s ease" }}
+          className={`text-center mb-8 transition-all duration-1000 ${phase >= 1 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+          style={{ transitionDelay: "1.2s" }}
         >
           <p
             className="text-white/60 text-[11px] tracking-widest uppercase"
@@ -251,6 +222,32 @@ export default function SplashScreen() {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+
+        .summer-handwritten {
+            mask-image: linear-gradient(to right, white 0%, white 100%);
+            mask-size: 200% 100%;
+            mask-position: 100% 0;
+            transition: mask-position 2s ease-out;
+          }
+
+          .animate-handwritten {
+            animation: handwrittenOpen 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+          }
+
+          @keyframes handwrittenOpen {
+            0% {
+              opacity: 0;
+              clip-path: inset(0 100% 0 0);
+              filter: blur(5px);
+              transform: scale(0.95) translateX(-10px);
+            }
+            100% {
+              opacity: 1;
+              clip-path: inset(0 0 0 0);
+              filter: blur(0);
+              transform: scale(1) translateX(0);
+            }
+          }
       `}</style>
     </div>
   );

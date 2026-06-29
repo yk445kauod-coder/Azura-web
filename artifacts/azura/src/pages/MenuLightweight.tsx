@@ -32,8 +32,11 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 const CATS = [
   { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
   { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
+  { id: "fries",            emoji: "🍟",  en: "Fries",               ar: "فرايز"           },
+  { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
+  { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
+  { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
   { id: "soups",            emoji: "🍲",  en: "Soup",                ar: "شوربة"           },
-  { id: "appetizers",       emoji: "🍟",  en: "Appetizers",         ar: "مقبلات"          },
   { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
   { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
   { id: "tortilla",         emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
@@ -51,10 +54,8 @@ const CATS = [
   { id: "sahlab",           emoji: "🥛",  en: "Sahlab",              ar: "سحلب"            },
   { id: "frappuccino",      emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو"       },
   { id: "iced_coffee",      emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
-  { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
   { id: "boba_tea",         emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
   { id: "fresh_juices",     emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
-  { id: "cocktails",        emoji: "🍸",  en: "Cocktails",           ar: "كوكتيل"          },
   { id: "smoothies",        emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
   { id: "milkshakes",       emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
   { id: "waffle",           emoji: "🧇",  en: "Waffle",               ar: "وافل"            },
@@ -63,14 +64,16 @@ const CATS = [
   { id: "pancakes",         emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
   { id: "add_ons",          emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
   { id: "shisha",           emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
+  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
   { id: "all",              emoji: "✨",  en: "All",                  ar: "الكل"            },
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
   new_items:      ["new_items"],
-  soups:          ["soups", "soup"],
+  fries:          ["fries"],
   appetizers:     ["appetizers", "appetizer"],
+  soups:          ["soups", "soup"],
   salads:         ["salads", "salad"],
   pasta:          ["pasta"],
   tortilla:       ["tortilla"],
@@ -89,9 +92,9 @@ const CAT_ALIASES: Record<string, string[]> = {
   frappuccino:    ["frappuccino", "frappe"],
   iced_coffee:    ["iced_coffee"],
   mojitos:        ["mojitos", "mojito"],
+  mocktails:      ["mocktails", "mocktail", "cocktails"],
   boba_tea:       ["boba_tea"],
   fresh_juices:   ["fresh_juices", "fresh_juice"],
-  cocktails:      ["cocktails"],
   smoothies:      ["smoothies", "smoothie"],
   milkshakes:     ["milkshakes", "milkshake"],
   waffle:         ["waffle"],
@@ -100,6 +103,7 @@ const CAT_ALIASES: Record<string, string[]> = {
   pancakes:       ["pancakes"],
   add_ons:        ["add_ons", "extra_kitchen"],
   shisha:         ["shisha"],
+  soft_drinks:    ["soft_drinks"],
 };
 
 // Advanced Search Normalization & Synonyms
@@ -118,7 +122,7 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   "قهوه": ["كوفي", "coffee", "اسبريسو", "لاتيه", "بون", "تركي", "turkish"],
   "كوفي": ["قهوه", "coffee", "تركي", "turkish"],
   "شاي": ["tea", "t-shai"],
-  "بطاطس": ["fries", "potato", "فرنش فرايز", "صوابع"],
+  "بطاطس": ["fries", "potato", "فرنش فرايز", "صوابع", "فرايز"],
   "فراخ": ["chicken", "تشيكن", "دجاج", "فرايد"],
   "لحمه": ["beef", "بقر", "برجر", "meat"],
   "بيبسي": ["سودا", "soda", "مشروب غازي", "cola", "كولا", "بارد", "cold"],
@@ -127,6 +131,8 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   "شيشه": ["hookah", "دخان", "معسل", "فحم"],
   "مكرونه": ["pasta", "باستا", "نودلز", "مكرونة"],
   "عصير": ["juice", "فرش", "fresh", "عصاير"],
+  "موهيتو": ["موجيتو", "mojito"],
+  "كوكتيل": ["موكتيل", "mocktail", "cocktail"],
 };
 
 const ITEMS_PER_PAGE = 24;

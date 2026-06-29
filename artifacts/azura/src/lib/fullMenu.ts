@@ -3,7 +3,7 @@
 
 export const fullMenuData: Record<string, Record<string, {
     name: string; nameAr: string; description: string; descriptionAr: string;
-    price: number; category: string; categoryAr: string; available: boolean; image: string;
+    price: number; category: string; categoryAr: string; available: boolean; image: string; recommended?: boolean;
     ingredients?: string[]; ingredientsAr?: string[];
   }>> = {
   "add_ons": {
@@ -119,8 +119,7 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "appetizers": {
-    "azura-plate": {
-      "name": "Azura Plate",
+    "azura-plate": {"name": "Azura Plate",
       "nameAr": "ازورا بليت",
       "description": "Mozzarella sticks, strips, onion rings, fries, nachos with three sauces",
       "descriptionAr": "موتزريلا ستيك، ستربس، حلقات بصل، فرايز، ناتشوز مع ثلاث صوصات من اختيارك",
@@ -142,7 +141,8 @@ export const fullMenuData: Record<string, Record<string, {
         "حلقات بصل",
         "فرايز",
         "ناتشوز مع ثلاث صوصات من اختيارك"
-      ]
+      ],
+      "recommended": true
     },
     "azura-potato": {
       "name": "Azura Potato",
@@ -264,17 +264,6 @@ export const fullMenuData: Record<string, Record<string, {
         "صوص جبنه",
         "صوص تكساس"
       ]
-    },
-    "fries": {
-      "name": "Fries",
-      "nameAr": "فرايز",
-      "description": "Fries",
-      "descriptionAr": "فرايز",
-      "price": 86,
-      "category": "appetizers",
-      "categoryAr": "ابيتيزرز",
-      "available": true,
-      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
     "mozzarella-sticks": {
       "name": "Mozzarella Sticks",
@@ -735,8 +724,7 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
-    "espresso-double": {
-      "name": "Espresso Double",
+    "espresso-double": {"name": "Espresso Double",
       "nameAr": "اسبريسو دبل",
       "description": "Espresso Double",
       "descriptionAr": "اسبريسو دبل",
@@ -744,7 +732,8 @@ export const fullMenuData: Record<string, Record<string, {
       "category": "coffee",
       "categoryAr": "كوفي",
       "available": true,
-      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "recommended": true
     },
     "espresso-single": {
       "name": "Espresso Single",
@@ -1376,56 +1365,12 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "fresh_juices": {
-    "avocado-juice": {
-      "name": "Avocado Juice",
-      "nameAr": "افوكادو جوس",
-      "description": "Avocado Juice",
-      "descriptionAr": "افوكادو جوس",
-      "price": 168,
-      "category": "fresh_juices",
-      "categoryAr": "فريش جوس",
-      "available": true,
-      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "banana-juice": {
-      "name": "Banana Juice",
-      "nameAr": "بنانا جوس",
-      "description": "Banana Juice",
-      "descriptionAr": "بنانا جوس",
-      "price": 129,
-      "category": "fresh_juices",
-      "categoryAr": "فريش جوس",
-      "available": true,
-      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "dates-juice": {
-      "name": "Dates Juice",
-      "nameAr": "داتس جوس",
-      "description": "Dates Juice",
-      "descriptionAr": "داتس جوس",
-      "price": 130,
-      "category": "fresh_juices",
-      "categoryAr": "فريش جوس",
-      "available": true,
-      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
     "guava-juice": {
       "name": "Guava Juice",
       "nameAr": "جوافه جوس",
       "description": "Guava Juice",
       "descriptionAr": "جوافه جوس",
       "price": 133,
-      "category": "fresh_juices",
-      "categoryAr": "فريش جوس",
-      "available": true,
-      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "kiwi-juice": {
-      "name": "Kiwi Juice",
-      "nameAr": "كيوي جوس",
-      "description": "Kiwi Juice",
-      "descriptionAr": "كيوي جوس",
-      "price": 160,
       "category": "fresh_juices",
       "categoryAr": "فريش جوس",
       "available": true,
@@ -1470,17 +1415,6 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Orange Juice",
       "descriptionAr": "اورانج جوس",
       "price": 121,
-      "category": "fresh_juices",
-      "categoryAr": "فريش جوس",
-      "available": true,
-      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "peach-juice": {
-      "name": "Peach Juice",
-      "nameAr": "بيتش جوس",
-      "description": "Peach Juice",
-      "descriptionAr": "بيتش جوس",
-      "price": 127,
       "category": "fresh_juices",
       "categoryAr": "فريش جوس",
       "available": true,
@@ -1637,6 +1571,19 @@ export const fullMenuData: Record<string, Record<string, {
         "سموك تركي",
         "سموك بيكون"
       ]
+    }
+  },
+  "fries": {"fries": {
+      "name": "Fries",
+      "nameAr": "فرايز",
+      "description": "Fries",
+      "descriptionAr": "فرايز",
+      "price": 86,
+      "category": "fries",
+      "categoryAr": "فرايز",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "recommended": true
     }
   },
   "hot_chocolate": {
@@ -2222,6 +2169,52 @@ export const fullMenuData: Record<string, Record<string, {
       "image": "https://images.pexels.com/photos/3727250/pexels-photo-3727250.jpeg?auto=compress&cs=tinysrgb&w=600"
     }
   },
+  "mocktails": {
+    "blue-passion-smoothie": {"name": "Blue Passion Smoothie",
+      "nameAr": "بلو باشون سموزي",
+      "description": "Blue Passion Smoothie",
+      "descriptionAr": "بلو باشون سموزي",
+      "price": 159,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "recommended": true
+    },
+    "mango-peach-smoothie": {
+      "name": "Mango Peach Smoothie",
+      "nameAr": "مانجو بيتش سموزي",
+      "description": "Mango Peach Smoothie",
+      "descriptionAr": "مانجو بيتش سموزي",
+      "price": 154,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "pina-colada-smoothie": {
+      "name": "Pina Colada Smoothie",
+      "nameAr": "بينا كولادا سموزي",
+      "description": "Pina Colada Smoothie",
+      "descriptionAr": "بينا كولادا سموزي",
+      "price": 154,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "strawberry-lemonade-smoothie": {
+      "name": "Strawberry Lemonade Smoothie",
+      "nameAr": "ستروبري ليمونيت سموزي",
+      "description": "Strawberry Lemonade Smoothie",
+      "descriptionAr": "ستروبري ليمونيت سموزي",
+      "price": 144,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
+    }
+  },
   "mojitos": {
     "apple-mojito": {
       "name": "Apple Mojito",
@@ -2434,8 +2427,7 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "new_items": {
-    "chicken-butterfly": {
-      "name": "Chicken Butterfly",
+    "chicken-butterfly": {"name": "Chicken Butterfly",
       "nameAr": "تشيكن باترفلاي",
       "description": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella",
       "descriptionAr": "فراخ جريل بصوص البتر فلاي، يقدم مع الأرز وعيش محمص بالثوم والمشروم والموزاريلا",
@@ -2459,7 +2451,8 @@ export const fullMenuData: Record<string, Record<string, {
         "عيش محمص بالثوم",
         "مشروم",
         "موزاريلا"
-      ]
+      ],
+      "recommended": true
     },
     "chicken-lemon-pasta": {
       "name": "Chicken Lemon Pasta",
@@ -3274,17 +3267,6 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "smoothies": {
-    "blue-passion-smoothie": {
-      "name": "Blue Passion Smoothie",
-      "nameAr": "بلو باشون سموزي",
-      "description": "Blue Passion Smoothie",
-      "descriptionAr": "بلو باشون سموزي",
-      "price": 159,
-      "category": "smoothies",
-      "categoryAr": "سموزي",
-      "available": true,
-      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
     "blueberry-smoothie": {
       "name": "Blueberry Smoothie",
       "nameAr": "بلوبيري سموزي",
@@ -3351,17 +3333,6 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
-    "mango-peach-smoothie": {
-      "name": "Mango Peach Smoothie",
-      "nameAr": "مانجو بيتش سموزي",
-      "description": "Mango Peach Smoothie",
-      "descriptionAr": "مانجو بيتش سموزي",
-      "price": 154,
-      "category": "smoothies",
-      "categoryAr": "كوكتيل",
-      "available": true,
-      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
     "mix-berry-smoothie": {
       "name": "Mix Berry Smoothie",
       "nameAr": "ميكس بيري سموزي",
@@ -3395,17 +3366,6 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
-    "pina-colada-smoothie": {
-      "name": "Pina Colada Smoothie",
-      "nameAr": "بينا كولادا سموزي",
-      "description": "Pina Colada Smoothie",
-      "descriptionAr": "بينا كولادا سموزي",
-      "price": 154,
-      "category": "smoothies",
-      "categoryAr": "كوكتيل",
-      "available": true,
-      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
     "pineapple-smoothie": {
       "name": "Pineapple Smoothie",
       "nameAr": "باين ابل سموزي",
@@ -3423,17 +3383,6 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Strawberry Banana Smoothie",
       "descriptionAr": "ستروبري بنانا سموزي",
       "price": 137,
-      "category": "smoothies",
-      "categoryAr": "كوكتيل",
-      "available": true,
-      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "strawberry-lemonade-smoothie": {
-      "name": "Strawberry Lemonade Smoothie",
-      "nameAr": "ستروبري ليمونيت سموزي",
-      "description": "Strawberry Lemonade Smoothie",
-      "descriptionAr": "ستروبري ليمونيت سموزي",
-      "price": 144,
       "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,

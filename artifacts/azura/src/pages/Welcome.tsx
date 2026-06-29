@@ -25,9 +25,6 @@ export default function Welcome() {
 
   /* Summer splash state */
   const [splashPhase, setSplashPhase] = useState(0); // 0=hidden 1=visible 2=logo+text
-  const [typed, setTyped] = useState("");
-  const [cursorOn, setCursorOn] = useState(true);
-  const typingDone = typed.length === SUMMER_PHRASE.length;
 
   // Homepage Banner
   const [banner, setBanner] = useState<{
@@ -55,21 +52,6 @@ export default function Welcome() {
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  /* Typing effect */
-  useEffect(() => {
-    if (splashPhase < 2) return;
-    if (typed.length >= SUMMER_PHRASE.length) return;
-    const delay = typed.length === 0 ? 500 : 55 + Math.random() * 35;
-    const t = setTimeout(() => setTyped(SUMMER_PHRASE.slice(0, typed.length + 1)), delay);
-    return () => clearTimeout(t);
-  }, [splashPhase, typed]);
-
-  /* Blinking cursor */
-  useEffect(() => {
-    const id = setInterval(() => setCursorOn((v) => !v), 520);
-    return () => clearInterval(id);
-  }, []);
-
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
   const handleGuestLogin = async () => {
@@ -95,7 +77,7 @@ export default function Welcome() {
       >
         {/* Beach background */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
           style={{
             backgroundImage: `url("${BEACH_BG}")`,
             opacity: splashPhase >= 1 ? 1 : 0,
@@ -136,7 +118,7 @@ export default function Welcome() {
           style={{
             opacity: splashPhase >= 1 ? 1 : 0,
             transform: splashPhase >= 1 ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
           }}
         >
           {/* Logo */}
@@ -169,38 +151,31 @@ export default function Welcome() {
             {tr("AZURA CAFE", "أزورا كافيه")}
           </p>
 
-          {/* "Summer Edition" hero typing */}
-          <h1
-            style={{
-              fontFamily: "var(--font-handwritten)",
-              fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
-              lineHeight: 1.18,
-              color: "#FFD97D",
-              textShadow: "0 2px 18px rgba(255,200,60,0.6), 0 4px 36px rgba(255,140,0,0.28)",
-              letterSpacing: "0.01em",
-              textAlign: "center",
-              minHeight: "1.3em",
-            }}
-          >
-            {typed}
-            <span
+          {/* "Summer Edition" Handwritten Open Effect */}
+          <div className="relative flex items-center justify-center min-h-[4rem]">
+             <h1
+              className={`summer-handwritten ${splashPhase >= 2 ? "animate-handwritten" : "opacity-0"}`}
               style={{
+                fontFamily: "var(--font-handwritten)",
+                fontSize: "clamp(2.4rem, 8vw, 3.4rem)",
+                lineHeight: 1.18,
                 color: "#FFD97D",
-                opacity: cursorOn && !typingDone ? 1 : typingDone && cursorOn ? 0.6 : 0,
-                transition: "opacity 0.1s",
+                textShadow: "0 2px 18px rgba(255,200,60,0.6), 0 4px 36px rgba(255,140,0,0.28)",
+                letterSpacing: "0.01em",
+                textAlign: "center",
               }}
             >
-              |
-            </span>
-          </h1>
+              {SUMMER_PHRASE}
+            </h1>
+          </div>
 
           {/* Slogan */}
           <div
-            className="mt-3 text-center"
+            className="mt-4 text-center"
             style={{
-              opacity: typed.length >= 4 ? 1 : 0,
-              transform: typed.length >= 4 ? "translateY(0)" : "translateY(6px)",
-              transition: "opacity 0.9s ease, transform 0.9s ease",
+              opacity: splashPhase >= 2 ? 1 : 0,
+              transform: splashPhase >= 2 ? "translateY(0)" : "translateY(10px)",
+              transition: "opacity 1.2s ease 0.6s, transform 1.2s ease 0.6s",
             }}
           >
             <p
@@ -214,10 +189,10 @@ export default function Welcome() {
 
           {/* Loading dots */}
           <div
-            className="flex gap-1.5 mt-8"
+            className="flex gap-1.5 mt-10"
             style={{
-              opacity: typingDone ? 1 : 0,
-              transition: "opacity 0.6s ease",
+              opacity: splashPhase >= 2 ? 1 : 0,
+              transition: "opacity 1s ease 1s",
             }}
           >
             {[0, 1, 2].map((i) => (
@@ -239,6 +214,32 @@ export default function Welcome() {
           @keyframes waveSlide {
             0%, 100% { transform: translateX(-60%) scaleX(0.6); }
             50%       { transform: translateX(20%)  scaleX(1.4); }
+          }
+
+          .summer-handwritten {
+            mask-image: linear-gradient(to right, white 0%, white 100%);
+            mask-size: 200% 100%;
+            mask-position: 100% 0;
+            transition: mask-position 2s ease-out;
+          }
+
+          .animate-handwritten {
+            animation: handwrittenOpen 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+          }
+
+          @keyframes handwrittenOpen {
+            0% {
+              opacity: 0;
+              clip-path: inset(0 100% 0 0);
+              filter: blur(5px);
+              transform: scale(0.95) translateX(-10px);
+            }
+            100% {
+              opacity: 1;
+              clip-path: inset(0 0 0 0);
+              filter: blur(0);
+              transform: scale(1) translateX(0);
+            }
           }
         `}</style>
       </div>

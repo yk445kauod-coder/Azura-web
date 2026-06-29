@@ -9,6 +9,7 @@ import {
   getRedirectResult,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SUMMER_PHRASE = "Summer Edition";
 const BEACH_BG =
@@ -30,7 +31,7 @@ export default function SplashScreen() {
     getRedirectResult(auth).then((r) => { if (r?.user) navigate("/menu"); });
 
     const t1 = setTimeout(() => setPhase(1), 200);
-    const t2 = setTimeout(() => setPhase(2), 2200);
+    const t2 = setTimeout(() => setPhase(2), 3500); // More time for handwritten reveal
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [user, navigate]);
 
@@ -124,13 +125,13 @@ export default function SplashScreen() {
           </p>
         </div>
 
-        {/* ── "Summer Edition" Handwritten Open Effect ── */}
+        {/* ── "Summer Edition" iPhone-style handwritten reveal ── */}
         <div
           className={`text-center mb-2 transition-all duration-700 ${phase >= 1 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           style={{ transitionDelay: "0.5s" }}
         >
-          <h1
-            className={`summer-handwritten ${phase >= 1 ? "animate-handwritten" : "opacity-0"}`}
+          <motion.h1
+            className="handwritten-text flex flex-wrap justify-center"
             style={{
               fontFamily: "var(--font-handwritten)",
               fontSize: "clamp(2.6rem, 8vw, 3.4rem)",
@@ -140,14 +141,46 @@ export default function SplashScreen() {
               letterSpacing: "0.01em",
             }}
           >
-            {SUMMER_PHRASE}
-          </h1>
+            {SUMMER_PHRASE.split("").map((char, index) => (
+              <motion.span
+                key={index}
+                initial={{
+                  opacity: 0,
+                  x: -3,
+                  y: 3,
+                  scale: 0.9,
+                  filter: "blur(4px)",
+                  clipPath: "inset(0 100% 0 0)"
+                }}
+                animate={phase >= 1 ? {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  scale: 1,
+                  filter: "blur(0px)",
+                  clipPath: "inset(0 0 0 0)",
+                  transition: {
+                    delay: 0.8 + (index * 0.15),
+                    duration: 0.9,
+                    ease: "easeOut"
+                  }
+                } : {}}
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+          </motion.h1>
         </div>
 
         {/* Slogan */}
-        <div
-          className={`text-center mb-8 transition-all duration-1000 ${phase >= 1 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-          style={{ transitionDelay: "1.2s" }}
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={phase >= 1 ? {
+            opacity: 1,
+            y: 0,
+            transition: { delay: 2.8, duration: 1.2 }
+          } : {}}
         >
           <p
             className="text-white/60 text-[11px] tracking-widest uppercase"
@@ -156,7 +189,7 @@ export default function SplashScreen() {
             {tr("The quality is a habit", "الجودة عادة")}
           </p>
           <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-        </div>
+        </motion.div>
 
         {/* ── Login section ── */}
         {phase >= 2 && (
@@ -222,32 +255,6 @@ export default function SplashScreen() {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-
-        .summer-handwritten {
-            mask-image: linear-gradient(to right, white 0%, white 100%);
-            mask-size: 200% 100%;
-            mask-position: 100% 0;
-            transition: mask-position 2s ease-out;
-          }
-
-          .animate-handwritten {
-            animation: handwrittenOpen 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-          }
-
-          @keyframes handwrittenOpen {
-            0% {
-              opacity: 0;
-              clip-path: inset(0 100% 0 0);
-              filter: blur(5px);
-              transform: scale(0.95) translateX(-10px);
-            }
-            100% {
-              opacity: 1;
-              clip-path: inset(0 0 0 0);
-              filter: blur(0);
-              transform: scale(1) translateX(0);
-            }
-          }
       `}</style>
     </div>
   );

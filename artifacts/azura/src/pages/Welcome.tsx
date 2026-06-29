@@ -5,6 +5,7 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { Globe, Coffee, X } from "lucide-react";
 import { type Lang } from "@/lib/i18n";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Screen = "splash" | "main";
 
@@ -48,7 +49,7 @@ export default function Welcome() {
   useEffect(() => {
     const t0 = setTimeout(() => setSplashPhase(1), 80);
     const t1 = setTimeout(() => setSplashPhase(2), 400);
-    const t2 = setTimeout(() => setScreen("main"), 3600);
+    const t2 = setTimeout(() => setScreen("main"), 5000); // More time for premium feel
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
@@ -151,13 +152,13 @@ export default function Welcome() {
             {tr("AZURA CAFE", "أزورا كافيه")}
           </p>
 
-          {/* "Summer Edition" Handwritten Open Effect */}
+          {/* "Summer Edition" iPhone-style handwritten reveal */}
           <div className="relative flex items-center justify-center min-h-[4rem]">
-             <h1
-              className={`summer-handwritten ${splashPhase >= 2 ? "animate-handwritten" : "opacity-0"}`}
+             <motion.h1
+              className="handwritten-text flex flex-wrap justify-center"
               style={{
                 fontFamily: "var(--font-handwritten)",
-                fontSize: "clamp(2.4rem, 8vw, 3.4rem)",
+                fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
                 lineHeight: 1.18,
                 color: "#FFD97D",
                 textShadow: "0 2px 18px rgba(255,200,60,0.6), 0 4px 36px rgba(255,140,0,0.28)",
@@ -165,18 +166,46 @@ export default function Welcome() {
                 textAlign: "center",
               }}
             >
-              {SUMMER_PHRASE}
-            </h1>
+              {SUMMER_PHRASE.split("").map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{
+                    opacity: 0,
+                    x: -2,
+                    y: 2,
+                    scale: 0.95,
+                    filter: "blur(2px)",
+                    clipPath: "inset(0 100% 0 0)"
+                  }}
+                  animate={splashPhase >= 2 ? {
+                    opacity: 1,
+                    x: 0,
+                    y: 0,
+                    scale: 1,
+                    filter: "blur(0px)",
+                    clipPath: "inset(0 0 0 0)",
+                    transition: {
+                      delay: 0.8 + (index * 0.12),
+                      duration: 0.8,
+                      ease: "easeOut"
+                    }
+                  } : {}}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))}
+            </motion.h1>
           </div>
 
           {/* Slogan */}
-          <div
+          <motion.div
             className="mt-4 text-center"
-            style={{
-              opacity: splashPhase >= 2 ? 1 : 0,
-              transform: splashPhase >= 2 ? "translateY(0)" : "translateY(10px)",
-              transition: "opacity 1.2s ease 0.6s, transform 1.2s ease 0.6s",
-            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={splashPhase >= 2 ? {
+              opacity: 1,
+              y: 0,
+              transition: { delay: 2.5, duration: 1.2 }
+            } : {}}
           >
             <p
               className="text-white/55 text-[11px] font-medium"
@@ -185,15 +214,16 @@ export default function Welcome() {
               {tr("The quality is a habit", "الجودة عادة")}
             </p>
             <div className="mx-auto mt-2 h-px w-20 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
+          </motion.div>
 
           {/* Loading dots */}
-          <div
+          <motion.div
             className="flex gap-1.5 mt-10"
-            style={{
-              opacity: splashPhase >= 2 ? 1 : 0,
-              transition: "opacity 1s ease 1s",
-            }}
+            initial={{ opacity: 0 }}
+            animate={splashPhase >= 2 ? {
+              opacity: 1,
+              transition: { delay: 3.2, duration: 1 }
+            } : {}}
           >
             {[0, 1, 2].map((i) => (
               <div
@@ -202,7 +232,7 @@ export default function Welcome() {
                 style={{ animationDelay: `${i * 0.22}s` }}
               />
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Version */}
@@ -214,32 +244,6 @@ export default function Welcome() {
           @keyframes waveSlide {
             0%, 100% { transform: translateX(-60%) scaleX(0.6); }
             50%       { transform: translateX(20%)  scaleX(1.4); }
-          }
-
-          .summer-handwritten {
-            mask-image: linear-gradient(to right, white 0%, white 100%);
-            mask-size: 200% 100%;
-            mask-position: 100% 0;
-            transition: mask-position 2s ease-out;
-          }
-
-          .animate-handwritten {
-            animation: handwrittenOpen 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-          }
-
-          @keyframes handwrittenOpen {
-            0% {
-              opacity: 0;
-              clip-path: inset(0 100% 0 0);
-              filter: blur(5px);
-              transform: scale(0.95) translateX(-10px);
-            }
-            100% {
-              opacity: 1;
-              clip-path: inset(0 0 0 0);
-              filter: blur(0);
-              transform: scale(1) translateX(0);
-            }
           }
         `}</style>
       </div>

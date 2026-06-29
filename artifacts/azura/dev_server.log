@@ -1,0 +1,9 @@
+
+> @workspace/azura@1.0.0 dev /app/artifacts/azura
+> vite --config vite.config.ts --host 0.0.0.0
+
+
+  VITE v7.3.6  ready in 909 ms
+
+  ➜  Local:   http://localhost:5000/
+  ➜  Network: http://192.168.0.2:5000/

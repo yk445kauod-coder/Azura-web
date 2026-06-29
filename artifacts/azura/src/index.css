@@ -535,3 +535,22 @@
 }
 
   /* Shimmer effect removed for comfort */
+
+/* Handwritten "Hello" style animation utilities */
+.handwritten-text span {
+  display: inline-block;
+  transform-origin: bottom left;
+}
+
+@keyframes handwritten-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-5deg) translateY(10px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0) translateY(0);
+    filter: blur(0);
+  }
+}

@@ -76,11 +76,7 @@ export default function Admin() {
   const [savingItem, setSavingItem] = useState(false);
 
   const MENU_CATEGORIES = [
-    "coffee","iced_coffee","hot_drinks","hot_chocolate","frappuccino","sahlab",
-    "fresh_juices","smoothies","milkshakes","mojitos","boba_tea",
-    "burgers","smash_burgers","fried_chicken","main_dishes","pasta",
-    "salads","soups","appetizers","breakfast","toast","croissant",
-    "pancakes","crepes","desserts","extras","corto","add_ons","shisha","new_items",
+    "recommended", "new_items", "soups", "appetizers", "salads", "pasta", "tortilla", "toast", "croissant", "breakfast", "main_dishes", "burgers", "smash_burgers", "fried_chicken", "hot_drinks", "coffee", "corto", "hot_chocolate", "sahlab", "frappuccino", "iced_coffee", "mojitos", "boba_tea", "fresh_juices", "cocktails", "smoothies", "milkshakes", "waffle", "desserts", "crepes", "pancakes", "add_ons", "shisha", "soft_drinks"
   ];
 
   const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = {
@@ -91,22 +87,21 @@ export default function Admin() {
     salads:           { emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
     pasta:            { emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
     tortilla:         { emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
-    sandwiches:       { emoji: "🥪",  en: "Sandwiches",          ar: "ساندوتش"         },
-    vina_sandwiches:  { emoji: "🥖",  en: "Vina Sandwiches",     ar: "ساندوتش فينا"     },
+    toast:            { emoji: "🍞",  en: "Toast",                ar: "توست"            },
+    croissant:        { emoji: "🥐",  en: "Croissant",            ar: "كرواسون"         },
+    breakfast:        { emoji: "🍳",  en: "Breakfast",            ar: "فطور"            },
     main_dishes:      { emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية"     },
     burgers:          { emoji: "🍔",  en: "Burgers",             ar: "برجر"            },
     smash_burgers:    { emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر"       },
     fried_chicken:    { emoji: "🍗",  en: "Fried Chicken",      ar: "فراخ مقلية"      },
-    extra_kitchen:    { emoji: "➕",  en: "Extra Kitchen",       ar: "إضافات مطبخ"     },
     hot_drinks:       { emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة"   },
     coffee:           { emoji: "☕",  en: "Coffee",              ar: "قهوة"            },
-    espresso:         { emoji: "☕",  en: "Espresso",            ar: "إسبريسو"         },
     corto:            { emoji: "🥛",  en: "Corto",               ar: "كورتو"           },
     hot_chocolate:    { emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة"  },
-    frappuccino:      { emoji: "🧊",  en: "Frappuccino",        ar: "فرابوتشينو"      },
+    sahlab:           { emoji: "🥛",  en: "Sahlab",               ar: "سحلب"            },
+    frappuccino:      { emoji: "🧊",  en: "Frappuccino",        ar: "فرابتشينو"       },
     iced_coffee:      { emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
     mojitos:          { emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
-    mocktails:        { emoji: "🍹",  en: "Mocktails",           ar: "موكتيل"          },
     boba_tea:         { emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
     fresh_juices:     { emoji: "🍊",  en: "Fresh Juices",        ar: "عصائر طازجة"     },
     cocktails:        { emoji: "🍸",  en: "Cocktails",           ar: "كوكتيل"          },
@@ -116,14 +111,9 @@ export default function Admin() {
     desserts:         { emoji: "🍰",  en: "Desserts",             ar: "حلويات"          },
     crepes:           { emoji: "🥞",  en: "Crepes",               ar: "كريب"            },
     pancakes:         { emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
-    extras:           { emoji: "➕",  en: "Extras",               ar: "إضافات"          },
     add_ons:          { emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
-    soft_drinks:      { emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
     shisha:           { emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
-    breakfast:        { emoji: "🍳",  en: "Breakfast",            ar: "فطور"            },
-    toast:            { emoji: "🍞",  en: "Toast",                ar: "توست"            },
-    croissant:        { emoji: "🥐",  en: "Croissant",            ar: "كرواسون"         },
-    sahlab:           { emoji: "🥛",  en: "Sahlab",               ar: "سحلب"            },
+    soft_drinks:      { emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
   };
 
   // Broadcast form

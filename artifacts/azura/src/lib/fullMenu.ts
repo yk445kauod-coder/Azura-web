@@ -29,6 +29,28 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "extra-cheese": {
+      "name": "Extra Cheese",
+      "nameAr": "اكسترا تشيز",
+      "description": "Extra Cheese",
+      "descriptionAr": "اكسترا تشيز",
+      "price": 35,
+      "category": "add_ons",
+      "categoryAr": "اد اونس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "extra-chicken": {
+      "name": "Extra Chicken",
+      "nameAr": "اكسترا تشيكن",
+      "description": "Extra Chicken",
+      "descriptionAr": "اكسترا تشيكن",
+      "price": 50,
+      "category": "add_ons",
+      "categoryAr": "اد اونس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "extra-fries": {
       "name": "Extra Fries",
       "nameAr": "اكسترا فرايز",
@@ -171,6 +193,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "cheese-fries": {
+      "name": "Cheese Fries",
+      "nameAr": "تشيز فرايز",
+      "description": "Cheese Fries",
+      "descriptionAr": "تشيز فرايز",
+      "price": 106,
+      "category": "appetizers",
+      "categoryAr": "ابيتيزرز",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "chicken-fries": {
       "name": "Chicken Fries",
       "nameAr": "تشيكن فرايز",
@@ -232,6 +265,17 @@ export const fullMenuData: Record<string, Record<string, {
         "صوص تكساس"
       ]
     },
+    "fries": {
+      "name": "Fries",
+      "nameAr": "فرايز",
+      "description": "Fries",
+      "descriptionAr": "فرايز",
+      "price": 86,
+      "category": "appetizers",
+      "categoryAr": "ابيتيزرز",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "mozzarella-sticks": {
       "name": "Mozzarella Sticks",
       "nameAr": "موتزريلا استيك",
@@ -292,12 +336,34 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "boba_tea": {
+    "blueberry-boba-tea": {
+      "name": "Blueberry Boba Tea",
+      "nameAr": "بلوبيري بوبه تي",
+      "description": "Blueberry Boba Tea",
+      "descriptionAr": "بلوبيري بوبه تي",
+      "price": 159,
+      "category": "boba_tea",
+      "categoryAr": "بوبه تي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/4443497/pexels-photo-4443497.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "green-apple-boba-tea": {
       "name": "Green Apple Boba Tea",
       "nameAr": "جرين ابل بوبه تي",
       "description": "Green Apple Boba Tea",
       "descriptionAr": "جرين ابل بوبه تي",
       "price": 169,
+      "category": "boba_tea",
+      "categoryAr": "بوبه تي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/4443497/pexels-photo-4443497.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "passion-fruit-boba-tea": {
+      "name": "Passion Fruit Boba Tea",
+      "nameAr": "باشون فروت بوبه تي",
+      "description": "Passion Fruit Boba Tea",
+      "descriptionAr": "باشون فروت بوبه تي",
+      "price": 164,
       "category": "boba_tea",
       "categoryAr": "بوبه تي",
       "available": true,
@@ -328,6 +394,31 @@ export const fullMenuData: Record<string, Record<string, {
       "image": "https://images.pexels.com/photos/1546055/pexels-photo-1546055.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Avocado", "poached eggs", "sourdough bread", "cherry tomatoes", "microgreens"],
       "ingredientsAr": ["أفوكادو", "بيض مسلوق", "خبز sourdough", "طماطم cherry", "microgreens"]
+    },
+    "azura-breakfast": {
+      "name": "Azura Breakfast",
+      "nameAr": "ازورا بريك فاست",
+      "description": "Cheese Omelette, Hot Dog, Fries, Smoked Turkey, Toast",
+      "descriptionAr": "تشيز اومليت، هوت دوج، فرايز، سموك تركي، توست",
+      "price": 204,
+      "category": "breakfast",
+      "categoryAr": "بريك فاست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/103124/pexels-photo-103124.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Cheese Omelette",
+        "Hot Dog",
+        "Fries",
+        "Smoked Turkey",
+        "Toast"
+      ],
+      "ingredientsAr": [
+        "تشيز اومليت",
+        "هوت دوج",
+        "فرايز",
+        "سموك تركي",
+        "توست"
+      ]
     },
     "english-breakfast": {
       "name": "English Breakfast",
@@ -362,6 +453,29 @@ export const fullMenuData: Record<string, Record<string, {
         "اسبانيش اومليت",
         "جبنه فيتا قطع",
         "بطاطس روستيد بالمشروم والزيتون",
+        "توست"
+      ]
+    },
+    "mexican-breakfast": {
+      "name": "Mexican Breakfast",
+      "nameAr": "ميكسيكان بريك فاست",
+      "description": "Omelette, Mexican hot dog, Baked potatoes, Toast",
+      "descriptionAr": "اومليت، ميكسكان هوت دوج، بطاطس بيكد، توست",
+      "price": 174,
+      "category": "breakfast",
+      "categoryAr": "بريك فاست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/103124/pexels-photo-103124.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Omelette",
+        "Mexican hot dog",
+        "Baked potatoes",
+        "Toast"
+      ],
+      "ingredientsAr": [
+        "اومليت",
+        "ميكسكان هوت دوج",
+        "بطاطس بيكد",
         "توست"
       ]
     },
@@ -405,6 +519,58 @@ export const fullMenuData: Record<string, Record<string, {
         "خس",
         "طماطم",
         "صوص جبنه"
+      ]
+    },
+    "cheese-burger": {
+      "name": "Cheese Burger",
+      "nameAr": "تشيز برجر",
+      "description": "Texas sauce, lettuce, tomato, cheddar slices, cheese sauce, beef burger",
+      "descriptionAr": "تكساس، خس، طماطم، شرايح شيدر، صوص جبنه، برجر لحمه",
+      "price": 238,
+      "category": "burgers",
+      "categoryAr": "برجر",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Texas sauce",
+        "lettuce",
+        "tomato",
+        "cheddar slices",
+        "cheese sauce",
+        "beef burger"
+      ],
+      "ingredientsAr": [
+        "تكساس",
+        "خس",
+        "طماطم",
+        "شرايح شيدر",
+        "صوص جبنه",
+        "برجر لحمه"
+      ]
+    },
+    "classic-burger": {
+      "name": "Classic Burger",
+      "nameAr": "كلاسيك برجر",
+      "description": "Beef burger, lettuce, tomato, Thousand Island sauce, cucumber",
+      "descriptionAr": "برجر لحم، خس، طماطم، صوص تاوزن ايلاند، خيار",
+      "price": 228,
+      "category": "burgers",
+      "categoryAr": "برجر",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Beef burger",
+        "lettuce",
+        "tomato",
+        "Thousand Island sauce",
+        "cucumber"
+      ],
+      "ingredientsAr": [
+        "برجر لحم",
+        "خس",
+        "طماطم",
+        "صوص تاوزن ايلاند",
+        "خيار"
       ]
     },
     "fire-burger": {
@@ -536,6 +702,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "double-turkish-coffee": {
+      "name": "Double Turkish Coffee",
+      "nameAr": "قهوة تركي د",
+      "description": "Traditional double Turkish coffee",
+      "descriptionAr": "قهوة تركي دبل تقليدية",
+      "price": 65,
+      "category": "coffee",
+      "categoryAr": "كوفي",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1579992357154-faf4bfe95b3d?w=600&q=80"
+    },
     "espresso-affogato": {
       "name": "Espresso Affogato",
       "nameAr": "اسبريسو افوجادوه",
@@ -553,6 +730,28 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Espresso Con Panna",
       "descriptionAr": "اسبريسو كون بانا",
       "price": 78,
+      "category": "coffee",
+      "categoryAr": "كوفي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "espresso-double": {
+      "name": "Espresso Double",
+      "nameAr": "اسبريسو دبل",
+      "description": "Espresso Double",
+      "descriptionAr": "اسبريسو دبل",
+      "price": 80,
+      "category": "coffee",
+      "categoryAr": "كوفي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "espresso-single": {
+      "name": "Espresso Single",
+      "nameAr": "اسبريسو سنجل",
+      "description": "Espresso Single",
+      "descriptionAr": "اسبريسو سنجل",
+      "price": 58,
       "category": "coffee",
       "categoryAr": "كوفي",
       "available": true,
@@ -679,6 +878,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "single-turkish-coffee": {
+      "name": "Single Turkish Coffee",
+      "nameAr": "قهوة تركي س",
+      "description": "Traditional single Turkish coffee",
+      "descriptionAr": "قهوة تركي سنجل تقليدية",
+      "price": 45,
+      "category": "coffee",
+      "categoryAr": "كوفي",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1579992357154-faf4bfe95b3d?w=600&q=80"
+    },
     "spanish-latte": {
       "name": "Spanish Latte",
       "nameAr": "سبانش لاتيه",
@@ -713,9 +923,48 @@ export const fullMenuData: Record<string, Record<string, {
       "categoryAr": "كورتو",
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "classic-corto": {
+      "name": "Classic Corto",
+      "nameAr": "كلاسيك كورتو",
+      "description": "Classic Corto",
+      "descriptionAr": "كلاسيك كورتو",
+      "price": 97,
+      "category": "corto",
+      "categoryAr": "كورتو",
+      "available": true,
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "mocha-corto": {
+      "name": "Mocha Corto",
+      "nameAr": "موكا كورتو",
+      "description": "Mocha Corto",
+      "descriptionAr": "موكا كورتو",
+      "price": 119,
+      "category": "corto",
+      "categoryAr": "كورتو",
+      "available": true,
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     }
   },
   "crepes": {
+    "banana-caramel": {
+      "name": "Banana Caramel",
+      "nameAr": "بنانا كراميل",
+      "description": "Crepes filled with bananas and topped with caramel sauce",
+      "descriptionAr": "كريب محشو موز ومغطى بصوص الكراميل",
+      "price": 180,
+      "category": "crepes",
+      "categoryAr": "كريب",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Crepes filled with bananas and topped with caramel sauce"
+      ],
+      "ingredientsAr": [
+        "كريب محشو موز ومغطى بصوص الكراميل"
+      ]
+    },
     "cheesecake-crepe": {
       "name": "Cheesecake Crepe",
       "nameAr": "تشيز كيك كريب",
@@ -784,6 +1033,23 @@ export const fullMenuData: Record<string, Record<string, {
       "ingredientsAr": [
         "كريب محشو بصوص البيستاشيو"
       ]
+    },
+    "strawberry-chocolate": {
+      "name": "Strawberry Chocolate",
+      "nameAr": "ستروبري شوكلت",
+      "description": "Crepes rolled and topped with chocolate sauce",
+      "descriptionAr": "كريب ملفوف ومغطى بصوص الشوكلت",
+      "price": 180,
+      "category": "crepes",
+      "categoryAr": "كريب",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Crepes rolled and topped with chocolate sauce"
+      ],
+      "ingredientsAr": [
+        "كريب ملفوف ومغطى بصوص الشوكلت"
+      ]
     }
   },
   "croissant": {
@@ -820,6 +1086,17 @@ export const fullMenuData: Record<string, Record<string, {
         "ببروني",
         "شيدر"
       ]
+    },
+    "chocolate-croissant": {
+      "name": "Chocolate Croissant",
+      "nameAr": "كروسان شوكولاته",
+      "description": "Buttery croissant with rich chocolate filling",
+      "descriptionAr": "كروسان بالزبدة مع حشوة شوكولاته غنية",
+      "price": 79,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600"
     },
     "classic": {
       "name": "Classic",
@@ -861,9 +1138,31 @@ export const fullMenuData: Record<string, Record<string, {
         "شيدر",
         "صوص جبنه"
       ]
+    },
+    "nutella-croissant": {
+      "name": "Nutella Croissant",
+      "nameAr": "كروسان نوتيلا",
+      "description": "Fresh croissant filled with Nutella hazelnut spread",
+      "descriptionAr": "كروسان طازج محشي بسبريد النوتيلا",
+      "price": 85,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?auto=compress&cs=tinysrgb&w=600"
     }
   },
   "desserts": {
+    "brownies": {
+      "name": "Brownies",
+      "nameAr": "براونيز",
+      "description": "Brownies",
+      "descriptionAr": "براونيز",
+      "price": 114,
+      "category": "desserts",
+      "categoryAr": "ديسيرتس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "cheese-cake": {
       "name": "Cheese Cake",
       "nameAr": "تشيز كيك",
@@ -903,6 +1202,17 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Ice Cream Scoop",
       "descriptionAr": "ايس كريم سكوب",
       "price": 35,
+      "category": "desserts",
+      "categoryAr": "ديسيرتس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "molten-cake": {
+      "name": "Molten Cake",
+      "nameAr": "مولتن كيك",
+      "description": "Molten Cake",
+      "descriptionAr": "مولتن كيك",
+      "price": 159,
       "category": "desserts",
       "categoryAr": "ديسيرتس",
       "available": true,
@@ -960,6 +1270,28 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Chocolate Frappe",
       "descriptionAr": "شوكلت فرابيه",
       "price": 164,
+      "category": "frappuccino",
+      "categoryAr": "فرابتشينو اند فرابيه",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "frappe-strong": {
+      "name": "Frappe Strong",
+      "nameAr": "فرابيه سترونج",
+      "description": "Frappe Strong",
+      "descriptionAr": "فرابيه سترونج",
+      "price": 159,
+      "category": "frappuccino",
+      "categoryAr": "فرابتشينو اند فرابيه",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "frappuccino": {
+      "name": "Frappuccino",
+      "nameAr": "فرابتشينو",
+      "description": "Frappuccino",
+      "descriptionAr": "فرابتشينو",
+      "price": 143,
       "category": "frappuccino",
       "categoryAr": "فرابتشينو اند فرابيه",
       "available": true,
@@ -1121,6 +1453,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "mango-juice": {
+      "name": "Mango Juice",
+      "nameAr": "مانجو جوس",
+      "description": "Mango Juice",
+      "descriptionAr": "مانجو جوس",
+      "price": 134,
+      "category": "fresh_juices",
+      "categoryAr": "فريش جوس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "orange-juice": {
       "name": "Orange Juice",
       "nameAr": "اورانج جوس",
@@ -1165,6 +1508,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "strawberry-juice": {
+      "name": "Strawberry Juice",
+      "nameAr": "ستروبري جوس",
+      "description": "Strawberry Juice",
+      "descriptionAr": "ستروبري جوس",
+      "price": 125,
+      "category": "fresh_juices",
+      "categoryAr": "فريش جوس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "watermelon-juice": {
       "name": "Watermelon Juice",
       "nameAr": "واتر ميلون جوس",
@@ -1178,6 +1532,56 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "fried_chicken": {
+    "classic-fried-chicken": {
+      "name": "Classic Fried Chicken",
+      "nameAr": "كلاسيك فرايد تشيكن",
+      "description": "Lettuce, tomato, honey mustard, crispy chicken",
+      "descriptionAr": "خس، طماطم، هوني ماسترد، فراخ كريسبي",
+      "price": 216,
+      "category": "fried_chicken",
+      "categoryAr": "فرايد تشيكن",
+      "available": true,
+      "image": "https://images.pexels.com/photos/60616/fried-chicken-chicken-fried-crunchy-60616.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "tomato",
+        "honey mustard",
+        "crispy chicken"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "طماطم",
+        "هوني ماسترد",
+        "فراخ كريسبي"
+      ]
+    },
+    "fire-fried-chicken": {
+      "name": "Fire Fried Chicken",
+      "nameAr": "فاير فرايد تشيكن",
+      "description": "Sweet chili, Texas, jalapeno, crispy chicken, lettuce, tomato",
+      "descriptionAr": "سويت شيلي، تكساس، هالبينو، فراخ كريسبي، خس، طماطم",
+      "price": 221,
+      "category": "fried_chicken",
+      "categoryAr": "فرايد تشيكن",
+      "available": true,
+      "image": "https://images.pexels.com/photos/60616/fried-chicken-chicken-fried-crunchy-60616.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Sweet chili",
+        "Texas",
+        "jalapeno",
+        "crispy chicken",
+        "lettuce",
+        "tomato"
+      ],
+      "ingredientsAr": [
+        "سويت شيلي",
+        "تكساس",
+        "هالبينو",
+        "فراخ كريسبي",
+        "خس",
+        "طماطم"
+      ]
+    },
     "fried-festival": {
       "name": "Fried Festival",
       "nameAr": "فرايد فيستيفال",
@@ -1247,6 +1651,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "classic-hot-chocolate": {
+      "name": "Classic Hot Chocolate",
+      "nameAr": "كلاسيك هوت شوكلت",
+      "description": "Classic Hot Chocolate",
+      "descriptionAr": "كلاسيك هوت شوكلت",
+      "price": 144,
+      "category": "hot_chocolate",
+      "categoryAr": "هوت شوكلت",
+      "available": true,
+      "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "dark-hot-chocolate": {
       "name": "Dark Hot Chocolate",
       "nameAr": "دارك هوت شوكلت",
@@ -1291,6 +1706,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "milk-hot-chocolate": {
+      "name": "Milk Hot Chocolate",
+      "nameAr": "ميلك هوت شوكلت",
+      "description": "Milk Hot Chocolate",
+      "descriptionAr": "ميلك هوت شوكلت",
+      "price": 169,
+      "category": "hot_chocolate",
+      "categoryAr": "هوت شوكلت",
+      "available": true,
+      "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "oreo-hot-chocolate": {
       "name": "Oreo Hot Chocolate",
       "nameAr": "اوريو هوت شوكلت",
@@ -1315,6 +1741,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "flavor-tea": {
+      "name": "Flavor Tea",
+      "nameAr": "فليفر تي",
+      "description": "Flavor Tea",
+      "descriptionAr": "فليفر تي",
+      "price": 55,
+      "category": "hot_drinks",
+      "categoryAr": "هوت درينكس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "french-coffee": {
       "name": "French Coffee",
       "nameAr": "فرنش كوفي",
@@ -1326,17 +1763,6 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
-    "green-tea": {
-      "name": "Green Tea",
-      "nameAr": "شاي أخضر",
-      "description": "Pure green tea",
-      "descriptionAr": "شاي أخضر نقي",
-      "price": 40,
-      "category": "hot_drinks",
-      "categoryAr": "مشروبات ساخنة",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=600&q=80"
-    },
     "hazelnut-coffee": {
       "name": "Hazelnut Coffee",
       "nameAr": "هازلنت كوفي",
@@ -1347,17 +1773,6 @@ export const fullMenuData: Record<string, Record<string, {
       "categoryAr": "هوت درينكس",
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "hibiscus": {
-      "name": "Hibiscus (Karkade)",
-      "nameAr": "كركديه",
-      "description": "Egyptian hibiscus drink",
-      "descriptionAr": "كركديه مصري",
-      "price": 35,
-      "category": "hot_drinks",
-      "categoryAr": "مشروبات ساخنة",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1550853024-fae8cd4be477?w=600&q=80"
     },
     "hot-cider": {
       "name": "Hot Cider",
@@ -1416,6 +1831,17 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "iced-cappuccino": {
+      "name": "Iced Cappuccino",
+      "nameAr": "ايس كابتشينو",
+      "description": "Iced Cappuccino",
+      "descriptionAr": "ايس كابتشينو",
+      "price": 119,
+      "category": "iced_coffee",
+      "categoryAr": "ايس كوفي اند تي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "iced-caramel-macchiato": {
       "name": "Iced Caramel Macchiato",
       "nameAr": "ايس كراميل ميكاتو",
@@ -1433,6 +1859,17 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Iced Hazelnut Spanish Latte",
       "descriptionAr": "ايس هازلنت سبانش لاتيه",
       "price": 149,
+      "category": "iced_coffee",
+      "categoryAr": "ايس كوفي اند تي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "iced-mocha": {
+      "name": "Iced Mocha",
+      "nameAr": "ايس موكا",
+      "description": "Iced Mocha",
+      "descriptionAr": "ايس موكا",
+      "price": 139,
       "category": "iced_coffee",
       "categoryAr": "ايس كوفي اند تي",
       "available": true,
@@ -1624,6 +2061,23 @@ export const fullMenuData: Record<string, Record<string, {
         "فراخ جريل مع خضروات ميكسيكان وصوص حار"
       ]
     },
+    "chicken-mushroom": {
+      "name": "Chicken Mushroom",
+      "nameAr": "تشيكن مشروم",
+      "description": "Grilled chicken breast with mushroom sauce",
+      "descriptionAr": "صدور فراخ جريل مع صوص المشروم",
+      "price": 334,
+      "category": "main_dishes",
+      "categoryAr": "أطباق رئيسية",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Grilled chicken breast with mushroom sauce"
+      ],
+      "ingredientsAr": [
+        "صدور فراخ جريل مع صوص المشروم"
+      ]
+    },
     "chicken-pane": {
       "name": "Chicken Pane",
       "nameAr": "تشيكن بانيه",
@@ -1639,6 +2093,31 @@ export const fullMenuData: Record<string, Record<string, {
       ],
       "ingredientsAr": [
         "صدور فراخ بانيه مقلية"
+      ]
+    },
+    "grilled-chicken": {
+      "name": "Grilled Chicken",
+      "nameAr": "جريلد تشيكن",
+      "description": "Grilled chicken breast with your choice of sauce (Mushroom, Pepper, Blue Cheese, Lemon, or Curry)",
+      "descriptionAr": "صدور فراخ جريل مع اختيارك من الصوص (مشروم، فلفل، بلو تشيز، ليمون، أو كاري)",
+      "price": 314,
+      "category": "main_dishes",
+      "categoryAr": "أطباق رئيسية",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Grilled chicken breast with your choice of sauce (Mushroom",
+        "Pepper",
+        "Blue Cheese",
+        "Lemon",
+        "or Curry)"
+      ],
+      "ingredientsAr": [
+        "صدور فراخ جريل مع اختيارك من الصوص (مشروم",
+        "فلفل",
+        "بلو تشيز",
+        "ليمون",
+        "أو كاري)"
       ]
     }
   },
@@ -1660,6 +2139,17 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Caramel Milkshake",
       "descriptionAr": "كراميل ميلك شيك",
       "price": 144,
+      "category": "milkshakes",
+      "categoryAr": "ميلك شيك",
+      "available": true,
+      "image": "https://images.pexels.com/photos/3727250/pexels-photo-3727250.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "chocolate-milkshake": {
+      "name": "Chocolate Milkshake",
+      "nameAr": "شوكلت ميلك شيك",
+      "description": "Chocolate Milkshake",
+      "descriptionAr": "شوكلت ميلك شيك",
+      "price": 134,
       "category": "milkshakes",
       "categoryAr": "ميلك شيك",
       "available": true,
@@ -1715,6 +2205,17 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Strawberry Milkshake",
       "descriptionAr": "ستروبري ميلك شيك",
       "price": 134,
+      "category": "milkshakes",
+      "categoryAr": "ميلك شيك",
+      "available": true,
+      "image": "https://images.pexels.com/photos/3727250/pexels-photo-3727250.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "vanilla-milkshake": {
+      "name": "Vanilla Milkshake",
+      "nameAr": "فانيليا ميلك شيك",
+      "description": "Vanilla Milkshake",
+      "descriptionAr": "فانيليا ميلك شيك",
+      "price": 129,
       "category": "milkshakes",
       "categoryAr": "ميلك شيك",
       "available": true,
@@ -1788,12 +2289,34 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/1132558/pexels-photo-1132558.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
+    "lemon-mint": {
+      "name": "Lemon Mint",
+      "nameAr": "ليمون مينت",
+      "description": "Lemon Mint",
+      "descriptionAr": "ليمون مينت",
+      "price": 99,
+      "category": "mojitos",
+      "categoryAr": "موهيتو اند كولد درينكس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1132558/pexels-photo-1132558.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "lemon-passion": {
       "name": "Lemon Passion",
       "nameAr": "ليمون باشون",
       "description": "Lemon Passion",
       "descriptionAr": "ليمون باشون",
       "price": 109,
+      "category": "mojitos",
+      "categoryAr": "موهيتو اند كولد درينكس",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1132558/pexels-photo-1132558.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "lemon-pink": {
+      "name": "Lemon Pink",
+      "nameAr": "ليمون بينك",
+      "description": "Lemon Pink",
+      "descriptionAr": "ليمون بينك",
+      "price": 99,
       "category": "mojitos",
       "categoryAr": "موهيتو اند كولد درينكس",
       "available": true,
@@ -1911,6 +2434,33 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "new_items": {
+    "chicken-butterfly": {
+      "name": "Chicken Butterfly",
+      "nameAr": "تشيكن باترفلاي",
+      "description": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella",
+      "descriptionAr": "فراخ جريل بصوص البتر فلاي، يقدم مع الأرز وعيش محمص بالثوم والمشروم والموزاريلا",
+      "price": 336,
+      "category": "new_items",
+      "categoryAr": "أصناف جديدة",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Grilled chicken",
+        "butterfly sauce",
+        "rice",
+        "toasted garlic bread",
+        "mushrooms",
+        "mozzarella"
+      ],
+      "ingredientsAr": [
+        "فراخ جريل",
+        "صوص البتر فلاي",
+        "أرز",
+        "عيش محمص بالثوم",
+        "مشروم",
+        "موزاريلا"
+      ]
+    },
     "chicken-lemon-pasta": {
       "name": "Chicken Lemon Pasta",
       "nameAr": "تشيكن ليمون باستا",
@@ -1931,6 +2481,19 @@ export const fullMenuData: Record<string, Record<string, {
         "صوص الليمون الكريمي",
         "فراخ جريل"
       ]
+    },
+    "chicken-moo": {
+      "name": "Chicken Moo",
+      "nameAr": "تشيكن مو",
+      "description": "Two grilled chicken pieces stuffed with mushrooms and caramelized onions, drowned in American cheese and Parmesan. The perfect mix of crispy, juicy, and saucy.",
+      "descriptionAr": "قطعتين من الفراخ المشوية محشية مشروم مع البصل المكرمل غرقانة في الامريكان تشيز مع البارميزان 🔥 It's the perfect mix of crispy, juicy, and saucy.",
+      "price": 299,
+      "category": "new_items",
+      "categoryAr": "أصناف جديدة",
+      "available": true,
+      "image": "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Grilled chicken", "mushrooms", "caramelized onions", "American cheese", "Parmesan"],
+      "ingredientsAr": ["فراخ مشوية", "مشروم", "بصل مكرمل", "امريكان تشيز", "بارميزان"]
     },
     "dynamite-chicken": {
       "name": "Dynamite Chicken",
@@ -1981,6 +2544,23 @@ export const fullMenuData: Record<string, Record<string, {
       ],
       "ingredientsAr": [
         "3 طبقات من البان كيك مع قطع البراونيز وميكس الشوكولاته"
+      ]
+    },
+    "chocolate-pancakes": {
+      "name": "Chocolate Pancakes",
+      "nameAr": "شوكلت بان كيك",
+      "description": "3 layers of pancakes with a choice of two types of chocolate",
+      "descriptionAr": "3 طبقات من البان كيك مع اختيار نوعين من الشوكولاته",
+      "price": 180,
+      "category": "pancakes",
+      "categoryAr": "بان كيك",
+      "available": true,
+      "image": "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "3 layers of pancakes with a choice of two types of chocolate"
+      ],
+      "ingredientsAr": [
+        "3 طبقات من البان كيك مع اختيار نوعين من الشوكولاته"
       ]
     },
     "crunchy-lotus": {
@@ -2036,6 +2616,29 @@ export const fullMenuData: Record<string, Record<string, {
         "3 طبقات من البان كيك مع الميكس بيري والوايت شوكلت"
       ]
     },
+    "mixed-chocolate": {
+      "name": "Mixed Chocolate",
+      "nameAr": "ميكس شوكلت",
+      "description": "3 layers of pancakes with 4 types of chocolate (Dark, Milk, White, Nutella)",
+      "descriptionAr": "3 طبقات من البان كيك مع 4 أنواع من الشوكولاته (دارك، ميلك، وايت، نوتيلا)",
+      "price": 234,
+      "category": "pancakes",
+      "categoryAr": "بان كيك",
+      "available": true,
+      "image": "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "3 layers of pancakes with 4 types of chocolate (Dark",
+        "Milk",
+        "White",
+        "Nutella)"
+      ],
+      "ingredientsAr": [
+        "3 طبقات من البان كيك مع 4 أنواع من الشوكولاته (دارك",
+        "ميلك",
+        "وايت",
+        "نوتيلا)"
+      ]
+    },
     "pistachio": {
       "name": "Pistachio",
       "nameAr": "بيستاشيو",
@@ -2072,6 +2675,19 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "pasta": {
+    "alfredo-pasta": {
+      "name": "Alfredo Pasta",
+      "nameAr": "الفريدو باستا",
+      "description": "Creamy Alfredo pasta with Parmesan",
+      "descriptionAr": "باستا بصوص الفريدو الكريمي والبارميزان",
+      "price": 249,
+      "category": "pasta",
+      "categoryAr": "باستا",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "Alfredo cream sauce", "Parmesan"],
+      "ingredientsAr": ["باستا", "صوص الفريدو الكريمي", "بارميزان"]
+    },
     "azura-spicy-pasta": {
       "name": "Azura Spicy Pasta",
       "nameAr": "ازورا سبايسي باستا",
@@ -2179,6 +2795,19 @@ export const fullMenuData: Record<string, Record<string, {
         "جبنه بارميزان"
       ]
     },
+    "negresco": {
+      "name": "Negresco",
+      "nameAr": "نجرسكو",
+      "description": "Negresco pasta with creamy sauce",
+      "descriptionAr": "باستا نجرسكو بالصوص الكريمي",
+      "price": 258,
+      "category": "pasta",
+      "categoryAr": "باستا",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Pasta", "creamy Negresco sauce", "Parmesan"],
+      "ingredientsAr": ["باستا", "صوص نجرسكو الكريمي", "بارميزان"]
+    },
     "pasta-arrabbiata": {
       "name": "Pasta Arrabbiata",
       "nameAr": "اربيتا باستا",
@@ -2233,12 +2862,34 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "sahlab": {
+    "classic-sahlab-nuts": {
+      "name": "Classic Sahlab (Nuts)",
+      "nameAr": "كلاسيك سحلب",
+      "description": "Classic Sahlab (Nuts)",
+      "descriptionAr": "كلاسيك سحلب",
+      "price": 104,
+      "category": "sahlab",
+      "categoryAr": "سحلب",
+      "available": true,
+      "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
     "lotus-sahlab": {
       "name": "Lotus Sahlab",
       "nameAr": "سحلب لوتس",
       "description": "Lotus Sahlab",
       "descriptionAr": "سحلب لوتس",
       "price": 149,
+      "category": "sahlab",
+      "categoryAr": "سحلب",
+      "available": true,
+      "image": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "nutella-sahlab": {
+      "name": "Nutella Sahlab",
+      "nameAr": "سحلب نوتيلا",
+      "description": "Nutella Sahlab",
+      "descriptionAr": "سحلب نوتيلا",
+      "price": 139,
       "category": "sahlab",
       "categoryAr": "سحلب",
       "available": true,
@@ -2317,6 +2968,58 @@ export const fullMenuData: Record<string, Record<string, {
         "هاواى صوص"
       ]
     },
+    "chicken-caesar-salad": {
+      "name": "Chicken Caesar Salad",
+      "nameAr": "تشيكن سيزر سالاد",
+      "description": "Lettuce, grilled chicken, croutons, Caesar dressing, Parmesan cheese",
+      "descriptionAr": "خس، فراخ جريل، عيش كريتون، صوص سيزر، جبنه بارميزان",
+      "price": 204,
+      "category": "salads",
+      "categoryAr": "سالاد",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1211887/pexels-photo-1211887.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "grilled chicken",
+        "croutons",
+        "Caesar dressing",
+        "Parmesan cheese"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "فراخ جريل",
+        "عيش كريتون",
+        "صوص سيزر",
+        "جبنه بارميزان"
+      ]
+    },
+    "greek-salad": {
+      "name": "Greek Salad",
+      "nameAr": "جريك سالاد",
+      "description": "Lettuce, cucumber, tomatoes, Greek cheese, thyme, olive oil",
+      "descriptionAr": "خس، خيار، طماطم، جبنه جريك، زعتر، زيت زيتون",
+      "price": 133,
+      "category": "salads",
+      "categoryAr": "سالاد",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1211887/pexels-photo-1211887.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "cucumber",
+        "tomatoes",
+        "Greek cheese",
+        "thyme",
+        "olive oil"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "خيار",
+        "طماطم",
+        "جبنه جريك",
+        "زعتر",
+        "زيت زيتون"
+      ]
+    },
     "rocca-salad": {
       "name": "Rocca Salad",
       "nameAr": "روكا سالاد",
@@ -2373,67 +3076,12 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "shisha": {
-    "azura-shisha": {
-      "name": "Azura Shisha",
-      "nameAr": "شيشة ازورا",
-      "description": "Azura Shisha",
-      "descriptionAr": "شيشة ازورا",
-      "price": 220,
-      "category": "shisha",
-      "categoryAr": "شيشة",
-      "available": true,
-      "image": "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "ice-hose": {
-      "name": "Ice Hose",
-      "nameAr": "ايس لي",
-      "description": "Ice Hose",
-      "descriptionAr": "ايس لي",
-      "price": 30,
-      "category": "shisha",
-      "categoryAr": "شيشة",
-      "available": true,
-      "image": "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "maassel-change": {
-      "name": "Maassel Change",
-      "nameAr": "تغيير معسل",
-      "description": "Maassel Change",
-      "descriptionAr": "تغيير معسل",
-      "price": 35,
-      "category": "shisha",
-      "categoryAr": "شيشة",
-      "available": true,
-      "image": "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "maassel-shisha": {
-      "name": "Maassel Shisha",
-      "nameAr": "شيشة معسل",
-      "description": "Maassel Shisha",
-      "descriptionAr": "شيشة معسل",
-      "price": 65,
-      "category": "shisha",
-      "categoryAr": "شيشة",
-      "available": true,
-      "image": "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "premium-shisha": {
-      "name": "Premium Shisha",
-      "nameAr": "شيشة فاخر",
-      "description": "Premium Shisha",
-      "descriptionAr": "شيشة فاخر",
-      "price": 150,
-      "category": "shisha",
-      "categoryAr": "شيشة",
-      "available": true,
-      "image": "https://images.pexels.com/photos/760280/pexels-photo-760280.jpeg?auto=compress&cs=tinysrgb&w=600"
-    },
-    "pyrex-twin-shisha": {
-      "name": "Pyrex Twin Shisha",
-      "nameAr": "شيشة بايركس توين",
-      "description": "Pyrex Twin Shisha",
-      "descriptionAr": "شيشة بايركس توين",
-      "price": 210,
+    "mix-shisha": {
+      "name": "Mix Shisha",
+      "nameAr": "شيشة ميكس",
+      "description": "Mix Shisha",
+      "descriptionAr": "شيشة ميكس",
+      "price": 180,
       "category": "shisha",
       "categoryAr": "شيشة",
       "available": true,
@@ -2468,6 +3116,31 @@ export const fullMenuData: Record<string, Record<string, {
         "صوص جبنه",
         "دوريتوس",
         "رانش"
+      ]
+    },
+    "classic-smash": {
+      "name": "Classic Smash",
+      "nameAr": "كلاسيك سماش",
+      "description": "Lettuce, tomato, caramelized onion, 2 smash pieces, cheese sauce",
+      "descriptionAr": "خس، طماطم، بصل مكرمل، قطعتين سماش، صوص جينه",
+      "price": 227,
+      "category": "smash_burgers",
+      "categoryAr": "سماش برجر",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "tomato",
+        "caramelized onion",
+        "2 smash pieces",
+        "cheese sauce"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "طماطم",
+        "بصل مكرمل",
+        "قطعتين سماش",
+        "صوص جينه"
       ]
     },
     "fire-smash-burger": {
@@ -2573,6 +3246,31 @@ export const fullMenuData: Record<string, Record<string, {
         "تكساس",
         "قطعتين سماش"
       ]
+    },
+    "smoke-smash-burger": {
+      "name": "Smoke Smash Burger",
+      "nameAr": "سموك سماش برجر",
+      "description": "Lettuce, tomato, Texas, caramelized onion, beef bacon",
+      "descriptionAr": "خس، طماطم، تكساس، بصل مكرمل، بيف بيكون",
+      "price": 282,
+      "category": "smash_burgers",
+      "categoryAr": "سماش برجر",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "tomato",
+        "Texas",
+        "caramelized onion",
+        "beef bacon"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "طماطم",
+        "تكساس",
+        "بصل مكرمل",
+        "بيف بيكون"
+      ]
     }
   },
   "smoothies": {
@@ -2582,7 +3280,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Blue Passion Smoothie",
       "descriptionAr": "بلو باشون سموزي",
       "price": 159,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2593,7 +3291,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Blueberry Smoothie",
       "descriptionAr": "بلوبيري سموزي",
       "price": 139,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2604,7 +3302,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Copa Cabana Smoothie",
       "descriptionAr": "كوبا كبانا سموزي",
       "price": 129,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2615,7 +3313,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Lemon Mint Smoothie",
       "descriptionAr": "ليمون مينت سموزي",
       "price": 104,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2626,8 +3324,19 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Lemon Smoothie",
       "descriptionAr": "ليمون سموزي",
       "price": 89,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "mango-kiwi-smoothie": {
+      "name": "Mango Kiwi Smoothie",
+      "nameAr": "مانجو كيوي سموزي",
+      "description": "Mango Kiwi Smoothie",
+      "descriptionAr": "مانجو كيوي سموزي",
+      "price": 154,
+      "category": "smoothies",
+      "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
@@ -2637,7 +3346,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Mango Passion Smoothie",
       "descriptionAr": "مانجو باشون سموزي",
       "price": 134,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2648,7 +3357,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Mango Peach Smoothie",
       "descriptionAr": "مانجو بيتش سموزي",
       "price": 154,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2659,7 +3368,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Mix Berry Smoothie",
       "descriptionAr": "ميكس بيري سموزي",
       "price": 144,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2670,7 +3379,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Passion Fruit Smoothie",
       "descriptionAr": "باشون فروت سموزي",
       "price": 144,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2681,7 +3390,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Passion Strawberry Smoothie",
       "descriptionAr": "باشون ستروبري سموزي",
       "price": 149,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2692,7 +3401,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Pina Colada Smoothie",
       "descriptionAr": "بينا كولادا سموزي",
       "price": 154,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2703,8 +3412,19 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Pineapple Smoothie",
       "descriptionAr": "باين ابل سموزي",
       "price": 139,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
+      "available": true,
+      "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
+    },
+    "strawberry-banana-smoothie": {
+      "name": "Strawberry Banana Smoothie",
+      "nameAr": "ستروبري بنانا سموزي",
+      "description": "Strawberry Banana Smoothie",
+      "descriptionAr": "ستروبري بنانا سموزي",
+      "price": 137,
+      "category": "smoothies",
+      "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
@@ -2714,7 +3434,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Strawberry Lemonade Smoothie",
       "descriptionAr": "ستروبري ليمونيت سموزي",
       "price": 144,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2725,7 +3445,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Strawberry Smoothie",
       "descriptionAr": "ستروبري سموزي",
       "price": 129,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2736,7 +3456,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Watermelon Smoothie",
       "descriptionAr": "واتر ميلون سموزي",
       "price": 149,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "سموزي",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2747,7 +3467,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "White Mountain Smoothie",
       "descriptionAr": "وايت موانتين سموزي",
       "price": 139,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2758,7 +3478,7 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "Yellow and Green Smoothie",
       "descriptionAr": "يالو اند جرين سموزي",
       "price": 149,
-      "category": "cocktails",
+      "category": "smoothies",
       "categoryAr": "كوكتيل",
       "available": true,
       "image": "https://images.pexels.com/photos/775030/pexels-photo-775030.jpeg?auto=compress&cs=tinysrgb&w=600"
@@ -2786,6 +3506,17 @@ export const fullMenuData: Record<string, Record<string, {
       "categoryAr": "مشروبات غازية",
       "available": true,
       "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80"
+    },
+    "pepsi": {
+      "name": "Pepsi / Cola",
+      "nameAr": "بيبسي / كولا",
+      "description": "Chilled soft drink",
+      "descriptionAr": "مشروب غازي بارد",
+      "price": 68,
+      "category": "soft_drinks",
+      "categoryAr": "مشروبات غازية",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1629203851022-36c64237d951?w=600&q=80"
     },
     "redbull": {
       "name": "Red Bull",
@@ -2819,6 +3550,17 @@ export const fullMenuData: Record<string, Record<string, {
       "categoryAr": "مشروبات غازية",
       "available": true,
       "image": "https://images.unsplash.com/photo-1551446591-142875a901a1?w=600&q=80"
+    },
+    "sprite-mirinda": {
+      "name": "Sprite / Mirinda",
+      "nameAr": "سبرايت / ميريندا",
+      "description": "Chilled lemon-lime or orange soda",
+      "descriptionAr": "سبرايت أو ميريندا باردة",
+      "price": 68,
+      "category": "soft_drinks",
+      "categoryAr": "مشروبات غازية",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1622708782596-13d974530562?w=600&q=80"
     },
     "water-large": {
       "name": "Large Water",
@@ -2869,6 +3611,32 @@ export const fullMenuData: Record<string, Record<string, {
       "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Chicken", "mushrooms", "cream", "spices"],
       "ingredientsAr": ["فراخ", "مشروم", "كريمة", "توابل"]
+    },
+    "mushroom-cream": {
+      "name": "Mushroom Cream Soup",
+      "nameAr": "كريم مشروم",
+      "description": "Creamy mushroom soup",
+      "descriptionAr": "شوربة مشروم كريمية",
+      "price": 102,
+      "category": "soups",
+      "categoryAr": "شوربة",
+      "available": true,
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Mushrooms", "cream", "onion", "spices"],
+      "ingredientsAr": ["مشروم", "كريمة", "بصل", "توابل"]
+    },
+    "tomato-and-basil-soup": {
+      "name": "Tomato and Basil Soup",
+      "nameAr": "شوربة طماطم بالريحان",
+      "description": "Creamy tomato soup with fresh basil",
+      "descriptionAr": "شوربة طماطم كريمية بالريحان الطازج",
+      "price": 93,
+      "category": "soups",
+      "categoryAr": "شوربة",
+      "available": true,
+      "image": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": ["Tomato", "basil", "cream"],
+      "ingredientsAr": ["طماطم", "ريحان", "كريمة"]
     }
   },
   "toast": {
@@ -2884,6 +3652,33 @@ export const fullMenuData: Record<string, Record<string, {
       "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
       "ingredients": ["Toasted bread", "melted cheese", "butter"],
       "ingredientsAr": ["خبز محمص", "جبنه مذابة", "زبدة"]
+    },
+    "chicken-cheese": {
+      "name": "Chicken Cheese",
+      "nameAr": "تشيكن تشيز",
+      "description": "Grilled chicken with mushrooms, colored peppers, and mozzarella, cheddar cheese mix, cheese sauce, lettuce, tomatoes",
+      "descriptionAr": "فراخ جريل مع مشروم وفلفل الوان والموتزريلا، ميكس شيدر تشيز، صوص جبنه، خس، طماطم",
+      "price": 219,
+      "category": "toast",
+      "categoryAr": "توست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Grilled chicken with mushrooms",
+        "colored peppers",
+        "and mozzarella",
+        "cheddar cheese mix",
+        "cheese sauce",
+        "lettuce",
+        "tomatoes"
+      ],
+      "ingredientsAr": [
+        "فراخ جريل مع مشروم وفلفل الوان والموتزريلا",
+        "ميكس شيدر تشيز",
+        "صوص جبنه",
+        "خس",
+        "طماطم"
+      ]
     },
     "garlic-butter": {
       "name": "Garlic Butter Toast",
@@ -2943,6 +3738,33 @@ export const fullMenuData: Record<string, Record<string, {
       "ingredients": ["Toasted bread", "Nutella", "fresh banana"],
       "ingredientsAr": ["خبز محمص", "نوتيلا", "موز طازج"]
     },
+    "triple-s": {
+      "name": "Triple S",
+      "nameAr": "تريبل اس",
+      "description": "Smoked Turkey, Beef Bacon, Pepperoni, Lettuce, Tomato, Cheddar Cheese Mix",
+      "descriptionAr": "سموك تركي، بيف بيكون، ببروني، خس، طماطم، ميكس شيدر تشيز",
+      "price": 218,
+      "category": "toast",
+      "categoryAr": "توست",
+      "available": true,
+      "image": "https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Smoked Turkey",
+        "Beef Bacon",
+        "Pepperoni",
+        "Lettuce",
+        "Tomato",
+        "Cheddar Cheese Mix"
+      ],
+      "ingredientsAr": [
+        "سموك تركي",
+        "بيف بيكون",
+        "ببروني",
+        "خس",
+        "طماطم",
+        "ميكس شيدر تشيز"
+      ]
+    },
     "tuna": {
       "name": "Tuna",
       "nameAr": "تونه",
@@ -2999,6 +3821,31 @@ export const fullMenuData: Record<string, Record<string, {
         "فراخ كريسبي"
       ]
     },
+    "crispy-chicken-tortilla": {
+      "name": "Crispy Chicken Tortilla",
+      "nameAr": "كريسبي تشيكن تورتيلا",
+      "description": "Lettuce, tomato, cheese sauce, honey mustard, crispy chicken",
+      "descriptionAr": "خس، طماطم، صوص جبنه، هوني ماسترد، فراخ كريسبي",
+      "price": 196,
+      "category": "tortilla",
+      "categoryAr": "تورتيلا",
+      "available": true,
+      "image": "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "tomato",
+        "cheese sauce",
+        "honey mustard",
+        "crispy chicken"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "طماطم",
+        "صوص جبنه",
+        "هوني ماسترد",
+        "فراخ كريسبي"
+      ]
+    },
     "fajita-chicken-tortilla": {
       "name": "Fajita Chicken Tortilla",
       "nameAr": "فاجيتا تشيكن تورتيلا",
@@ -3024,6 +3871,29 @@ export const fullMenuData: Record<string, Record<string, {
         "فراخ جريل",
         "فلفل الوان",
         "بصل"
+      ]
+    },
+    "grilled-chicken-tortilla": {
+      "name": "Grilled Chicken Tortilla",
+      "nameAr": "جريلد تشيكن تورتيلا",
+      "description": "Lettuce, tomato, ranch, grilled chicken",
+      "descriptionAr": "خس، طماطم، رانش، فراخ جريل",
+      "price": 186,
+      "category": "tortilla",
+      "categoryAr": "تورتيلا",
+      "available": true,
+      "image": "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "ingredients": [
+        "Lettuce",
+        "tomato",
+        "ranch",
+        "grilled chicken"
+      ],
+      "ingredientsAr": [
+        "خس",
+        "طماطم",
+        "رانش",
+        "فراخ جريل"
       ]
     },
     "mexican-chicken-tortilla": {
@@ -3055,6 +3925,28 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "waffle": {
+    "chocolate-waffle": {
+      "name": "Chocolate Waffle",
+      "nameAr": "وافل شوكولاتة",
+      "description": "Waffle topped with Belgian chocolate",
+      "descriptionAr": "وافل مغطى بالشوكولاتة البلجيكية",
+      "price": 160,
+      "category": "waffle",
+      "categoryAr": "وافل",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600&q=80"
+    },
+    "classic-waffle": {
+      "name": "Classic Waffle",
+      "nameAr": "وافل كلاسيك",
+      "description": "Freshly baked waffle with honey or syrup",
+      "descriptionAr": "وافل طازج مع العسل أو السيرب",
+      "price": 140,
+      "category": "waffle",
+      "categoryAr": "وافل",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600&q=80"
+    },
     "fruit-waffle": {
       "name": "Fruit Waffle",
       "nameAr": "وافل فواكه",

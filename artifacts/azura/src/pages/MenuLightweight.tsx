@@ -37,71 +37,96 @@ const CATS = [
   { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
   { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
   { id: "tortilla",         emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
-  { id: "sandwiches",       emoji: "🥪",  en: "Sandwiches",          ar: "ساندوتش"         },
-  { id: "vina_sandwiches",  emoji: "🥖",  en: "Vina Sandwiches",     ar: "ساندوتش فينا"     },
+  { id: "toast",            emoji: "🥪",  en: "Toast",               ar: "توست"            },
+  { id: "croissant",        emoji: "🥐",  en: "Croissant",           ar: "كرواسون"         },
+  { id: "breakfast",        emoji: "🍳",  en: "Breakfast",           ar: "إفطار"           },
   { id: "main_dishes",      emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية"     },
-  { id: "beef_burgers",     emoji: "🍔",  en: "Beef Burgers",        ar: "برجر لحم"        },
+  { id: "burgers",          emoji: "🍔",  en: "Burgers",             ar: "برجر"            },
   { id: "smash_burgers",    emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر"       },
   { id: "fried_chicken",    emoji: "🍗",  en: "Fried Chicken",      ar: "فراخ مقلية"      },
-  { id: "extra_kitchen",    emoji: "➕",  en: "Extra Kitchen",       ar: "إضافات مطبخ"     },
   { id: "hot_drinks",       emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة"   },
-  { id: "espresso",         emoji: "☕",  en: "Espresso",            ar: "إسبريسو"         },
+  { id: "coffee",           emoji: "☕",  en: "Coffee",               ar: "قهوة"            },
   { id: "corto",            emoji: "🥛",  en: "Corto",               ar: "كورتو"           },
   { id: "hot_chocolate",    emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة"  },
-  { id: "frappe",           emoji: "🧊",  en: "Frappe",              ar: "فرابيه"          },
+  { id: "sahlab",           emoji: "🥛",  en: "Sahlab",              ar: "سحلب"            },
+  { id: "frappuccino",      emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو"       },
   { id: "iced_coffee",      emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
   { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
-  { id: "mocktails",        emoji: "🍹",  en: "Mocktails",           ar: "موكتيل"          },
   { id: "boba_tea",         emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
-  { id: "fresh_juice",      emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
+  { id: "fresh_juices",     emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
   { id: "cocktails",        emoji: "🍸",  en: "Cocktails",           ar: "كوكتيل"          },
-  { id: "smoothie",         emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
-  { id: "milkshake",        emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
+  { id: "smoothies",        emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
+  { id: "milkshakes",       emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
   { id: "waffle",           emoji: "🧇",  en: "Waffle",               ar: "وافل"            },
   { id: "desserts",         emoji: "🍰",  en: "Desserts",             ar: "حلويات"          },
-  { id: "crepe",            emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
+  { id: "crepes",           emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
   { id: "pancakes",         emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
-  { id: "extra_drinks",     emoji: "🥤",  en: "Extra Drinks",         ar: "مشروبات إضافية"   },
-  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
+  { id: "add_ons",          emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
   { id: "shisha",           emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
   { id: "all",              emoji: "✨",  en: "All",                  ar: "الكل"            },
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
-  new_items:      ["new_items", "new", "featured"],
-  soups:          ["soup", "soups"],
-  appetizers:     ["appetizer", "appetizers", "starters", "sides", "extras"],
-  salads:         ["salad", "salads"],
-  pasta:          ["pasta", "noodles"],
-  tortilla:       ["tortilla", "wraps"],
-  sandwiches:     ["sandwich", "sandwiches"],
-  vina_sandwiches:["vina_sandwiches", "vina", "focaccia"],
-  main_dishes:    ["main_dishes", "mains", "main", "food"],
-  beef_burgers:   ["beef_burgers", "beef_burger", "beef"],
-  smash_burgers:  ["smash_burgers", "smash_burger", "smash"],
-  fried_chicken:  ["fried_chicken", "chicken_sandwich", "chicken_burger"],
-  extra_kitchen:  ["extra_kitchen", "extras", "add_ons"],
-  hot_drinks:     ["hot_drinks", "tea", "sahlab", "herbal_tea"],
-  espresso:       ["espresso", "coffee"],
+  new_items:      ["new_items"],
+  soups:          ["soups", "soup"],
+  appetizers:     ["appetizers", "appetizer"],
+  salads:         ["salads", "salad"],
+  pasta:          ["pasta"],
+  tortilla:       ["tortilla"],
+  toast:          ["toast"],
+  croissant:      ["croissant"],
+  breakfast:      ["breakfast"],
+  main_dishes:    ["main_dishes"],
+  burgers:        ["burgers", "burger", "beef_burgers"],
+  smash_burgers:  ["smash_burgers"],
+  fried_chicken:  ["fried_chicken"],
+  hot_drinks:     ["hot_drinks", "hot_drink"],
+  coffee:         ["coffee", "espresso"],
   corto:          ["corto"],
-  hot_chocolate:  ["hot_chocolate", "chocolate"],
-  frappe:         ["frappe", "frappuccino", "iced_coffee"],
+  hot_chocolate:  ["hot_chocolate"],
+  sahlab:         ["sahlab"],
+  frappuccino:    ["frappuccino", "frappe"],
   iced_coffee:    ["iced_coffee"],
-  mojitos:        ["mojitos"],
-  mocktails:      ["mocktails", "mocktail"],
-  boba_tea:       ["boba_tea", "boba", "bubble_tea"],
-  fresh_juice:    ["fresh_juice", "juice", "fresh_juices"],
-  cocktails:      ["cocktails", "cocktail"],
-  smoothie:       ["smoothie", "smoothies"],
-  milkshake:      ["milkshake", "shake", "milkshakes"],
-  waffle:         ["waffle", "waffles"],
-  desserts:       ["dessert", "desserts", "sweet", "sweets"],
-  crepe:          ["crepe", "crepes"],
-  pancakes:       ["pancakes", "pancake"],
-  extra_drinks:   ["extra_drinks"],
-  soft_drinks:    ["soft_drinks", "soda", "cold_drinks"],
-  shisha:         ["shisha", "hookah", "sheesha", "hookah"],
+  mojitos:        ["mojitos", "mojito"],
+  boba_tea:       ["boba_tea"],
+  fresh_juices:   ["fresh_juices", "fresh_juice"],
+  cocktails:      ["cocktails"],
+  smoothies:      ["smoothies", "smoothie"],
+  milkshakes:     ["milkshakes", "milkshake"],
+  waffle:         ["waffle"],
+  desserts:       ["desserts", "dessert"],
+  crepes:         ["crepes", "crepe"],
+  pancakes:       ["pancakes"],
+  add_ons:        ["add_ons", "extra_kitchen"],
+  shisha:         ["shisha"],
+};
+
+// Advanced Search Normalization & Synonyms
+const normalizeText = (text: string) => {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\u064B-\u065F]/g, "") // Remove Harakat
+    .trim();
+};
+
+const SEARCH_SYNONYMS: Record<string, string[]> = {
+  "قهوه": ["كوفي", "coffee", "اسبريسو", "لاتيه", "بون", "تركي", "turkish"],
+  "كوفي": ["قهوه", "coffee", "تركي", "turkish"],
+  "شاي": ["tea", "t-shai"],
+  "بطاطس": ["fries", "potato", "فرنش فرايز", "صوابع"],
+  "فراخ": ["chicken", "تشيكن", "دجاج", "فرايد"],
+  "لحمه": ["beef", "بقر", "برجر", "meat"],
+  "بيبسي": ["سودا", "soda", "مشروب غازي", "cola", "كولا", "بارد", "cold"],
+  "مياه": ["وتر", "water", "مايه", "معدنية"],
+  "حلو": ["dessert", "حلويات", "سويت", "كيك", "وافل"],
+  "شيشه": ["hookah", "دخان", "معسل", "فحم"],
+  "مكرونه": ["pasta", "باستا", "نودلز", "مكرونة"],
+  "عصير": ["juice", "فرش", "fresh", "عصاير"],
 };
 
 const ITEMS_PER_PAGE = 24;
@@ -120,7 +145,8 @@ const MenuItemCard = memo(({
   onClick: (item: MenuItem) => void;
   CATS: any[];
 }) => {
-  const cat = CATS.find(c => c.id === item.category);
+  const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+
   return (
     <div
       className="group cursor-pointer"
@@ -187,7 +213,7 @@ const MenuItemCard = memo(({
 // Item Detail Modal Component - Fixed for Mobile Comfort
 function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
-  const cat = CATS.find(c => c.id === item.category);
+  const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
 
   return (
     <div
@@ -379,7 +405,7 @@ export default function MenuLightweight() {
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
   // Unified filtering and counting in a single pass for optimization
-  const { filtered, counts } = useMemo(() => {
+  const { filtered, counts, activeCats } = useMemo(() => {
     const countsMap: Record<string, number> = {};
     CATS.forEach(c => countsMap[c.id] = 0);
 
@@ -400,33 +426,71 @@ export default function MenuLightweight() {
         }
       });
 
-      // Search filter (Global search)
+      // 1. Search filter (Enhanced)
       if (debouncedSearch) {
-        const q = debouncedSearch.toLowerCase();
-        const ingMatch = (item.ingredients ?? []).some(i => i.toLowerCase().includes(q));
-        const descMatch = (item.description || "").toLowerCase().includes(q) || (item.descriptionAr || "").includes(q);
-        const nameMatch = item.name.toLowerCase().includes(q) || item.nameAr.includes(q);
-        if (!(nameMatch || ingMatch || descMatch)) return false;
+        const q = normalizeText(debouncedSearch);
+        const itemData = normalizeText([
+          item.name,
+          item.nameAr,
+          item.description,
+          item.descriptionAr,
+          item.category,
+          ...(item.ingredients || []),
+          ...(item.ingredientsAr || [])
+        ].join(" "));
+
+        // Direct match
+        let isMatch = itemData.includes(q);
+
+        // Synonym match
+        if (!isMatch) {
+          for (const [key, synonyms] of Object.entries(SEARCH_SYNONYMS)) {
+            const normalizedKey = normalizeText(key);
+            if (q.includes(normalizedKey) || normalizedKey.includes(q)) {
+              if (synonyms.some(s => itemData.includes(normalizeText(s)))) {
+                isMatch = true;
+                break;
+              }
+            }
+            if (synonyms.some(s => normalizeText(s).includes(q))) {
+               if (itemData.includes(normalizedKey)) {
+                 isMatch = true;
+                 break;
+               }
+            }
+          }
+        }
+
+        if (!isMatch) return false;
+      }
+
+      // 2. Category filter
+      // If searching, we show global results UNLESS the user explicitly chose a category other than 'all' or 'recommended'
+      const isSearching = !!debouncedSearch;
+      const isFilteredCat = cat !== "all" && cat !== "recommended";
+
+      if (isSearching) {
+        if (isFilteredCat) {
+          const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
+          if (!aliasSet.has(item.category.toLowerCase())) return false;
+        }
+        // If searching and cat is "all" or "recommended", show global results.
       } else {
-        // Category filter (only apply if NOT searching, or decide if search should be scoped)
-        // User wants stability, usually global search is better but let's see.
-        // If they chose a category, they probably want to search in it.
-        // Actually, "conflict on section" might mean they want to see it everywhere.
-        // Let's make it scoped search if category is not "all".
         if (cat !== "all") {
-           if (cat === "recommended") {
-             if (!item.recommended) return false;
-           } else {
-             const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
-             if (!aliasSet.has(item.category.toLowerCase())) return false;
-           }
+          if (cat === "recommended") {
+            if (!item.recommended) return false;
+          } else {
+            const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
+            if (!aliasSet.has(item.category.toLowerCase())) return false;
+          }
         }
       }
 
       return true;
     });
 
-    return { filtered: filteredList, counts: countsMap };
+    const active = CATS.filter(c => c.id === "all" || countsMap[c.id] > 0);
+    return { filtered: filteredList, counts: countsMap, activeCats: active };
   }, [items, cat, debouncedSearch]);
 
   // Paginated items
@@ -535,13 +599,16 @@ export default function MenuLightweight() {
         </div>
       </div>
 
-      {/* Categories - Simplified for performance on weak devices (removed backdrop-blur) */}
+      {/* Categories - Only show active ones to clean up UI */}
       <div className="sticky top-[105px] z-20 bg-[#FDF5E6] px-4 py-3 border-b border-[#D2B48C]">
         <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1 will-change-transform">
-          {CATS.map((c, idx) => (
+          {activeCats.map((c, idx) => (
             <button
               key={c.id}
-              onClick={() => setCat(c.id)}
+              onClick={() => {
+                setCat(c.id);
+                if (search) setSearch(""); // Clear search when switching sections manually
+              }}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
                 transition-all duration-300 ease-out shadow-sm

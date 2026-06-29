@@ -119,7 +119,8 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "appetizers": {
-    "azura-plate": {"name": "Azura Plate",
+    "azura-plate": {
+      "name": "Azura Plate",
       "nameAr": "ازورا بليت",
       "description": "Mozzarella sticks, strips, onion rings, fries, nachos with three sauces",
       "descriptionAr": "موتزريلا ستيك، ستربس، حلقات بصل، فرايز، ناتشوز مع ثلاث صوصات من اختيارك",
@@ -724,7 +725,8 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
-    "espresso-double": {"name": "Espresso Double",
+    "espresso-double": {
+      "name": "Espresso Double",
       "nameAr": "اسبريسو دبل",
       "description": "Espresso Double",
       "descriptionAr": "اسبريسو دبل",
@@ -1573,7 +1575,8 @@ export const fullMenuData: Record<string, Record<string, {
       ]
     }
   },
-  "fries": {"fries": {
+  "fries": {
+    "fries": {
       "name": "Fries",
       "nameAr": "فرايز",
       "description": "Fries",
@@ -2170,7 +2173,8 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "mocktails": {
-    "blue-passion-smoothie": {"name": "Blue Passion Smoothie",
+    "blue-passion-smoothie": {
+      "name": "Blue Passion Smoothie",
       "nameAr": "بلو باشون سموزي",
       "description": "Blue Passion Smoothie",
       "descriptionAr": "بلو باشون سموزي",
@@ -2427,7 +2431,8 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "new_items": {
-    "chicken-butterfly": {"name": "Chicken Butterfly",
+    "chicken-butterfly": {
+      "name": "Chicken Butterfly",
       "nameAr": "تشيكن باترفلاي",
       "description": "Grilled chicken with butterfly sauce, served with rice, toasted bread with garlic, mushrooms, and mozzarella",
       "descriptionAr": "فراخ جريل بصوص البتر فلاي، يقدم مع الأرز وعيش محمص بالثوم والمشروم والموزاريلا",

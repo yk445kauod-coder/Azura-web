@@ -341,7 +341,9 @@ Type "help" to see all available commands.`;
 
   const buildSystemPrompt = () => {
     const menuSummary = menuItems.map(i => `[${i.category}] ${i.name}: ${i.price} EGP`).join("\n");
-    return `You are the Expert Media Buyer & CRM Advisor for Azura Cafe.
+    return `You are the 'Eye of Azura' — the master CRM Analyst, Media Buyer, and Workspace Manager.
+Your role is to monitor all cafe activity and provide strategic value to the owner.
+Tracking Data: ${JSON.stringify(analytics)}
 Context: ${JSON.stringify(CAFE_CONTEXT)}
 Real-time Tracking Data: ${JSON.stringify(analytics)}
 Total Menu Items: ${menuItems.length}.

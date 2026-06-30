@@ -9,7 +9,6 @@ import {
   getRedirectResult,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { motion, AnimatePresence } from "framer-motion";
 
 const SUMMER_PHRASE = "Summer Edition";
 const BEACH_BG =
@@ -20,8 +19,11 @@ export default function SplashScreen() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [phase, setPhase] = useState<0 | 1 | 2>(0); // 0=loading bg, 1=animate, 2=login
+  const [typed, setTyped] = useState("");
+  const [cursorOn, setCursorOn] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const typingDone = typed.length === SUMMER_PHRASE.length;
 
   const tr = (en: string, ar: string) => (lang === "ar" ? ar : en);
 
@@ -31,9 +33,27 @@ export default function SplashScreen() {
     getRedirectResult(auth).then((r) => { if (r?.user) navigate("/menu"); });
 
     const t1 = setTimeout(() => setPhase(1), 200);
-    const t2 = setTimeout(() => setPhase(2), 4500);
+    const t2 = setTimeout(() => setPhase(2), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [user, navigate]);
+
+  /* ── typing effect ── */
+  useEffect(() => {
+    if (phase < 1) return;
+    if (typed.length >= SUMMER_PHRASE.length) return;
+    const delay = typed.length === 0 ? 600 : 55 + Math.random() * 35;
+    const t = setTimeout(
+      () => setTyped(SUMMER_PHRASE.slice(0, typed.length + 1)),
+      delay
+    );
+    return () => clearTimeout(t);
+  }, [phase, typed]);
+
+  /* ── blinking cursor ── */
+  useEffect(() => {
+    const id = setInterval(() => setCursorOn((v) => !v), 520);
+    return () => clearInterval(id);
+  }, []);
 
   /* ── Google login ── */
   const handleGoogleLogin = async () => {
@@ -125,58 +145,38 @@ export default function SplashScreen() {
           </p>
         </div>
 
-        {/* ── "Summer Edition" Fluid Staggered Reveal (iPhone hello style) ── */}
+        {/* ── "Summer Edition" hero typing text ── */}
         <div
           className={`text-center mb-2 transition-all duration-700 ${phase >= 1 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           style={{ transitionDelay: "0.5s" }}
         >
-          <motion.h1
-              className="flex flex-wrap justify-center premium-shimmer"
+          <h1
+            style={{
+              fontFamily: "var(--font-handwritten)",
+              fontSize: "clamp(2.6rem, 8vw, 3.4rem)",
+              lineHeight: 1.15,
+              color: "#FFD97D",
+              textShadow: "0 2px 20px rgba(255,200,60,0.55), 0 4px 40px rgba(255,140,0,0.3)",
+              letterSpacing: "0.01em",
+            }}
+          >
+            {typed}
+            <span
               style={{
-                fontFamily: "var(--font-handwritten)",
-                fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
-                lineHeight: 1.18,
+                opacity: typingDone && !cursorOn ? 0 : cursorOn ? 1 : 0,
                 color: "#FFD97D",
-                textShadow: "0 2px 20px rgba(255,200,60,0.3)",
-                letterSpacing: "0.01em",
-                textAlign: "center",
+                transition: "opacity 0.1s",
               }}
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={(phase >= 1) ? {
-                clipPath: "inset(0 0% 0 0)"
-              } : {}}
-              transition={{ duration: 2.8, ease: [0.4, 0, 0.2, 1], delay: 0.6 }}
             >
-              {SUMMER_PHRASE.split("").map((char, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0, y: 10, x: -10, rotate: -20, scale: 0.5, filter: "blur(10px)" }}
-                  animate={(phase >= 1) ? {
-                    opacity: 1,
-                    y: 0,
-                    rotate: 0,
-                    scale: 1,
-                    transition: {
-                      delay: 0.8 + (index * 0.08), duration: 0.8, ease: [0.34, 1.56, 0.64, 1]
-                    }
-                  } : {}}
-                  style={{ display: "inline-block", transformOrigin: "bottom left" }}
-                >
-                  {char === " " ? " " : char}
-                </motion.span>
-              ))}
-            </motion.h1>
+              |
+            </span>
+          </h1>
         </div>
 
         {/* Slogan */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 10 }}
-          animate={phase >= 1 ? {
-            opacity: 1,
-            y: 0,
-            transition: { delay: 3.2, duration: 1.2 }
-          } : {}}
+        <div
+          className={`text-center mb-8 transition-all duration-700 ${typed.length > 4 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+          style={{ transitionDelay: "0s", transition: "opacity 0.8s ease, transform 0.8s ease" }}
         >
           <p
             className="text-white/60 text-[11px] tracking-widest uppercase"
@@ -185,7 +185,7 @@ export default function SplashScreen() {
             {tr("The quality is a habit", "الجودة عادة")}
           </p>
           <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-        </motion.div>
+        </div>
 
         {/* ── Login section ── */}
         {phase >= 2 && (
@@ -250,25 +250,6 @@ export default function SplashScreen() {
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .premium-shimmer {
-          background: linear-gradient(
-            120deg,
-            #FFD97D 0%,
-            #FFD97D 40%,
-            #FFFFFF 50%,
-            #FFD97D 60%,
-            #FFD97D 100%
-          );
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: fluidShimmer 5s linear infinite;
-        }
-
-        @keyframes fluidShimmer {
-          to { background-position: 200% center; }
         }
       `}</style>
     </div>

@@ -5,7 +5,6 @@ import { useBarista } from "@/contexts/BaristaContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { Globe, Coffee, X } from "lucide-react";
 import { type Lang } from "@/lib/i18n";
-import { motion, AnimatePresence } from "framer-motion";
 
 type Screen = "splash" | "main";
 
@@ -26,6 +25,9 @@ export default function Welcome() {
 
   /* Summer splash state */
   const [splashPhase, setSplashPhase] = useState(0); // 0=hidden 1=visible 2=logo+text
+  const [typed, setTyped] = useState("");
+  const [cursorOn, setCursorOn] = useState(true);
+  const typingDone = typed.length === SUMMER_PHRASE.length;
 
   // Homepage Banner
   const [banner, setBanner] = useState<{
@@ -49,8 +51,23 @@ export default function Welcome() {
   useEffect(() => {
     const t0 = setTimeout(() => setSplashPhase(1), 80);
     const t1 = setTimeout(() => setSplashPhase(2), 400);
-    const t2 = setTimeout(() => setScreen("main"), 5500);
+    const t2 = setTimeout(() => setScreen("main"), 4000);
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  /* Typing effect */
+  useEffect(() => {
+    if (splashPhase < 2) return;
+    if (typed.length >= SUMMER_PHRASE.length) return;
+    const delay = typed.length === 0 ? 500 : 55 + Math.random() * 35;
+    const t = setTimeout(() => setTyped(SUMMER_PHRASE.slice(0, typed.length + 1)), delay);
+    return () => clearTimeout(t);
+  }, [splashPhase, typed]);
+
+  /* Blinking cursor */
+  useEffect(() => {
+    const id = setInterval(() => setCursorOn((v) => !v), 520);
+    return () => clearInterval(id);
   }, []);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
@@ -152,55 +169,39 @@ export default function Welcome() {
             {tr("AZURA CAFE", "أزورا كافيه")}
           </p>
 
-          {/* "Summer Edition" TRUE Fluid Handwritten Reveal (iPhone hello style) */}
-          <div className="relative flex items-center justify-center min-h-[4.5rem] w-full">
-             <motion.h1
-              className="flex flex-wrap justify-center premium-shimmer"
+          {/* "Summer Edition" Hero Typing Effect */}
+          <h1
+            style={{
+              fontFamily: "var(--font-handwritten)",
+              fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
+              lineHeight: 1.18,
+              color: "#FFD97D",
+              textShadow: "0 2px 18px rgba(255,200,60,0.6), 0 4px 36px rgba(255,140,0,0.28)",
+              letterSpacing: "0.01em",
+              textAlign: "center",
+              minHeight: "1.3em",
+            }}
+          >
+            {typed}
+            <span
               style={{
-                fontFamily: "var(--font-handwritten)",
-                fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
-                lineHeight: 1.18,
                 color: "#FFD97D",
-                textShadow: "0 2px 20px rgba(255,200,60,0.3)",
-                letterSpacing: "0.01em",
-                textAlign: "center",
+                opacity: cursorOn && !typingDone ? 1 : typingDone && cursorOn ? 0.6 : 0,
+                transition: "opacity 0.1s",
               }}
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={(splashPhase >= 2) ? {
-                clipPath: "inset(0 0% 0 0)"
-              } : {}}
-              transition={{ duration: 2.8, ease: [0.4, 0, 0.2, 1], delay: 0.6 }}
             >
-              {SUMMER_PHRASE.split("").map((char, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0, y: 10, x: -10, rotate: -20, scale: 0.5, filter: "blur(10px)" }}
-                  animate={(splashPhase >= 2) ? {
-                    opacity: 1,
-                    y: 0,
-                    rotate: 0,
-                    scale: 1,
-                    transition: {
-                      delay: 0.8 + (index * 0.08), duration: 0.8, ease: [0.34, 1.56, 0.64, 1]
-                    }
-                  } : {}}
-                  style={{ display: "inline-block", transformOrigin: "bottom left" }}
-                >
-                  {char === " " ? " " : char}
-                </motion.span>
-              ))}
-            </motion.h1>
-          </div>
+              |
+            </span>
+          </h1>
 
           {/* Slogan */}
-          <motion.div
-            className="mt-4 text-center"
-            initial={{ opacity: 0, y: 10 }}
-            animate={splashPhase >= 2 ? {
-              opacity: 1,
-              y: 0,
-              transition: { delay: 3.2, duration: 1.2 }
-            } : {}}
+          <div
+            className="mt-3 text-center"
+            style={{
+              opacity: typed.length >= 4 ? 1 : 0,
+              transform: typed.length >= 4 ? "translateY(0)" : "translateY(6px)",
+              transition: "opacity 0.9s ease, transform 0.9s ease",
+            }}
           >
             <p
               className="text-white/55 text-[11px] font-medium"
@@ -209,16 +210,15 @@ export default function Welcome() {
               {tr("The quality is a habit", "الجودة عادة")}
             </p>
             <div className="mx-auto mt-2 h-px w-20 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </motion.div>
+          </div>
 
           {/* Loading dots */}
-          <motion.div
-            className="flex gap-1.5 mt-10"
-            initial={{ opacity: 0 }}
-            animate={splashPhase >= 2 ? {
-              opacity: 1,
-              transition: { delay: 3.8, duration: 1 }
-            } : {}}
+          <div
+            className="flex gap-1.5 mt-8"
+            style={{
+              opacity: typingDone ? 1 : 0,
+              transition: "opacity 0.6s ease",
+            }}
           >
             {[0, 1, 2].map((i) => (
               <div
@@ -227,7 +227,7 @@ export default function Welcome() {
                 style={{ animationDelay: `${i * 0.22}s` }}
               />
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* Version */}
@@ -239,25 +239,6 @@ export default function Welcome() {
           @keyframes waveSlide {
             0%, 100% { transform: translateX(-60%) scaleX(0.6); }
             50%       { transform: translateX(20%)  scaleX(1.4); }
-          }
-
-          .premium-shimmer {
-            background: linear-gradient(
-              120deg,
-              #FFD97D 0%,
-              #FFD97D 40%,
-              #FFFFFF 50%,
-              #FFD97D 60%,
-              #FFD97D 100%
-            );
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: fluidShimmer 4s linear infinite;
-          }
-
-          @keyframes fluidShimmer {
-            to { background-position: 200% center; }
           }
         `}</style>
       </div>

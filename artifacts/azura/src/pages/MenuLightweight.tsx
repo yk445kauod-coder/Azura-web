@@ -164,13 +164,13 @@ const MenuItemCard = memo(({
         containIntrinsicSize: "0 200px"
       }}
     >
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm active:scale-[0.97] transition-all duration-150">
+      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20">
         <div className="relative h-36 overflow-hidden bg-muted/30">
           {item.image ? (
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               loading="lazy"
               decoding="async"
             />
@@ -185,7 +185,7 @@ const MenuItemCard = memo(({
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
           {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
               <span>⭐</span>
               <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
             </div>
@@ -246,7 +246,7 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-6xl">

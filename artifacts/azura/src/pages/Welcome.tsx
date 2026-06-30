@@ -49,7 +49,7 @@ export default function Welcome() {
   useEffect(() => {
     const t0 = setTimeout(() => setSplashPhase(1), 80);
     const t1 = setTimeout(() => setSplashPhase(2), 400);
-    const t2 = setTimeout(() => setScreen("main"), 5000); // More time for premium feel
+    const t2 = setTimeout(() => setScreen("main"), 5500);
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
@@ -58,8 +58,8 @@ export default function Welcome() {
   const handleGuestLogin = async () => {
     const n = parseInt(tableNum);
     if (!name.trim()) { setError(tr("Please enter your name", "يرجى إدخال اسمك")); return; }
-    if (!tableNum.trim() || isNaN(n) || n < 1 || n > 99) {
-      setError(tr("Enter a valid table number (1-99)", "ادخل رقم طاولة صحيح (1-99)")); return;
+    if (!tableNum.trim() || isNaN(n) || n < 1 || n > 50) {
+      setError(tr("Enter a valid table number (1-50)", "ادخل رقم طاولة صحيح (1-50)")); return;
     }
     setLoading(true);
     try { await loginAnonymous(name.trim(), tableNum.trim()); }
@@ -152,46 +152,41 @@ export default function Welcome() {
             {tr("AZURA CAFE", "أزورا كافيه")}
           </p>
 
-          {/* "Summer Edition" iPhone-style handwritten reveal */}
-          <div className="relative flex items-center justify-center min-h-[4rem]">
+          {/* "Summer Edition" TRUE Fluid Handwritten Reveal (iPhone hello style) */}
+          <div className="relative flex items-center justify-center min-h-[4.5rem] w-full">
              <motion.h1
-              className="handwritten-text flex flex-wrap justify-center"
+              className="flex flex-wrap justify-center premium-shimmer"
               style={{
                 fontFamily: "var(--font-handwritten)",
                 fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
                 lineHeight: 1.18,
                 color: "#FFD97D",
-                textShadow: "0 2px 18px rgba(255,200,60,0.6), 0 4px 36px rgba(255,140,0,0.28)",
+                textShadow: "0 2px 20px rgba(255,200,60,0.3)",
                 letterSpacing: "0.01em",
                 textAlign: "center",
               }}
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={(splashPhase >= 2) ? {
+                clipPath: "inset(0 0% 0 0)"
+              } : {}}
+              transition={{ duration: 2.8, ease: [0.4, 0, 0.2, 1], delay: 0.6 }}
             >
               {SUMMER_PHRASE.split("").map((char, index) => (
                 <motion.span
                   key={index}
-                  initial={{
-                    opacity: 0,
-                    x: -2,
-                    y: 2,
-                    scale: 0.95,
-                    filter: "blur(2px)",
-                    clipPath: "inset(0 100% 0 0)"
-                  }}
-                  animate={splashPhase >= 2 ? {
+                  initial={{ opacity: 0, y: 10, x: -10, rotate: -20, scale: 0.5, filter: "blur(10px)" }}
+                  animate={(splashPhase >= 2) ? {
                     opacity: 1,
-                    x: 0,
                     y: 0,
+                    rotate: 0,
                     scale: 1,
-                    filter: "blur(0px)",
-                    clipPath: "inset(0 0 0 0)",
                     transition: {
-                      delay: 0.8 + (index * 0.12),
-                      duration: 0.8,
-                      ease: "easeOut"
+                      delay: 0.8 + (index * 0.08), duration: 0.8, ease: [0.34, 1.56, 0.64, 1]
                     }
                   } : {}}
+                  style={{ display: "inline-block", transformOrigin: "bottom left" }}
                 >
-                  {char === " " ? "\u00A0" : char}
+                  {char === " " ? " " : char}
                 </motion.span>
               ))}
             </motion.h1>
@@ -204,7 +199,7 @@ export default function Welcome() {
             animate={splashPhase >= 2 ? {
               opacity: 1,
               y: 0,
-              transition: { delay: 2.5, duration: 1.2 }
+              transition: { delay: 3.2, duration: 1.2 }
             } : {}}
           >
             <p
@@ -222,7 +217,7 @@ export default function Welcome() {
             initial={{ opacity: 0 }}
             animate={splashPhase >= 2 ? {
               opacity: 1,
-              transition: { delay: 3.2, duration: 1 }
+              transition: { delay: 3.8, duration: 1 }
             } : {}}
           >
             {[0, 1, 2].map((i) => (
@@ -244,6 +239,25 @@ export default function Welcome() {
           @keyframes waveSlide {
             0%, 100% { transform: translateX(-60%) scaleX(0.6); }
             50%       { transform: translateX(20%)  scaleX(1.4); }
+          }
+
+          .premium-shimmer {
+            background: linear-gradient(
+              120deg,
+              #FFD97D 0%,
+              #FFD97D 40%,
+              #FFFFFF 50%,
+              #FFD97D 60%,
+              #FFD97D 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fluidShimmer 4s linear infinite;
+          }
+
+          @keyframes fluidShimmer {
+            to { background-position: 200% center; }
           }
         `}</style>
       </div>
@@ -348,9 +362,9 @@ export default function Welcome() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-muted-foreground uppercase ml-1">{tr("Table Number", "رقم الطاولة")}</label>
               <input
-                type="number" min={1} max={99}
+                type="number" min={1} max={50}
                 className={`${inp} text-lg font-bold`}
-                placeholder="1-99"
+                placeholder="1-50"
                 value={tableNum}
                 onChange={(e) => { setTableNum(e.target.value); setError(""); }}
               />

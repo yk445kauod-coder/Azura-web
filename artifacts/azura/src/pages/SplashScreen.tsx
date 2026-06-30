@@ -31,7 +31,7 @@ export default function SplashScreen() {
     getRedirectResult(auth).then((r) => { if (r?.user) navigate("/menu"); });
 
     const t1 = setTimeout(() => setPhase(1), 200);
-    const t2 = setTimeout(() => setPhase(2), 3500); // More time for handwritten reveal
+    const t2 = setTimeout(() => setPhase(2), 4500);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [user, navigate]);
 
@@ -125,51 +125,47 @@ export default function SplashScreen() {
           </p>
         </div>
 
-        {/* ── "Summer Edition" iPhone-style handwritten reveal ── */}
+        {/* ── "Summer Edition" Fluid Staggered Reveal (iPhone hello style) ── */}
         <div
           className={`text-center mb-2 transition-all duration-700 ${phase >= 1 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           style={{ transitionDelay: "0.5s" }}
         >
           <motion.h1
-            className="handwritten-text flex flex-wrap justify-center"
-            style={{
-              fontFamily: "var(--font-handwritten)",
-              fontSize: "clamp(2.6rem, 8vw, 3.4rem)",
-              lineHeight: 1.15,
-              color: "#FFD97D",
-              textShadow: "0 2px 20px rgba(255,200,60,0.55), 0 4px 40px rgba(255,140,0,0.3)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {SUMMER_PHRASE.split("").map((char, index) => (
-              <motion.span
-                key={index}
-                initial={{
-                  opacity: 0,
-                  x: -3,
-                  y: 3,
-                  scale: 0.9,
-                  filter: "blur(4px)",
-                  clipPath: "inset(0 100% 0 0)"
-                }}
-                animate={phase >= 1 ? {
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  scale: 1,
-                  filter: "blur(0px)",
-                  clipPath: "inset(0 0 0 0)",
-                  transition: {
-                    delay: 0.8 + (index * 0.15),
-                    duration: 0.9,
-                    ease: "easeOut"
-                  }
-                } : {}}
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
-          </motion.h1>
+              className="flex flex-wrap justify-center premium-shimmer"
+              style={{
+                fontFamily: "var(--font-handwritten)",
+                fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
+                lineHeight: 1.18,
+                color: "#FFD97D",
+                textShadow: "0 2px 20px rgba(255,200,60,0.3)",
+                letterSpacing: "0.01em",
+                textAlign: "center",
+              }}
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={(phase >= 1) ? {
+                clipPath: "inset(0 0% 0 0)"
+              } : {}}
+              transition={{ duration: 2.8, ease: [0.4, 0, 0.2, 1], delay: 0.6 }}
+            >
+              {SUMMER_PHRASE.split("").map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: 10, x: -10, rotate: -20, scale: 0.5, filter: "blur(10px)" }}
+                  animate={(phase >= 1) ? {
+                    opacity: 1,
+                    y: 0,
+                    rotate: 0,
+                    scale: 1,
+                    transition: {
+                      delay: 0.8 + (index * 0.08), duration: 0.8, ease: [0.34, 1.56, 0.64, 1]
+                    }
+                  } : {}}
+                  style={{ display: "inline-block", transformOrigin: "bottom left" }}
+                >
+                  {char === " " ? " " : char}
+                </motion.span>
+              ))}
+            </motion.h1>
         </div>
 
         {/* Slogan */}
@@ -179,7 +175,7 @@ export default function SplashScreen() {
           animate={phase >= 1 ? {
             opacity: 1,
             y: 0,
-            transition: { delay: 2.8, duration: 1.2 }
+            transition: { delay: 3.2, duration: 1.2 }
           } : {}}
         >
           <p
@@ -254,6 +250,25 @@ export default function SplashScreen() {
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .premium-shimmer {
+          background: linear-gradient(
+            120deg,
+            #FFD97D 0%,
+            #FFD97D 40%,
+            #FFFFFF 50%,
+            #FFD97D 60%,
+            #FFD97D 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: fluidShimmer 5s linear infinite;
+        }
+
+        @keyframes fluidShimmer {
+          to { background-position: 200% center; }
         }
       `}</style>
     </div>

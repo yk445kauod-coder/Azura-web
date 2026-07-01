@@ -120,6 +120,25 @@ export default function Reels() {
 
   const getFacebookEmbedUrl = (videoUrl: string) => `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(normalizeFacebookUrl(videoUrl))}&show_text=false&autoplay=true&width=500`;
   const isFacebookUrl = (url: string) => url.includes("facebook.com") || url.includes("fb.watch") || url.includes("fb.com");
+  const isInstagramUrl = (url: string) => url.includes("instagram.com") || url.includes("ddinstagram.com");
+
+  useEffect(() => {
+    if (currentReel?.videoUrl && isInstagramUrl(currentReel.videoUrl)) {
+      // Instagram embeds need to be processed by their SDK
+      const script = document.createElement("script");
+      script.src = "https://www.instagram.com/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+      script.onload = () => {
+        if ((window as any).instgrm) {
+          (window as any).instgrm.Embeds.process();
+        }
+      };
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [currentReel?.id]);
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" /></div>;
 
@@ -143,16 +162,25 @@ export default function Reels() {
     <div className="min-h-screen bg-black relative">
       <div className="h-screen w-full flex flex-col relative overflow-hidden">
         {/* Video/Image Section */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative overflow-hidden">
           {currentReel?.videoUrl ? (
             isFacebookUrl(currentReel.videoUrl) ? (
               <iframe 
                 src={getFacebookEmbedUrl(currentReel.videoUrl)} 
-                className="w-full h-full" 
-                frameBorder="0" 
+                className="w-full h-full border-0"
                 allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture" 
                 allowFullScreen
               />
+            ) : isInstagramUrl(currentReel.videoUrl) ? (
+              <div className="w-full h-full flex items-center justify-center bg-black overflow-y-auto pt-20">
+                <blockquote
+                  className="instagram-media w-full"
+                  data-instgrm-permalink={currentReel.videoUrl}
+                  data-instgrm-version="14"
+                  style={{ minWidth: '326px' }}
+                >
+                </blockquote>
+              </div>
             ) : (
               <video 
                 src={currentReel.videoUrl} 

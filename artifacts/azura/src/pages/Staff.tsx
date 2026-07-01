@@ -64,6 +64,7 @@ export default function Staff() {
                   src={member.photo}
                   alt={lang === "ar" ? member.nameAr : member.name}
                   className="w-full h-full object-cover object-top"
+                  loading="lazy"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=300&q=80";
                   }}
@@ -98,6 +99,7 @@ export default function Staff() {
                 src={selected.photo}
                 alt={lang === "ar" ? selected.nameAr : selected.name}
                 className="w-16 h-16 rounded-full object-cover object-top neo-sm flex-shrink-0"
+                loading="lazy"
                 onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=100&q=60"; }}
               />
               <div>

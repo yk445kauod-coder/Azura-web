@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const existing = snap.val() as UserProfile;
           const updated = {
             ...existing,
+            name: u.displayName || existing.name || "Guest",
             lastLoginAt: Date.now(),
             lastSeenAt: Date.now(),
             loginCount: (existing.loginCount || 0) + 1,

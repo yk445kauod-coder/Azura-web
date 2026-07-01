@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
+import { fullMenuData } from "@/lib/fullMenu";
 import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2 } from "lucide-react";
 
 interface SuggestedItem {
@@ -43,6 +44,19 @@ function normalizeItem(id: string, raw: RawMenuItem & { ingredients?: any }): Me
   };
 }
 
+// Convert fullMenuData to flat array for initial state/fallback
+const STATIC_MENU: MenuItem[] = Object.entries(fullMenuData).flatMap(([catId, items]) =>
+  Object.entries(items).map(([id, item]) => ({
+    id,
+    name: item.name,
+    nameAr: item.nameAr,
+    price: item.price,
+    category: catId,
+    image: item.image,
+    ingredients: item.ingredients?.join(", ")
+  }))
+);
+
 function renderMarkdown(text: string): string {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
@@ -66,7 +80,7 @@ export default function AIBarista() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(STATIC_MENU);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -191,7 +205,7 @@ export default function AIBarista() {
     
     const menuCtx = Object.entries(byCategory)
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
-        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}: ${i.price} EGP [ID:${i.id}] ${i.ingredients ? `[${i.ingredients}]` : ""}`)
+        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}`)
         .join("\n"))
       .join("\n");
     
@@ -204,43 +218,34 @@ export default function AIBarista() {
 
 YOUR PERSONALITY:
 - Warm, welcoming, and genuinely passionate about coffee and food
-- You remember previous conversations and preferences
-- You're an expert in flavor profiles, ingredients, and perfect pairings
-- You speak naturally - not robotic, but like a knowledgeable friend
-- You use emojis strategically to add warmth ✨☕
+- You speak naturally - not robotic, but like a knowledgeable friend (Ammiya Egyptian dialect if speaking Arabic).
+- You are a proactive SALES AGENT: Your goal is to guide guests to our signature high-margin items like Turkish Coffee (Single/Double), Azura Plate, and special Mocktails.
+- If a guest is unsure, suggest a 'Perfect Combo' (e.g., a specific Cake with our special Latte).
 
 YOUR EXPERTISE:
-- Deep knowledge of Egyptian coffee culture and traditions ☕
-- Global specialty coffee drinks and brewing methods
-- Perfect food & drink pairings
-- Allergen and dietary information (lactose-free, sugar-free options)
-- Seasonal and trending recommendations
+- Deep knowledge of the Azura Menu provided below.
+- You STRICTLY follow the names in the MENU DATA section.
+- You can explain ingredients based on your general knowledge if not specified, but stay true to the Azura style.
 
 WHEN RECOMMENDING:
-1. Ask follow-up questions to understand preferences
-2. Explain WHY you recommend something (flavor notes, popularity, pairings)
-3. Suggest combos that work beautifully together
-4. Consider the occasion (morning boost, afternoon treat, romantic date, study session)
+1. Always suggest items that EXACTLY match the provided menu names.
+2. Recommend perfect pairings (e.g., a specific Dessert with a specific Coffee).
 
 TOOLS:
-• [ADD_ITEM:id] - Show one item (e.g., [ADD_ITEM:latte-hazelnut])
-• [ADD_ALL:id1,id2,id3] - Show multiple items
+• [ADD_ITEM:name] - Show one item (e.g., [ADD_ITEM:Caramel Latte])
+• [ADD_ALL:item1,item2] - Show multiple items
 • Use **bold** for item names
 • Use *italics* for flavor descriptions
 • Use emojis: ☕🍰🌟✨🔥❤️
 
-EXAMPLE RECOMMENDATION:
-"If you're in the mood for something *indulgent*, I'd absolutely recommend our **Nutella Latte** ✨ - the hazelnut and chocolate create this *cozy, dessert-like* experience! 
-
-Want me to show you that along with one of our famous brownies? [ADD_ITEM:nutella-latte] [ADD_ITEM:brownie]"
-
 IMPORTANT:
-- NEVER mention cart, checkout, or payment
-- Keep recommendations personalized based on conversation
-- If unsure about an item's availability, suggest it positively
-- Be enthusiastic about new items and specials!
+- NEVER mention PRICES. Do not say how much things cost.
+- NEVER mention checkout or payment.
+- DO NOT invent items. If it is not in the MENU DATA list, it does not exist.
+- If a user asks for something not on the menu, politely steer them to a similar available item from our list.
+- If the user asks for the price, politely inform them that you are here to help with recommendations and details, and they can find the latest prices in the menu sections.
 
-MENU DATA:\n${menuCtx}`}`;
+MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
   };
 
   const parseMessage = (raw: string) => {
@@ -372,7 +377,7 @@ MENU DATA:\n${menuCtx}`}`;
             <ArrowLeft size={16} />
           </button>
           <div className="relative flex-shrink-0">
-            <img src={baristaAvatar} alt={baristaName} className="w-11 h-11 rounded-full object-cover object-top" style={{ boxShadow: "var(--shadow-sm)" }} />
+            <img src={baristaAvatar} alt={baristaName} className="w-11 h-11 rounded-full object-cover object-top" style={{ boxShadow: "var(--shadow-sm)" }} loading="lazy" />
             <span className="badge-online absolute -bottom-0.5 -right-0.5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -413,7 +418,7 @@ MENU DATA:\n${menuCtx}`}`;
             className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "ai" && (
-              <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0 mb-1" />
+              <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0 mb-1" loading="lazy" />
             )}
             <div className="max-w-[85%] space-y-2">
               <div className={`px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "bubble-user" : "bubble-ai"}`}>
@@ -443,13 +448,13 @@ MENU DATA:\n${menuCtx}`}`;
                           src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
                           alt={item.name}
                           className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                          loading="lazy"
                           onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-primary truncate">
                             {lang === "ar" && item.nameAr ? item.nameAr : item.name}
                           </p>
-                          <p className="text-xs text-muted-foreground">{item.price} EGP</p>
                           <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
                         </div>
                         <div
@@ -470,7 +475,7 @@ MENU DATA:\n${menuCtx}`}`;
 
         {loading && (
           <div className="flex items-end gap-2">
-            <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" />
+            <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" loading="lazy" />
             <div className="bubble-ai px-4 py-3">
               <div className="flex gap-1.5 items-center">
                 {[0, 1, 2].map((i) => (

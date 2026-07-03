@@ -153,7 +153,7 @@ function CssBar({ pct, color = "hsl(var(--primary))" }: { pct: number; color?: s
 }
 
 // -- Module-level menu constants (stable references for useMemo) --------------
-const MENU_CATS_ORDER = [
+const MENU_CATEGORIES = [
   "new_items","recommended",
   "coffee","espresso","corto","iced_coffee","hot_drinks","hot_chocolate","frappuccino","frappe","sahlab",
   "fresh_juices","fresh_juice","smoothies","smoothie","milkshakes","milkshake","mojitos","mocktails",
@@ -164,7 +164,7 @@ const MENU_CATS_ORDER = [
   "extras","add_ons","shisha",
 ];
 
-const CAT_META_MAP: Record<string, { emoji: string; en: string; ar: string }> = {
+const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = {
   recommended:    { emoji: "⭐",  en: "Top Picks",       ar: "الأفضل"          },
   new_items:      { emoji: "🆕",  en: "New Items",       ar: "جديد"            },
   coffee:         { emoji: "☕",  en: "Coffee",          ar: "قهوة"            },
@@ -258,7 +258,7 @@ export default function Admin() {
   });
   const [savingItem, setSavingItem] = useState(false);
 
-  // Menu computed values (stable module-level MENU_CATS_ORDER / CAT_META_MAP used as deps)
+  // Menu computed values (stable module-level MENU_CATEGORIES / CAT_META used as deps)
   const menuFiltered = useMemo(() => {
     if (!menuSearch) return menu;
     const q = menuSearch.toLowerCase();
@@ -282,8 +282,8 @@ export default function Admin() {
   }, [menuFiltered]);
 
   const menuCatOrder = useMemo(() => {
-    const known = MENU_CATS_ORDER.filter(c => menuGrouped[c]);
-    const unknown = Object.keys(menuGrouped).filter(c => !MENU_CATS_ORDER.includes(c)).sort();
+    const known = MENU_CATEGORIES.filter(c => menuGrouped[c]);
+    const unknown = Object.keys(menuGrouped).filter(c => !MENU_CATEGORIES.includes(c)).sort();
     return [...known, ...unknown];
   }, [menuGrouped]);
 
@@ -854,21 +854,26 @@ export default function Admin() {
 
         {/* ━━━ MENU MANAGEMENT ━━━ */}
         {tab === "menu" && (
-          <MenuTab
-            menu={menu} menuSearch={menuSearch} setMenuSearch={setMenuSearch}
-            menuEdits={menuEdits} setMenuEdits={setMenuEdits}
-            savingMenuId={savingMenuId} setSavingMenuId={setSavingMenuId}
-            selectedMenuItemId={selectedMenuItemId} setSelectedMenuItemId={setSelectedMenuItemId}
-            expandedCats={expandedCats} setExpandedCats={setExpandedCats}
-            showAddForm={showAddForm} setShowAddForm={setShowAddForm}
-            addForm={addForm} setAddForm={setAddForm}
-            savingItem={savingItem} setSavingItem={setSavingItem}
-            MENU_CATEGORIES={MENU_CATEGORIES} CAT_META={CAT_META}
-            inp={inp} tr={tr} lang={lang}
-          />
-        )}
-
-        {/* dead block removed */}
+          <div className="space-y-4 page-enter">
+            <div className="card-elevated rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder={tr("Search menu...", "البحث في القائمة...")}
+                    value={menuSearch}
+                    onChange={(e) => setMenuSearch(e.target.value)}
+                    className="w-full px-4 py-2.5 pl-10 rounded-xl bg-muted text-sm focus:ring-2 focus:ring-primary/30"
+                  />
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                </div>
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="btn-primary px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap"
+                >
+                  <Plus size={16}/> {tr("Add Item", "إضافة صنف")}
+                </button>
+              </div>
 
               {/* -- Inline Add Item Form -- */}
               {showAddForm && (
@@ -1126,8 +1131,8 @@ export default function Admin() {
                       )}
                     </div>
                   );
-                });
-                })}
+                })
+                })()}
               </div>
             </div>
           </div>
@@ -1995,6 +2000,9 @@ export default function Admin() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          </div>
         )}
         {tab === "ai" && (
           <div className="page-enter">

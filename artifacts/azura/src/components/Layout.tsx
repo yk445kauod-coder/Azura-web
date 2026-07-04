@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useState, memo, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, Link } from "wouter";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -181,53 +182,78 @@ export default function Layout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Notification Drawer */}
-      {notifOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end" onClick={() => setNotifOpen(false)}>
-          <div
-            className="bg-background rounded-t-3xl px-4 pt-4 pb-8 space-y-3 max-h-[72vh] overflow-y-auto shadow-2xl"
-            style={{ borderTop: "1px solid hsl(var(--border))" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-2" />
-            <div className="flex items-center justify-between">
-              <h2 className="font-extrabold text-foreground text-base">
-                {lang === "ar" ? "الإشعارات" : "Notifications"}
-              </h2>
-              <button onClick={markAllRead} className="text-xs font-semibold text-primary py-1 px-2 rounded-lg hover:bg-primary/10 transition-all">
-                {lang === "ar" ? "مسح الكل" : "Mark all read"}
-              </button>
-            </div>
-            {allBroadcasts.length === 0 ? (
-              <p className="text-center text-muted-foreground text-sm py-8">
-                {lang === "ar" ? "لا توجد إشعارات" : "No notifications yet"}
-              </p>
-            ) : (
-              allBroadcasts.map((b) => {
-                const isUnread = !getReadIds().includes(b.id);
-                return (
-                  <div
-                    key={b.id}
-                    className={`rounded-2xl px-3 py-3 border flex items-start gap-3 transition-all ${BROADCAST_TYPE_STYLE[b.type] || BROADCAST_TYPE_STYLE.info} ${isUnread ? "ring-1 ring-primary/30" : "opacity-60"}`}
-                  >
-                    <span className="text-xl flex-shrink-0 mt-0.5">{b.emoji || "✨"}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="font-bold text-sm leading-tight">
-                          {lang === "ar" ? (b.titleAr || b.title) : b.title}
-                        </p>
-                        {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
-                      </div>
-                      <p className="text-xs opacity-80 leading-snug mt-0.5">
-                        {lang === "ar" ? (b.messageAr || b.message) : b.message}
-                      </p>
-                    </div>
+      <AnimatePresence>
+        {notifOpen && (
+          <div className="fixed inset-0 z-50 flex flex-col justify-end">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setNotifOpen(false)}
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative bg-background rounded-t-[2.5rem] px-6 pt-3 pb-10 space-y-4 max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+              style={{ borderTop: "1px solid hsl(var(--border))" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-2 flex-shrink-0" />
+
+              <div className="flex items-center justify-between flex-shrink-0">
+                <h2 className="font-black text-foreground text-xl">
+                  {lang === "ar" ? "الإشعارات" : "Notifications"}
+                </h2>
+                <button
+                  onClick={markAllRead}
+                  className="text-sm font-bold text-primary px-3 py-1.5 rounded-xl bg-primary/5 hover:bg-primary/10 transition-all active:scale-95"
+                >
+                  {lang === "ar" ? "مسح الكل" : "Mark all read"}
+                </button>
+              </div>
+
+              <div className="overflow-y-auto space-y-3 pr-1 scroll-hide">
+                {allBroadcasts.length === 0 ? (
+                  <div className="text-center py-12 space-y-3">
+                    <div className="text-5xl opacity-20">🔔</div>
+                    <p className="text-muted-foreground font-medium text-sm">
+                      {lang === "ar" ? "لا توجد إشعارات حالياً" : "No notifications yet"}
+                    </p>
                   </div>
-                );
-              })
-            )}
+                ) : (
+                  allBroadcasts.map((b) => {
+                    const isUnread = !getReadIds().includes(b.id);
+                    return (
+                      <div
+                        key={b.id}
+                        className={`rounded-2xl px-4 py-4 border flex items-start gap-4 transition-all ${BROADCAST_TYPE_STYLE[b.type] || BROADCAST_TYPE_STYLE.info} ${isUnread ? "shadow-md ring-1 ring-primary/20 border-primary/20" : "opacity-60"}`}
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-white/50 backdrop-blur-sm flex items-center justify-center text-2xl shadow-sm border border-white/20">
+                          {b.emoji || "✨"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-black text-sm leading-tight">
+                              {lang === "ar" ? (b.titleAr || b.title) : b.title}
+                            </p>
+                            {isUnread && <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 shadow-sm shadow-primary/40 animate-pulse" />}
+                          </div>
+                          <p className="text-xs opacity-75 leading-relaxed mt-1 font-medium">
+                            {lang === "ar" ? (b.messageAr || b.message) : b.message}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Broadcast Banner */}
       {broadcast && (
@@ -270,30 +296,35 @@ export default function Layout({ children }: { children: ReactNode }) {
               
               return (
                 <Link key={item.path} href={item.path} className="flex-1">
-                  <button 
-                    className="relative flex flex-col items-center justify-center gap-1 px-1 py-1.5 w-full"
+                  <motion.button
+                    whileTap={{ scale: 0.92 }}
+                    className="relative flex flex-col items-center justify-center gap-1.5 px-1 py-2 w-full outline-none group"
+                    aria-label={displayLabel}
+                    aria-current={active ? "page" : undefined}
                   >
                     {active && (
-                      <div 
-                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full"
-                        style={{ background: "hsl(22,55%,28%)" }}
+                      <motion.div
+                        layoutId="nav-pill"
+                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-primary"
+                        transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
                       />
                     )}
                     <div className="relative">
-                      <div 
-                        className={`p-1.5 rounded-xl ${active ? "bg-primary/20" : ""}`}
+                      <motion.div
+                        animate={active ? { scale: 1.1 } : { scale: 1 }}
+                        className={`p-1.5 rounded-2xl transition-colors duration-300 ${active ? "bg-primary/15" : "group-hover:bg-muted"}`}
                       >
                         <Icon 
-                          className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} 
+                          className={`w-5 h-5 transition-colors duration-300 ${active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}
                         />
-                      </div>
+                      </motion.div>
                     </div>
                     <span 
-                      className={`text-[10px] font-semibold leading-none ${active ? "text-primary font-bold" : "text-muted-foreground"}`}
+                      className={`text-[10px] tracking-tight font-black transition-all duration-300 ${active ? "text-primary scale-105" : "text-muted-foreground opacity-70"}`}
                     >
                       {displayLabel}
                     </span>
-                  </button>
+                  </motion.button>
                 </Link>
               );
             })}

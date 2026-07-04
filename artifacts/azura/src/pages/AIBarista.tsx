@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/contexts/LanguageContext";
 import { useBarista } from "@/contexts/BaristaContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -401,19 +402,28 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3 scroll-hide">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 scroll-hide">
         {messages.length === 0 && !loading && (
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 pt-2">
             {quickPrompts.map((p) => (
-              <button key={p} onClick={() => sendMessage(p)} className="chip chip-inactive text-xs">
+              <motion.button
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                key={p}
+                onClick={() => sendMessage(p)}
+                className="chip chip-inactive text-xs font-bold"
+              >
                 {p}
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
 
+        <AnimatePresence initial={false}>
         {messages.map((msg) => (
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             key={msg.id}
             className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
@@ -426,52 +436,60 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
               </div>
               
               {msg.suggestedItems && msg.suggestedItems.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2 pt-1">
                   {msg.suggestedItems.length > 1 && (
                     <div className="flex items-center px-1">
-                      <p className="text-xs font-bold text-primary">
-                        {lang === "ar" ? `${msg.suggestedItems.length} أصناف من قائمتنا` : `${msg.suggestedItems.length} items from our menu`}
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">
+                        {lang === "ar" ? "مقترحات لك" : "Suggested for you"}
                       </p>
                     </div>
                   )}
-                  {msg.suggestedItems.map((item) => {
-                    const isSeen = addedItems.has(item.id);
-                    return (
-                      <div 
-                        key={item.id} 
-                        className={`card rounded-xl p-3 flex items-center gap-3 cursor-pointer transition-all ${
-                          isSeen ? "bg-primary/5 border border-primary/20" : "hover:shadow-md"
-                        }`} 
-                        onClick={() => handleViewItem(item)}
-                      >
-                        <img
-                          src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
-                          alt={item.name}
-                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                          loading="lazy"
-                          onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-primary truncate">
-                            {lang === "ar" && item.nameAr ? item.nameAr : item.name}
-                          </p>
-                          <span className="text-[10px] text-muted-foreground capitalize">{item.category}</span>
-                        </div>
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                            isSeen ? "bg-primary/20" : "bg-muted"
+                  <div className="flex gap-3 overflow-x-auto pb-2 scroll-hide -mx-1 px-1">
+                    {msg.suggestedItems.map((item, i) => {
+                      const isSeen = addedItems.has(item.id);
+                      return (
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 + (i * 0.1) }}
+                          key={item.id}
+                          className={`flex-shrink-0 w-44 card rounded-[1.5rem] overflow-hidden border transition-all cursor-pointer group active:scale-[0.98] ${
+                            isSeen ? "bg-primary/5 border-primary/30" : "bg-card border-border/40 hover:shadow-lg"
                           }`}
+                          onClick={() => handleViewItem(item)}
                         >
-                          {isSeen ? <Check size={14} className="text-primary" /> : <Eye size={14} className="text-muted-foreground" />}
-                        </div>
-                      </div>
-                    );
-                  })}
+                          <div className="relative h-28 overflow-hidden bg-muted">
+                            <img
+                              src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=80"}
+                              alt={item.name}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              loading="lazy"
+                            />
+                            <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
+                               {isSeen ? <Check size={12} className="text-primary" /> : <Eye size={12} className="text-muted-foreground" />}
+                            </div>
+                          </div>
+                          <div className="p-3">
+                            <p className="text-xs font-black text-primary truncate">
+                              {lang === "ar" && item.nameAr ? item.nameAr : item.name}
+                            </p>
+                            <div className="flex items-center justify-between mt-1">
+                               <span className="text-[10px] font-bold text-muted-foreground/80">{item.price} EGP</span>
+                               <div className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase">
+                                 {lang === "ar" ? "عرض" : "View"}
+                               </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
+        </AnimatePresence>
 
         {loading && (
           <div className="flex items-end gap-2">

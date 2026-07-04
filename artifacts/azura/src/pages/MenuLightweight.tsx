@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -166,6 +167,8 @@ const NORMALIZED_SYNONYMS = Object.entries(SEARCH_SYNONYMS).map(([key, synonyms]
 
 const ITEMS_PER_PAGE = 24;
 
+import SkeletonCard from "./SkeletonCard";
+
 // Memoized individual item card for peak scroll performance
 const MenuItemCard = memo(({
   item,
@@ -181,27 +184,37 @@ const MenuItemCard = memo(({
   CATS: any[];
 }) => {
   const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
-    <div
-      className="group cursor-pointer"
+    <motion.button
+      layout
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.03, duration: 0.3, ease: "easeOut" }}
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      className="group w-full text-start outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-2xl"
       onClick={() => onClick(item)}
+      aria-label={lang === "ar" ? `عرض تفاصيل ${item.nameAr}` : `View details for ${item.name}`}
       style={{
-        animationDelay: `${idx * 20}ms`,
-        animation: "fadeInSimple 0.25s ease-out forwards",
         contentVisibility: "auto",
         containIntrinsicSize: "0 200px"
       }}
     >
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20">
+      <div className="h-full rounded-2xl overflow-hidden bg-card border border-border/30 shadow-sm group-hover:shadow-xl transition-shadow duration-300 group-hover:border-primary/20">
         <div className="relative h-36 overflow-hidden bg-muted/30">
+          {!imgLoaded && item.image && (
+             <div className="absolute inset-0 animate-pulse bg-muted/40" />
+          )}
           {item.image ? (
             <img
               src={item.image}
-              alt={item.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              alt=""
+              className={`w-full h-full object-cover transition-all duration-700 ${imgLoaded ? "opacity-100 scale-100" : "opacity-0 scale-110"}`}
               loading="lazy"
               decoding="async"
+              onLoad={() => setImgLoaded(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -209,39 +222,39 @@ const MenuItemCard = memo(({
             </div>
           )}
 
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[9px] font-bold flex items-center gap-1">
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1.5 border border-white/10">
             <span>{cat?.emoji}</span>
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
           {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
+            <div className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black tracking-wide shadow-lg shadow-amber-500/20 flex items-center gap-1">
               <span>⭐</span>
               <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
             </div>
           )}
           {!item.recommended && item.category === "new_items" && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] font-black tracking-wide">
+            <div className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black tracking-wide shadow-lg shadow-red-600/20">
               {lang === "ar" ? "جديد" : "NEW"}
             </div>
           )}
         </div>
 
         <div className="p-3">
-          <h3 className="font-bold text-sm text-foreground truncate">
+          <h3 className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
             {lang === "ar" ? item.nameAr : item.name}
           </h3>
           <div className="flex items-center justify-between mt-2.5">
             <div className="flex items-baseline gap-0.5">
               <span className="text-base font-black text-primary">{item.price}</span>
-              <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">{lang === "ar" ? "ج.م" : "EGP"}</span>
             </div>
-            <div className="px-2 py-0.5 rounded-lg bg-primary/5 text-primary text-[9px] font-bold">
+            <div className="px-3 py-1 rounded-lg bg-primary/5 text-primary text-[10px] font-bold group-hover:bg-primary group-hover:text-white transition-all">
               {lang === "ar" ? "تفاصيل" : "Details"}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.button>
   );
 });
 
@@ -405,6 +418,11 @@ export default function MenuLightweight() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // Fetch menu from Firebase
   useEffect(() => {
@@ -622,6 +640,7 @@ export default function MenuLightweight() {
             <button
               onClick={() => setSearch("")}
               className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-7" : "right-7"} text-gray-400 hover:text-gray-600`}
+              aria-label={tr("Clear Search", "مسح البحث")}
             >
               <X size={14} />
             </button>
@@ -670,35 +689,40 @@ export default function MenuLightweight() {
         {loading ? (
           <div className="grid grid-cols-2 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm animate-pulse">
-                <div className="relative h-36 bg-muted" />
-                <div className="p-3 space-y-2">
-                  <div className="h-4 bg-muted rounded w-3/4" />
-                  <div className="h-3 bg-muted rounded w-1/2" />
-                </div>
-              </div>
+              <SkeletonCard key={i} />
             ))}
           </div>
         ) : paginated.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-7xl mb-4">🔍</div>
+          <div className="text-center py-20 flex flex-col items-center">
+            <div className="text-7xl mb-4 animate-bounce" style={{ animationDuration: '3s' }}>🔍</div>
             <p className="text-xl font-bold text-gray-700">{tr("Nothing found", "لا توجد نتائج")}</p>
             <p className="text-sm text-gray-500 mt-2">{tr("Try a different search", "جرب بحث مختلف")}</p>
+            <button
+              onClick={() => setSearch("")}
+              className="mt-6 px-6 py-2 rounded-xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all"
+            >
+              {tr("Clear Search", "مسح البحث")}
+            </button>
           </div>
         ) : (
           /* GRID VIEW WITH SHIMMER */
-          <div className="grid grid-cols-2 gap-4">
-            {paginated.map((item, idx) => (
-              <MenuItemCard
-                key={item.id}
-                item={item}
-                lang={lang}
-                idx={idx}
-                onClick={setSelectedItem}
-                CATS={CATS}
-              />
-            ))}
-          </div>
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              layout
+              className="grid grid-cols-2 gap-4"
+            >
+              {paginated.map((item, idx) => (
+                <MenuItemCard
+                  key={item.id}
+                  item={item}
+                  lang={lang}
+                  idx={idx}
+                  onClick={setSelectedItem}
+                  CATS={CATS}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
         )}
 
         {/* Pagination */}
@@ -706,9 +730,10 @@ export default function MenuLightweight() {
           <div className="flex flex-col items-center gap-4 mt-8 mb-4">
             <div className="flex items-center justify-center gap-2">
               <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+                onClick={() => handlePageChange(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+                aria-label={tr("Previous Page", "الصفحة السابقة")}
               >
                 {isRTL ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 <span>{tr("Prev", "السابق")}</span>
@@ -726,12 +751,14 @@ export default function MenuLightweight() {
                     pages.push(
                       <button
                         key={i}
-                        onClick={() => setPage(i)}
+                        onClick={() => handlePageChange(i)}
                         className={`w-9 h-9 rounded-xl text-sm font-bold transition-all active:scale-90 ${
                           page === i
                             ? "bg-[#654321] text-white shadow-md scale-105"
                             : "bg-white text-[#654321] border border-border/40 hover:bg-muted"
                         }`}
+                        aria-label={`${tr("Page", "صفحة")} ${i}`}
+                        aria-current={page === i ? "page" : undefined}
                       >
                         {i}
                       </button>
@@ -742,9 +769,10 @@ export default function MenuLightweight() {
               </div>
 
               <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+                aria-label={tr("Next Page", "الصفحة التالية")}
               >
                 <span>{tr("Next", "التالي")}</span>
                 {isRTL ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}

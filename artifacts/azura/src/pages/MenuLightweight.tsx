@@ -193,15 +193,17 @@ const MenuItemCard = memo(({
         containIntrinsicSize: "0 200px"
       }}
     >
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20">
+      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-xl hover:-translate-y-1 active:scale-[0.97] transition-all duration-300 group-hover:border-primary/20">
         <div className="relative h-36 overflow-hidden bg-muted/30">
           {item.image ? (
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
               decoding="async"
+              onLoad={(e) => (e.currentTarget.style.opacity = "1")}
+              style={{ opacity: 0, transition: "opacity 0.5s ease-in-out" }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -214,7 +216,7 @@ const MenuItemCard = memo(({
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
           {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1 animate-pulse-subtle">
               <span>⭐</span>
               <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
             </div>
@@ -648,7 +650,7 @@ export default function MenuLightweight() {
               }}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
-                transition-all duration-300 ease-out shadow-sm
+                transition-all duration-300 ease-out shadow-sm active:scale-95
                 ${cat === c.id 
                   ? "bg-gradient-to-r from-[#654321] to-[#8B4513] text-white shadow-lg shadow-[#D2B48C] scale-105" 
                   : "bg-white text-[#654321] hover:bg-[#FDF5E6] hover:scale-102"
@@ -798,6 +800,15 @@ export default function MenuLightweight() {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+
+        @keyframes pulse-subtle {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        .animate-pulse-subtle {
+          animation: pulse-subtle 2s infinite ease-in-out;
         }
         
         @keyframes shimmer {

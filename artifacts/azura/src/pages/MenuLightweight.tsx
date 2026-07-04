@@ -10,22 +10,42 @@ interface MenuItem {
   ingredients?: string[];
   ingredientsAr?: string[];
   recommended?: boolean;
+  searchStr?: string;
 }
 
 function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
+  const name = String(raw.name || raw.nameEn || raw.title || "");
+  const nameAr = String(raw.nameAr || raw.titleAr || "");
+  const description = String(raw.description || raw.descEn || raw.desc || "");
+  const descriptionAr = String(raw.descriptionAr || raw.descAr || "");
+  const category = String(raw.category || "food");
+  const ingredients = Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []);
+  const ingredientsAr = Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []);
+
+  const searchStr = normalizeText([
+    name,
+    nameAr,
+    description,
+    descriptionAr,
+    category,
+    ...ingredients,
+    ...ingredientsAr
+  ].join(" "));
+
   return {
     id,
-    name: String(raw.name || raw.nameEn || raw.title || ""),
-    nameAr: String(raw.nameAr || raw.titleAr || ""),
-    description: String(raw.description || raw.descEn || raw.desc || ""),
-    descriptionAr: String(raw.descriptionAr || raw.descAr || ""),
+    name,
+    nameAr,
+    description,
+    descriptionAr,
     price: Number(raw.price) || 0,
-    category: String(raw.category || "food"),
+    category,
     available: raw.available !== false,
     image: String(raw.image || raw.img || ""),
     recommended: raw.recommended === true,
-    ingredients: Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []),
-    ingredientsAr: Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []),
+    ingredients,
+    ingredientsAr,
+    searchStr,
   };
 }
 
@@ -106,6 +126,10 @@ const CAT_ALIASES: Record<string, string[]> = {
   soft_drinks:    ["soft_drinks"],
 };
 
+const CAT_ALIAS_SETS: Record<string, Set<string>> = Object.fromEntries(
+  Object.entries(CAT_ALIASES).map(([k, v]) => [k, new Set(v)])
+);
+
 // Advanced Search Normalization & Synonyms
 const normalizeText = (text: string) => {
   if (!text) return "";
@@ -134,6 +158,11 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   "موهيتو": ["موجيتو", "mojito"],
   "كوكتيل": ["موكتيل", "mocktail", "cocktail"],
 };
+
+const NORMALIZED_SYNONYMS = Object.entries(SEARCH_SYNONYMS).map(([key, synonyms]) => ({
+  key: normalizeText(key),
+  synonyms: synonyms.map(s => normalizeText(s))
+}));
 
 const ITEMS_PER_PAGE = 24;
 
@@ -419,6 +448,9 @@ export default function MenuLightweight() {
     const filteredList = items.filter((item) => {
       if (!item.available) return false;
 
+      const itemCatLower = item.category.toLowerCase();
+      const itemSearchStr = item.searchStr || "";
+
       // Update counts for ALL categories this item belongs to
       CATS.forEach(c => {
         if (c.id === "all") {
@@ -426,8 +458,8 @@ export default function MenuLightweight() {
         } else if (c.id === "recommended") {
           if (item.recommended) countsMap["recommended"]++;
         } else {
-          const aliasSet = new Set(CAT_ALIASES[c.id] ?? [c.id]);
-          if (aliasSet.has(item.category.toLowerCase())) {
+          const aliasSet = CAT_ALIAS_SETS[c.id];
+          if (aliasSet ? aliasSet.has(itemCatLower) : itemCatLower === c.id) {
             countsMap[c.id]++;
           }
         }
@@ -436,31 +468,22 @@ export default function MenuLightweight() {
       // 1. Search filter (Enhanced)
       if (debouncedSearch) {
         const q = normalizeText(debouncedSearch);
-        const itemData = normalizeText([
-          item.name,
-          item.nameAr,
-          item.description,
-          item.descriptionAr,
-          item.category,
-          ...(item.ingredients || []),
-          ...(item.ingredientsAr || [])
-        ].join(" "));
 
         // Direct match
-        let isMatch = itemData.includes(q);
+        let isMatch = itemSearchStr.includes(q);
 
         // Synonym match
         if (!isMatch) {
-          for (const [key, synonyms] of Object.entries(SEARCH_SYNONYMS)) {
-            const normalizedKey = normalizeText(key);
+          for (const entry of NORMALIZED_SYNONYMS) {
+            const { key: normalizedKey, synonyms } = entry;
             if (q.includes(normalizedKey) || normalizedKey.includes(q)) {
-              if (synonyms.some(s => itemData.includes(normalizeText(s)))) {
+              if (synonyms.some(s => itemSearchStr.includes(s))) {
                 isMatch = true;
                 break;
               }
             }
-            if (synonyms.some(s => normalizeText(s).includes(q))) {
-               if (itemData.includes(normalizedKey)) {
+            if (synonyms.some(s => s.includes(q))) {
+               if (itemSearchStr.includes(normalizedKey)) {
                  isMatch = true;
                  break;
                }
@@ -478,8 +501,8 @@ export default function MenuLightweight() {
 
       if (isSearching) {
         if (isFilteredCat) {
-          const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
-          if (!aliasSet.has(item.category.toLowerCase())) return false;
+          const aliasSet = CAT_ALIAS_SETS[cat];
+          if (aliasSet ? !aliasSet.has(itemCatLower) : itemCatLower !== cat) return false;
         }
         // If searching and cat is "all" or "recommended", show global results.
       } else {
@@ -487,8 +510,8 @@ export default function MenuLightweight() {
           if (cat === "recommended") {
             if (!item.recommended) return false;
           } else {
-            const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
-            if (!aliasSet.has(item.category.toLowerCase())) return false;
+            const aliasSet = CAT_ALIAS_SETS[cat];
+            if (aliasSet ? !aliasSet.has(itemCatLower) : itemCatLower !== cat) return false;
           }
         }
       }

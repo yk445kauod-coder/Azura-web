@@ -4,7 +4,10 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BaristaProvider } from "@/contexts/BaristaContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
+import { useEffect, useState, lazy, Suspense } from "react";
 import Layout from "@/components/Layout";
+import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
+
 const Welcome = lazy(() => import("@/pages/Welcome"));
 const MenuLightweight = lazy(() => import("@/pages/MenuLightweight"));
 const AIBarista = lazy(() => import("@/pages/AIBarista"));
@@ -13,8 +16,6 @@ const Admin = lazy(() => import("@/pages/Admin"));
 const Reels = lazy(() => import("@/pages/Reels"));
 const SupportChat = lazy(() => import("@/pages/SupportChat"));
 const NotFound = lazy(() => import("@/pages/not-found"));
-import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
-import { useEffect, useState, lazy, Suspense } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {

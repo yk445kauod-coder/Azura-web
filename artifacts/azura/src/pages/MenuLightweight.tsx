@@ -300,6 +300,7 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
                 <button
                   onClick={onClose}
                   className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={lang === "ar" ? "إغلاق" : "Close"}
                 >
                   <X size={18} />
                 </button>
@@ -405,6 +406,11 @@ export default function MenuLightweight() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // Fetch menu from Firebase
   useEffect(() => {
@@ -622,6 +628,7 @@ export default function MenuLightweight() {
             <button
               onClick={() => setSearch("")}
               className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-7" : "right-7"} text-gray-400 hover:text-gray-600`}
+              aria-label={tr("Clear Search", "مسح البحث")}
             >
               <X size={14} />
             </button>
@@ -680,10 +687,16 @@ export default function MenuLightweight() {
             ))}
           </div>
         ) : paginated.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-7xl mb-4">🔍</div>
+          <div className="text-center py-20 flex flex-col items-center">
+            <div className="text-7xl mb-4 animate-bounce" style={{ animationDuration: '3s' }}>🔍</div>
             <p className="text-xl font-bold text-gray-700">{tr("Nothing found", "لا توجد نتائج")}</p>
             <p className="text-sm text-gray-500 mt-2">{tr("Try a different search", "جرب بحث مختلف")}</p>
+            <button
+              onClick={() => setSearch("")}
+              className="mt-8 px-8 py-3 rounded-2xl bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all"
+            >
+              {tr("Clear Search", "مسح البحث")}
+            </button>
           </div>
         ) : (
           /* GRID VIEW WITH SHIMMER */
@@ -706,9 +719,10 @@ export default function MenuLightweight() {
           <div className="flex flex-col items-center gap-4 mt-8 mb-4">
             <div className="flex items-center justify-center gap-2">
               <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+                onClick={() => handlePageChange(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+                aria-label={tr("Previous Page", "الصفحة السابقة")}
               >
                 {isRTL ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 <span>{tr("Prev", "السابق")}</span>
@@ -726,12 +740,14 @@ export default function MenuLightweight() {
                     pages.push(
                       <button
                         key={i}
-                        onClick={() => setPage(i)}
+                        onClick={() => handlePageChange(i)}
                         className={`w-9 h-9 rounded-xl text-sm font-bold transition-all active:scale-90 ${
                           page === i
                             ? "bg-[#654321] text-white shadow-md scale-105"
                             : "bg-white text-[#654321] border border-border/40 hover:bg-muted"
                         }`}
+                        aria-label={`${tr("Page", "صفحة")} ${i}`}
+                        aria-current={page === i ? "page" : undefined}
                       >
                         {i}
                       </button>
@@ -742,9 +758,10 @@ export default function MenuLightweight() {
               </div>
 
               <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+                aria-label={tr("Next Page", "الصفحة التالية")}
               >
                 <span>{tr("Next", "التالي")}</span>
                 {isRTL ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}

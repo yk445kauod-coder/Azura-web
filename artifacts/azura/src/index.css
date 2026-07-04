@@ -78,7 +78,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
-    font-weight: 500;
+    font-weight: 600;
     min-height: 100dvh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -88,28 +88,28 @@
   
   h1, h2, h3, h4, h5, h6 { 
     font-family: var(--font-heading); 
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: 900;
+    letter-spacing: -0.02em;
   }
 
   /* Typography Scale */
-  .text-2xs { font-size: 0.625rem; line-height: 0.875rem; font-weight: 500; }
-  .text-xs { font-size: 0.75rem; line-height: 1rem; font-weight: 500; }
-  .text-sm { font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; }
-  .text-base { font-size: 1rem; line-height: 1.5rem; font-weight: 500; }
-  .text-lg { font-size: 1.125rem; line-height: 1.75rem; font-weight: 600; }
-  .text-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 700; }
-  .text-2xl { font-size: 1.5rem; line-height: 2rem; font-weight: 700; }
+  .text-2xs { font-size: 0.625rem; line-height: 0.875rem; font-weight: 600; }
+  .text-xs { font-size: 0.75rem; line-height: 1rem; font-weight: 600; }
+  .text-sm { font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; }
+  .text-base { font-size: 1rem; line-height: 1.5rem; font-weight: 600; }
+  .text-lg { font-size: 1.125rem; line-height: 1.75rem; font-weight: 700; }
+  .text-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 800; }
+  .text-2xl { font-size: 1.5rem; line-height: 2rem; font-weight: 900; }
 
   /* RTL — same font, same treatment */
   [dir="rtl"] * {
     font-family: var(--font-arabic);
-    font-weight: 500;
+    font-weight: 600;
     -webkit-font-smoothing: antialiased;
   }
   [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 {
     font-family: var(--font-arabic);
-    font-weight: 700;
+    font-weight: 900;
   }
   
   /* iOS Scrollbar */
@@ -535,3 +535,22 @@
 }
 
   /* Shimmer effect removed for comfort */
+
+/* Handwritten "Hello" style animation utilities */
+.handwritten-text span {
+  display: inline-block;
+  transform-origin: bottom left;
+}
+
+@keyframes handwritten-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-5deg) translateY(10px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0) translateY(0);
+    filter: blur(0);
+  }
+}

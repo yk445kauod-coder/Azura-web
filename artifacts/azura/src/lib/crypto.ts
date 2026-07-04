@@ -200,7 +200,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // Llama 3.3 70B — best available on Groq, excellent Arabic + Egyptian dialect
+        model: "deepseek-r1-distill-qwen-32b", // DeepSeek R1 Qwen 32B — Superior Arabic performance & reasoning
         messages: [
           { role: "system", content: enhancedSystem },
           ...history.map((h) => ({

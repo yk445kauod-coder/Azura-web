@@ -32,77 +32,110 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 const CATS = [
   { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
   { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
+  { id: "fries",            emoji: "🍟",  en: "Fries",               ar: "فرايز"           },
+  { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
+  { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
+  { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
   { id: "soups",            emoji: "🍲",  en: "Soup",                ar: "شوربة"           },
-  { id: "appetizers",       emoji: "🍟",  en: "Appetizers",         ar: "مقبلات"          },
   { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
   { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
   { id: "tortilla",         emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
-  { id: "sandwiches",       emoji: "🥪",  en: "Sandwiches",          ar: "ساندوتش"         },
-  { id: "vina_sandwiches",  emoji: "🥖",  en: "Vina Sandwiches",     ar: "ساندوتش فينا"     },
+  { id: "toast",            emoji: "🥪",  en: "Toast",               ar: "توست"            },
+  { id: "croissant",        emoji: "🥐",  en: "Croissant",           ar: "كرواسون"         },
+  { id: "breakfast",        emoji: "🍳",  en: "Breakfast",           ar: "إفطار"           },
   { id: "main_dishes",      emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية"     },
-  { id: "beef_burgers",     emoji: "🍔",  en: "Beef Burgers",        ar: "برجر لحم"        },
+  { id: "burgers",          emoji: "🍔",  en: "Burgers",             ar: "برجر"            },
   { id: "smash_burgers",    emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر"       },
   { id: "fried_chicken",    emoji: "🍗",  en: "Fried Chicken",      ar: "فراخ مقلية"      },
-  { id: "extra_kitchen",    emoji: "➕",  en: "Extra Kitchen",       ar: "إضافات مطبخ"     },
   { id: "hot_drinks",       emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة"   },
-  { id: "espresso",         emoji: "☕",  en: "Espresso",            ar: "إسبريسو"         },
+  { id: "coffee",           emoji: "☕",  en: "Coffee",               ar: "قهوة"            },
   { id: "corto",            emoji: "🥛",  en: "Corto",               ar: "كورتو"           },
   { id: "hot_chocolate",    emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة"  },
-  { id: "frappe",           emoji: "🧊",  en: "Frappe",              ar: "فرابيه"          },
+  { id: "sahlab",           emoji: "🥛",  en: "Sahlab",              ar: "سحلب"            },
+  { id: "frappuccino",      emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو"       },
   { id: "iced_coffee",      emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
-  { id: "mocktails",        emoji: "🍹",  en: "Mocktails",           ar: "موكتيل"          },
   { id: "boba_tea",         emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
-  { id: "fresh_juice",      emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
-  { id: "cocktails",        emoji: "🍸",  en: "Cocktails",           ar: "كوكتيل"          },
-  { id: "smoothie",         emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
-  { id: "milkshake",        emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
+  { id: "fresh_juices",     emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
+  { id: "smoothies",        emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
+  { id: "milkshakes",       emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
   { id: "waffle",           emoji: "🧇",  en: "Waffle",               ar: "وافل"            },
   { id: "desserts",         emoji: "🍰",  en: "Desserts",             ar: "حلويات"          },
-  { id: "crepe",            emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
+  { id: "crepes",           emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
   { id: "pancakes",         emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
-  { id: "extra_drinks",     emoji: "🥤",  en: "Extra Drinks",         ar: "مشروبات إضافية"   },
-  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
+  { id: "add_ons",          emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
   { id: "shisha",           emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
+  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
   { id: "all",              emoji: "✨",  en: "All",                  ar: "الكل"            },
 ];
 
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
-  new_items:      ["new_items", "new", "featured"],
-  soups:          ["soup", "soups"],
-  appetizers:     ["appetizer", "appetizers", "starters", "sides", "extras"],
-  salads:         ["salad", "salads"],
-  pasta:          ["pasta", "noodles"],
-  tortilla:       ["tortilla", "wraps"],
-  sandwiches:     ["sandwich", "sandwiches"],
-  vina_sandwiches:["vina_sandwiches", "vina", "focaccia"],
-  main_dishes:    ["main_dishes", "mains", "main", "food"],
-  beef_burgers:   ["beef_burgers", "beef_burger", "beef"],
-  smash_burgers:  ["smash_burgers", "smash_burger", "smash"],
-  fried_chicken:  ["fried_chicken", "chicken_sandwich", "chicken_burger"],
-  extra_kitchen:  ["extra_kitchen", "extras", "add_ons"],
-  hot_drinks:     ["hot_drinks", "tea", "sahlab", "herbal_tea"],
-  espresso:       ["espresso", "coffee"],
+  new_items:      ["new_items"],
+  fries:          ["fries"],
+  appetizers:     ["appetizers", "appetizer"],
+  soups:          ["soups", "soup"],
+  salads:         ["salads", "salad"],
+  pasta:          ["pasta"],
+  tortilla:       ["tortilla"],
+  toast:          ["toast"],
+  croissant:      ["croissant"],
+  breakfast:      ["breakfast"],
+  main_dishes:    ["main_dishes"],
+  burgers:        ["burgers", "burger", "beef_burgers"],
+  smash_burgers:  ["smash_burgers"],
+  fried_chicken:  ["fried_chicken"],
+  hot_drinks:     ["hot_drinks", "hot_drink"],
+  coffee:         ["coffee", "espresso"],
   corto:          ["corto"],
-  hot_chocolate:  ["hot_chocolate", "chocolate"],
-  frappe:         ["frappe", "frappuccino", "iced_coffee"],
+  hot_chocolate:  ["hot_chocolate"],
+  sahlab:         ["sahlab"],
+  frappuccino:    ["frappuccino", "frappe"],
   iced_coffee:    ["iced_coffee"],
-  mocktails:      ["mocktails", "mocktail", "mojitos"],
-  boba_tea:       ["boba_tea", "boba", "bubble_tea"],
-  fresh_juice:    ["fresh_juice", "juice", "fresh_juices"],
-  cocktails:      ["cocktails", "cocktail"],
-  smoothie:       ["smoothie", "smoothies"],
-  milkshake:      ["milkshake", "shake", "milkshakes"],
-  waffle:         ["waffle", "waffles"],
-  desserts:       ["dessert", "desserts", "sweet", "sweets"],
-  crepe:          ["crepe", "crepes"],
-  pancakes:       ["pancakes", "pancake"],
-  extra_drinks:   ["extra_drinks"],
-  soft_drinks:    ["soft_drinks", "soda", "cold_drinks"],
-  shisha:         ["shisha", "hookah", "sheesha", "hookah"],
+  mojitos:        ["mojitos", "mojito"],
+  mocktails:      ["mocktails", "mocktail", "cocktails"],
+  boba_tea:       ["boba_tea"],
+  fresh_juices:   ["fresh_juices", "fresh_juice"],
+  smoothies:      ["smoothies", "smoothie"],
+  milkshakes:     ["milkshakes", "milkshake"],
+  waffle:         ["waffle"],
+  desserts:       ["desserts", "dessert"],
+  crepes:         ["crepes", "crepe"],
+  pancakes:       ["pancakes"],
+  add_ons:        ["add_ons", "extra_kitchen"],
+  shisha:         ["shisha"],
+  soft_drinks:    ["soft_drinks"],
 };
 
-const ITEMS_PER_PAGE = 12;
+// Advanced Search Normalization & Synonyms
+const normalizeText = (text: string) => {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\u064B-\u065F]/g, "") // Remove Harakat
+    .trim();
+};
+
+const SEARCH_SYNONYMS: Record<string, string[]> = {
+  "قهوه": ["كوفي", "coffee", "اسبريسو", "لاتيه", "بون", "تركي", "turkish"],
+  "كوفي": ["قهوه", "coffee", "تركي", "turkish"],
+  "شاي": ["tea", "t-shai"],
+  "بطاطس": ["fries", "potato", "فرنش فرايز", "صوابع", "فرايز"],
+  "فراخ": ["chicken", "تشيكن", "دجاج", "فرايد"],
+  "لحمه": ["beef", "بقر", "برجر", "meat"],
+  "بيبسي": ["سودا", "soda", "مشروب غازي", "cola", "كولا", "بارد", "cold"],
+  "مياه": ["وتر", "water", "مايه", "معدنية"],
+  "حلو": ["dessert", "حلويات", "سويت", "كيك", "وافل"],
+  "شيشه": ["hookah", "دخان", "معسل", "فحم"],
+  "مكرونه": ["pasta", "باستا", "نودلز", "مكرونة"],
+  "عصير": ["juice", "فرش", "fresh", "عصاير"],
+  "موهيتو": ["موجيتو", "mojito"],
+  "كوكتيل": ["موكتيل", "mocktail", "cocktail"],
+};
+
+const ITEMS_PER_PAGE = 24;
 
 // Memoized individual item card for peak scroll performance
 const MenuItemCard = memo(({
@@ -118,68 +151,63 @@ const MenuItemCard = memo(({
   onClick: (item: MenuItem) => void;
   CATS: any[];
 }) => {
-  const cat = CATS.find(c => c.id === item.category);
+  const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+
   return (
     <div
       className="group cursor-pointer"
       onClick={() => onClick(item)}
       style={{
-        animationDelay: `${idx * 30}ms`,
-        animation: "fadeInSimple 0.3s ease-out forwards"
+        animationDelay: `${idx * 20}ms`,
+        animation: "fadeInSimple 0.25s ease-out forwards",
+        contentVisibility: "auto",
+        containIntrinsicSize: "0 200px"
       }}
     >
-      {/* Card - Removed all hover shimmer and heavy effects as requested */}
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm active:scale-95 transition-transform duration-200">
-        {/* Image Container */}
-        <div className="relative h-36 overflow-hidden">
+      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20">
+        <div className="relative h-36 overflow-hidden bg-muted/30">
           {item.image ? (
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               loading="lazy"
+              decoding="async"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <span className="text-5xl">{cat?.emoji || "🍽️"}</span>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-4xl opacity-40">{cat?.emoji || "🍽️"}</span>
             </div>
           )}
 
-          {/* Category badge */}
-          <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[9px] font-bold flex items-center gap-1">
             <span>{cat?.emoji}</span>
             <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
           </div>
-          {/* RECOMMENDED gold badge — highest priority */}
           {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-[9px] font-black tracking-wide shadow-lg shadow-amber-200 flex items-center gap-1">
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
               <span>⭐</span>
-              <span>{lang === "ar" ? "مُوصى به" : "TOP PICK"}</span>
+              <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
             </div>
           )}
-          {/* NEW badge — shown only when not recommended */}
           {!item.recommended && item.category === "new_items" && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black tracking-wide shadow-lg">
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] font-black tracking-wide">
               {lang === "ar" ? "جديد" : "NEW"}
             </div>
           )}
         </div>
 
-        {/* Info */}
         <div className="p-3">
           <h3 className="font-bold text-sm text-foreground truncate">
             {lang === "ar" ? item.nameAr : item.name}
           </h3>
-          {item.nameAr && lang !== "ar" && (
-            <p className="text-[11px] text-muted-foreground truncate mt-0.5" dir="rtl">{item.nameAr}</p>
-          )}
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-extrabold text-primary">{item.price}</span>
-              <span className="text-[10px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
+          <div className="flex items-center justify-between mt-2.5">
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-base font-black text-primary">{item.price}</span>
+              <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
             </div>
-            <div className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary text-[10px] font-bold">
-              {lang === "ar" ? "التفاصيل" : "Details"}
+            <div className="px-2 py-0.5 rounded-lg bg-primary/5 text-primary text-[9px] font-bold">
+              {lang === "ar" ? "تفاصيل" : "Details"}
             </div>
           </div>
         </div>
@@ -188,14 +216,14 @@ const MenuItemCard = memo(({
   );
 });
 
-// Item Detail Modal Component - Fixed for Mobile Comfort
+// Item Detail Modal Component - Fixed for Mobile Comfort (Bottom Sheet on Mobile)
 function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
-  const cat = CATS.find(c => c.id === item.category);
+  const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6"
       style={{ isolation: 'isolate' }}
     >
       {/* Background Overlay - Non-scrollable fixed backdrop */}
@@ -204,12 +232,13 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
         onClick={onClose}
       />
 
-      {/* Modal Content - Fixed position, centered, comfortable for eyes */}
+      {/* Modal Content - Bottom Sheet on Mobile, Centered on Desktop */}
       <div
-        className="relative w-full max-w-md bg-card rounded-[2rem] shadow-2xl overflow-hidden border border-border/20 flex flex-col max-h-[85vh]"
+        className="relative w-full max-w-md bg-card rounded-t-[2.5rem] sm:rounded-[2rem] shadow-2xl overflow-hidden border border-border/20 flex flex-col max-h-[92vh] sm:max-h-[85vh] animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "fadeInSimple 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
       >
+        {/* Mobile Handle */}
+        <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-4 mb-2 sm:hidden" />
         <div className="overflow-y-auto p-6 sm:p-8 scroll-hide">
           <div className="flex flex-col sm:flex-row gap-6">
             {/* Image */}
@@ -218,7 +247,7 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-6xl">
@@ -339,7 +368,7 @@ export default function MenuLightweight() {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("hot_drinks");
+  const [cat, setCat] = useState("recommended");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -373,30 +402,102 @@ export default function MenuLightweight() {
     return () => off(ref(db, "menu"));
   }, []);
 
-  // Debounced search
+  // Debounced search - faster for snappier feel
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 200);
+    const timer = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(timer);
   }, [search]);
 
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
-  // Filtered items
-  const filtered = useMemo(() => {
-    return items.filter((item) => {
+  // Unified filtering and counting in a single pass for optimization
+  const { filtered, counts, activeCats } = useMemo(() => {
+    const countsMap: Record<string, number> = {};
+    CATS.forEach(c => countsMap[c.id] = 0);
+
+    const filteredList = items.filter((item) => {
       if (!item.available) return false;
-      if (cat !== "all") {
-        const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
-        if (!aliasSet.has(item.category.toLowerCase())) return false;
-      }
+
+      // Update counts for ALL categories this item belongs to
+      CATS.forEach(c => {
+        if (c.id === "all") {
+          countsMap["all"]++;
+        } else if (c.id === "recommended") {
+          if (item.recommended) countsMap["recommended"]++;
+        } else {
+          const aliasSet = new Set(CAT_ALIASES[c.id] ?? [c.id]);
+          if (aliasSet.has(item.category.toLowerCase())) {
+            countsMap[c.id]++;
+          }
+        }
+      });
+
+      // 1. Search filter (Enhanced)
       if (debouncedSearch) {
-        const q = debouncedSearch.toLowerCase();
-        const ingMatch = (item.ingredients ?? []).some(i => i.toLowerCase().includes(q));
-        return item.name.toLowerCase().includes(q) || item.nameAr.includes(q) || ingMatch;
+        const q = normalizeText(debouncedSearch);
+        const itemData = normalizeText([
+          item.name,
+          item.nameAr,
+          item.description,
+          item.descriptionAr,
+          item.category,
+          ...(item.ingredients || []),
+          ...(item.ingredientsAr || [])
+        ].join(" "));
+
+        // Direct match
+        let isMatch = itemData.includes(q);
+
+        // Synonym match
+        if (!isMatch) {
+          for (const [key, synonyms] of Object.entries(SEARCH_SYNONYMS)) {
+            const normalizedKey = normalizeText(key);
+            if (q.includes(normalizedKey) || normalizedKey.includes(q)) {
+              if (synonyms.some(s => itemData.includes(normalizeText(s)))) {
+                isMatch = true;
+                break;
+              }
+            }
+            if (synonyms.some(s => normalizeText(s).includes(q))) {
+               if (itemData.includes(normalizedKey)) {
+                 isMatch = true;
+                 break;
+               }
+            }
+          }
+        }
+
+        if (!isMatch) return false;
       }
+
+      // 2. Category filter
+      // If searching, we show global results UNLESS the user explicitly chose a category other than 'all' or 'recommended'
+      const isSearching = !!debouncedSearch;
+      const isFilteredCat = cat !== "all" && cat !== "recommended";
+
+      if (isSearching) {
+        if (isFilteredCat) {
+          const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
+          if (!aliasSet.has(item.category.toLowerCase())) return false;
+        }
+        // If searching and cat is "all" or "recommended", show global results.
+      } else {
+        if (cat !== "all") {
+          if (cat === "recommended") {
+            if (!item.recommended) return false;
+          } else {
+            const aliasSet = new Set(CAT_ALIASES[cat] ?? [cat]);
+            if (!aliasSet.has(item.category.toLowerCase())) return false;
+          }
+        }
+      }
+
       return true;
     });
+
+    const active = CATS.filter(c => c.id === "all" || countsMap[c.id] > 0);
+    return { filtered: filteredList, counts: countsMap, activeCats: active };
   }, [items, cat, debouncedSearch]);
 
   // Paginated items
@@ -407,21 +508,14 @@ export default function MenuLightweight() {
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // Category counts
-  const catCount = useCallback((c: string) => {
-    if (c === "all") return items.filter((i) => i.available).length;
-    const aliasSet = new Set(CAT_ALIASES[c] ?? [c]);
-    return items.filter((i) => i.available && aliasSet.has(i.category.toLowerCase())).length;
-  }, [items]);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FDF5E6] to-[#FAF0E6]" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <div
-        className="sticky top-0 z-30"
+        className="sticky top-0 z-30 bg-[#2D1B0F]"
         style={{
-          background: "linear-gradient(180deg, hsl(22, 65%, 14%) 0%, hsl(25, 55%, 20%) 100%)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+          background: "linear-gradient(180deg, #1A0F08 0%, #2D1B0F 100%)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
         }}
       >
         {/* Hero band — logo + branding */}
@@ -512,13 +606,16 @@ export default function MenuLightweight() {
         </div>
       </div>
 
-      {/* Categories - Premium Horizontal Scroll */}
-      <div className="sticky top-[105px] z-20 bg-[#FDF5E6]/90 backdrop-blur-md px-4 py-3 border-b border-[#D2B48C]">
-        <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1">
-          {CATS.map((c, idx) => (
+      {/* Categories - Only show active ones to clean up UI */}
+      <div className="sticky top-[105px] z-20 bg-[#FDF5E6] px-4 py-3 border-b border-[#D2B48C]">
+        <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1 will-change-transform">
+          {activeCats.map((c, idx) => (
             <button
               key={c.id}
-              onClick={() => setCat(c.id)}
+              onClick={() => {
+                setCat(c.id);
+                if (search) setSearch(""); // Clear search when switching sections manually
+              }}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
                 transition-all duration-300 ease-out shadow-sm
@@ -538,7 +635,7 @@ export default function MenuLightweight() {
                 text-[10px] px-1.5 py-0.5 rounded-full font-bold
                 ${cat === c.id ? "bg-white/20 text-white" : "bg-[#D2B48C] text-[#654321]"}
               `}>
-                {catCount(c.id)}
+                {counts[c.id] || 0}
               </span>
             </button>
           ))}
@@ -583,36 +680,57 @@ export default function MenuLightweight() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-8">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center disabled:opacity-40 disabled:shadow-none hover:shadow-lg transition-all"
-            >
-              {isRTL ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-            </button>
-            <div className="flex items-center gap-1">
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`w-8 h-8 rounded-lg text-sm font-bold transition-all ${
-                    page === i + 1 
-                      ? "bg-gradient-to-r from-[#654321] to-[#8B4513] text-white shadow-md" 
-                      : "bg-white text-[#654321] hover:bg-[#FDF5E6]"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+          <div className="flex flex-col items-center gap-4 mt-8 mb-4">
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+              >
+                {isRTL ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                <span>{tr("Prev", "السابق")}</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 mx-1">
+                {(() => {
+                  const maxVisible = 4;
+                  const chunkIndex = Math.floor((page - 1) / maxVisible);
+                  const start = (chunkIndex * maxVisible) + 1;
+                  const end = Math.min(totalPages, start + maxVisible - 1);
+
+                  const pages = [];
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => setPage(i)}
+                        className={`w-9 h-9 rounded-xl text-sm font-bold transition-all active:scale-90 ${
+                          page === i
+                            ? "bg-[#654321] text-white shadow-md scale-105"
+                            : "bg-white text-[#654321] border border-border/40 hover:bg-muted"
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+                  return pages;
+                })()}
+              </div>
+
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
+              >
+                <span>{tr("Next", "التالي")}</span>
+                {isRTL ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+              </button>
             </div>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center disabled:opacity-40 disabled:shadow-none hover:shadow-lg transition-all"
-            >
-              {isRTL ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-            </button>
+
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
+              {tr("Page", "صفحة")} {page} {tr("of", "من")} {totalPages}
+            </p>
           </div>
         )}
       </div>

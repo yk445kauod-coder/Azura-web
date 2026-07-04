@@ -49,6 +49,7 @@ export default function AIAdminAssistant() {
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [showMenuViewer, setShowMenuViewer] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showPromptPreview, setShowPromptPreview] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const menuViewerRef = useRef<HTMLDivElement>(null);
@@ -338,6 +339,36 @@ Type "help" to see all available commands.`;
     document.body.removeChild(link);
   };
 
+  const buildSystemPrompt = () => {
+    const menuSummary = menuItems.map(i => `[${i.category}] ${i.name}: ${i.price} EGP`).join("\n");
+    return `You are the 'Eye of Azura' — the master CRM Analyst, Media Buyer, and Strategic Business Advisor for Azura Cafe.
+
+Your primary mission is to transform raw tracking data into actionable business intelligence.
+
+## YOUR CAPABILITIES:
+1. **CRM Analysis**: You monitor user retention, frequency, and total usage. Identify 'High Value Clients' and suggest loyalty rewards.
+2. **Media Buying**: Based on peak activity times and popular categories, suggest budget allocation for Meta/Google Ads.
+3. **Strategic Planning**: Recommend menu adjustments or price optimizations based on popularity.
+4. **Report Generation**: You can generate structured business reports, marketing plans, and exportable data summaries (mention that the user can use the 'Export CSV' button for detailed logs).
+
+## CURRENT CONTEXT:
+- Cafe: ${CAFE_CONTEXT.name} (${CAFE_CONTEXT.location})
+- Total Menu Items: ${menuItems.length}
+- Live Analytics: ${JSON.stringify(analytics)}
+
+## MENU SUMMARY:
+${menuSummary}
+
+## OPERATIONAL GUIDELINES:
+- Be professional, data-driven, and highly strategic.
+- Provide specific, actionable advice (e.g., "Run a 'Happy Hour' Meta Ad between 4 PM - 7 PM targeting local Alexandrians").
+- When asked for reports, use professional business formatting (Headers, Bullet points, SWOT analysis).
+- Help the owner understand 'Who' is using the app and 'How' to keep them coming back.
+- If asked for technical reports, provide them in a clear Markdown structure.
+
+Always prioritize ROI and customer lifetime value (LTV).`;
+  };
+
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     
@@ -356,18 +387,7 @@ Type "help" to see all available commands.`;
     try {
       let response = "";
       if (apiKey) {
-        const systemPrompt = `You are the Expert Media Buyer & CRM Advisor for Azura Cafe.
-        Context: ${JSON.stringify(CAFE_CONTEXT)}
-        Real-time Tracking Data: ${JSON.stringify(analytics)}
-        Menu Items: ${menuItems.length}.
-
-        Your goals:
-        1. Analyze user tracking data to suggest high-conversion media buying strategies (Meta Ads, Google Ads).
-        2. Provide CRM advice based on user behavior (returning vs new users).
-        3. Create detailed business reports when asked.
-        4. Help with digital marketing and customer retention.
-
-        Always use the data provided to give specific, actionable advice.`;
+        const systemPrompt = buildSystemPrompt();
 
         const history = messages.slice(-10).map(m => ({
           role: m.role === "assistant" ? "model" : "user",
@@ -452,6 +472,13 @@ Type "help" to see all available commands.`;
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           </button>
           <button
+            onClick={() => setShowPromptPreview(!showPromptPreview)}
+            className={`p-2 hover:bg-muted rounded-lg transition-colors ${showPromptPreview ? 'bg-purple-100 text-purple-600' : ''}`}
+            title={tr("System Prompt", "إعدادات النظام")}
+          >
+            <Bot size={14} />
+          </button>
+          <button
             onClick={clearHistory}
             className="p-2 hover:bg-red-50 text-muted-foreground hover:text-red-500 rounded-lg transition-colors"
             title={tr("Clear Chat", "مسح المحادثة")}
@@ -460,6 +487,21 @@ Type "help" to see all available commands.`;
           </button>
         </div>
       </div>
+
+      {/* Prompt Preview */}
+      {showPromptPreview && (
+        <div className="bg-purple-50 border-b p-4 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-xs font-black text-purple-700 uppercase tracking-widest flex items-center gap-2">
+              <Bot size={12}/> {tr("AI System Prompt (Real-time Menu Injected)", "موجه النظام (حقن المنيو المباشر)")}
+            </h4>
+            <button onClick={() => setShowPromptPreview(false)} className="text-purple-400 hover:text-purple-600"><XCircle size={14}/></button>
+          </div>
+          <pre className="text-[10px] font-mono bg-white/50 p-3 rounded-lg border border-purple-100 whitespace-pre-wrap max-h-40 overflow-y-auto text-purple-900 leading-relaxed">
+            {buildSystemPrompt()}
+          </pre>
+        </div>
+      )}
 
       {/* Menu Viewer */}
       {showMenuViewer && (

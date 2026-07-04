@@ -51,7 +51,7 @@ export default function Welcome() {
   useEffect(() => {
     const t0 = setTimeout(() => setSplashPhase(1), 80);
     const t1 = setTimeout(() => setSplashPhase(2), 400);
-    const t2 = setTimeout(() => setScreen("main"), 3600);
+    const t2 = setTimeout(() => setScreen("main"), 4000);
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
@@ -75,8 +75,8 @@ export default function Welcome() {
   const handleGuestLogin = async () => {
     const n = parseInt(tableNum);
     if (!name.trim()) { setError(tr("Please enter your name", "يرجى إدخال اسمك")); return; }
-    if (!tableNum.trim() || isNaN(n) || n < 1 || n > 99) {
-      setError(tr("Enter a valid table number (1-99)", "ادخل رقم طاولة صحيح (1-99)")); return;
+    if (!tableNum.trim() || isNaN(n) || n < 1 || n > 50) {
+      setError(tr("Enter a valid table number (1-50)", "ادخل رقم طاولة صحيح (1-50)")); return;
     }
     setLoading(true);
     try { await loginAnonymous(name.trim(), tableNum.trim()); }
@@ -95,7 +95,7 @@ export default function Welcome() {
       >
         {/* Beach background */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
           style={{
             backgroundImage: `url("${BEACH_BG}")`,
             opacity: splashPhase >= 1 ? 1 : 0,
@@ -136,7 +136,7 @@ export default function Welcome() {
           style={{
             opacity: splashPhase >= 1 ? 1 : 0,
             transform: splashPhase >= 1 ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
           }}
         >
           {/* Logo */}
@@ -155,6 +155,7 @@ export default function Welcome() {
                   alt="Azura"
                   className="w-[88px] h-[88px] rounded-[18px] object-cover"
                   style={{ boxShadow: "0 6px 28px rgba(0,0,0,0.45)" }}
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -168,7 +169,7 @@ export default function Welcome() {
             {tr("AZURA CAFE", "أزورا كافيه")}
           </p>
 
-          {/* "Summer Edition" hero typing */}
+          {/* "Summer Edition" Hero Typing Effect */}
           <h1
             style={{
               fontFamily: "var(--font-handwritten)",
@@ -303,7 +304,7 @@ export default function Welcome() {
           <div className="relative mb-4">
             <div className="absolute inset-0 rounded-[28px] blur-xl opacity-35" style={{ background: "hsl(var(--primary))", transform: "scale(0.9) translateY(8px)" }} />
             <div className="relative rounded-[28px] p-1.5" style={{ background: "hsl(var(--card))", boxShadow: "0 20px 50px rgba(93,62,35,0.22)" }}>
-              <img src="/logo.jpg" alt="Azura" className="w-24 h-24 rounded-[22px] object-cover" />
+              <img src="/logo.jpg" alt="Azura" className="w-24 h-24 rounded-[22px] object-cover" loading="lazy" />
               {/* Summer edition badge */}
               <div
                 className="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-lg"
@@ -342,9 +343,9 @@ export default function Welcome() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-muted-foreground uppercase ml-1">{tr("Table Number", "رقم الطاولة")}</label>
               <input
-                type="number" min={1} max={99}
+                type="number" min={1} max={50}
                 className={`${inp} text-lg font-bold`}
-                placeholder="1-99"
+                placeholder="1-50"
                 value={tableNum}
                 onChange={(e) => { setTableNum(e.target.value); setError(""); }}
               />

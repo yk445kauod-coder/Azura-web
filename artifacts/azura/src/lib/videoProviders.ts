@@ -3,7 +3,7 @@
  * Simplified for Facebook Reels and thumbnails display
  */
 
-export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "unknown";
+export type VideoProvider = "youtube" | "instagram" | "facebook" | "google_drive" | "direct" | "tiktok" | "twitter" | "vimeo" | "rss" | "unknown";
 
 export interface ParsedVideo {
   provider: VideoProvider;
@@ -13,6 +13,18 @@ export interface ParsedVideo {
   title: string;
   isEmbeddable: boolean;
   videoId?: string;
+  apiEndpoint?: string;
+  downloadUrl?: string;
+}
+
+export interface RSSFeedItem {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  link: string;
+  pubDate: string;
+  provider: VideoProvider;
 }
 
 // Normalize Facebook URL to ensure proper embed
@@ -21,7 +33,7 @@ function normalizeFbUrl(url: string): string {
   return url
     .replace(/m\.facebook\.com/, "web.facebook.com")
     .replace(/m\.fb\.com/, "web.facebook.com")
-    .replace(/fb\.watch/, "web.facebook.com/plugins/video.php?href=https://fb.watch");
+    .replace(/fb\.watch\/([a-zA-Z0-9_-]+)/, "web.facebook.com/watch?v=$1");
 }
 
 // Instagram oEmbed API (for public posts with access token)
@@ -69,8 +81,8 @@ export function parseInstagram(url: string): ParsedVideo | null {
     const shortCode = reelMatch ? reelMatch[1] : reelsMatch![1];
     return {
       provider: "instagram",
-      embedUrl: `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(url)}`,
-      thumbnail: `https://graph.instagram.com/${shortCode}/media?size=l&access_token=IGQVJ...`,
+      embedUrl: `https://www.instagram.com/reel/${shortCode}/embed`,
+      thumbnail: `https://graph.instagram.com/${shortCode}/media?size=l`,
       title: "Instagram Reel",
       isEmbeddable: true,
       videoId: shortCode,
@@ -190,9 +202,11 @@ export function parseFacebook(url: string): ParsedVideo | null {
   
   if (videoId || reelMatch || watchMatch || videoMatch) {
     const canonicalUrl = normalizeFbUrl(url);
+    // Use the official plugin URL for embedding
+    const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url.startsWith('http') ? url : 'https://' + canonicalUrl)}&show_text=false&autoplay=true&width=506`;
     return {
       provider: "facebook",
-      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(canonicalUrl)}&show_text=false&autoplay=true&width=506`,
+      embedUrl,
       thumbnail: "",
       title: isReel ? "Facebook Reel" : "Facebook Video",
       isEmbeddable: true,

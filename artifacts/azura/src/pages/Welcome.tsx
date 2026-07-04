@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBarista } from "@/contexts/BaristaContext";
@@ -9,6 +10,7 @@ import { type Lang } from "@/lib/i18n";
 type Screen = "splash" | "main";
 
 const SUMMER_PHRASE = "Summer Edition";
+const SUMMER_CHARS = SUMMER_PHRASE.split("");
 const BEACH_BG =
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80";
 
@@ -25,9 +27,7 @@ export default function Welcome() {
 
   /* Summer splash state */
   const [splashPhase, setSplashPhase] = useState(0); // 0=hidden 1=visible 2=logo+text
-  const [typed, setTyped] = useState("");
-  const [cursorOn, setCursorOn] = useState(true);
-  const typingDone = typed.length === SUMMER_PHRASE.length;
+  const [showSlogan, setShowSlogan] = useState(false);
 
   // Homepage Banner
   const [banner, setBanner] = useState<{
@@ -51,23 +51,14 @@ export default function Welcome() {
   useEffect(() => {
     const t0 = setTimeout(() => setSplashPhase(1), 80);
     const t1 = setTimeout(() => setSplashPhase(2), 400);
-    const t2 = setTimeout(() => setScreen("main"), 4000);
-    return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
-  }, []);
-
-  /* Typing effect */
-  useEffect(() => {
-    if (splashPhase < 2) return;
-    if (typed.length >= SUMMER_PHRASE.length) return;
-    const delay = typed.length === 0 ? 500 : 55 + Math.random() * 35;
-    const t = setTimeout(() => setTyped(SUMMER_PHRASE.slice(0, typed.length + 1)), delay);
-    return () => clearTimeout(t);
-  }, [splashPhase, typed]);
-
-  /* Blinking cursor */
-  useEffect(() => {
-    const id = setInterval(() => setCursorOn((v) => !v), 520);
-    return () => clearInterval(id);
+    const t_slogan = setTimeout(() => setShowSlogan(true), 1800);
+    const t2 = setTimeout(() => setScreen("main"), 4200);
+    return () => {
+      clearTimeout(t0);
+      clearTimeout(t1);
+      clearTimeout(t_slogan);
+      clearTimeout(t2);
+    };
   }, []);
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
@@ -93,13 +84,23 @@ export default function Welcome() {
         className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center"
         dir={isRTL ? "rtl" : "ltr"}
       >
-        {/* Beach background */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
-          style={{
-            backgroundImage: `url("${BEACH_BG}")`,
+        {/* Beach background with subtle zoom/float */}
+        <motion.div
+          initial={{ scale: 1.1, opacity: 0 }}
+          animate={{
+            scale: splashPhase >= 1 ? 1.05 : 1.1,
             opacity: splashPhase >= 1 ? 1 : 0,
+            x: [0, 10, -10, 0],
+            y: [0, -5, 5, 0],
           }}
+          transition={{
+            opacity: { duration: 1.2 },
+            scale: { duration: 4, ease: "easeOut" },
+            x: { duration: 20, repeat: Infinity, ease: "linear" },
+            y: { duration: 15, repeat: Infinity, ease: "linear" },
+          }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url("${BEACH_BG}")` }}
         />
 
         {/* Dark gradient overlay */}
@@ -131,20 +132,23 @@ export default function Welcome() {
         </div>
 
         {/* Content */}
-        <div
-          className="relative z-10 flex flex-col items-center px-6 w-full max-w-sm"
-          style={{
-            opacity: splashPhase >= 1 ? 1 : 0,
-            transform: splashPhase >= 1 ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.8s ease, transform 0.8s ease",
-          }}
-        >
+        <div className="relative z-10 flex flex-col items-center px-6 w-full max-w-sm">
           {/* Logo */}
-          <div className="mb-5">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={splashPhase >= 1 ? { opacity: 1, scale: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mb-5"
+          >
             <div className="relative">
-              <div
-                className="absolute inset-0 rounded-2xl blur-xl opacity-50"
-                style={{ background: "rgba(255,200,80,0.45)", transform: "scale(1.15) translateY(6px)" }}
+              <motion.div
+                animate={{
+                  opacity: [0.4, 0.6, 0.4],
+                  scale: [1.1, 1.2, 1.1],
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="absolute inset-0 rounded-2xl blur-xl"
+                style={{ background: "rgba(255,200,80,0.45)", transform: "translateY(6px)" }}
               />
               <div
                 className="relative rounded-2xl p-[3px] border border-white/20"
@@ -159,18 +163,22 @@ export default function Welcome() {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Cafe label */}
-          <p
-            className="text-white/65 text-xs font-semibold mb-1"
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={splashPhase >= 2 ? { opacity: 0.65, y: 0 } : {}}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-white text-xs font-semibold mb-1"
             style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}
           >
             {tr("AZURA CAFE", "أزورا كافيه")}
-          </p>
+          </motion.p>
 
-          {/* "Summer Edition" Hero Typing Effect */}
+          {/* "Summer Edition" Hero Framer-Motion Effect */}
           <h1
+            className="flex flex-wrap justify-center"
             style={{
               fontFamily: "var(--font-handwritten)",
               fontSize: "clamp(2.4rem, 8vw, 3.2rem)",
@@ -182,26 +190,35 @@ export default function Welcome() {
               minHeight: "1.3em",
             }}
           >
-            {typed}
-            <span
-              style={{
-                color: "#FFD97D",
-                opacity: cursorOn && !typingDone ? 1 : typingDone && cursorOn ? 0.6 : 0,
-                transition: "opacity 0.1s",
-              }}
-            >
-              |
-            </span>
+            <AnimatePresence>
+              {splashPhase >= 2 && (
+                <>
+                  {SUMMER_CHARS.map((char, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 20, rotate: -15, filter: "blur(8px)" }}
+                      animate={{ opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }}
+                      transition={{
+                        delay: i * 0.08,
+                        duration: 0.5,
+                        ease: [0.215, 0.61, 0.355, 1],
+                      }}
+                      style={{ display: "inline-block", whiteSpace: "pre" }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </>
+              )}
+            </AnimatePresence>
           </h1>
 
           {/* Slogan */}
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={showSlogan ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
             className="mt-3 text-center"
-            style={{
-              opacity: typed.length >= 4 ? 1 : 0,
-              transform: typed.length >= 4 ? "translateY(0)" : "translateY(6px)",
-              transition: "opacity 0.9s ease, transform 0.9s ease",
-            }}
           >
             <p
               className="text-white/55 text-[11px] font-medium"
@@ -210,15 +227,14 @@ export default function Welcome() {
               {tr("The quality is a habit", "الجودة عادة")}
             </p>
             <div className="mx-auto mt-2 h-px w-20 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
+          </motion.div>
 
           {/* Loading dots */}
-          <div
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={showSlogan ? { opacity: 1 } : {}}
+            transition={{ delay: 0.5, duration: 0.6 }}
             className="flex gap-1.5 mt-8"
-            style={{
-              opacity: typingDone ? 1 : 0,
-              transition: "opacity 0.6s ease",
-            }}
           >
             {[0, 1, 2].map((i) => (
               <div
@@ -227,7 +243,7 @@ export default function Welcome() {
                 style={{ animationDelay: `${i * 0.22}s` }}
               />
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Version */}
@@ -359,15 +375,21 @@ export default function Welcome() {
             </div>
           )}
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleGuestLogin}
             disabled={loading}
-            className="btn-primary w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+            className="btn-primary w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-shadow hover:shadow-primary/30"
           >
-            {loading
-              ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <><Coffee size={18} /> {tr("Start Ordering", "ابدأ الطلب")}</>}
-          </button>
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <Coffee size={18} /> {tr("Start Ordering", "ابدأ الطلب")}
+              </>
+            )}
+          </motion.button>
         </div>
 
         {/* Footer */}

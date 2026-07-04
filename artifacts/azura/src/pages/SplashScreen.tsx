@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +12,7 @@ import {
 import { auth } from "@/lib/firebase";
 
 const SUMMER_PHRASE = "Summer Edition";
+const SUMMER_CHARS = SUMMER_PHRASE.split("");
 const BEACH_BG =
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80";
 
@@ -19,11 +21,9 @@ export default function SplashScreen() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [phase, setPhase] = useState<0 | 1 | 2>(0); // 0=loading bg, 1=animate, 2=login
-  const [typed, setTyped] = useState("");
-  const [cursorOn, setCursorOn] = useState(true);
+  const [showSlogan, setShowSlogan] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const typingDone = typed.length === SUMMER_PHRASE.length;
 
   const tr = (en: string, ar: string) => (lang === "ar" ? ar : en);
 
@@ -33,27 +33,14 @@ export default function SplashScreen() {
     getRedirectResult(auth).then((r) => { if (r?.user) navigate("/menu"); });
 
     const t1 = setTimeout(() => setPhase(1), 200);
-    const t2 = setTimeout(() => setPhase(2), 2000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t_slogan = setTimeout(() => setShowSlogan(true), 1800);
+    const t2 = setTimeout(() => setPhase(2), 2400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t_slogan);
+      clearTimeout(t2);
+    };
   }, [user, navigate]);
-
-  /* ── typing effect ── */
-  useEffect(() => {
-    if (phase < 1) return;
-    if (typed.length >= SUMMER_PHRASE.length) return;
-    const delay = typed.length === 0 ? 600 : 55 + Math.random() * 35;
-    const t = setTimeout(
-      () => setTyped(SUMMER_PHRASE.slice(0, typed.length + 1)),
-      delay
-    );
-    return () => clearTimeout(t);
-  }, [phase, typed]);
-
-  /* ── blinking cursor ── */
-  useEffect(() => {
-    const id = setInterval(() => setCursorOn((v) => !v), 520);
-    return () => clearInterval(id);
-  }, []);
 
   /* ── Google login ── */
   const handleGoogleLogin = async () => {
@@ -78,7 +65,20 @@ export default function SplashScreen() {
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center">
       {/* ── Beach background ── */}
-      <div
+      <motion.div
+        initial={{ scale: 1.1, opacity: 0 }}
+        animate={{
+          scale: phase >= 1 ? 1.05 : 1.1,
+          opacity: 1,
+          x: [0, 8, -8, 0],
+          y: [0, -4, 4, 0],
+        }}
+        transition={{
+          opacity: { duration: 1.2 },
+          scale: { duration: 5, ease: "easeOut" },
+          x: { duration: 25, repeat: Infinity, ease: "linear" },
+          y: { duration: 20, repeat: Infinity, ease: "linear" },
+        }}
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url("${BEACH_BG}")` }}
       />
@@ -95,9 +95,12 @@ export default function SplashScreen() {
       {/* ── Animated light-wave strips ── */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[0, 1, 2].map((i) => (
-          <div
+          <motion.div
             key={i}
-            className="absolute left-0 right-0 h-px opacity-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.25 }}
+            transition={{ duration: 1, delay: i * 0.3 }}
+            className="absolute left-0 right-0 h-px"
             style={{
               background:
                 "linear-gradient(90deg, transparent, rgba(255,220,120,0.8), transparent)",
@@ -112,14 +115,21 @@ export default function SplashScreen() {
       <div className="relative z-10 flex flex-col items-center px-6 w-full max-w-sm">
 
         {/* Logo */}
-        <div
-          className={`mb-6 transition-all duration-700 ${phase >= 1 ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6"}`}
-          style={{ transitionDelay: "0.1s" }}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={phase >= 1 ? { opacity: 1, scale: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mb-6"
         >
           <div className="relative">
-            <div
+            <motion.div
+              animate={{
+                opacity: [0.4, 0.6, 0.4],
+                scale: [1.1, 1.2, 1.1],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
               className="absolute inset-0 rounded-[22px] blur-2xl opacity-50"
-              style={{ background: "rgba(255,210,100,0.4)", transform: "scale(1.1) translateY(6px)" }}
+              style={{ background: "rgba(255,210,100,0.4)", transform: "translateY(6px)" }}
             />
             <div
               className="relative rounded-[22px] p-1.5 border border-white/20"
@@ -133,24 +143,24 @@ export default function SplashScreen() {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Cafe name */}
-        <div
-          className={`text-center mb-2 transition-all duration-700 ${phase >= 1 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          style={{ transitionDelay: "0.3s" }}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={phase >= 1 ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="text-center mb-2"
         >
           <p className="text-white/70 text-sm font-semibold tracking-[0.25em] uppercase mb-1">
             {tr("AZURA CAFE", "أزورا كافيه")}
           </p>
-        </div>
+        </motion.div>
 
-        {/* ── "Summer Edition" hero typing text ── */}
-        <div
-          className={`text-center mb-2 transition-all duration-700 ${phase >= 1 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
-          style={{ transitionDelay: "0.5s" }}
-        >
+        {/* ── "Summer Edition" hero framer-motion text ── */}
+        <div className="text-center mb-2 min-h-[1.3em]">
           <h1
+            className="flex flex-wrap justify-center"
             style={{
               fontFamily: "var(--font-handwritten)",
               fontSize: "clamp(2.6rem, 8vw, 3.4rem)",
@@ -160,23 +170,36 @@ export default function SplashScreen() {
               letterSpacing: "0.01em",
             }}
           >
-            {typed}
-            <span
-              style={{
-                opacity: typingDone && !cursorOn ? 0 : cursorOn ? 1 : 0,
-                color: "#FFD97D",
-                transition: "opacity 0.1s",
-              }}
-            >
-              |
-            </span>
+            <AnimatePresence>
+              {phase >= 1 && (
+                <>
+                  {SUMMER_CHARS.map((char, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 20, rotate: -10, filter: "blur(8px)" }}
+                      animate={{ opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }}
+                      transition={{
+                        delay: 0.5 + i * 0.08,
+                        duration: 0.5,
+                        ease: [0.215, 0.61, 0.355, 1],
+                      }}
+                      style={{ display: "inline-block", whiteSpace: "pre" }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </>
+              )}
+            </AnimatePresence>
           </h1>
         </div>
 
         {/* Slogan */}
-        <div
-          className={`text-center mb-8 transition-all duration-700 ${typed.length > 4 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-          style={{ transitionDelay: "0s", transition: "opacity 0.8s ease, transform 0.8s ease" }}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={showSlogan ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-8"
         >
           <p
             className="text-white/60 text-[11px] tracking-widest uppercase"
@@ -185,7 +208,7 @@ export default function SplashScreen() {
             {tr("The quality is a habit", "الجودة عادة")}
           </p>
           <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-        </div>
+        </motion.div>
 
         {/* ── Login section ── */}
         {phase >= 2 && (
@@ -194,10 +217,12 @@ export default function SplashScreen() {
             style={{ animation: "fadeSlideUp 0.6s cubic-bezier(0.16,1,0.3,1) both" }}
           >
             {/* Google Login */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full py-4 px-6 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all active:scale-[0.97] disabled:opacity-70"
+              className="w-full py-4 px-6 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all disabled:opacity-70"
               style={{
                 background: "rgba(255,255,255,0.96)",
                 color: "#1a1a1a",
@@ -219,7 +244,7 @@ export default function SplashScreen() {
                   ? tr("Signing in…", "جاري الدخول…")
                   : tr("Continue with Google", "الدخول بحساب Google")}
               </span>
-            </button>
+            </motion.button>
 
             {error && (
               <p className="text-white/90 text-sm text-center bg-red-500/25 backdrop-blur-sm py-2 px-4 rounded-xl border border-red-400/30">

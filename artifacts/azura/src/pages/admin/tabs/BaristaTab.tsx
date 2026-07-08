@@ -22,29 +22,50 @@ export const BaristaTab: React.FC<BaristaTabProps> = ({ tr }) => {
     greeting: "",
     greetingAr: "",
   });
+  const [apiSettings, setApiSettings] = useState({
+    aiEnabled: true,
+    groqKey: "",
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const cfgRef = ref(db, "ai-config");
+    const apiRef = ref(db, "api-settings");
+
     onValue(cfgRef, (snap) => {
       if (snap.exists()) {
         setConfig(prev => ({ ...prev, ...snap.val() }));
       }
+    });
+
+    onValue(apiRef, (snap) => {
+      if (snap.exists()) {
+        setApiSettings(snap.val());
+      }
       setLoading(false);
     });
-    return () => off(cfgRef);
+
+    return () => {
+      off(cfgRef);
+      off(apiRef);
+    };
   }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
       await smartSet("ai-config", config);
+      await smartSet("api-settings", apiSettings);
       swalSuccess(tr("AI Config saved!", "تم حفظ إعدادات الذكاء الاصطناعي!"));
     } catch (err) {
       swalError(tr("Failed to save config", "فشل حفظ الإعدادات"));
     }
     setSaving(false);
+  };
+
+  const toggleAi = () => {
+    setApiSettings(prev => ({ ...prev, aiEnabled: !prev.aiEnabled }));
   };
 
   const inp = "input-field px-3 py-2 text-sm w-full";
@@ -54,6 +75,28 @@ export const BaristaTab: React.FC<BaristaTabProps> = ({ tr }) => {
 
   return (
     <div className="space-y-6 page-enter pb-10">
+      {/* Status & Control */}
+      <div className="card-elevated rounded-2xl p-5 flex items-center justify-between border-l-4 border-amber-500">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${apiSettings.aiEnabled ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
+            <Bot size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm">{tr("AI Status", "حالة الذكاء الاصطناعي")}</h3>
+            <p className="text-[10px] text-muted-foreground">
+              {apiSettings.aiEnabled ? tr("Assistant is active", "المساعد نشط") : tr("Assistant is disabled", "المساعد معطل")}
+              {apiSettings.groqKey ? " • " + tr("API Key Connected", "مفتاح API متصل") : " • " + tr("No API Key", "لا يوجد مفتاح API")}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={toggleAi}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${apiSettings.aiEnabled ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-green-50 text-green-600 hover:bg-green-100"}`}
+        >
+          {apiSettings.aiEnabled ? tr("Disable", "تعطيل") : tr("Enable", "تفعيل")}
+        </button>
+      </div>
+
       {/* Persona Section */}
       <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-primary">
         <div className="flex items-center gap-2 mb-2">

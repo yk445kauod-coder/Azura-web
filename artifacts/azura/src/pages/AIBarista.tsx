@@ -60,7 +60,15 @@ const STATIC_MENU: MenuItem[] = Object.entries(fullMenuData).flatMap(([catId, it
 );
 
 function renderMarkdown(text: string): string {
+  // Escape HTML to prevent XSS
   let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+  html = html
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em class="italic text-secondary">$1</em>')
     .replace(/`(.*?)`/g, '<code class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
@@ -68,35 +76,46 @@ function renderMarkdown(text: string): string {
     .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
     .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
-    // Images
-    .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="w-full h-auto rounded-xl my-3 shadow-sm border border-primary/10" loading="lazy" />')
+    // Images (Unescape the src for images specifically)
+    .replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+      const cleanSrc = src.replace(/&amp;/g, "&");
+      return `<img src="${cleanSrc}" alt="${alt}" class="w-full h-auto rounded-xl my-3 shadow-sm border border-primary/10" loading="lazy" />`;
+    })
     // Instagram handle
     .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>');
 
-  // Table handling
+  // Enhanced Table handling
   if (html.includes("|")) {
     const lines = html.split("\n");
     let inTable = false;
-    let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse text-xs border border-primary/20 rounded-lg">';
+    let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse text-xs border border-primary/20 rounded-lg shadow-sm overflow-hidden">';
+    let newLines: string[] = [];
 
-    const processedLines = lines.map(line => {
-      if (line.trim().startsWith("|") && line.trim().endsWith("|")) {
-        const cells = line.split("|").filter(c => c.trim().length > 0 || line.includes("||"));
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("|") && line.endsWith("|")) {
+        const cells = line.split("|").map(c => c.trim()).filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1));
+
         if (!inTable) {
           inTable = true;
-          return tableHtml + '<thead class="bg-primary/5"><tr>' + cells.map(c => `<th class="border border-primary/20 p-2 text-left font-bold">${c.trim()}</th>`).join("") + '</tr></thead><tbody class="divide-y divide-primary/10">';
+          newLines.push(tableHtml);
+          newLines.push('<thead class="bg-primary/5"><tr>' + cells.map(c => `<th class="border border-primary/10 p-2 text-left font-extrabold text-primary">${c}</th>`).join("") + '</tr></thead><tbody class="divide-y divide-primary/10">');
+        } else if (line.includes("---")) {
+          // Skip separator line
+          continue;
+        } else {
+          newLines.push('<tr>' + cells.map(c => `<td class="border border-primary/10 p-2 text-foreground/80">${c}</td>`).join("") + '</tr>');
         }
-        if (line.includes("---")) return ""; // Skip separator
-        return '<tr>' + cells.map(c => `<td class="border border-primary/20 p-2">${c.trim()}</td>`).join("") + '</tr>';
-      } else if (inTable) {
-        inTable = false;
-        return '</tbody></table></div>' + line;
+      } else {
+        if (inTable) {
+          inTable = false;
+          newLines.push('</tbody></table></div>');
+        }
+        newLines.push(lines[i]);
       }
-      return line;
-    });
-
-    html = processedLines.join("\n");
-    if (inTable) html += '</tbody></table></div>';
+    }
+    if (inTable) newLines.push('</tbody></table></div>');
+    html = newLines.join("\n");
   }
 
   return html.replace(/\n/g, '<br/>');
@@ -142,17 +161,11 @@ export default function AIBarista() {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
         const storedKey = (data.groqKey || data.geminiKey) as string;
-        if (!storedKey) {
-          setEgyKey("");
-        } else {
+        if (storedKey) {
           const decrypted = decryptKey(storedKey);
-          if (decrypted && isValidApiKey(decrypted)) {
-            setEgyKey(decrypted);
-          } else if (isValidApiKey(storedKey)) {
-            setEgyKey(storedKey);
-          } else {
-            setEgyKey("");
-          }
+          setEgyKey(decrypted || storedKey);
+        } else {
+          setEgyKey("");
         }
         setAiEnabled(data.aiEnabled !== false);
       }
@@ -236,8 +249,8 @@ export default function AIBarista() {
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
         items.map((i) => {
           const details = lang === "ar"
-            ? `${i.nameAr || i.name}${i.descriptionAr ? `: ${i.descriptionAr}` : ""}${i.ingredientsAr ? ` (المكونات: ${i.ingredientsAr})` : ""}`
-            : `${i.name}${i.description ? `: ${i.description}` : ""}${i.ingredients ? ` (Ingredients: ${i.ingredients})` : ""}`;
+            ? `${i.nameAr || i.name}${i.descriptionAr ? `: ${i.descriptionAr}` : ""}${i.ingredientsAr ? ` (المكونات: ${i.ingredientsAr})` : ""} - السعر: ${i.price} ج.م`
+            : `${i.name}${i.description ? `: ${i.description}` : ""}${i.ingredients ? ` (Ingredients: ${i.ingredients})` : ""} - Price: ${i.price} EGP`;
           return `• [ID: ${i.id}] ${details}`;
         })
         .join("\n"))
@@ -297,11 +310,11 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 - Use emojis: ☕🍰🌟✨🔥❤️
 
 ## IMPORTANT RULES:
-1. NEVER mention PRICES. Do not say how much things cost.
+1. You can mention prices if asked, using the prices provided in the MENU DATA.
 2. NEVER mention checkout, payment, or ordering - this is a digital menu only.
 3. DO NOT invent items. If it is not in the MENU DATA list, it does not exist.
 4. If a user asks for something not on the menu, politely steer them to a similar available item.
-5. If the user asks for the price, politely inform them they can find latest prices in the menu sections.
+5. Provide accurate descriptions and ingredients based on the data.
 6. Keep responses conversational, not robotic. Use friendly emojis occasionally.`;
 
     return `${systemPrompt || defaultPrompt}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;

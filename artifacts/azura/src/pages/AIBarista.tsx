@@ -1,24 +1,16 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useBarista } from "@/contexts/BaristaContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
-import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
+import { db, ref, onValue, off, set, remove, get } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
 import { fullMenuData } from "@/lib/fullMenu";
-import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2 } from "lucide-react";
+import { useAIChat, type Message } from "@/hooks/useAIChat";
+import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2, Loader2, BrainCircuit } from "lucide-react";
 
 interface SuggestedItem {
   id: string; name: string; nameAr: string; price: number; image: string; category: string;
-}
-
-interface Message {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-  timestamp: number;
-  suggestedItems?: SuggestedItem[];
-  action?: "view_menu";
 }
 
 interface RawMenuItem {
@@ -68,7 +60,7 @@ const STATIC_MENU: MenuItem[] = Object.entries(fullMenuData).flatMap(([catId, it
 );
 
 function renderMarkdown(text: string): string {
-  return text
+  let html = text
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em class="italic text-secondary">$1</em>')
     .replace(/`(.*?)`/g, '<code class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
@@ -76,20 +68,52 @@ function renderMarkdown(text: string): string {
     .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
     .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
+    // Images
+    .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="w-full h-auto rounded-xl my-3 shadow-sm border border-primary/10" loading="lazy" />')
     // Instagram handle
-    .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>')
-    // Line breaks
-    .replace(/\n/g, '<br/>');
+    .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>');
+
+  // Table handling
+  if (html.includes("|")) {
+    const lines = html.split("\n");
+    let inTable = false;
+    let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse text-xs border border-primary/20 rounded-lg">';
+
+    const processedLines = lines.map(line => {
+      if (line.trim().startsWith("|") && line.trim().endsWith("|")) {
+        const cells = line.split("|").filter(c => c.trim().length > 0 || line.includes("||"));
+        if (!inTable) {
+          inTable = true;
+          return tableHtml + '<thead class="bg-primary/5"><tr>' + cells.map(c => `<th class="border border-primary/20 p-2 text-left font-bold">${c.trim()}</th>`).join("") + '</tr></thead><tbody class="divide-y divide-primary/10">';
+        }
+        if (line.includes("---")) return ""; // Skip separator
+        return '<tr>' + cells.map(c => `<td class="border border-primary/20 p-2">${c.trim()}</td>`).join("") + '</tr>';
+      } else if (inTable) {
+        inTable = false;
+        return '</tbody></table></div>' + line;
+      }
+      return line;
+    });
+
+    html = processedLines.join("\n");
+    if (inTable) html += '</tbody></table></div>';
+  }
+
+  return html.replace(/\n/g, '<br/>');
 }
 
 export default function AIBarista() {
   const { lang, isRTL } = useLang();
   const { baristaName, baristaAvatar, instagram, cafeInfo } = useBarista();
   const [, navigate] = useLocation();
+  const { user, profile } = useAuth();
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const {
+    messages, loading, isThinking, thinkingSteps, error,
+    sendMessage: baseSendMessage, clearChat
+  } = useAIChat(user?.uid);
+
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>(STATIC_MENU);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greetingMsg, setGreetingMsg] = useState("");
@@ -97,36 +121,10 @@ export default function AIBarista() {
   const [aiEnabled, setAiEnabled] = useState(true);
   const [egyKey, setEgyKey] = useState("");
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+  const [memories, setMemories] = useState<string[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user) return;
-    const chatRef = ref(db, `conversations/${user.uid}/barista`);
-    onValue(chatRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.val() as Record<string, Message>;
-        const sortedMessages = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
-        setMessages(sortedMessages);
-      } else {
-        setMessages([]);
-      }
-    });
-    return () => off(chatRef);
-  }, [user]);
-
-  const saveMessageToFirebase = async (msg: Message) => {
-    if (!user) return;
-    const msgRef = ref(db, `conversations/${user.uid}/barista/${msg.id}`);
-    const sanitizedMsg = {
-      ...msg,
-      suggestedItems: msg.suggestedItems || null
-    };
-    await set(msgRef, sanitizedMsg);
-  };
 
   const clearAddedAnimation = (id: string) => {
     setTimeout(() => {
@@ -196,15 +194,30 @@ export default function AIBarista() {
   }, [lang]);
 
   useEffect(() => {
-    if (menuItems.length === 0 || greeted) return;
+    if (!user) return;
+    const memRef = ref(db, `users/${user.uid}/memories`);
+    onValue(memRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, string>;
+        setMemories(Object.values(data).slice(-5));
+      }
+    });
+    return () => off(memRef);
+  }, [user]);
+
+  useEffect(() => {
+    if (menuItems.length === 0 || greeted || messages.length > 0) return;
     const defaultGreeting = lang === "ar"
       ? `مرحباً! أنا ${baristaName}! كيف يمكنني مساعدتك اليوم؟ يسعدني مساعدتك في اختيار أفضل ما في قائمتنا!`
       : `Hi! I'm ${baristaName}! What can I get for you today? I'm here to help you explore our full menu!`;
 
     const greeting = greetingMsg || defaultGreeting;
-    setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
+    if (messages.length === 0 && user) {
+      const greetingMsgObj: Message = { id: "greeting", role: "ai", content: greeting, timestamp: Date.now() };
+      set(ref(db, `conversations/${user.uid}/barista/greeting`), greetingMsgObj);
+    }
     setGreeted(true);
-  }, [menuItems.length, lang, greeted, baristaName, greetingMsg]);
+  }, [menuItems.length, lang, greeted, baristaName, greetingMsg, messages.length, user]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -235,8 +248,9 @@ export default function AIBarista() {
       ? `IMPORTANT: RESPOND IN FLUENT EGYPTIAN ARABIC (عامية مصرية أصيلة). Use warm, local Alexandria-style hospitality. Keep it professional yet very friendly.`
       : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm and professional like a high-end Alexandrian cafe host.`;
 
-    const userName = user?.displayName || user?.email?.split('@')[0] || (isArabic ? "صديقي" : "friend");
-    
+    const userName = profile?.name || user?.displayName || user?.email?.split('@')[0] || (isArabic ? "صديقي" : "friend");
+    const memCtx = memories.length > 0 ? `\nKNOWN ABOUT USER:\n${memories.map(m => `- ${m}`).join("\n")}` : "";
+
     const defaultPrompt = `You are ${baristaName}, the friendly and knowledgeable AI barista at ${cafeInfo.name}.
 
 📍 Location: ${cafeInfo.location}
@@ -245,6 +259,9 @@ export default function AIBarista() {
 📞 Phone: ${cafeInfo.phone}
 
 CURRENT USER: ${userName}
+TABLE: ${profile?.tableNumber || "N/A"}
+VISITS: ${profile?.loginCount || 1}
+${memCtx}
 
 ## PERSONALITY & LANGUAGE
 - Warm, welcoming, and genuinely passionate about coffee and food.
@@ -339,54 +356,30 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled || !egyKey) {
-      const err: Message = {
-        id: `e${Date.now()}`,
-        role: "ai",
-        content: lang === "ar"
-          ? "عذراً، خدمة الذكاء الاصطناعي غير متاحة حالياً. تواصل مع الإدارة."
-          : "Sorry, AI service is currently disabled. Please contact admin.",
-        timestamp: Date.now(),
-      };
-      setMessages((p) => [...p, err]);
-      return;
-    }
+    if (!aiEnabled || !egyKey) return;
 
-    const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text, timestamp: Date.now() };
-    setMessages((p) => [...p, userMsg]);
-    saveMessageToFirebase(userMsg);
     setInput("");
-    setLoading(true);
+    await baseSendMessage(text, egyKey, buildSystemPrompt(), parseMessage);
     
-    try {
-      const history = messages.slice(-10).map((m) => ({
-        role: m.role === "ai" ? "model" : "user",
-        parts: [{ text: m.content }],
-      }));
+    // Update memory asynchronously after response
+    if (user) {
+      setTimeout(async () => {
+        try {
+          const lastMsgs = messages.slice(-4);
+          if (lastMsgs.length < 2) return;
+          const summaryPrompt = `Based on these messages, extract 1-2 key facts about the user's preferences (drinks, food, allergies, mood).
+          Format: "Prefers [X]", "Allergic to [Y]". Keep it very short. Use same language as user.
+          Recent Chat:
+          ${lastMsgs.map(m => `${m.role}: ${m.content}`).join("\n")}`;
 
-      const content = await chatWithAI(egyKey, text, history, buildSystemPrompt());
-      const { text: parsed, suggestedItems } = parseMessage(content);
-      
-      const aiMsg: Message = {
-        id: `a${Date.now()}`,
-        role: "ai",
-        content: parsed,
-        timestamp: Date.now(),
-        suggestedItems: suggestedItems.length > 0 ? suggestedItems : undefined,
-      };
-      setMessages((p) => [...p, aiMsg]);
-      saveMessageToFirebase(aiMsg);
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : 'Unknown error';
-      const err: Message = {
-        id: `e${Date.now()}`,
-        role: "ai",
-        content: lang === "ar" ? `عذراً، حدث خطأ: ${errMsg}` : `Sorry, something went wrong: ${errMsg}`,
-        timestamp: Date.now(),
-      };
-      setMessages((p) => [...p, err]);
+          const fact = await chatWithAI(egyKey, "Extract key user facts for memory.", [], summaryPrompt);
+          if (fact && fact.length > 5 && fact.length < 100) {
+            const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
+            await set(memRef, fact);
+          }
+        } catch (e) { console.warn("Memory update failed", e); }
+      }, 3000);
     }
-    setLoading(false);
   };
 
   const handleViewItem = (item: SuggestedItem) => {
@@ -434,8 +427,8 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
             </a>
           </div>
           <button onClick={() => {
-            if (user) remove(ref(db, `conversations/${user.uid}/barista`));
-            setMessages([]); setGreeted(false);
+            clearChat();
+            setGreeted(false);
           }} title="Clear History" className="btn-icon w-8 h-8 text-muted-foreground hover:text-destructive transition-colors">
             <RefreshCw size={13} />
           </button>
@@ -515,7 +508,35 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
           </div>
         ))}
 
-        {loading && (
+        {isThinking && (
+          <div className="flex items-start gap-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <BrainCircuit size={14} className="text-primary animate-pulse" />
+            </div>
+            <div className="space-y-1.5 max-w-[80%]">
+              <div className="bubble-ai px-4 py-2 border border-primary/20 bg-primary/5">
+                <div className="flex gap-2 items-center">
+                  <Loader2 size={12} className="animate-spin text-primary" />
+                  <span className="text-[11px] font-bold text-primary animate-pulse">
+                    {thinkingSteps[thinkingSteps.length - 1] || (lang === "ar" ? "يفكر..." : "Thinking...")}
+                  </span>
+                </div>
+              </div>
+              {thinkingSteps.length > 1 && (
+                <div className="flex flex-col gap-1 px-1">
+                  {thinkingSteps.slice(0, -1).map((step, i) => (
+                    <div key={i} className="flex items-center gap-2 opacity-40">
+                      <Check size={10} className="text-primary" />
+                      <span className="text-[9px] font-medium">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {loading && !isThinking && (
           <div className="flex items-end gap-2">
             <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" loading="lazy" />
             <div className="bubble-ai px-4 py-3">
@@ -525,6 +546,12 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mx-auto max-w-[80%] text-center p-3 bg-destructive/10 text-destructive text-xs rounded-xl border border-destructive/20 my-2">
+            {error}
           </div>
         )}
         <div ref={messagesEndRef} />

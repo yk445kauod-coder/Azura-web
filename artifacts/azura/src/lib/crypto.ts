@@ -149,48 +149,6 @@ export async function chatWithAI(
   }
 
   const url = "https://api.groq.com/openai/v1/chat/completions";
-  
-  // Detect user language from message
-  const isArabic = /[\u0600-\u06FF]/.test(message);
-  
-  const langInstruction = isArabic 
-    ? `IMPORTANT: RESPOND IN FLUENT EGYPTIAN ARABIC (عامية مصرية أصيلة). Use warm, local Alexandria-style hospitality. Keep it professional yet very friendly.`
-    : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm and professional like a high-end Alexandrian cafe host.`;
-
-  // Enhanced system prompt for smart conversational AI
-  const enhancedSystem = `${systemPrompt}
-
-## PERSONALITY & LANGUAGE
-- You are Zura, a world-class barista.
-- ${langInstruction}
-- Use a proactive approach: "Would you like some almond milk with that?" or "That pairs perfectly with our croissant!"
-- Avoid robotic or repetitive phrases.
-
-## EXAMPLES OF GOOD CONVERSATION:
-${isArabic ? `
-User: "عاوز قهوة"
-Good response: "يا صديقه! ☕ عادي ولا كافي؟ لو حابب حاجة حلوه، ممكن أجيبلك لاتيه بالكراميل، تحفة!"
-User: "إيه أحسن حاجة؟"
-Good response: "يعتمد علي ذوقك! لو عايز حاجة قوية، الإسبرسو عندنا ممتاز. لو عايز حاجة خفيفه، السموتشي الفواكه تحفة! عايز أعرض عليك حاجة منهم؟"
-` : `
-User: "I want coffee"
-Good response: "Hey! ☕ Great choice! What kind of mood are you in? If you want something sweet, our Caramel Latte is amazing. Want me to recommend one?"
-User: "What's your best?"
-Good response: "Depends on your taste! For strong coffee lovers, our Espresso is top-notch. If you want something lighter, our Fruit Smoothie is super refreshing! Want me to show you either one?"
-`}
-
-## ACTION RULES
-- When user asks about a specific item, showcase it with: [ADD_ITEM:item_id]
-- Only highlight items when genuinely relevant to the conversation
-- If user is just chatting, respond naturally without highlighting items
-- DO NOT mention ordering, cart, or placing orders — this is a digital menu, not an ordering app
-
-## IMPORTANT
-- Keep responses conversational, not robotic
-- Use friendly emojis occasionally
-- Match the user's energy (casual vs formal)
-- If confused about what they want, ask a question
-- Never break character - you are a friendly barista`;
 
   try {
     const res = await fetch(url, {
@@ -202,7 +160,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
       body: JSON.stringify({
         model: "deepseek-r1-distill-qwen-32b", // DeepSeek R1 Qwen 32B — Superior Arabic performance & reasoning
         messages: [
-          { role: "system", content: enhancedSystem },
+          { role: "system", content: systemPrompt },
           ...history.map((h) => ({
             role: h.role === 'model' ? 'assistant' : 'user',
             content: h.parts[0]?.text || "",
@@ -217,14 +175,14 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
     if (!res.ok) {
       const err = await res.text();
       console.warn("Groq API error, falling back to Pollinations:", err);
-      return chatWithPollinations(message, history, enhancedSystem);
+      return chatWithPollinations(message, history, systemPrompt);
     }
 
     const data = await res.json();
     return data.choices?.[0]?.message?.content || "";
   } catch (err) {
     console.warn("Groq error, falling back to Pollinations:", err);
-    return chatWithPollinations(message, history, enhancedSystem);
+    return chatWithPollinations(message, history, systemPrompt);
   }
 }
 

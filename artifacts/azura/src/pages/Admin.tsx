@@ -11,7 +11,7 @@ import {
   Megaphone, Film, Key, Settings,
   RotateCcw, Save,
   AlertTriangle, Bot, LayoutDashboard, Users, ToggleRight, LayoutGrid,
-  MessageCircle, Star,
+  MessageCircle, Star, Sparkles,
 } from "lucide-react";
 
 import { VideoProvider } from "@/lib/videoProviders";
@@ -28,12 +28,13 @@ import { BroadcastTab } from "./admin/tabs/BroadcastTab";
 import { ReelsTab } from "./admin/tabs/ReelsTab";
 import { ApiTab } from "./admin/tabs/ApiTab";
 import { TablesTab } from "./admin/tabs/TablesTab";
+import { BaristaTab } from "./admin/tabs/BaristaTab";
 
 const AIAdminAssistant = lazy(() => import("@/components/AIAdminAssistant"));
 
 const ADMIN_PIN = "azura2026";
 
-type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai" | "features" | "tables";
+type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai" | "features" | "tables" | "barista";
 
 const BLANK_BROADCAST = { title: "", titleAr: "", message: "", messageAr: "", type: "info" as const, emoji: "📢" };
 
@@ -535,7 +536,8 @@ export default function Admin() {
     { id: "reviews",    icon: <Star size={14}/>,            en: "Reviews",     ar: "تقييمات",   badge: feedback.filter((f) => !f.read).length || 0 },
     { id: "broadcast",  icon: <Megaphone size={14}/>,       en: "Broadcast",   ar: "إشعارات"    },
     { id: "reels",      icon: <Film size={14}/>,            en: "Reels",       ar: "ريلز"       },
-    { id: "ai",         icon: <Bot size={14}/>,             en: "AI Assistant", ar: "المساعد الذكي" },
+    { id: "barista",    icon: <Sparkles size={14}/>,        en: "AI Barista",  ar: "الباريستا الذكي" },
+    { id: "ai",         icon: <Bot size={14}/>,             en: "AI Advisor", ar: "المستشار الذكي" },
     { id: "api",        icon: <Key size={14}/>,             en: "API Settings", ar: "إعدادات الـ API" },
     { id: "system",     icon: <Settings size={14}/>,        en: "System",      ar: "النظام"     },
     { id: "tables",     icon: <LayoutGrid size={14}/>,      en: "Tables",      ar: "الطاولات"   },
@@ -640,6 +642,8 @@ export default function Admin() {
           {tab === "system" && <SystemTab tr={tr} db={db} fbRef={ref} set={set} remove={remove} push={push} get={get} lang={lang} />}
 
           {tab === "tables" && <TablesTab tr={tr} activeTables={activeTables} users={users} />}
+
+          {tab === "barista" && <BaristaTab tr={tr} />}
 
           {tab === "ai" && <div className="page-enter"><AIAdminAssistant /></div>}
         </Suspense>

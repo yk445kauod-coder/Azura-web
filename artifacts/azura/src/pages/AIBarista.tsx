@@ -1,38 +1,32 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useBarista } from "@/contexts/BaristaContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
-import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
+import { db, ref, onValue, off, set, remove, get } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
 import { fullMenuData } from "@/lib/fullMenu";
-import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2 } from "lucide-react";
+import { useAIChat, type Message } from "@/hooks/useAIChat";
+import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2, Loader2, BrainCircuit } from "lucide-react";
 
 interface SuggestedItem {
   id: string; name: string; nameAr: string; price: number; image: string; category: string;
 }
 
-interface Message {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-  timestamp: number;
-  suggestedItems?: SuggestedItem[];
-  action?: "view_menu";
-}
-
 interface RawMenuItem {
   name?: string; nameEn?: string; nameAr?: string;
   price?: number; category?: string; image?: string; img?: string;
-  available?: boolean;
+  available?: boolean; description?: string; descriptionAr?: string;
+  ingredients?: any; ingredientsAr?: any;
 }
 
 interface MenuItem {
   id: string; name: string; nameAr: string; price: number;
-  category: string; image: string; ingredients?: string;
+  category: string; image: string; ingredients?: string; ingredientsAr?: string;
+  description?: string; descriptionAr?: string; available: boolean;
 }
 
-function normalizeItem(id: string, raw: RawMenuItem & { ingredients?: any }): MenuItem {
+function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
   return {
     id,
     name: raw.name || raw.nameEn || "",
@@ -41,6 +35,10 @@ function normalizeItem(id: string, raw: RawMenuItem & { ingredients?: any }): Me
     category: raw.category || "coffee",
     image: raw.image || raw.img || "",
     ingredients: Array.isArray(raw.ingredients) ? raw.ingredients.join(", ") : (raw.ingredients || ""),
+    ingredientsAr: Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr.join(", ") : (raw.ingredientsAr || ""),
+    description: raw.description || "",
+    descriptionAr: raw.descriptionAr || "",
+    available: raw.available !== false,
   };
 }
 
@@ -53,12 +51,24 @@ const STATIC_MENU: MenuItem[] = Object.entries(fullMenuData).flatMap(([catId, it
     price: item.price,
     category: catId,
     image: item.image,
-    ingredients: item.ingredients?.join(", ")
+    ingredients: item.ingredients?.join(", "),
+    ingredientsAr: item.ingredientsAr?.join(", "),
+    description: item.description,
+    descriptionAr: item.descriptionAr,
+    available: item.available !== false,
   }))
 );
 
 function renderMarkdown(text: string): string {
-  return text
+  // Escape HTML to prevent XSS
+  let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+  html = html
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-primary">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em class="italic text-secondary">$1</em>')
     .replace(/`(.*?)`/g, '<code class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
@@ -66,56 +76,74 @@ function renderMarkdown(text: string): string {
     .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
     .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
+    // Images (Unescape the src for images specifically)
+    .replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+      const cleanSrc = src.replace(/&amp;/g, "&");
+      return `<img src="${cleanSrc}" alt="${alt}" class="w-full h-auto rounded-xl my-3 shadow-sm border border-primary/10" loading="lazy" />`;
+    })
     // Instagram handle
-    .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>')
-    // Line breaks
-    .replace(/\n/g, '<br/>');
+    .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>');
+
+  // Enhanced Table handling
+  if (html.includes("|")) {
+    const lines = html.split("\n");
+    let inTable = false;
+    let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse text-xs border border-primary/20 rounded-lg shadow-sm overflow-hidden">';
+    let newLines: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("|") && line.endsWith("|")) {
+        const cells = line.split("|").map(c => c.trim()).filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1));
+
+        if (!inTable) {
+          inTable = true;
+          newLines.push(tableHtml);
+          newLines.push('<thead class="bg-primary/5"><tr>' + cells.map(c => `<th class="border border-primary/10 p-2 text-left font-extrabold text-primary">${c}</th>`).join("") + '</tr></thead><tbody class="divide-y divide-primary/10">');
+        } else if (line.includes("---")) {
+          // Skip separator line
+          continue;
+        } else {
+          newLines.push('<tr>' + cells.map(c => `<td class="border border-primary/10 p-2 text-foreground/80">${c}</td>`).join("") + '</tr>');
+        }
+      } else {
+        if (inTable) {
+          inTable = false;
+          newLines.push('</tbody></table></div>');
+        }
+        newLines.push(lines[i]);
+      }
+    }
+    if (inTable) newLines.push('</tbody></table></div>');
+    html = newLines.join("\n");
+  }
+
+  return html.replace(/\n/g, '<br/>');
 }
 
 export default function AIBarista() {
   const { lang, isRTL } = useLang();
   const { baristaName, baristaAvatar, instagram, cafeInfo } = useBarista();
   const [, navigate] = useLocation();
+  const { user, profile } = useAuth();
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const {
+    messages, loading, isThinking, thinkingSteps, error,
+    sendMessage: baseSendMessage, clearChat
+  } = useAIChat(user?.uid);
+
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>(STATIC_MENU);
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [greetingMsg, setGreetingMsg] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
   const [egyKey, setEgyKey] = useState("");
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+  const [memories, setMemories] = useState<string[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user) return;
-    const chatRef = ref(db, `conversations/${user.uid}/barista`);
-    onValue(chatRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.val() as Record<string, Message>;
-        const sortedMessages = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
-        setMessages(sortedMessages);
-      } else {
-        setMessages([]);
-      }
-    });
-    return () => off(chatRef);
-  }, [user]);
-
-  const saveMessageToFirebase = async (msg: Message) => {
-    if (!user) return;
-    const msgRef = ref(db, `conversations/${user.uid}/barista/${msg.id}`);
-    const sanitizedMsg = {
-      ...msg,
-      suggestedItems: msg.suggestedItems || null
-    };
-    await set(msgRef, sanitizedMsg);
-  };
 
   const clearAddedAnimation = (id: string) => {
     setTimeout(() => {
@@ -133,17 +161,11 @@ export default function AIBarista() {
       if (snap.exists()) {
         const data = snap.val() as Record<string, unknown>;
         const storedKey = (data.groqKey || data.geminiKey) as string;
-        if (!storedKey) {
-          setEgyKey("");
-        } else {
+        if (storedKey) {
           const decrypted = decryptKey(storedKey);
-          if (decrypted && isValidApiKey(decrypted)) {
-            setEgyKey(decrypted);
-          } else if (isValidApiKey(storedKey)) {
-            setEgyKey(storedKey);
-          } else {
-            setEgyKey("");
-          }
+          setEgyKey(decrypted || storedKey);
+        } else {
+          setEgyKey("");
         }
         setAiEnabled(data.aiEnabled !== false);
       }
@@ -177,6 +199,7 @@ export default function AIBarista() {
       if (snap.exists()) {
         const cfg = snap.val() as Record<string, string>;
         setSystemPrompt(lang === "ar" ? (cfg.systemPromptAr || cfg.systemPrompt) : cfg.systemPrompt);
+        setGreetingMsg(lang === "ar" ? (cfg.greetingAr || cfg.greeting) : cfg.greeting);
       }
     });
 
@@ -184,68 +207,117 @@ export default function AIBarista() {
   }, [lang]);
 
   useEffect(() => {
-    if (menuItems.length === 0 || greeted) return;
-    const greeting = lang === "ar"
+    if (!user) return;
+    const memRef = ref(db, `users/${user.uid}/memories`);
+    onValue(memRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, string>;
+        setMemories(Object.values(data).slice(-5));
+      }
+    });
+    return () => off(memRef);
+  }, [user]);
+
+  useEffect(() => {
+    if (menuItems.length === 0 || greeted || messages.length > 0) return;
+    const defaultGreeting = lang === "ar"
       ? `مرحباً! أنا ${baristaName}! كيف يمكنني مساعدتك اليوم؟ يسعدني مساعدتك في اختيار أفضل ما في قائمتنا!`
       : `Hi! I'm ${baristaName}! What can I get for you today? I'm here to help you explore our full menu!`;
-    setMessages([{ id: "greeting", role: "ai", content: greeting, timestamp: Date.now() }]);
+
+    const greeting = greetingMsg || defaultGreeting;
+    if (messages.length === 0 && user) {
+      const greetingMsgObj: Message = { id: "greeting", role: "ai", content: greeting, timestamp: Date.now() };
+      set(ref(db, `conversations/${user.uid}/barista/greeting`), greetingMsgObj);
+    }
     setGreeted(true);
-  }, [menuItems.length, lang, greeted, baristaName]);
+  }, [menuItems.length, lang, greeted, baristaName, greetingMsg, messages.length, user]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const buildSystemPrompt = () => {
-    // Group items by category for better context
-    const byCategory = menuItems.reduce((acc, item) => {
-      const cat = item.category || "other";
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(item);
-      return acc;
-    }, {} as Record<string, MenuItem[]>);
+    // Group items by category for better context, filtering unavailable items
+    const byCategory = menuItems
+      .filter(i => i.available)
+      .reduce((acc, item) => {
+        const cat = item.category || "other";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
+        return acc;
+      }, {} as Record<string, MenuItem[]>);
     
     const menuCtx = Object.entries(byCategory)
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
-        items.map((i) => `• ${i.name}${i.nameAr ? ` (${i.nameAr})` : ""}`)
+        items.map((i) => {
+          const details = lang === "ar"
+            ? `${i.nameAr || i.name}${i.descriptionAr ? `: ${i.descriptionAr}` : ""}${i.ingredientsAr ? ` (المكونات: ${i.ingredientsAr})` : ""} - السعر: ${i.price} ج.م`
+            : `${i.name}${i.description ? `: ${i.description}` : ""}${i.ingredients ? ` (Ingredients: ${i.ingredients})` : ""} - Price: ${i.price} EGP`;
+          return `• [ID: ${i.id}] ${details}`;
+        })
         .join("\n"))
       .join("\n");
-    
-    return `${systemPrompt || `You are ${baristaName}, the friendly and knowledgeable AI barista at ${cafeInfo.name}.
+
+    const isArabic = lang === "ar";
+    const langInstruction = isArabic
+      ? `IMPORTANT: RESPOND IN FLUENT EGYPTIAN ARABIC (عامية مصرية أصيلة). Use warm, local Alexandria-style hospitality. Keep it professional yet very friendly.`
+      : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm and professional like a high-end Alexandrian cafe host.`;
+
+    const userName = profile?.name || user?.displayName || user?.email?.split('@')[0] || (isArabic ? "صديقي" : "friend");
+    const memCtx = memories.length > 0 ? `\nKNOWN ABOUT USER:\n${memories.map(m => `- ${m}`).join("\n")}` : "";
+
+    const defaultPrompt = `You are ${baristaName}, the friendly and knowledgeable AI barista at ${cafeInfo.name}.
 
 📍 Location: ${cafeInfo.location}
 ⏰ Hours: ${cafeInfo.hours}
 📱 Instagram: ${instagram}
 📞 Phone: ${cafeInfo.phone}
 
-YOUR PERSONALITY:
-- Warm, welcoming, and genuinely passionate about coffee and food
-- You speak naturally - not robotic, but like a knowledgeable friend (Ammiya Egyptian dialect if speaking Arabic).
+CURRENT USER: ${userName}
+TABLE: ${profile?.tableNumber || "N/A"}
+VISITS: ${profile?.loginCount || 1}
+${memCtx}
+
+## PERSONALITY & LANGUAGE
+- Warm, welcoming, and genuinely passionate about coffee and food.
+- ${langInstruction}
+- You speak naturally - not robotic, but like a knowledgeable friend.
 - You are a proactive SALES AGENT: Your goal is to guide guests to our signature high-margin items like Turkish Coffee (Single/Double), Azura Plate, and special Mocktails.
-- If a guest is unsure, suggest a 'Perfect Combo' (e.g., a specific Cake with our special Latte).
+- Use a proactive approach: "Would you like some almond milk with that?" or "That pairs perfectly with our croissant!"
+- Avoid robotic or repetitive phrases. Match the user's energy.
 
-YOUR EXPERTISE:
+## EXAMPLES OF GOOD CONVERSATION:
+${isArabic ? `
+User: "عاوز قهوة"
+Good response: "يا ${userName}! ☕ عادي ولا كافي؟ لو حابب حاجة حلوه، ممكن أجيبلك لاتيه بالكراميل، تحفة!"
+User: "إيه أحسن حاجة؟"
+Good response: "يعتمد علي ذوقك! لو عايز حاجة قوية، الإسبرسو عندنا ممتاز. لو عايز حاجة خفيفه، السموتشي الفواكه تحفة! عايز أعرض عليك حاجة منهم؟"
+` : `
+User: "I want coffee"
+Good response: "Hey ${userName}! ☕ Great choice! What kind of mood are you in? If you want something sweet, our Caramel Latte is amazing. Want me to recommend one?"
+User: "What's your best?"
+Good response: "Depends on your taste! For strong coffee lovers, our Espresso is top-notch. If you want something lighter, our Fruit Smoothie is super refreshing! Want me to show you either one?"
+`}
+
+## EXPERTISE:
 - Deep knowledge of the Azura Menu provided below.
-- You STRICTLY follow the names in the MENU DATA section.
-- You can explain ingredients based on your general knowledge if not specified, but stay true to the Azura style.
+- You STRICTLY follow the names and IDs in the MENU DATA section.
+- You can explain ingredients and descriptions exactly as provided in the menu context.
 
-WHEN RECOMMENDING:
-1. Always suggest items that EXACTLY match the provided menu names.
-2. Recommend perfect pairings (e.g., a specific Dessert with a specific Coffee).
+## TOOLS:
+- [ADD_ITEM:item_id] - Show one item (Use the EXACT [ID: ...] provided in menu data)
+- [ADD_ALL:id1,id2] - Show multiple items
+- Use **bold** for item names
+- Use *italics* for flavor descriptions
+- Use emojis: ☕🍰🌟✨🔥❤️
 
-TOOLS:
-• [ADD_ITEM:name] - Show one item (e.g., [ADD_ITEM:Caramel Latte])
-• [ADD_ALL:item1,item2] - Show multiple items
-• Use **bold** for item names
-• Use *italics* for flavor descriptions
-• Use emojis: ☕🍰🌟✨🔥❤️
+## IMPORTANT RULES:
+1. You can mention prices if asked, using the prices provided in the MENU DATA.
+2. NEVER mention checkout, payment, or ordering - this is a digital menu only.
+3. DO NOT invent items. If it is not in the MENU DATA list, it does not exist.
+4. If a user asks for something not on the menu, politely steer them to a similar available item.
+5. Provide accurate descriptions and ingredients based on the data.
+6. Keep responses conversational, not robotic. Use friendly emojis occasionally.`;
 
-IMPORTANT:
-- NEVER mention PRICES. Do not say how much things cost.
-- NEVER mention checkout or payment.
-- DO NOT invent items. If it is not in the MENU DATA list, it does not exist.
-- If a user asks for something not on the menu, politely steer them to a similar available item from our list.
-- If the user asks for the price, politely inform them that you are here to help with recommendations and details, and they can find the latest prices in the menu sections.
-
-MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
+    return `${systemPrompt || defaultPrompt}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;
   };
 
   const parseMessage = (raw: string) => {
@@ -254,7 +326,7 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
     
     const allMatch = text.match(/\[ADD_ALL:([^\]]+)\]/);
     if (allMatch) {
-      const ids = allMatch[1].split(",").map(id => id.trim());
+      const ids = allMatch[1].split(",").map(id => id.trim().replace(/^ID:\s*/i, ""));
       ids.forEach(id => {
         const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
         if (item && !suggestedItems.find(s => s.id === item.id)) {
@@ -266,7 +338,7 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
     
     const multiMatch = text.match(/\[ADD_ITEMS:([^\]]+)\]/);
     if (multiMatch && suggestedItems.length === 0) {
-      const ids = multiMatch[1].split(",").map(id => id.trim());
+      const ids = multiMatch[1].split(",").map(id => id.trim().replace(/^ID:\s*/i, ""));
       ids.forEach(id => {
         const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
         if (item && !suggestedItems.find(s => s.id === item.id)) {
@@ -278,7 +350,7 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
     
     const singleMatch = text.match(/\[ADD_ITEM:([^\]]+)\]/);
     if (singleMatch && suggestedItems.length === 0) {
-      const id = singleMatch[1].trim();
+      const id = singleMatch[1].trim().replace(/^ID:\s*/i, "");
       const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
       if (item) {
         suggestedItems.push({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
@@ -297,54 +369,30 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled || !egyKey) {
-      const err: Message = {
-        id: `e${Date.now()}`,
-        role: "ai",
-        content: lang === "ar"
-          ? "عذراً، خدمة الذكاء الاصطناعي غير متاحة حالياً. تواصل مع الإدارة."
-          : "Sorry, AI service is currently disabled. Please contact admin.",
-        timestamp: Date.now(),
-      };
-      setMessages((p) => [...p, err]);
-      return;
-    }
+    if (!aiEnabled || !egyKey) return;
 
-    const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text, timestamp: Date.now() };
-    setMessages((p) => [...p, userMsg]);
-    saveMessageToFirebase(userMsg);
     setInput("");
-    setLoading(true);
+    await baseSendMessage(text, egyKey, buildSystemPrompt(), parseMessage);
     
-    try {
-      const history = messages.slice(-10).map((m) => ({
-        role: m.role === "ai" ? "model" : "user",
-        parts: [{ text: m.content }],
-      }));
+    // Update memory asynchronously after response
+    if (user) {
+      setTimeout(async () => {
+        try {
+          const lastMsgs = messages.slice(-4);
+          if (lastMsgs.length < 2) return;
+          const summaryPrompt = `Based on these messages, extract 1-2 key facts about the user's preferences (drinks, food, allergies, mood).
+          Format: "Prefers [X]", "Allergic to [Y]". Keep it very short. Use same language as user.
+          Recent Chat:
+          ${lastMsgs.map(m => `${m.role}: ${m.content}`).join("\n")}`;
 
-      const content = await chatWithAI(egyKey, text, history, buildSystemPrompt());
-      const { text: parsed, suggestedItems } = parseMessage(content);
-      
-      const aiMsg: Message = {
-        id: `a${Date.now()}`,
-        role: "ai",
-        content: parsed,
-        timestamp: Date.now(),
-        suggestedItems: suggestedItems.length > 0 ? suggestedItems : undefined,
-      };
-      setMessages((p) => [...p, aiMsg]);
-      saveMessageToFirebase(aiMsg);
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : 'Unknown error';
-      const err: Message = {
-        id: `e${Date.now()}`,
-        role: "ai",
-        content: lang === "ar" ? `عذراً، حدث خطأ: ${errMsg}` : `Sorry, something went wrong: ${errMsg}`,
-        timestamp: Date.now(),
-      };
-      setMessages((p) => [...p, err]);
+          const fact = await chatWithAI(egyKey, "Extract key user facts for memory.", [], summaryPrompt);
+          if (fact && fact.length > 5 && fact.length < 100) {
+            const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
+            await set(memRef, fact);
+          }
+        } catch (e) { console.warn("Memory update failed", e); }
+      }, 3000);
     }
-    setLoading(false);
   };
 
   const handleViewItem = (item: SuggestedItem) => {
@@ -392,8 +440,8 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
             </a>
           </div>
           <button onClick={() => {
-            if (user) remove(ref(db, `conversations/${user.uid}/barista`));
-            setMessages([]); setGreeted(false);
+            clearChat();
+            setGreeted(false);
           }} title="Clear History" className="btn-icon w-8 h-8 text-muted-foreground hover:text-destructive transition-colors">
             <RefreshCw size={13} />
           </button>
@@ -473,7 +521,35 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
           </div>
         ))}
 
-        {loading && (
+        {isThinking && (
+          <div className="flex items-start gap-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <BrainCircuit size={14} className="text-primary animate-pulse" />
+            </div>
+            <div className="space-y-1.5 max-w-[80%]">
+              <div className="bubble-ai px-4 py-2 border border-primary/20 bg-primary/5">
+                <div className="flex gap-2 items-center">
+                  <Loader2 size={12} className="animate-spin text-primary" />
+                  <span className="text-[11px] font-bold text-primary animate-pulse">
+                    {thinkingSteps[thinkingSteps.length - 1] || (lang === "ar" ? "يفكر..." : "Thinking...")}
+                  </span>
+                </div>
+              </div>
+              {thinkingSteps.length > 1 && (
+                <div className="flex flex-col gap-1 px-1">
+                  {thinkingSteps.slice(0, -1).map((step, i) => (
+                    <div key={i} className="flex items-center gap-2 opacity-40">
+                      <Check size={10} className="text-primary" />
+                      <span className="text-[9px] font-medium">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {loading && !isThinking && (
           <div className="flex items-end gap-2">
             <img src={baristaAvatar} alt={baristaName} className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0" loading="lazy" />
             <div className="bubble-ai px-4 py-3">
@@ -483,6 +559,12 @@ MENU DATA (STRICT NAMES):\n${menuCtx}`}`;
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mx-auto max-w-[80%] text-center p-3 bg-destructive/10 text-destructive text-xs rounded-xl border border-destructive/20 my-2">
+            {error}
           </div>
         )}
         <div ref={messagesEndRef} />

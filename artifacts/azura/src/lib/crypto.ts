@@ -158,7 +158,7 @@ export async function chatWithAI(
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "deepseek-r1-distill-qwen-32b", // DeepSeek R1 Qwen 32B — Superior Arabic performance & reasoning
+        model: "llama-3.3-70b-versatile", // High quality best Arabic support model
         messages: [
           { role: "system", content: systemPrompt },
           ...history.map((h) => ({

@@ -1,5 +1,5 @@
-import { useReducer, useCallback, useEffect } from "react";
-import { db, ref, onValue, off, set, remove } from "@/lib/firebase";
+import { useState, useCallback, useEffect } from "react";
+import { db, ref, onValue, off, push, set } from "@/lib/firebase";
 import { chatWithAI } from "@/lib/crypto";
 
 export interface Message {
@@ -8,140 +8,101 @@ export interface Message {
   content: string;
   timestamp: number;
   suggestedItems?: any[];
-  isThinking?: boolean;
-  thinkingSteps?: string[];
 }
 
-interface ChatState {
-  messages: Message[];
-  loading: boolean;
-  isThinking: boolean;
-  thinkingSteps: string[];
-  error: string | null;
-}
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-type ChatAction =
-  | { type: "SET_MESSAGES"; payload: Message[] }
-  | { type: "ADD_MESSAGE"; payload: Message }
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_THINKING"; payload: boolean }
-  | { type: "ADD_THINKING_STEP"; payload: string }
-  | { type: "CLEAR_THINKING" }
-  | { type: "SET_ERROR"; payload: string | null };
-
-const initialState: ChatState = {
-  messages: [],
-  loading: false,
-  isThinking: false,
-  thinkingSteps: [],
-  error: null,
-};
-
-function chatReducer(state: ChatState, action: ChatAction): ChatState {
-  switch (action.type) {
-    case "SET_MESSAGES":
-      return { ...state, messages: action.payload };
-    case "ADD_MESSAGE":
-      return { ...state, messages: [...state.messages, action.payload] };
-    case "SET_LOADING":
-      return { ...state, loading: action.payload };
-    case "SET_THINKING":
-      return { ...state, isThinking: action.payload };
-    case "ADD_THINKING_STEP":
-      return { ...state, thinkingSteps: [...state.thinkingSteps, action.payload] };
-    case "CLEAR_THINKING":
-      return { ...state, thinkingSteps: [], isThinking: false };
-    case "SET_ERROR":
-      return { ...state, error: action.payload };
-    default:
-      return state;
-  }
-}
-
-export function useAIChat(userId: string | undefined, chatId: string = "barista") {
-  const [state, dispatch] = useReducer(chatReducer, initialState);
+export function useAIChat(uid?: string) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [thinkingSteps, setThinkingSteps] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
-    const chatRef = ref(db, `conversations/${userId}/${chatId}`);
-    const unsubscribe = onValue(chatRef, (snap) => {
+    if (!uid) return;
+    const chatRef = ref(db, `conversations/${uid}/barista`);
+    onValue(chatRef, (snap) => {
       if (snap.exists()) {
-        const data = snap.val() as Record<string, Message>;
-        const sorted = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
-        dispatch({ type: "SET_MESSAGES", payload: sorted });
+        const data = snap.val();
+        const msgs = Object.entries(data)
+          .map(([id, m]: any) => ({ id, ...m }))
+          .sort((a, b) => a.timestamp - b.timestamp);
+        setMessages(msgs);
       } else {
-        dispatch({ type: "SET_MESSAGES", payload: [] });
+        setMessages([]);
       }
     });
     return () => off(chatRef);
-  }, [userId, chatId]);
-
-  const saveMessage = useCallback(async (msg: Message) => {
-    if (!userId) return;
-    const msgRef = ref(db, `conversations/${userId}/${chatId}/${msg.id}`);
-    await set(msgRef, { ...msg, suggestedItems: msg.suggestedItems || null });
-  }, [userId, chatId]);
+  }, [uid]);
 
   const sendMessage = useCallback(async (
     text: string,
     apiKey: string,
     systemPrompt: string,
-    onParsed: (content: string) => { text: string; suggestedItems: any[] }
+    parseResponse: (text: string) => { text: string; suggestedItems: any[] }
   ) => {
-    if (!text.trim() || !userId || !apiKey) return;
+    if (!uid || !text.trim() || !apiKey) return;
 
-    const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text, timestamp: Date.now() };
-    dispatch({ type: "ADD_MESSAGE", payload: userMsg });
-    await saveMessage(userMsg);
+    setLoading(true);
+    setError(null);
+    setThinkingSteps([]);
 
-    dispatch({ type: "SET_LOADING", payload: true });
-    dispatch({ type: "SET_THINKING", payload: true });
-    dispatch({ type: "SET_ERROR", payload: null });
+    const userMsg: Omit<Message, "id"> = {
+      role: "user",
+      content: text,
+      timestamp: Date.now()
+    };
 
     try {
-      const history = state.messages.slice(-10).map((m) => ({
-        role: m.role === "ai" ? "model" : "user",
-        parts: [{ text: m.content }],
+      // 1. Save user message
+      await push(ref(db, `conversations/${uid}/barista`), userMsg);
+
+      // 2. Start thinking simulation
+      setIsThinking(true);
+      const steps = [
+        "Analyzing your request...",
+        "Scanning Azura menu...",
+        "Checking availability...",
+        "Crafting perfect recommendation..."
+      ];
+
+      for (const step of steps) {
+        setThinkingSteps(prev => [...prev, step]);
+        await sleep(600);
+      }
+
+      // 3. Call AI
+      const history = messages.slice(-10).map(m => ({
+        role: m.role === "ai" ? "assistant" : "user",
+        content: m.content
       }));
 
-      // Simulate agentic steps
-      dispatch({ type: "ADD_THINKING_STEP", payload: "Analyzing request..." });
-      await new Promise(r => setTimeout(r, 400));
-      dispatch({ type: "ADD_THINKING_STEP", payload: "Searching menu and preferences..." });
+      const aiResponse = await chatWithAI(apiKey, systemPrompt, history, text);
+      setIsThinking(false);
 
-      const content = await chatWithAI(apiKey, text, history, systemPrompt);
-      const { text: parsed, suggestedItems } = onParsed(content);
-
-      const aiMsg: Message = {
-        id: `a${Date.now()}`,
-        role: "ai",
-        content: parsed,
-        timestamp: Date.now(),
-        suggestedItems: suggestedItems.length > 0 ? suggestedItems : undefined,
-      };
-
-      dispatch({ type: "CLEAR_THINKING" });
-      dispatch({ type: "ADD_MESSAGE", payload: aiMsg });
-      await saveMessage(aiMsg);
+      if (aiResponse) {
+        const { text: cleanText, suggestedItems } = parseResponse(aiResponse);
+        const aiMsg: Omit<Message, "id"> = {
+          role: "ai",
+          content: cleanText,
+          timestamp: Date.now(),
+          suggestedItems
+        };
+        await push(ref(db, `conversations/${uid}/barista`), aiMsg);
+      }
     } catch (err: any) {
-      const errorMsg = err.message || "Unknown error";
-      dispatch({ type: "SET_ERROR", payload: errorMsg });
-      dispatch({ type: "SET_THINKING", payload: false });
+      setError(err.message || "Failed to get AI response");
+      setIsThinking(false);
     } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
+      setLoading(false);
     }
-  }, [userId, state.messages, saveMessage]);
+  }, [uid, messages]);
 
   const clearChat = useCallback(async () => {
-    if (!userId) return;
-    await remove(ref(db, `conversations/${userId}/${chatId}`));
-    dispatch({ type: "SET_MESSAGES", payload: [] });
-  }, [userId, chatId]);
+    if (!uid) return;
+    await set(ref(db, `conversations/${uid}/barista`), null);
+  }, [uid]);
 
-  return {
-    ...state,
-    sendMessage,
-    clearChat,
-    dispatch
-  };
+  return { messages, loading, isThinking, thinkingSteps, error, sendMessage, clearChat };
 }

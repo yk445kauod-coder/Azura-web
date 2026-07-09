@@ -13,8 +13,31 @@ import {
   AlertTriangle, Bot, LayoutDashboard, Users, ToggleRight, LayoutGrid,
   MessageCircle, Star, Sparkles, TrendingUp, Clock, Zap, MapPin, Coffee,
   User, Phone, MessageSquare, Armchair, UploadCloud, Download, Archive,
-  Check, Eye, Smartphone, Globe, Info, Package, Filter, List, Heart
+  Check, Eye, Smartphone, Globe, Info, Package, Filter, List, Heart, LucideIcon
 } from "lucide-react";
+
+// --- Handcrafted SVG Pixel Icons ---
+
+const PixelIcon = ({ d, color = "currentColor", size = 16 }: { d: string, color?: string, size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ imageRendering: 'pixelated' }}>
+    <path d={d} fill={color} fillRule="evenodd" clipRule="evenodd" />
+  </svg>
+);
+
+const PX_ICONS = {
+  dashboard: "M2 2H7V7H2V2ZM9 2H14V5H9V2ZM2 9H7V14H2V9ZM9 7H14V14H9V7Z",
+  plus: "M7 2H9V7H14V9H9V14H7V9H2V7H7V2Z",
+  users: "M6 2H10V5H13V9H10V14H6V9H3V5H6V2ZM8 6H8V8H8V6Z",
+  chat: "M2 2H14V11H8L4 14V11H2V2ZM4 4V6H12V4H4ZM4 8V9H10V8H4Z",
+  star: "M8 2L10 6H14L11 9L12 14L8 12L4 14L5 9L2 6H6L8 2Z",
+  broadcast: "M2 6H5L9 2V14L5 10H2V6ZM11 5V6H12V5H11ZM13 7V9H14V7H13ZM11 10V11H12V10H11Z",
+  reels: "M2 2H14V14H2V2ZM4 4V6H6V4H4ZM10 4V6H12V4H10ZM4 8V10H12V8H4ZM4 12V13H12V12H4Z",
+  api: "M2 8H4V10H2V8ZM6 8H10V10H6V8ZM12 8H14V10H12V8ZM4 6V4H12V6H4Z",
+  system: "M7 2H9V4H7V2ZM11 3L12 5L10 6L9 4L11 3ZM14 7V9H12V7H14ZM13 11L11 12L10 10L12 9L13 11ZM9 14H7V12H9V14ZM5 13L4 11L6 10L7 12L5 13ZM2 9V7H4V9H2ZM3 5L5 4L6 6L4 7L3 5Z",
+  sparkles: "M8 2H9V4H8V2ZM12 4L13 5L11 7L10 6L12 4ZM14 8V9H12V8H14ZM12 12L10 11L11 9L13 10L12 12ZM8 14H7V12H8V14ZM4 12L3 11L5 9L6 10L4 12ZM2 8V7H4V8H2ZM4 4L6 5L5 7L3 6L4 4Z",
+  menu: "M2 2H14V4H2V2ZM2 6H14V8H2V6ZM2 10H14V12H2V10ZM2 14H14V15H2V14Z",
+  features: "M2 6H14V10H2V6ZM4 8H6V8H4V8ZM10 8H12V8H10V8Z"
+};
 
 import { VideoProvider } from "@/lib/videoProviders";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
@@ -160,23 +183,25 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount }: { tr: any, use
     <div className="space-y-4 page-enter">
       <div className="grid grid-cols-2 gap-3">
         {[
-          { emoji: "🔥", label: tr("Active Now","نشط الآن"), value: stats.activeNow, color: "text-orange-600" },
-          { emoji: "🔄", label: tr("Retention Rate","معدل العودة"), value: `${stats.returningRate}%`, color: "text-blue-600" },
-          { emoji: "💬", label: tr("Unread Messages","رسائل جديدة"), value: unreadChats, color: "text-green-600" },
-          { emoji: "⭐", label: tr("New Reviews","تقييمات جديدة"), value: newReviewsCount, color: "text-amber-600" },
+          { icon: PX_ICONS.sparkles, label: tr("Active Now","نشط الآن"), value: stats.activeNow, color: "text-primary" },
+          { icon: PX_ICONS.system, label: tr("Retention Rate","معدل العودة"), value: `${stats.returningRate}%`, color: "text-success" },
+          { icon: PX_ICONS.chat, label: tr("Unread Messages","رسائل جديدة"), value: unreadChats, color: "text-info" },
+          { icon: PX_ICONS.star, label: tr("New Reviews","تقييمات جديدة"), value: newReviewsCount, color: "text-warning" },
         ].map((s) => (
-          <div key={s.label} className="card-elevated rounded-2xl p-4 text-center transition-transform active:scale-95">
-            <p className="text-2xl mb-1">{s.emoji}</p>
-            <p className={`text-2xl font-black ${s.color} leading-tight`}>{s.value}</p>
-            <p className="text-[10px] text-muted-foreground font-bold uppercase mt-1 tracking-wider">{s.label}</p>
+          <div key={s.label} className="pixel-card p-4 text-center active:scale-95 transition-transform">
+            <div className="flex justify-center mb-2">
+               <PixelIcon d={s.icon} size={20} color={s.color === 'text-primary' ? '#F28C28' : undefined} />
+            </div>
+            <p className={`pixel-font text-xl font-black ${s.color} leading-tight`}>{s.value}</p>
+            <p className="pixel-font text-[8px] text-foreground/60 font-bold uppercase mt-2 tracking-tighter">{s.label}</p>
           </div>
         ))}
       </div>
-      <div className="card-elevated rounded-2xl p-5 border border-primary/5">
-        <h3 className="font-bold text-sm text-foreground flex items-center gap-2 mb-4"><TrendingUp size={16} className="text-primary"/> {tr("Business Insights","رؤى العمل")}</h3>
-        <div className="space-y-3">
-           <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><Users size={14}/></div><p className="text-xs font-bold">{tr("Total CRM Records", "إجمالي سجلات العملاء")}</p></div><p className="text-sm font-black text-primary">{users.length}</p></div>
-           <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600"><Zap size={14}/></div><p className="text-xs font-bold">{tr("High Value Clients", "عملاء مميزون")}</p></div><p className="text-sm font-black text-orange-600">{users.filter(u => u.loginCount >= 3).length}</p></div>
+      <div className="pixel-card pixel-border-bronze p-5">
+        <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 mb-4"><PixelIcon d={PX_ICONS.dashboard} size={14}/> {tr("Business Insights","رؤى العمل")}</h3>
+        <div className="space-y-4">
+           <div className="flex items-center justify-between p-4 pixel-border-paper bg-opacity-50"><div className="flex items-center gap-3"><PixelIcon d={PX_ICONS.users} size={14}/><p className="pixel-font text-[9px]">{tr("Total CRM Records", "إجمالي سجلات العملاء")}</p></div><p className="pixel-font text-sm font-black text-primary">{users.length}</p></div>
+           <div className="flex items-center justify-between p-4 pixel-border-paper bg-opacity-50"><div className="flex items-center gap-3"><PixelIcon d={PX_ICONS.sparkles} size={14} color="#F28C28"/><p className="pixel-font text-[9px]">{tr("High Value Clients", "عملاء مميزون")}</p></div><p className="pixel-font text-sm font-black text-primary">{users.filter(u => u.loginCount >= 3).length}</p></div>
         </div>
       </div>
     </div>
@@ -213,35 +238,37 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
   const inp = "input-field px-3 py-2.5 text-sm";
   const lbl = "text-[10px] font-black uppercase mb-1 block";
   return (
-    <div className="space-y-4 page-enter">
-      <div className="card-elevated rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="font-bold text-foreground flex items-center gap-2"><LayoutGrid size={18} className="text-primary"/> {tr("Menu Management","إدارة القائمة")}</h3>
-          <div className="w-full flex gap-2 mt-2">
-            <div className="relative flex-1"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input type="text" placeholder={tr("Search items...", "البحث في القائمة...")} value={menuSearch} onChange={(e) => setMenuSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-muted text-sm outline-none" /></div>
-            <select value={menuCategoryFilter} onChange={(e) => setMenuCategoryFilter(e.target.value)} className="px-3 py-2.5 rounded-xl bg-muted text-sm border-0">
-              <option value="all">{tr("All Categories", "كل الأقسام")}</option>
+    <div className="space-y-6 page-enter">
+      <div className="pixel-card p-5 space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.plus} size={14}/> {tr("Menu Management","إدارة القائمة")}</h3>
+          <div className="w-full flex gap-3 mt-2">
+            <div className="relative flex-1">
+              <input type="text" placeholder={tr("Search items...", "البحث...")} value={menuSearch} onChange={(e) => setMenuSearch(e.target.value)} className="pixel-input w-full pl-3 pr-4 py-3 pixel-font text-[9px] uppercase" />
+            </div>
+            <select value={menuCategoryFilter} onChange={(e) => setMenuCategoryFilter(e.target.value)} className="pixel-input px-3 py-3 pixel-font text-[8px] uppercase appearance-none">
+              <option value="all">{tr("All Categories", "الأقسام")}</option>
               {MENU_CATEGORIES.map(c => <option key={c} value={c}>{CAT_META[c] ? tr(CAT_META[c].en, CAT_META[c].ar) : c}</option>)}
             </select>
           </div>
-          <div className="flex gap-2 flex-wrap w-full">
-            <button onClick={async () => { if (!confirm(tr("Merge menu?", "دمج القائمة؟"))) return; swalLoading(tr("Merging…", "جار الدمج…")); await mergeMenuIngredients(); swalClose(); swalSuccess(tr("Merged!", "تم الدمج!")); }} className="flex-1 btn-secondary px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1"><RotateCcw size={13}/> {tr("Merge", "دمج")}</button>
-            <button onClick={async () => { if (!confirm(tr("⚠️ Reseed entire menu?", "⚠️ إعادة رفع القائمة بالكامل؟"))) return; swalLoading(tr("Reseeding…", "جار الرفع…")); await forceReseedMenu(); swalClose(); swalSuccess(tr("Reseeded!", "تم الرفع!")); }} className="flex-1 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 bg-amber-50 text-amber-700 border border-amber-200"><UploadCloud size={13}/> {tr("Reseed", "رفع")}</button>
-            <button onClick={() => setShowAddForm(v => !v)} className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${showAddForm ? "bg-muted text-foreground" : "btn-primary"}`}><Plus size={13}/> {showAddForm ? tr("Cancel", "إلغاء") : tr("Add", "إضافة")}</button>
+          <div className="flex gap-3 flex-wrap w-full">
+            <button onClick={async () => { if (!confirm(tr("Merge menu?", "دمج القائمة؟"))) return; swalLoading(tr("Merging…", "جار الدمج…")); await mergeMenuIngredients(); swalClose(); swalSuccess(tr("Merged!", "تم الدمج!")); }} className="flex-1 pixel-btn pixel-btn-secondary text-[8px]"><RotateCcw size={12}/> {tr("Merge", "دمج")}</button>
+            <button onClick={async () => { if (!confirm(tr("⚠️ Reseed entire menu?", "⚠️ إعادة رفع القائمة بالكامل؟"))) return; swalLoading(tr("Reseeding…", "جار الرفع…")); await forceReseedMenu(); swalClose(); swalSuccess(tr("Reseeded!", "تم الرفع!")); }} className="flex-1 pixel-btn pixel-btn-secondary text-[8px]"><UploadCloud size={12}/> {tr("Reseed", "رفع")}</button>
+            <button onClick={() => setShowAddForm(v => !v)} className={`flex-1 pixel-btn ${showAddForm ? "pixel-btn-secondary" : "pixel-btn-primary"} text-[8px]`}>{showAddForm ? tr("Cancel", "إلغاء") : tr("Add", "إضافة")}</button>
           </div>
         </div>
         {showAddForm && (
-          <div className="rounded-2xl border border-primary/20 bg-primary/3 p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-2 gap-2">
-              <div><label className={lbl}>{tr("Name (EN)","الاسم EN")}</label><input className={inp} placeholder="Caramel Latte" value={addForm.name} onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))} /></div>
-              <div><label className={lbl}>{tr("Name (AR)","الاسم AR")}</label><input className={inp} dir="rtl" placeholder="لاتيه كراميل" value={addForm.nameAr} onChange={e => setAddForm(f => ({ ...f, nameAr: e.target.value }))} /></div>
+          <div className="pixel-card pixel-border-paper p-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className={lbl}>{tr("Name (EN)","الاسم EN")}</label><input className="pixel-input w-full" placeholder="Caramel Latte" value={addForm.name} onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))} /></div>
+              <div><label className={lbl}>{tr("Name (AR)","الاسم AR")}</label><input className="pixel-input w-full" dir="rtl" placeholder="لاتيه كراميل" value={addForm.nameAr} onChange={e => setAddForm(f => ({ ...f, nameAr: e.target.value }))} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div><label className={lbl}>{tr("Price (EGP)","السعر")}</label><input type="number" className={inp} placeholder="0" value={addForm.price} onChange={e => setAddForm(f => ({ ...f, price: e.target.value }))} /></div>
-              <div><label className={lbl}>{tr("Category","الفئة")}</label><select className={inp} value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}>{MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className={lbl}>{tr("Price (EGP)","السعر")}</label><input type="number" className="pixel-input w-full" placeholder="0" value={addForm.price} onChange={e => setAddForm(f => ({ ...f, price: e.target.value }))} /></div>
+              <div><label className={lbl}>{tr("Category","الفئة")}</label><select className="pixel-input w-full" value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}>{MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
             </div>
             <ImagePicker label={tr("Photo", "الصورة")} value={addForm.image} onChange={v => setAddForm(f => ({ ...f, image: v }))} />
-            <button disabled={savingItem || !addForm.name || !addForm.price} onClick={async () => { setSavingItem(true); const id = `${addForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${Date.now().toString(36)}`; await smartSet(`menu/${addForm.category}/${id}`, { ...addForm, price: Number(addForm.price) }); setAddForm({ name:"", nameAr:"", price:"", category:"coffee", image:"", description:"", descriptionAr:"", ingredients:"", ingredientsAr:"", available:true }); setShowAddForm(false); setSavingItem(false); swalSuccess(tr("Added!", "تمت الإضافة!")); }} className="btn-primary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">{savingItem ? <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={14}/>} {tr("Save Item","حفظ الصنف")}</button>
+            <button disabled={savingItem || !addForm.name || !addForm.price} onClick={async () => { setSavingItem(true); const id = `${addForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${Date.now().toString(36)}`; await smartSet(`menu/${addForm.category}/${id}`, { ...addForm, price: Number(addForm.price) }); setAddForm({ name:"", nameAr:"", price:"", category:"coffee", image:"", description:"", descriptionAr:"", ingredients:"", ingredientsAr:"", available:true }); setShowAddForm(false); setSavingItem(false); swalSuccess(tr("Added!", "تمت الإضافة!")); }} className="pixel-btn pixel-btn-primary w-full py-4 text-[10px] uppercase font-black">{savingItem ? <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={14}/>} {tr("Save Item","حفظ الصنف")}</button>
           </div>
         )}
       </div>
@@ -252,41 +279,41 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
           const itemsList = catItems as MenuItem[];
           return (
             <div key={catId} className="space-y-2">
-              <button onClick={() => { const next = new Set(expandedCats); if (next.has(catId)) next.delete(catId); else next.add(catId); setExpandedCats(next); }} className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-muted/50 rounded-xl transition-colors group"><div className="flex items-center gap-2"><span className="text-xl">{meta.emoji}</span><span className="font-black text-sm uppercase tracking-tight text-foreground/80">{tr(meta.en, meta.ar)}</span><span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold text-muted-foreground">{itemsList.length}</span></div><ChevronDown size={18} className={`text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`} /></button>
+              <button onClick={() => { const next = new Set(expandedCats); if (next.has(catId)) next.delete(catId); else next.add(catId); setExpandedCats(next); }} className="w-full flex items-center justify-between px-3 py-2 hover:bg-muted/30 pixel-border-paper bg-opacity-20 transition-colors group"><div className="flex items-center gap-3"><span className="text-xl grayscale group-hover:grayscale-0 transition-all">{meta.emoji}</span><span className="pixel-font text-[10px] uppercase font-black tracking-tighter text-foreground">{tr(meta.en, meta.ar)}</span><span className="pixel-font text-[8px] px-2 py-0.5 pixel-border-wood bg-opacity-50 text-secondary">{itemsList.length}</span></div><PixelIcon d={PX_ICONS.plus} size={14} color="#6F4E37" /></button>
               {isExpanded && (
-                <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-1 duration-300">
+                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-1 duration-300">
                   {itemsList.map((item: MenuItem) => {
                     const isSelected = selectedMenuItemId === item.id;
                     const edits = menuEdits[item.id] || {};
                     return (
                       <div key={item.id} className="contents">
-                        <div onClick={() => setSelectedMenuItemId(isSelected ? null : item.id)} className={`relative group cursor-pointer card rounded-2xl overflow-hidden border transition-all duration-200 ${isSelected ? "ring-2 ring-primary border-transparent shadow-lg bg-primary/5" : "border-border/40"}`}>
-                          <div className="h-24 relative overflow-hidden bg-muted/20">{item.image ? <img src={item.image} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" loading="lazy"/> : <div className="w-full h-full flex items-center justify-center text-3xl opacity-20">{meta.emoji}</div>}</div>
-                          <div className="p-2.5"><p className="font-bold text-xs text-foreground truncate">{lang === "ar" ? (item.nameAr || item.name) : item.name}</p><p className="text-[10px] font-black text-primary mt-1">{item.price} EGP</p></div>
+                        <div onClick={() => setSelectedMenuItemId(isSelected ? null : item.id)} className={`relative group cursor-pointer pixel-card pixel-border-paper overflow-hidden transition-all duration-200 ${isSelected ? "pixel-border-bronze pixel-shadow" : ""}`}>
+                          <div className="h-28 relative overflow-hidden bg-muted/20 border-b-2 pixel-border-paper border-t-0 border-x-0">{item.image ? <img src={item.image} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" loading="lazy" style={{ imageRendering: 'pixelated' }}/> : <div className="w-full h-full flex items-center justify-center text-4xl opacity-10 grayscale">{meta.emoji}</div>}</div>
+                          <div className="p-3"><p className="pixel-font text-[10px] text-foreground truncate font-black">{lang === "ar" ? (item.nameAr || item.name) : item.name}</p><p className="pixel-font text-[9px] font-black text-primary mt-2">{item.price} EGP</p></div>
                         </div>
                         {isSelected && (
-                          <div className="col-span-2 card-elevated rounded-3xl p-5 border-2 border-primary/20 bg-card mt-1 mb-3">
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-3">
-                                <div><label className={lbl}>Name (EN)</label><input className={inp} value={edits.name || item.name} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], name: e.target.value } }))} /></div>
-                                <div><label className={lbl}>Name (AR)</label><input className={inp} dir="rtl" value={edits.nameAr || item.nameAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], nameAr: e.target.value } }))} /></div>
+                          <div className="col-span-2 pixel-card pixel-border-wood p-6 bg-card mt-2 mb-4">
+                            <div className="space-y-5">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div><label className={lbl}>Name (EN)</label><input className="pixel-input w-full" value={edits.name || item.name} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], name: e.target.value } }))} /></div>
+                                <div><label className={lbl}>Name (AR)</label><input className="pixel-input w-full" dir="rtl" value={edits.nameAr || item.nameAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], nameAr: e.target.value } }))} /></div>
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div><label className={lbl}>Price (EGP)</label><input type="number" className={inp} value={edits.price || item.price} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], price: Number(e.target.value) } }))} /></div>
-                                <div><label className={lbl}>Category</label><select className={inp} value={edits.category || item.category} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], category: e.target.value } }))}>{MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div><label className={lbl}>Price (EGP)</label><input type="number" className="pixel-input w-full" value={edits.price || item.price} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], price: Number(e.target.value) } }))} /></div>
+                                <div><label className={lbl}>Category</label><select className="pixel-input w-full" value={edits.category || item.category} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], category: e.target.value } }))}>{MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div><label className={lbl}>Description (EN)</label><textarea className={`${inp} h-20`} value={edits.description || item.description} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], description: e.target.value } }))} /></div>
-                                <div><label className={lbl}>Description (AR)</label><textarea className={`${inp} h-20`} dir="rtl" value={edits.descriptionAr || item.descriptionAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], descriptionAr: e.target.value } }))} /></div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div><label className={lbl}>Description (EN)</label><textarea className="pixel-input w-full h-24" value={edits.description || item.description} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], description: e.target.value } }))} /></div>
+                                <div><label className={lbl}>Description (AR)</label><textarea className="pixel-input w-full h-24" dir="rtl" value={edits.descriptionAr || item.descriptionAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], descriptionAr: e.target.value } }))} /></div>
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div><label className={lbl}>Ingredients (EN)</label><textarea className={`${inp} h-20`} value={edits.ingredients || item.ingredients} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], ingredients: e.target.value } }))} /></div>
-                                <div><label className={lbl}>Ingredients (AR)</label><textarea className={`${inp} h-20`} dir="rtl" value={edits.ingredientsAr || item.ingredientsAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], ingredientsAr: e.target.value } }))} /></div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div><label className={lbl}>Ingredients (EN)</label><textarea className="pixel-input w-full h-24" value={edits.ingredients || item.ingredients} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], ingredients: e.target.value } }))} /></div>
+                                <div><label className={lbl}>Ingredients (AR)</label><textarea className="pixel-input w-full h-24" dir="rtl" value={edits.ingredientsAr || item.ingredientsAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], ingredientsAr: e.target.value } }))} /></div>
                               </div>
                               <ImagePicker label={tr("Photo", "الصورة")} value={edits.image || item.image} onChange={v => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], image: v } }))} />
-                              <div className="flex gap-2 ms-auto pt-2">
-                                <button onClick={async () => { if (await swalConfirm(tr("Delete?", "حذف؟"), tr("Permanent.", "نهائي."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) { await smartRemove(`menu/${item.category}/${item.id}`); setSelectedMenuItemId(null); swalSuccess(tr("Deleted!", "تم الحذف!")); } }} className="w-10 h-10 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center"><Trash2 size={18} /></button>
-                                <button disabled={savingMenuId === item.id || !Object.keys(edits).length} onClick={async () => { setSavingMenuId(item.id); await smartUpdate(`menu/${item.category}/${item.id}`, edits); setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; }); swalSuccess(tr("Saved!", "تم الحفظ!")); setSelectedMenuItemId(null); setSavingMenuId(null); }} className="btn-primary px-6 h-10 rounded-xl text-xs font-bold flex items-center gap-2 flex-1">{savingMenuId === item.id ? <Bot className="animate-spin" size={16}/> : <Save size={16}/>} {tr("Save Changes", "حفظ التعديلات")}</button>
+                              <div className="flex gap-3 ms-auto pt-4">
+                                <button onClick={async () => { if (await swalConfirm(tr("Delete?", "حذف؟"), tr("Permanent.", "نهائي."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) { await smartRemove(`menu/${item.category}/${item.id}`); setSelectedMenuItemId(null); swalSuccess(tr("Deleted!", "تم الحذف!")); } }} className="pixel-btn pixel-btn-secondary p-3"><Trash2 size={16} /></button>
+                                <button disabled={savingMenuId === item.id || !Object.keys(edits).length} onClick={async () => { setSavingMenuId(item.id); await smartUpdate(`menu/${item.category}/${item.id}`, edits); setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; }); swalSuccess(tr("Saved!", "تم الحفظ!")); setSelectedMenuItemId(null); setSavingMenuId(null); }} className="pixel-btn pixel-btn-primary flex-1 py-4 text-[10px] font-black uppercase">{savingMenuId === item.id ? <Bot className="animate-spin" size={16}/> : <Save size={16}/>} {tr("Save Changes", "حفظ التعديلات")}</button>
                               </div>
                             </div>
                           </div>
@@ -321,12 +348,12 @@ const FeaturesTab = ({ tr, featureFlags, toggleFeatureFlag, savingFlag }: { tr: 
 const UsersTab = ({ tr, users, deleteUser, formatDuration }: { tr: any, users: any[], deleteUser: any, formatDuration: any }) => (
   <div className="space-y-4 page-enter">
     <div className="card-elevated rounded-2xl p-5 space-y-2"><h3 className="font-bold text-foreground flex items-center gap-2"><Users size={18} className="text-primary"/> {tr("User Management","إدارة المستخدمين")}</h3></div>
-    <div className="space-y-2">
+    <div className="space-y-4">
       {users.map((u) => (
-        <div key={u.uid} className="card rounded-2xl p-4 flex items-center gap-4 group hover:border-primary/30 transition-all">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg">{u.name?.[0]?.toUpperCase() || "?"}</div>
-          <div className="flex-1 min-w-0"><p className="font-bold text-sm text-foreground truncate">{u.name || "Guest"}</p><div className="flex items-center gap-3 mt-1.5"><span className="text-[10px] font-bold text-orange-600">🔥 {u.loginCount || 1} visits</span><span className="text-[10px] font-bold text-blue-600">⏰ {formatDuration(u.totalUsageTime || 0)}</span></div></div>
-          <button onClick={() => deleteUser(u.uid)} className="w-9 h-9 rounded-xl bg-destructive/5 text-destructive flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={16}/></button>
+        <div key={u.uid} className="pixel-card pixel-border-paper p-4 flex items-center gap-4 group active:scale-[0.99] transition-transform">
+          <div className="w-12 h-12 pixel-border-wood flex items-center justify-center text-secondary font-black text-lg pixel-font">{u.name?.[0]?.toUpperCase() || "?"}</div>
+          <div className="flex-1 min-w-0"><p className="pixel-font text-sm text-foreground truncate">{u.name || "Guest"}</p><div className="flex items-center gap-4 mt-2"><span className="pixel-font text-[8px] text-primary">visits: {u.loginCount || 1}</span><span className="pixel-font text-[8px] text-secondary">time: {formatDuration(u.totalUsageTime || 0)}</span></div></div>
+          <button onClick={() => deleteUser(u.uid)} className="pixel-btn pixel-btn-secondary p-2 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={14}/></button>
         </div>
       ))}
     </div>
@@ -505,35 +532,37 @@ const BaristaTab = ({ tr }: { tr: any }) => {
 };
 
 const ReviewsTab = ({ tr, feedback, avgRating, ratingDist, maxRatingCount, markFeedbackRead }: any) => (
-  <div className="space-y-6 page-enter">
-    <div className="card-elevated rounded-2xl p-6 text-center space-y-2">
-      <div className="flex items-center justify-center gap-1 text-amber-500"><Star size={32} fill="currentColor" /></div>
-      <h2 className="text-4xl font-black">{avgRating}</h2>
-      <p className="text-xs font-bold text-muted-foreground uppercase">{tr("Average Customer Rating", "متوسط تقييم العملاء")}</p>
-      <div className="pt-4 space-y-2 max-w-xs mx-auto">
+  <div className="space-y-8 page-enter">
+    <div className="pixel-card pixel-border-wood p-8 text-center">
+      <div className="flex justify-center mb-4 text-warning">
+        <PixelIcon d={PX_ICONS.star} size={32} />
+      </div>
+      <h2 className="pixel-font text-5xl font-black text-primary pixel-text-shadow">{avgRating}</h2>
+      <p className="pixel-font text-[10px] text-foreground/60 font-bold uppercase mt-4 tracking-tighter">{tr("Average Customer Rating", "متوسط تقييم العملاء")}</p>
+      <div className="pt-8 space-y-3 max-w-[240px] mx-auto">
         {ratingDist.map((d: any) => (
-          <div key={d.r} className="flex items-center gap-3">
-            <span className="text-[10px] font-bold w-4">{d.r}</span>
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(d.count / maxRatingCount) * 100}%` }} />
+          <div key={d.r} className="flex items-center gap-4">
+            <span className="pixel-font text-[9px] font-bold w-4 text-secondary">{d.r}</span>
+            <div className="flex-1 h-3 pixel-border-paper bg-opacity-20 overflow-hidden">
+              <div className="h-full bg-primary" style={{ width: `${(d.count / maxRatingCount) * 100}%` }} />
             </div>
-            <span className="text-[10px] font-bold text-muted-foreground w-6">{d.count}</span>
+            <span className="pixel-font text-[9px] font-bold text-foreground/40 w-6">{d.count}</span>
           </div>
         ))}
       </div>
     </div>
-    <div className="space-y-3">
+    <div className="space-y-4">
       {feedback.map((f: any) => (
-        <div key={f.id} className={`card rounded-2xl p-4 space-y-2 relative border-l-4 ${f.read ? "border-transparent" : "border-primary bg-primary/5"}`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-0.5 text-amber-500">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={12} fill={i < f.rating ? "currentColor" : "none"} />)}</div>
-              <span className="text-xs font-bold text-foreground">{f.userName}</span>
+        <div key={f.id} className={`pixel-card pixel-border-paper p-5 relative ${f.read ? "" : "pixel-border-bronze bg-primary/5"}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1 text-warning">{Array.from({ length: 5 }).map((_, i) => <PixelIcon key={i} d={PX_ICONS.star} size={10} color={i < f.rating ? "#F28C28" : "#D9C2A3"} />)}</div>
+              <span className="pixel-font text-[11px] font-bold text-foreground">{f.userName}</span>
             </div>
-            <span className="text-[10px] text-muted-foreground">{new Date(f.createdAt).toLocaleDateString()}</span>
+            <span className="pixel-font text-[8px] text-foreground/40">{new Date(f.createdAt).toLocaleDateString()}</span>
           </div>
-          <p className="text-sm leading-relaxed">{f.comment}</p>
-          {!f.read && <button onClick={() => markFeedbackRead(f.id)} className="text-[10px] font-bold text-primary hover:underline">{tr("Mark as Read", "تحديد كمقروء")}</button>}
+          <p className="pixel-font text-sm leading-relaxed text-secondary">{f.comment}</p>
+          {!f.read && <button onClick={() => markFeedbackRead(f.id)} className="pixel-font text-[9px] font-bold text-primary mt-4 block hover:underline uppercase tracking-tighter">{tr("Mark as Read", "تحديد كمقروء")}</button>}
         </div>
       ))}
     </div>
@@ -691,38 +720,58 @@ export default function Admin() {
   const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = { recommended: { emoji: "⭐", en: "Top Picks", ar: "الأفضل" }, new_items: { emoji: "🆕", en: "New", ar: "جديد" }, soups: { emoji: "🍲", en: "Soup", ar: "شوربة" }, appetizers: { emoji: "🍟", en: "Appetizers", ar: "مقبلات" }, salads: { emoji: "🥗", en: "Salads", ar: "سلطات" }, pasta: { emoji: "🍝", en: "Pasta", ar: "مكرونة" }, tortilla: { emoji: "🌯", en: "Tortilla", ar: "تورتيلا" }, toast: { emoji: "🍞", en: "Toast", ar: "توست" }, croissant: { emoji: "🥐", en: "Croissant", ar: "كرواسون" }, breakfast: { emoji: "🍳", en: "Breakfast", ar: "فطور" }, main_dishes: { emoji: "🍽️", en: "Main Dishes", ar: "أطباق رئيسية" }, burgers: { emoji: "🍔", en: "Burgers", ar: "برجر" }, smash_burgers: { emoji: "🔥", en: "Smash Burgers", ar: "سماش برجر" }, fried_chicken: { emoji: "🍗", en: "Fried Chicken", ar: "فراخ مقلية" }, hot_drinks: { emoji: "☕", en: "Hot Drinks", ar: "مشروبات ساخنة" }, coffee: { emoji: "☕", en: "Coffee", ar: "قهوة" }, corto: { emoji: "🥛", en: "Corto", ar: "كورتو" }, hot_chocolate: { emoji: "🍫", en: "Hot Chocolate", ar: "شوكولاتة ساخنة" }, sahlab: { emoji: "🥛", en: "Sahlab", ar: "سحلب" }, frappuccino: { emoji: "🧊", en: "Frappuccino", ar: "فرابتشينو" }, iced_coffee: { emoji: "🧋", en: "Iced Coffee", ar: "قهوة مثلجة" }, mojitos: { emoji: "🍹", en: "Mojitos", ar: "موجيتو" }, boba_tea: { emoji: "🧋", en: "Boba Tea", ar: "بوبا تي" }, fresh_juices: { emoji: "🍊", en: "Fresh Juices", ar: "عصائر طازجة" }, cocktails: { emoji: "🍸", en: "Cocktails", ar: "كوكتيل" }, smoothies: { emoji: "🥤", en: "Smoothies", ar: "سموذي" }, milkshakes: { emoji: "🥛", en: "Milkshakes", ar: "ميلك شيك" }, waffle: { emoji: "🧇", en: "Waffle", ar: "وافل" }, desserts: { emoji: "🍰", en: "Desserts", ar: "حلويات" }, crepes: { emoji: "🥞", en: "Crepes", ar: "كريب" }, pancakes: { emoji: "🥞", en: "Pancakes", ar: "بان كيك" }, add_ons: { emoji: "➕", en: "Add-ons", ar: "إضافات" }, shisha: { emoji: "💨", en: "Hookah", ar: "شيشة" }, soft_drinks: { emoji: "🥤", en: "Soft Drinks", ar: "مشروبات غازية" } };
 
   if (!authed) return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30">
-      <div className="card-elevated p-8 max-w-xs w-full text-center space-y-4 rounded-3xl">
-        <ShieldCheck size={40} className="mx-auto text-primary" />
-        <h1 className="text-xl font-bold">{tr("Admin Access", "دخول المشرف")}</h1>
+    <div className="min-h-screen flex items-center justify-center bg-muted">
+      <div className="pixel-card pixel-border-wood p-8 max-w-xs w-full text-center space-y-6">
+        <div className="flex justify-center text-primary">
+          <ShieldCheck size={40} />
+        </div>
+        <h1 className="pixel-font text-lg font-bold text-foreground">{tr("Admin Access", "دخول المشرف")}</h1>
         <form onSubmit={(e) => { e.preventDefault(); login(); }}>
-          <input type="password" placeholder="PIN" className="input-field text-center py-3 text-lg font-bold tracking-widest w-full mb-4" value={pin} onChange={e => setPin(e.target.value)} />
-          {pinErr && <p className="text-destructive text-xs mb-4">{pinErr}</p>}
-          <button type="submit" className="btn-primary w-full py-3 rounded-xl font-bold">{tr("Login", "دخول")}</button>
+          <input type="password" placeholder="PIN" className="pixel-input text-center py-4 text-lg font-bold tracking-widest w-full mb-6 pixel-font" value={pin} onChange={e => setPin(e.target.value)} />
+          {pinErr && <p className="pixel-font text-destructive text-[9px] mb-4 uppercase">{pinErr}</p>}
+          <button type="submit" className="pixel-btn pixel-btn-primary w-full py-4 text-xs font-black">{tr("Login", "دخول")}</button>
         </form>
       </div>
     </div>
   );
 
   const TABS: { id: Tab; icon: any; en: string; ar: string; badge?: number }[] = [
-    { id: "overview", icon: <LayoutDashboard size={14}/>, en: "Overview", ar: "الرئيسية" },
-    { id: "menu", icon: <Plus size={14}/>, en: "Menu", ar: "القائمة" },
-    { id: "features", icon: <ToggleRight size={14}/>, en: "Features", ar: "الميزات" },
-    { id: "users", icon: <Users size={14}/>, en: "Users", ar: "المستخدمين" },
-    { id: "chat", icon: <MessageCircle size={14}/>, en: "Chat", ar: "الدردشة", badge: chats.reduce((s, c) => s + (c.unreadAdmin || 0), 0) },
-    { id: "reviews", icon: <Star size={14}/>, en: "Reviews", ar: "تقييمات", badge: feedback.filter(f => !f.read).length },
-    { id: "broadcast", icon: <Megaphone size={14}/>, en: "Broadcast", ar: "إشعارات" },
-    { id: "reels", icon: <Film size={14}/>, en: "Reels", ar: "ريلز" },
-    { id: "barista", icon: <Sparkles size={14}/>, en: "AI Barista", ar: "الباريستا" },
-    { id: "api", icon: <Key size={14}/>, en: "API", ar: "الربط" },
-    { id: "system", icon: <Settings size={14}/>, en: "System", ar: "النظام" },
-    { id: "tables", icon: <LayoutGrid size={14}/>, en: "Tables", ar: "الطاولات" },
+    { id: "overview", icon: <PixelIcon d={PX_ICONS.dashboard} size={14} />, en: "Overview", ar: "الرئيسية" },
+    { id: "menu", icon: <PixelIcon d={PX_ICONS.plus} size={14} />, en: "Menu", ar: "القائمة" },
+    { id: "features", icon: <PixelIcon d={PX_ICONS.features} size={14} />, en: "Features", ar: "الميزات" },
+    { id: "users", icon: <PixelIcon d={PX_ICONS.users} size={14} />, en: "Users", ar: "المستخدمين" },
+    { id: "chat", icon: <PixelIcon d={PX_ICONS.chat} size={14} />, en: "Chat", ar: "الدردشة", badge: chats.reduce((s, c) => s + (c.unreadAdmin || 0), 0) },
+    { id: "reviews", icon: <PixelIcon d={PX_ICONS.star} size={14} />, en: "Reviews", ar: "تقييمات", badge: feedback.filter(f => !f.read).length },
+    { id: "broadcast", icon: <PixelIcon d={PX_ICONS.broadcast} size={14} />, en: "Broadcast", ar: "إشعارات" },
+    { id: "reels", icon: <PixelIcon d={PX_ICONS.reels} size={14} />, en: "Reels", ar: "ريلز" },
+    { id: "barista", icon: <PixelIcon d={PX_ICONS.sparkles} size={14} />, en: "AI Barista", ar: "الباريستا" },
+    { id: "api", icon: <PixelIcon d={PX_ICONS.api} size={14} />, en: "API", ar: "الربط" },
+    { id: "system", icon: <PixelIcon d={PX_ICONS.system} size={14} />, en: "System", ar: "النظام" },
+    { id: "tables", icon: <PixelIcon d={PX_ICONS.menu} size={14} />, en: "Tables", ar: "الطاولات" },
   ];
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
-      <header className="sticky top-0 z-40 bg-primary px-4 py-3 flex items-center gap-3 text-white"><button onClick={() => navigate("/menu")}><ArrowLeft size={18}/></button><span className="font-bold text-sm flex-1">{tr("Azura Admin", "إدارة أزورا")}</span><button onClick={() => { sessionStorage.removeItem("azura-admin"); setAuthed(false); }} className="text-xs opacity-70">Sign out</button></header>
-      <nav className="sticky top-[44px] z-30 bg-card px-3 py-2 overflow-x-auto scroll-hide border-b shadow-sm"><div className="flex gap-2 min-w-max">{TABS.map(t => (<button key={t.id} onClick={() => { setTab(t.id); setSelectedChat(null); }} className={`chip relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${tab === t.id ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}>{t.icon} <span>{tr(t.en, t.ar)}</span>{!!t.badge && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 font-bold">{t.badge}</span>}</button>))}</div></nav>
+      <header className="sticky top-0 z-40 bg-muted px-4 py-4 flex items-center gap-4 text-white pixel-border-wood border-t-0 border-x-0">
+        <button onClick={() => navigate("/menu")} className="pixel-btn pixel-btn-secondary p-2 min-w-0">
+          <ArrowLeft size={16} />
+        </button>
+        <div className="flex flex-col flex-1">
+          <span className="pixel-font font-bold text-lg leading-none text-foreground pixel-text-shadow">AZURA</span>
+          <span className="pixel-font text-[8px] text-foreground/70 tracking-tighter uppercase mt-1">quality is habit</span>
+        </div>
+        <button onClick={() => { sessionStorage.removeItem("azura-admin"); setAuthed(false); }} className="pixel-font text-[9px] text-destructive font-black uppercase underline decoration-2">Sign out</button>
+      </header>
+      <nav className="sticky top-[76px] z-30 bg-card px-3 py-3 overflow-x-auto scroll-hide border-b-4 border-secondary/20 shadow-lg">
+        <div className="flex gap-3 min-w-max">
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => { setTab(t.id); setSelectedChat(null); }} className={`chip relative flex items-center gap-2 px-4 py-2 pixel-font text-[10px] ${tab === t.id ? "chip-active" : "chip-inactive"}`}>
+              {t.icon} <span>{tr(t.en, t.ar)}</span>
+              {!!t.badge && <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[8px] min-w-[18px] h-4 pixel-border-bronze flex items-center justify-center px-1 font-bold">{t.badge}</span>}
+            </button>
+          ))}
+        </div>
+      </nav>
       <main className="max-w-2xl mx-auto px-4 py-6">
         <Suspense fallback={<div className="text-center py-20 opacity-50">Loading...</div>}>
           {tab === "overview" && <OverviewTab tr={tr} users={users} unreadChats={chats.reduce((s,c)=>s+(c.unreadAdmin||0),0)} newReviewsCount={feedback.filter(f=>!f.read).length} />}

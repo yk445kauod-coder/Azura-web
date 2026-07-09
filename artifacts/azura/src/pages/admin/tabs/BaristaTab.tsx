@@ -25,6 +25,7 @@ export const BaristaTab: React.FC<BaristaTabProps> = ({ tr }) => {
   const [apiSettings, setApiSettings] = useState({
     aiEnabled: true,
     groqKey: "",
+    menuNode: "menu",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -95,6 +96,32 @@ export const BaristaTab: React.FC<BaristaTabProps> = ({ tr }) => {
         >
           {apiSettings.aiEnabled ? tr("Disable", "تعطيل") : tr("Enable", "تفعيل")}
         </button>
+      </div>
+
+      {/* Menu Source Section */}
+      <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-orange-500">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles size={18} className="text-orange-500"/>
+          <h3 className="font-bold text-foreground">{tr("Menu Data Source", "مصدر بيانات القائمة")}</h3>
+        </div>
+        <div className="space-y-1">
+          <label className={label}>{tr("Firebase RTDB Menu Node", "مسار القائمة في Firebase")}</label>
+          <div className="flex gap-2">
+            <input
+              className={inp}
+              value={apiSettings.menuNode || "menu"}
+              onChange={e => setApiSettings({ ...apiSettings, menuNode: e.target.value })}
+              placeholder="e.g. menu or menu_v2"
+            />
+            <div className="px-3 py-2 bg-muted rounded-xl flex items-center gap-2 text-[10px] font-bold text-muted-foreground whitespace-nowrap">
+              <MapPin size={12} />
+              {tr("Current Node", "المسار الحالي")}: {apiSettings.menuNode || "menu"}
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground italic mt-1">
+            {tr("* The AI uses this node to read current items, prices, and availability.", "* يستخدم الذكاء الاصطناعي هذا المسار لقراءة الأصناف والأسعار المتاحة حالياً.")}
+          </p>
+        </div>
       </div>
 
       {/* Persona Section */}

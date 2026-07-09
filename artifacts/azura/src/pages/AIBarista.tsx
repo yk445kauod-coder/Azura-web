@@ -134,6 +134,7 @@ export default function AIBarista() {
 
   const [input, setInput] = useState("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>(STATIC_MENU);
+  const [menuNode, setMenuNode] = useState("menu");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greetingMsg, setGreetingMsg] = useState("");
   const [greeted, setGreeted] = useState(false);
@@ -159,7 +160,7 @@ export default function AIBarista() {
     const apiRef = ref(db, "api-settings");
     const unsubscribe = onValue(apiRef, (snap) => {
       if (snap.exists()) {
-        const data = snap.val() as Record<string, unknown>;
+        const data = snap.val() as Record<string, any>;
         const storedKey = (data.groqKey || data.geminiKey) as string;
         if (storedKey) {
           const decrypted = decryptKey(storedKey);
@@ -168,13 +169,14 @@ export default function AIBarista() {
           setEgyKey("");
         }
         setAiEnabled(data.aiEnabled !== false);
+        setMenuNode(data.menuNode || "menu");
       }
     });
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    const menuRef = ref(db, "menu");
+    const menuRef = ref(db, menuNode);
     onValue(menuRef, (snap) => {
       if (!snap.exists()) return;
       const data = snap.val() as Record<string, Record<string, unknown>>;
@@ -194,6 +196,10 @@ export default function AIBarista() {
       setMenuItems(result);
     });
 
+    return () => off(menuRef);
+  }, [menuNode]);
+
+  useEffect(() => {
     const cfgRef = ref(db, "ai-config");
     onValue(cfgRef, (snap) => {
       if (snap.exists()) {
@@ -203,7 +209,7 @@ export default function AIBarista() {
       }
     });
 
-    return () => { off(ref(db, "menu")); off(ref(db, "ai-config")); };
+    return () => { off(cfgRef); };
   }, [lang]);
 
   useEffect(() => {

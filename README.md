@@ -47,3 +47,5 @@ cd artifacts/azura
 pnpm install
 pnpm run build
 ```
+
+✨ jules wase her !

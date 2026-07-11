@@ -437,67 +437,35 @@ Always prioritize ROI and customer lifetime value (LTV).`;
   }, []);
 
   return (
-    <div className="flex flex-col h-[600px] bg-background rounded-2xl border overflow-hidden">
+    <div className="flex flex-col h-[600px] pixel-card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-primary/10 to-transparent">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <Bot size={16} className="text-primary" />
+      <div className="flex items-center justify-between px-4 py-4 pixel-border-wood border-t-0 border-x-0 bg-primary/10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 pixel-border-wood flex items-center justify-center text-primary">
+            <Bot size={20} />
           </div>
           <div>
-            <p className="font-bold text-sm">{tr("AI Assistant", "المساعد الذكي")}</p>
-            <p className="text-[10px] text-muted-foreground">{CAFE_CONTEXT.name}</p>
+            <p className="pixel-font text-[10px] font-black uppercase">{tr("AI Advisor", "المستشار الذكي")}</p>
+            <p className="pixel-font text-[7px] text-foreground/40 mt-1 uppercase tracking-tighter">{CAFE_CONTEXT.name}</p>
           </div>
         </div>
-        <div className="flex gap-1">
-          <button
-            onClick={exportToCSV}
-            className="p-2 hover:bg-muted rounded-lg transition-colors text-green-600"
-            title={tr("Export CSV", "تصدير CSV")}
-          >
-            <FileSpreadsheet size={16} />
-          </button>
-          <button 
-            onClick={() => setShowMenuViewer(!showMenuViewer)}
-            className={`p-2 hover:bg-muted rounded-lg transition-colors ${showMenuViewer ? 'bg-primary/10' : ''}`}
-            title={tr("View Menu", "عرض القائمة")}
-          >
-            <BookOpen size={14} className={showMenuViewer ? 'text-primary' : ''} />
-          </button>
-          <button 
-            onClick={loadAllData}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-            title={tr("Refresh Data", "تحديث البيانات")}
-          >
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-          </button>
-          <button
-            onClick={() => setShowPromptPreview(!showPromptPreview)}
-            className={`p-2 hover:bg-muted rounded-lg transition-colors ${showPromptPreview ? 'bg-purple-100 text-purple-600' : ''}`}
-            title={tr("System Prompt", "إعدادات النظام")}
-          >
-            <Bot size={14} />
-          </button>
-          <button
-            onClick={clearHistory}
-            className="p-2 hover:bg-red-50 text-muted-foreground hover:text-red-500 rounded-lg transition-colors"
-            title={tr("Clear Chat", "مسح المحادثة")}
-          >
-            <Trash2 size={14} />
-          </button>
+        <div className="flex gap-2">
+          <button onClick={exportToCSV} className="pixel-btn pixel-btn-secondary p-2 text-green-600" title={tr("Export CSV", "تصدير CSV")}><FileSpreadsheet size={14} /></button>
+          <button onClick={() => setShowMenuViewer(!showMenuViewer)} className={`pixel-btn ${showMenuViewer ? 'pixel-btn-primary' : 'pixel-btn-secondary'} p-2`} title={tr("View Menu", "عرض القائمة")}><BookOpen size={14} /></button>
+          <button onClick={loadAllData} className="pixel-btn pixel-btn-secondary p-2" title={tr("Refresh Data", "تحديث البيانات")}><RefreshCw size={14} className={loading ? "animate-spin" : ""} /></button>
+          <button onClick={() => setShowPromptPreview(!showPromptPreview)} className={`pixel-btn ${showPromptPreview ? 'pixel-btn-primary' : 'pixel-btn-secondary'} p-2`} title={tr("System Prompt", "إعدادات النظام")}><Bot size={14} /></button>
+          <button onClick={clearHistory} className="pixel-btn pixel-btn-secondary p-2 text-red-600" title={tr("Clear Chat", "مسح المحادثة")}><Trash2 size={14} /></button>
         </div>
       </div>
 
       {/* Prompt Preview */}
       {showPromptPreview && (
-        <div className="bg-purple-50 border-b p-4 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-xs font-black text-purple-700 uppercase tracking-widest flex items-center gap-2">
-              <Bot size={12}/> {tr("AI System Prompt (Real-time Menu Injected)", "موجه النظام (حقن المنيو المباشر)")}
-            </h4>
-            <button onClick={() => setShowPromptPreview(false)} className="text-purple-400 hover:text-purple-600"><XCircle size={14}/></button>
+        <div className="pixel-card pixel-border-bronze m-4 p-4 animate-in slide-in-from-top-2 bg-[#F7F2E8]">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="pixel-font text-[8px] font-black uppercase text-secondary tracking-widest">{tr("AI System Prompt", "موجه النظام")}</h4>
+            <button onClick={() => setShowPromptPreview(false)} className="pixel-btn pixel-btn-secondary p-1"><XCircle size={12}/></button>
           </div>
-          <pre className="text-[10px] font-mono bg-white/50 p-3 rounded-lg border border-purple-100 whitespace-pre-wrap max-h-40 overflow-y-auto text-purple-900 leading-relaxed">
+          <pre className="pixel-font text-[7px] bg-white p-3 pixel-border-paper whitespace-pre-wrap max-h-40 overflow-y-auto leading-relaxed">
             {buildSystemPrompt()}
           </pre>
         </div>
@@ -505,103 +473,48 @@ Always prioritize ROI and customer lifetime value (LTV).`;
 
       {/* Menu Viewer */}
       {showMenuViewer && (
-        <div className="border-b bg-muted/30 p-3">
+        <div className="pixel-card pixel-border-paper m-4 p-3 bg-white">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <FileText size={14} className="text-primary" />
-              <span className="text-xs font-medium">{tr("Digital Menu", "القائمة الرقمية")}</span>
+              <FileText size={12} className="text-primary" />
+              <span className="pixel-font text-[8px] font-black uppercase">{tr("Digital Menu", "القائمة الرقمية")}</span>
             </div>
-            <div className="flex gap-1">
-              <a
-                href="https://azura-app.pages.dev"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                title={tr("Open in new tab", "فتح في نافذة جديدة")}
-              >
-                <ExternalLink size={12} />
-              </a>
-              <button 
-                onClick={toggleFullscreen}
-                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                title={isFullscreen ? tr("Exit fullscreen", "الخروج") : tr("Fullscreen", "ملء الشاشة")}
-              >
-                {isFullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
-              </button>
-              <button 
-                onClick={() => setShowMenuViewer(false)}
-                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-              >
-                <XCircle size={12} />
-              </button>
+            <div className="flex gap-2">
+              <a href="https://azura-app.pages.dev" target="_blank" rel="noopener noreferrer" className="pixel-btn pixel-btn-secondary p-1.5"><ExternalLink size={12} /></a>
+              <button onClick={toggleFullscreen} className="pixel-btn pixel-btn-secondary p-1.5">{isFullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}</button>
+              <button onClick={() => setShowMenuViewer(false)} className="pixel-btn pixel-btn-secondary p-1.5"><XCircle size={12} /></button>
             </div>
           </div>
-          <div 
-            ref={menuViewerRef}
-            className="w-full h-48 rounded-lg overflow-hidden border bg-white"
-          >
-            <iframe 
-              src="https://azura-app.pages.dev"
-              className="w-full h-full"
-              title={tr("Azura Menu", "قائمة أزورا")}
-              allowFullScreen
-            />
-          </div>
+          <div ref={menuViewerRef} className="w-full h-48 pixel-border-wood overflow-hidden bg-white"><iframe src="https://azura-app.pages.dev" className="w-full h-full" title={tr("Azura Menu", "قائمة أزورا")} allowFullScreen /></div>
         </div>
       )}
 
       {/* Analytics Quick View */}
       {analytics && !showMenuViewer && (
-        <div className="px-4 py-2 border-b bg-muted/30">
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-1 text-xs">
-              <Users size={12} className="text-primary" />
-              <span className="font-medium">{analytics.activeToday}</span>
-              <span className="text-muted-foreground">{tr("active today", "نشط اليوم")}</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs">
-              <RefreshCw size={12} className="text-blue-500" />
-              <span className="font-medium">{analytics.returningCustomers}</span>
-              <span className="text-muted-foreground">{tr("returning", "عائد")}</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs">
-              <Maximize2 size={12} className="text-orange-500" />
-              <span className="font-medium">{analytics.heavyUsers}</span>
-              <span className="text-muted-foreground">{tr("heavy", "نشط جداً")}</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs">
-              <span className={analytics.avgRating >= 4 ? "text-green-500" : "text-yellow-500"}>⭐</span>
-              <span className="font-medium">{analytics.avgRating}</span>
-            </div>
+        <div className="px-4 py-3 pixel-border-paper border-t-0 border-x-0 bg-muted/10">
+          <div className="flex gap-4 overflow-x-auto scroll-hide">
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-primary pixel-shadow-sm" /><span className="pixel-font text-[8px] font-black">{analytics.activeToday} <span className="opacity-50 font-medium lowercase">{tr("active", "نشط")}</span></span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 pixel-shadow-sm" /><span className="pixel-font text-[8px] font-black">{analytics.returningCustomers} <span className="opacity-50 font-medium lowercase">{tr("returning", "عائد")}</span></span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-orange-500 pixel-shadow-sm" /><span className="pixel-font text-[8px] font-black">{analytics.heavyUsers} <span className="opacity-50 font-medium lowercase">{tr("heavy", "نشط جداً")}</span></span></div>
+            <div className="flex items-center gap-2"><span className="text-xs">⭐</span><span className="pixel-font text-[8px] font-black">{analytics.avgRating}</span></div>
           </div>
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F7F2E8]">
         {messages.map((msg) => (
-          <div 
-            key={msg.id} 
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div 
-              className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
-                msg.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-br-md"
-                  : "bg-muted text-foreground rounded-bl-md"
-              }`}
-            >
+          <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-[85%] p-4 pixel-font text-[9px] leading-relaxed ${msg.role === "user" ? "pixel-border-bronze bg-primary/10 text-foreground" : "pixel-border-paper bg-white"}`}>
               {msg.content}
             </div>
           </div>
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-muted px-4 py-2.5 rounded-2xl rounded-bl-md">
+            <div className="pixel-card pixel-border-paper p-3 bg-white">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                {[0,1,2].map(i => <div key={i} className="w-2 h-2 bg-primary animate-bounce" style={{ animationDelay: `${i*150}ms` }} />)}
               </div>
             </div>
           </div>
@@ -610,24 +523,9 @@ Always prioritize ROI and customer lifetime value (LTV).`;
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={tr("Ask me anything about Azura...", "اسألني أي شيء عن أزورا...")}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-sm"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || loading}
-            className="btn-primary px-4 rounded-xl flex items-center justify-center disabled:opacity-50"
-          >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-          </button>
-        </div>
+      <div className="p-4 pixel-border-wood border-b-0 border-x-0 bg-card flex gap-3">
+        <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder={tr("Ask the Advisor...", "اسأل المستشار...")} className="flex-1 pixel-input text-[9px] py-3" />
+        <button onClick={handleSend} disabled={!input.trim() || loading} className="pixel-btn pixel-btn-primary p-3 disabled:opacity-50">{loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}</button>
       </div>
     </div>
   );

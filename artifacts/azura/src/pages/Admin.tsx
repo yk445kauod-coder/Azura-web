@@ -333,12 +333,12 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
 
 const FeaturesTab = ({ tr, featureFlags, toggleFeatureFlag, savingFlag }: { tr: any, featureFlags: any, toggleFeatureFlag: any, savingFlag: string | null }) => (
   <div className="space-y-4 page-enter">
-    <div className="card-elevated rounded-2xl p-5 space-y-4">
-      <h3 className="font-bold text-foreground flex items-center gap-2"><ToggleRight size={18} className="text-primary"/> {tr("Feature Controls","التحكم في الميزات")}</h3>
-      {[{ id: "baristaEnabled", icon: <Sparkles size={16}/>, title: tr("AI Barista", "الباريستا الذكي") }, { id: "reelsEnabled", icon: <Film size={16}/>, title: tr("Reels Hub", "مركز الريلز") }, { id: "supportEnabled", icon: <MessageCircle size={16}/>, title: tr("Support Chat", "دردشة الدعم") }].map((f) => (
-        <div key={f.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/40">
-          <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">{f.icon}</div><p className="text-xs font-bold">{f.title}</p></div>
-          <button onClick={() => toggleFeatureFlag(f.id, !featureFlags[f.id as keyof typeof featureFlags])} disabled={savingFlag === f.id} className={`w-12 h-6 rounded-full transition-colors flex items-center px-1 ${featureFlags[f.id as keyof typeof featureFlags] ? "bg-green-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${featureFlags[f.id as keyof typeof featureFlags] ? "translate-x-6" : ""}`} /></button>
+    <div className="pixel-card p-5 space-y-5">
+      <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.features} size={14}/> {tr("Feature Controls","التحكم في الميزات")}</h3>
+      {[{ id: "baristaEnabled", icon: PX_ICONS.sparkles, title: tr("AI Barista", "الباريستا الذكي") }, { id: "reelsEnabled", icon: PX_ICONS.reels, title: tr("Reels Hub", "مركز الريلز") }, { id: "supportEnabled", icon: PX_ICONS.chat, title: tr("Support Chat", "دردشة الدعم") }].map((f) => (
+        <div key={f.id} className="flex items-center justify-between p-4 pixel-border-paper bg-opacity-30">
+          <div className="flex items-center gap-3"><div className="w-8 h-8 pixel-border-wood flex items-center justify-center text-primary"><PixelIcon d={f.icon} size={14}/></div><p className="pixel-font text-[9px] font-black">{f.title}</p></div>
+          <button onClick={() => toggleFeatureFlag(f.id, !featureFlags[f.id as keyof typeof featureFlags])} disabled={savingFlag === f.id} className={`w-14 h-7 pixel-border-wood flex items-center px-1 transition-all ${featureFlags[f.id as keyof typeof featureFlags] ? "bg-green-600" : "bg-zinc-700"}`}><div className={`w-5 h-5 bg-white pixel-shadow transition-transform ${featureFlags[f.id as keyof typeof featureFlags] ? "translate-x-6" : "translate-x-0"}`} /></button>
         </div>
       ))}
     </div>
@@ -347,7 +347,7 @@ const FeaturesTab = ({ tr, featureFlags, toggleFeatureFlag, savingFlag }: { tr: 
 
 const UsersTab = ({ tr, users, deleteUser, formatDuration }: { tr: any, users: any[], deleteUser: any, formatDuration: any }) => (
   <div className="space-y-4 page-enter">
-    <div className="card-elevated rounded-2xl p-5 space-y-2"><h3 className="font-bold text-foreground flex items-center gap-2"><Users size={18} className="text-primary"/> {tr("User Management","إدارة المستخدمين")}</h3></div>
+    <div className="pixel-card p-5 space-y-2"><h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.users} size={14}/> {tr("User Management","إدارة المستخدمين")}</h3></div>
     <div className="space-y-4">
       {users.map((u) => (
         <div key={u.uid} className="pixel-card pixel-border-paper p-4 flex items-center gap-4 group active:scale-[0.99] transition-transform">
@@ -363,23 +363,37 @@ const UsersTab = ({ tr, users, deleteUser, formatDuration }: { tr: any, users: a
 const ChatTab = ({ tr, isRTL, selectedChat, setSelectedChat, chats, chatMsgs, chatInput, setChatInput, sendReply, deleteChat, chatBottomRef }: { tr: any, isRTL: boolean, selectedChat: string | null, setSelectedChat: any, chats: ChatSession[], chatMsgs: ChatMsg[], chatInput: string, setChatInput: any, sendReply: any, deleteChat: any, chatBottomRef: any }) => (
   <div className="flex flex-col h-[70dvh] page-enter">
     {selectedChat ? (
-      <div className="flex flex-col h-full rounded-2xl overflow-hidden border border-border/40 bg-card/50">
-        <div className="p-3 bg-primary text-white flex items-center gap-3"><button onClick={() => setSelectedChat(null)} className="p-1 hover:bg-white/20 rounded-full transition-colors"><ArrowLeft size={18}/></button><div className="flex-1 min-w-0"><p className="font-bold text-sm truncate">{chats.find(c => c.uid === selectedChat)?.userName || "Chat"}</p></div><button onClick={() => deleteChat(selectedChat)} className="p-1.5 hover:bg-white/20 rounded-full"><Trash2 size={16}/></button></div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-hide">
+      <div className="flex flex-col h-full pixel-card overflow-hidden">
+        <div className="p-4 pixel-border-wood border-t-0 border-x-0 bg-primary/10 flex items-center gap-4">
+           <button onClick={() => setSelectedChat(null)} className="pixel-btn pixel-btn-secondary p-2"><ArrowLeft size={14}/></button>
+           <div className="flex-1 min-w-0"><p className="pixel-font text-[10px] font-black truncate">{chats.find(c => c.uid === selectedChat)?.userName || "Chat"}</p></div>
+           <button onClick={() => deleteChat(selectedChat)} className="pixel-btn pixel-btn-secondary p-2"><Trash2 size={14}/></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-hide bg-[#F7F2E8]">
           {chatMsgs.map((m) => (
-            <div key={m.id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}><div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${m.sender === "admin" ? "bg-primary text-white rounded-tr-none" : "bg-muted text-foreground rounded-tl-none"}`}><p className="whitespace-pre-wrap leading-relaxed">{m.text}</p></div></div>
+            <div key={m.id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] p-4 pixel-font text-[9px] leading-relaxed ${m.sender === "admin" ? "pixel-border-bronze bg-primary/10 text-foreground" : "pixel-border-paper bg-white"}`}>
+                <p className="whitespace-pre-wrap">{m.text}</p>
+              </div>
+            </div>
           ))}
           <div ref={chatBottomRef} />
         </div>
-        <div className="p-3 bg-background/50 border-t border-border/40 flex gap-2"><input type="text" value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendReply()} placeholder={tr("Type a reply...", "اكتب رداً...")} className="flex-1 bg-muted rounded-xl px-4 py-2 text-sm outline-none" /><button onClick={sendReply} className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center transition-transform active:scale-95"><Plus size={18}/></button></div>
+        <div className="p-4 pixel-border-wood border-b-0 border-x-0 bg-card flex gap-3">
+          <input type="text" value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendReply()} placeholder={tr("Type a reply...", "اكتب رداً...")} className="flex-1 pixel-input text-[9px] py-3" />
+          <button onClick={sendReply} className="pixel-btn pixel-btn-primary p-3"><Plus size={16}/></button>
+        </div>
       </div>
     ) : (
-      <div className="space-y-2 overflow-y-auto pr-1">
+      <div className="space-y-3 overflow-y-auto pr-1">
         {chats.map((c) => (
-          <div key={c.uid} onClick={() => setSelectedChat(c.uid)} className="card rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition-all relative">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg">{c.userName?.[0]?.toUpperCase() || "?"}</div>
-            <div className="flex-1 min-w-0"><div className="flex items-center justify-between"><p className="font-bold text-sm truncate">{c.userName}</p><p className="text-[10px] text-muted-foreground">{new Date(c.lastAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</p></div><p className="text-xs text-muted-foreground truncate mt-0.5">{c.lastMessage}</p></div>
-            {(c.unreadAdmin || 0) > 0 && <span className="absolute top-4 right-4 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white" />}
+          <div key={c.uid} onClick={() => setSelectedChat(c.uid)} className="pixel-card pixel-border-paper p-4 flex items-center gap-4 cursor-pointer hover:pixel-border-bronze transition-all relative group">
+            <div className="w-12 h-12 pixel-border-wood flex items-center justify-center text-primary font-black text-lg pixel-font">{c.userName?.[0]?.toUpperCase() || "?"}</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between"><p className="pixel-font text-[10px] font-black truncate">{c.userName}</p><p className="pixel-font text-[7px] text-foreground/40">{new Date(c.lastAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</p></div>
+              <p className="pixel-font text-[8px] text-foreground/60 truncate mt-1">{c.lastMessage}</p>
+            </div>
+            {(c.unreadAdmin || 0) > 0 && <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 pixel-border-paper" />}
           </div>
         ))}
       </div>
@@ -389,16 +403,22 @@ const ChatTab = ({ tr, isRTL, selectedChat, setSelectedChat, chats, chatMsgs, ch
 
 const BroadcastTab = ({ tr, newBroadcast, setNewBroadcast, sendBroadcast, sendingBroadcast, bannerContent, setBannerContent, bannerBgColor, setBannerBgColor, bannerTextColor, setBannerTextColor, bannerEnabled, saveBannerEnabled, saveBanner, savingBanner, broadcasts, deleteBroadcast }: { tr: any, newBroadcast: any, setNewBroadcast: any, sendBroadcast: any, sendingBroadcast: boolean, bannerContent: string, setBannerContent: any, bannerBgColor: string, setBannerBgColor: any, bannerTextColor: string, setBannerTextColor: any, bannerEnabled: boolean, saveBannerEnabled: any, saveBanner: any, savingBanner: boolean, broadcasts: Broadcast[], deleteBroadcast: any }) => (
   <div className="space-y-6 page-enter">
-    <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-primary">
-      <h3 className="font-bold text-foreground flex items-center gap-2"><Megaphone size={18} className="text-primary"/> {tr("Global Broadcast","إرسال إشعار عام")}</h3>
-      <div className="grid grid-cols-2 gap-3"><input className="input-field px-3 py-2.5 text-sm" placeholder="Title (EN)" value={newBroadcast.title} onChange={e => setNewBroadcast({ ...newBroadcast, title: e.target.value })} /><input className="input-field px-3 py-2.5 text-sm" dir="rtl" placeholder="Title (AR)" value={newBroadcast.titleAr} onChange={e => setNewBroadcast({ ...newBroadcast, titleAr: e.target.value })} /></div>
-      <textarea className="input-field px-3 py-2.5 text-sm min-h-[80px]" placeholder="Message (EN)" value={newBroadcast.message} onChange={e => setNewBroadcast({ ...newBroadcast, message: e.target.value })} />
-      <button onClick={sendBroadcast} disabled={sendingBroadcast || !newBroadcast.title} className="btn-primary w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">{sendingBroadcast ? <RotateCcw size={16} className="animate-spin"/> : <Plus size={16}/>} {tr("Send Now", "إرسال الآن")}</button>
+    <div className="pixel-card pixel-border-wood p-5 space-y-5">
+      <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.broadcast} size={14}/> {tr("Global Broadcast","إرسال إشعار عام")}</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <input className="pixel-input text-[9px]" placeholder="Title (EN)" value={newBroadcast.title} onChange={e => setNewBroadcast({ ...newBroadcast, title: e.target.value })} />
+        <input className="pixel-input text-[9px]" dir="rtl" placeholder="Title (AR)" value={newBroadcast.titleAr} onChange={e => setNewBroadcast({ ...newBroadcast, titleAr: e.target.value })} />
+      </div>
+      <textarea className="pixel-input text-[9px] h-24" placeholder="Message (EN)" value={newBroadcast.message} onChange={e => setNewBroadcast({ ...newBroadcast, message: e.target.value })} />
+      <button onClick={sendBroadcast} disabled={sendingBroadcast || !newBroadcast.title} className="pixel-btn pixel-btn-primary w-full py-4 text-[10px] font-black flex items-center justify-center gap-3">{sendingBroadcast ? <RotateCcw size={16} className="animate-spin"/> : <PixelIcon d={PX_ICONS.plus} size={16}/>} {tr("Send Now", "إرسال الآن")}</button>
     </div>
-    <div className="card-elevated rounded-2xl p-5 space-y-4">
-      <div className="flex items-center justify-between"><h3 className="font-bold text-foreground flex items-center gap-2"><LayoutDashboard size={18} className="text-primary"/> {tr("Homepage Banner","بانر الصفحة الرئيسية")}</h3><button onClick={() => saveBannerEnabled(!bannerEnabled)} className={`w-12 h-6 rounded-full transition-colors flex items-center px-1 ${bannerEnabled ? "bg-green-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${bannerEnabled ? "translate-x-6" : ""}`} /></button></div>
-      <textarea className="input-field px-3 py-2.5 text-sm min-h-[60px]" placeholder="Banner content..." value={bannerContent} onChange={e => setBannerContent(e.target.value)} />
-      <button onClick={saveBanner} disabled={savingBanner} className="btn-primary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2">{savingBanner ? <RotateCcw size={16} className="animate-spin"/> : <Save size={16}/>} {tr("Update Banner", "تحديث البانر")}</button>
+    <div className="pixel-card p-5 space-y-5">
+      <div className="flex items-center justify-between">
+        <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.dashboard} size={14}/> {tr("Homepage Banner","بانر الصفحة الرئيسية")}</h3>
+        <button onClick={() => saveBannerEnabled(!bannerEnabled)} className={`w-14 h-8 pixel-border-wood flex items-center px-1 transition-colors ${bannerEnabled ? "bg-green-500" : "bg-muted"}`}><div className={`w-4 h-4 bg-white pixel-shadow-sm transition-transform ${bannerEnabled ? "translate-x-6" : ""}`} /></button>
+      </div>
+      <textarea className="pixel-input text-[9px] h-20" placeholder="Banner content..." value={bannerContent} onChange={e => setBannerContent(e.target.value)} />
+      <button onClick={saveBanner} disabled={savingBanner} className="pixel-btn pixel-btn-secondary w-full py-4 text-[10px] font-black flex items-center justify-center gap-3">{savingBanner ? <RotateCcw size={16} className="animate-spin"/> : <Save size={16}/>} {tr("Update Banner", "تحديث البانر")}</button>
     </div>
   </div>
 );
@@ -448,39 +468,39 @@ const SystemTab = ({ tr }: { tr: any }) => {
 
   return (
     <div className="space-y-6 page-enter pb-10">
-      <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-primary">
-        <h3 className="font-bold flex items-center gap-2"><UploadCloud size={18}/> {tr("R2 Fallback Config", "إعدادات الطوارئ R2")}</h3>
-        <input className="input-field px-3 py-2 text-sm" placeholder="Endpoint" value={r2Config.endpoint} onChange={e => setR2Config({...r2Config, endpoint: e.target.value})}/>
-        <div className="grid grid-cols-2 gap-3">
-          <input className="input-field px-3 py-2 text-sm" type="password" placeholder="Access Key" value={r2Config.accessKey} onChange={e => setR2Config({...r2Config, accessKey: e.target.value})}/>
-          <input className="input-field px-3 py-2 text-sm" type="password" placeholder="Secret Key" value={r2Config.secretKey} onChange={e => setR2Config({...r2Config, secretKey: e.target.value})}/>
+      <div className="pixel-card pixel-border-bronze p-5 space-y-5">
+        <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.api} size={14}/> {tr("R2 Fallback Config", "إعدادات الطوارئ R2")}</h3>
+        <input className="pixel-input text-[9px] w-full" placeholder="Endpoint" value={r2Config.endpoint} onChange={e => setR2Config({...r2Config, endpoint: e.target.value})}/>
+        <div className="grid grid-cols-2 gap-4">
+          <input className="pixel-input text-[9px] w-full" type="password" placeholder="Access Key" value={r2Config.accessKey} onChange={e => setR2Config({...r2Config, accessKey: e.target.value})}/>
+          <input className="pixel-input text-[9px] w-full" type="password" placeholder="Secret Key" value={r2Config.secretKey} onChange={e => setR2Config({...r2Config, secretKey: e.target.value})}/>
         </div>
-        <div className="flex gap-2">
-          <button onClick={async () => { setR2Loading(true); try { await testR2Connection(r2Config); swalSuccess("Connected!"); } catch(e){ swalError("Failed"); } setR2Loading(false); }} className="flex-1 btn-secondary py-2 rounded-xl text-xs font-bold">Test</button>
-          <button onClick={async () => { await smartSet("r2-config", r2Config); swalSuccess("Saved!"); }} className="flex-1 btn-primary py-2 rounded-xl text-xs font-bold">Save</button>
+        <div className="flex gap-3">
+          <button onClick={async () => { setR2Loading(true); try { await testR2Connection(r2Config); swalSuccess("Connected!"); } catch(e){ swalError("Failed"); } setR2Loading(false); }} className="flex-1 pixel-btn pixel-btn-secondary text-[8px]">{r2Loading ? "..." : "Test"}</button>
+          <button onClick={async () => { await smartSet("r2-config", r2Config); swalSuccess("Saved!"); }} className="flex-1 pixel-btn pixel-btn-primary text-[8px]">Save</button>
         </div>
-        <button onClick={handleGlobalSync} className="w-full py-3 bg-orange-500 text-white rounded-xl text-xs font-bold mt-2">Sync R2 to Firebase</button>
+        <button onClick={handleGlobalSync} className="w-full pixel-btn pixel-btn-secondary py-3 text-[8px] font-black text-white bg-orange-600 border-orange-800">Sync R2 to Firebase</button>
       </div>
 
-      <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-blue-500">
-        <h3 className="font-bold flex items-center gap-2"><Archive size={18}/> {tr("Backup & Restore", "النسخ الاحتياطي")}</h3>
-        <button onClick={createBackup} disabled={loading} className="btn-primary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2"><Download size={16}/> {tr("Create New Backup", "إنشاء نسخة احتياطية")}</button>
-        <div className="space-y-2">
+      <div className="pixel-card pixel-border-wood p-5 space-y-5">
+        <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.reels} size={14}/> {tr("Backup & Restore", "النسخ الاحتياطي")}</h3>
+        <button onClick={createBackup} disabled={loading} className="pixel-btn pixel-btn-primary w-full py-4 text-[9px] font-black flex items-center justify-center gap-3"><Download size={14}/> {tr("Create New Backup", "إنشاء نسخة احتياطية")}</button>
+        <div className="space-y-3">
           {backups.map(b => (
-            <div key={b.id} className="card rounded-xl p-3 flex items-center justify-between">
-              <div><p className="text-sm font-bold">{b.name}</p><p className="text-[10px] text-muted-foreground">{new Date(b.date).toLocaleString()}</p></div>
+            <div key={b.id} className="pixel-card pixel-border-paper p-3 flex items-center justify-between bg-opacity-40">
+              <div><p className="pixel-font text-[9px] font-black">{b.name}</p><p className="pixel-font text-[7px] text-foreground/40 mt-1">{new Date(b.date).toLocaleString()}</p></div>
               <div className="flex gap-2">
-                <button onClick={async () => { setLoading(true); try { for(const [p, v] of Object.entries(b.data)) await set(ref(db, p), v); swalSuccess("Restored!"); } catch(e){ swalError("Failed"); } setLoading(false); }} className="p-2 bg-primary/10 text-primary rounded-lg"><UploadCloud size={14}/></button>
-                <button onClick={() => smartRemove(`backups/${b.id}`)} className="p-2 bg-destructive/10 text-destructive rounded-lg"><Trash2 size={14}/></button>
+                <button onClick={async () => { setLoading(true); try { for(const [p, v] of Object.entries(b.data)) await set(ref(db, p), v); swalSuccess("Restored!"); } catch(e){ swalError("Failed"); } setLoading(false); }} className="pixel-btn pixel-btn-primary p-2"><UploadCloud size={12}/></button>
+                <button onClick={() => smartRemove(`backups/${b.id}`)} className="pixel-btn pixel-btn-secondary p-2"><Trash2 size={12}/></button>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="card-elevated rounded-2xl p-5 border-l-4 border-destructive space-y-4">
-        <h3 className="font-bold text-destructive flex items-center gap-2"><RotateCcw size={18}/> {tr("Critical Actions","عمليات خطيرة")}</h3>
-        <button onClick={async () => { if (await swalConfirm(tr("Wipe all data?", "مسح كل البيانات؟"), tr("This cannot be undone.", "لا يمكن التراجع."))) { ["menu", "users", "feedback", "support-chat", "broadcast", "reels", "tables", "feature-flags", "homepage-banner", "conversations"].forEach(p => remove(ref(db, p))); swalSuccess("System reset!"); } }} className="w-full py-3 rounded-xl bg-destructive text-white font-bold flex items-center justify-center gap-2"><Trash2 size={16}/> {tr("Reset All Data","إعادة تعيين كل البيانات")}</button>
+      <div className="pixel-card p-5 border-destructive/20 space-y-5">
+        <h3 className="pixel-font text-[10px] text-destructive flex items-center gap-2 uppercase tracking-tighter font-black"><PixelIcon d={PX_ICONS.system} size={14}/> {tr("Critical Actions","عمليات خطيرة")}</h3>
+        <button onClick={async () => { if (await swalConfirm(tr("Wipe all data?", "مسح كل البيانات؟"), tr("This cannot be undone.", "لا يمكن التراجع."))) { ["menu", "users", "feedback", "support-chat", "broadcast", "reels", "tables", "feature-flags", "homepage-banner", "conversations"].forEach(p => remove(ref(db, p))); swalSuccess("System reset!"); } }} className="w-full pixel-btn pixel-btn-secondary py-4 text-[10px] font-black text-white bg-destructive border-red-900 flex items-center justify-center gap-3"><Trash2 size={16}/> {tr("Reset All Data","إعادة تعيين كل البيانات")}</button>
       </div>
     </div>
   );
@@ -499,32 +519,39 @@ const BaristaTab = ({ tr }: { tr: any }) => {
     return () => { off(cfgRef); off(apiRef); };
   }, []);
   const handleSave = async () => { setSaving(true); try { await smartSet("ai-config", config); await smartSet("api-settings", apiSettings); swalSuccess(tr("Saved!", "تم الحفظ!")); } catch (err) { swalError(tr("Error", "خطأ")); } setSaving(false); };
-  const inp = "input-field px-3 py-2 text-sm w-full";
-  const lbl = "text-[11px] font-bold text-muted-foreground uppercase block mb-1";
-  if (loading) return <div className="py-20 text-center animate-pulse">{tr("Loading...", "جاري التحميل...")}</div>;
+  const inp = "pixel-input text-[9px] w-full";
+  const lbl = "pixel-font text-[8px] text-foreground/60 uppercase block mb-2 font-black";
+  if (loading) return <div className="py-20 text-center pixel-font animate-pulse text-[10px] uppercase">{tr("Loading...", "جاري التحميل...")}</div>;
   return (
     <div className="space-y-6 page-enter pb-10">
-      <div className="card-elevated rounded-2xl p-5 flex items-center justify-between border-l-4 border-amber-500">
-        <div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full flex items-center justify-center ${apiSettings.aiEnabled ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}><Bot size={20} /></div><div><h3 className="font-bold text-sm">{tr("AI Status", "حالة الذكاء")}</h3><p className="text-[10px] text-muted-foreground">{apiSettings.aiEnabled ? tr("Active", "نشط") : tr("Disabled", "معطل")}</p></div></div>
-        <button onClick={() => setApiSettings(p => ({ ...p, aiEnabled: !p.aiEnabled }))} className={`px-4 py-2 rounded-xl text-xs font-bold ${apiSettings.aiEnabled ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>{apiSettings.aiEnabled ? tr("Disable", "تعطيل") : tr("Enable", "تفعيل")}</button>
+      <div className="pixel-card p-5 flex items-center justify-between pixel-border-bronze bg-opacity-30">
+        <div className="flex items-center gap-4"><div className="w-10 h-10 pixel-border-wood flex items-center justify-center text-primary"><PixelIcon d={PX_ICONS.sparkles} size={20} /></div><div><h3 className="pixel-font text-[10px] font-black">{tr("AI Status", "حالة الذكاء")}</h3><p className="pixel-font text-[7px] text-foreground/40 mt-1 uppercase">{apiSettings.aiEnabled ? tr("Active", "نشط") : tr("Disabled", "معطل")}</p></div></div>
+        <button onClick={() => setApiSettings(p => ({ ...p, aiEnabled: !p.aiEnabled }))} className={`pixel-btn ${apiSettings.aiEnabled ? "pixel-btn-secondary" : "pixel-btn-primary"} text-[8px]`}>{apiSettings.aiEnabled ? tr("Disable", "تعطيل") : tr("Enable", "تفعيل")}</button>
       </div>
-      <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-orange-500"><div className="flex items-center gap-2 mb-2"><Sparkles size={18} className="text-orange-500"/><h3 className="font-bold text-foreground">{tr("Menu Data Source", "مصدر القائمة")}</h3></div><input className={inp} value={apiSettings.menuNode || "menu"} onChange={e => setApiSettings({ ...apiSettings, menuNode: e.target.value })} placeholder="e.g. menu" /></div>
-      <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-primary">
-        <div className="flex items-center gap-2 mb-2"><User size={18} className="text-primary"/><h3 className="font-bold text-foreground">{tr("Persona", "الشخصية")}</h3></div>
+      <div className="pixel-card pixel-border-paper p-5 space-y-5"><div className="flex items-center gap-2 mb-2"><PixelIcon d={PX_ICONS.menu} size={14} color="#F28C28"/><h3 className="pixel-font text-[10px] font-black uppercase tracking-tighter">{tr("Menu Data Source", "مصدر القائمة")}</h3></div><input className={inp} value={apiSettings.menuNode || "menu"} onChange={e => setApiSettings({ ...apiSettings, menuNode: e.target.value })} placeholder="e.g. menu" /></div>
+      <div className="pixel-card pixel-border-wood p-5 space-y-5">
+        <div className="flex items-center gap-2 mb-2"><PixelIcon d={PX_ICONS.users} size={14} color="#6F4E37"/><h3 className="pixel-font text-[10px] font-black uppercase tracking-tighter">{tr("Persona", "الشخصية")}</h3></div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className={lbl}>{tr("Name", "الاسم")}</label><input className={inp} value={config.baristaName} onChange={e => setConfig({...config, baristaName: e.target.value})} /></div>
           <div><label className={lbl}>{tr("Instagram", "انستجرام")}</label><input className={inp} value={config.instagram} onChange={e => setConfig({...config, instagram: e.target.value})} /></div>
         </div>
         <div><label className={lbl}>{tr("Avatar URL", "رابط الصورة")}</label><input className={inp} value={config.baristaAvatar} onChange={e => setConfig({...config, baristaAvatar: e.target.value})} /></div>
       </div>
-      <div className="card-elevated rounded-2xl p-5 space-y-4 border-l-4 border-purple-500">
-        <div className="flex items-center gap-2 mb-2"><MessageSquare size={18} className="text-purple-500"/><h3 className="font-bold text-foreground">{tr("Greetings", "الترحيب")}</h3></div>
-        <div className="space-y-4">
+      <div className="pixel-card pixel-border-paper p-5 space-y-5">
+        <div className="flex items-center gap-2 mb-2"><PixelIcon d={PX_ICONS.chat} size={14} color="#8C6A3B"/><h3 className="pixel-font text-[10px] font-black uppercase tracking-tighter">{tr("Greetings", "الترحيب")}</h3></div>
+        <div className="space-y-5">
           <div><label className={lbl}>Greeting (EN)</label><textarea className={`${inp} h-20`} value={config.greeting} onChange={e => setConfig({...config, greeting: e.target.value})} /></div>
           <div><label className={lbl}>Greeting (AR)</label><textarea className={`${inp} h-20`} dir="rtl" value={config.greetingAr} onChange={e => setConfig({...config, greetingAr: e.target.value})} /></div>
         </div>
       </div>
-      <button onClick={handleSave} disabled={saving} className="btn-primary w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 sticky bottom-4">
+      <div className="pixel-card pixel-border-bronze p-5 space-y-5">
+        <div className="flex items-center gap-2 mb-2"><PixelIcon d={PX_ICONS.sparkles} size={14} color="#CDA15E"/><h3 className="pixel-font text-[10px] font-black uppercase tracking-tighter">{tr("Expert Knowledge", "موجه النظام")}</h3></div>
+        <div className="space-y-5">
+          <div><label className={lbl}>System Prompt (EN)</label><textarea className={`${inp} h-32`} value={config.systemPrompt} onChange={e => setConfig({...config, systemPrompt: e.target.value})} /></div>
+          <div><label className={lbl}>System Prompt (AR)</label><textarea className={`${inp} h-32`} dir="rtl" value={config.systemPromptAr} onChange={e => setConfig({...config, systemPromptAr: e.target.value})} /></div>
+        </div>
+      </div>
+      <button onClick={handleSave} disabled={saving} className="pixel-btn pixel-btn-primary w-full py-5 text-[10px] font-black uppercase sticky bottom-4">
         {saving ? <Bot className="animate-spin" size={18}/> : <Save size={18}/>} {tr("Save Barista Config", "حفظ الإعدادات")}
       </button>
     </div>
@@ -576,17 +603,17 @@ const ReelsTab = ({ tr, reels, togglePin, deleteReel }: any) => {
   return (
     <div className="space-y-6 page-enter">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-foreground flex items-center gap-2"><Film size={18} className="text-primary"/> {tr("Reels Management", "إدارة الريلز")}</h3>
-        <button onClick={() => setShowAdd(!showAdd)} className="btn-primary px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5">
-          {showAdd ? <X size={14}/> : <Plus size={14}/>} {showAdd ? tr("Cancel", "إلغاء") : tr("Add Video", "إضافة فيديو")}
+        <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter font-black"><PixelIcon d={PX_ICONS.reels} size={14}/> {tr("Reels Management", "إدارة الريلز")}</h3>
+        <button onClick={() => setShowAdd(!showAdd)} className={`pixel-btn ${showAdd ? "pixel-btn-secondary" : "pixel-btn-primary"} text-[8px] font-black`}>
+          {showAdd ? <X size={12}/> : <Plus size={12}/>} {showAdd ? tr("Cancel", "إلغاء") : tr("Add Video", "إضافة فيديو")}
         </button>
       </div>
       {showAdd && (
-        <div className="card-elevated rounded-2xl p-5 space-y-4 border-2 border-primary/20">
-          <input className="input-field px-3 py-2.5 text-sm" placeholder="Instagram/Facebook/TikTok URL" value={form.videoUrl} onChange={e => setForm({...form, videoUrl: e.target.value})} />
-          <div className="grid grid-cols-2 gap-3">
-            <input className="input-field px-3 py-2.5 text-sm" placeholder="Caption (EN)" value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} />
-            <input className="input-field px-3 py-2.5 text-sm" dir="rtl" placeholder="Caption (AR)" value={form.captionAr} onChange={e => setForm({...form, captionAr: e.target.value})} />
+        <div className="pixel-card pixel-border-paper p-5 space-y-5 animate-in fade-in slide-in-from-top-2">
+          <input className="pixel-input text-[9px] w-full" placeholder="Instagram/Facebook/TikTok URL" value={form.videoUrl} onChange={e => setForm({...form, videoUrl: e.target.value})} />
+          <div className="grid grid-cols-2 gap-4">
+            <input className="pixel-input text-[9px] w-full" placeholder="Caption (EN)" value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} />
+            <input className="pixel-input text-[9px] w-full" dir="rtl" placeholder="Caption (AR)" value={form.captionAr} onChange={e => setForm({...form, captionAr: e.target.value})} />
           </div>
           <button disabled={saving || !form.videoUrl} onClick={async () => {
             setSaving(true);
@@ -596,23 +623,23 @@ const ReelsTab = ({ tr, reels, togglePin, deleteReel }: any) => {
             setShowAdd(false);
             setSaving(false);
             swalSuccess("Reel Added!");
-          }} className="btn-primary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+          }} className="pixel-btn pixel-btn-primary w-full py-4 text-[10px] font-black flex items-center justify-center gap-3">
             {saving ? <RotateCcw size={16} className="animate-spin"/> : <Save size={16}/>} {tr("Save Reel", "حفظ الفيديو")}
           </button>
         </div>
       )}
       <div className="grid grid-cols-2 gap-4">
         {reels.map((r: any) => (
-          <div key={r.id} className="card rounded-2xl overflow-hidden group">
-            <div className="aspect-[9/16] bg-muted relative flex items-center justify-center overflow-hidden">
-              <Film size={32} className="text-muted-foreground opacity-20" />
-              {r.pinned && <div className="absolute top-2 left-2 bg-primary text-white p-1 rounded-lg"><Check size={12}/></div>}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                 <button onClick={() => togglePin(r)} className="w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center shadow-lg"><Heart size={14} fill={r.pinned ? "currentColor" : "none"} /></button>
-                 <button onClick={async () => { if (confirm("Delete Reel?")) deleteReel(r); }} className="w-8 h-8 rounded-full bg-white text-destructive flex items-center justify-center shadow-lg"><Trash2 size={14}/></button>
+          <div key={r.id} className="pixel-card pixel-border-wood overflow-hidden group active:scale-[0.98] transition-transform">
+            <div className="aspect-[9/16] bg-muted/20 relative flex items-center justify-center overflow-hidden">
+              <PixelIcon d={PX_ICONS.reels} size={32} color="#6F4E37" />
+              {r.pinned && <div className="absolute top-2 left-2 bg-primary text-white p-1 pixel-border-bronze"><Check size={10}/></div>}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                 <button onClick={() => togglePin(r)} className="pixel-btn pixel-btn-primary p-2"><Heart size={14} fill={r.pinned ? "currentColor" : "none"} /></button>
+                 <button onClick={async () => { if (confirm("Delete Reel?")) deleteReel(r); }} className="pixel-btn pixel-btn-secondary p-2"><Trash2 size={14}/></button>
               </div>
             </div>
-            <div className="p-3"><p className="text-[10px] font-bold line-clamp-2">{tr(r.caption, r.captionAr)}</p></div>
+            <div className="p-3"><p className="pixel-font text-[8px] font-black line-clamp-2 uppercase leading-relaxed">{tr(r.caption, r.captionAr)}</p></div>
           </div>
         ))}
       </div>
@@ -623,25 +650,25 @@ const ReelsTab = ({ tr, reels, togglePin, deleteReel }: any) => {
 const TablesTab = ({ tr, activeTables, users }: any) => {
   return (
     <div className="space-y-6 page-enter">
-      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
         {activeTables.map((t: any) => (
-          <div key={t.id} className={`card-elevated rounded-2xl p-4 text-center border-b-4 transition-transform active:scale-95 ${t.status === 'occupied' ? 'border-orange-500 bg-orange-50/30' : 'border-green-500'}`}>
-            <Armchair size={20} className={`mx-auto mb-2 ${t.status === 'occupied' ? 'text-orange-500' : 'text-green-500'}`} />
-            <p className="text-lg font-black">{t.number}</p>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase">{t.status === 'occupied' ? tr(`${t.userCount} Active`, `${t.userCount} نشط`) : tr("Empty", "فارغة")}</p>
+          <div key={t.id} className={`pixel-card p-4 text-center transition-all active:scale-90 ${t.status === 'occupied' ? 'pixel-border-bronze bg-primary/5' : 'pixel-border-paper'}`}>
+            <PixelIcon d={PX_ICONS.menu} size={20} color={t.status === 'occupied' ? '#F28C28' : '#6F4E37'} />
+            <p className="pixel-font text-lg font-black mt-2">{t.number}</p>
+            <p className="pixel-font text-[6px] font-black text-foreground/40 uppercase mt-1 tracking-tighter">{t.status === 'occupied' ? tr(`${t.userCount} Active`, `${t.userCount} نشط`) : tr("Empty", "فارغة")}</p>
           </div>
         ))}
       </div>
-      <div className="card-elevated rounded-2xl p-5 space-y-4">
-         <h3 className="font-bold text-sm flex items-center gap-2"><Users size={16}/> {tr("Who's here?", "مين موجود؟")}</h3>
+      <div className="pixel-card pixel-border-wood p-5 space-y-5">
+         <h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter font-black"><PixelIcon d={PX_ICONS.users} size={14}/> {tr("Who's here?", "مين موجود؟")}</h3>
          <div className="space-y-3">
            {users.filter((u:any) => u.tableNumber).map((u: any) => (
-             <div key={u.uid} className="flex items-center justify-between p-3 bg-muted/20 rounded-xl">
+             <div key={u.uid} className="flex items-center justify-between p-4 pixel-border-paper bg-opacity-20">
                <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black text-xs">{u.name?.[0]}</div>
-                 <div><p className="text-xs font-bold">{u.name}</p><p className="text-[9px] text-muted-foreground">Table {u.tableNumber}</p></div>
+                 <div className="w-10 h-10 pixel-border-wood flex items-center justify-center text-primary font-black text-sm pixel-font">{u.name?.[0]}</div>
+                 <div><p className="pixel-font text-[9px] font-black">{u.name}</p><p className="pixel-font text-[7px] text-foreground/40 mt-1">Table {u.tableNumber}</p></div>
                </div>
-               <span className="text-[10px] font-bold text-primary">{new Date(u.lastLoginAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+               <span className="pixel-font text-[8px] font-black text-primary">{new Date(u.lastLoginAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
              </div>
            ))}
          </div>
@@ -782,7 +809,7 @@ export default function Admin() {
           {tab === "reviews" && <ReviewsTab tr={tr} feedback={feedback} avgRating={(feedback.reduce((s,f)=>s+f.rating,0)/(feedback.length||1)).toFixed(1)} ratingDist={[5,4,3,2,1].map(r=>({r, count: feedback.filter(f=>f.rating===r).length}))} maxRatingCount={Math.max(...[5,4,3,2,1].map(r=>feedback.filter(f=>f.rating===r).length), 1)} markFeedbackRead={(id: string) => smartUpdate(`feedback/${id}`, {read:true})} />}
           {tab === "broadcast" && <BroadcastTab tr={tr} newBroadcast={newBroadcast} setNewBroadcast={setNewBroadcast} sendBroadcast={async () => { setSendingBroadcast(true); await smartPush("broadcast", { ...newBroadcast, createdAt: Date.now() }); setNewBroadcast(BLANK_BROADCAST); setSendingBroadcast(false); }} sendingBroadcast={sendingBroadcast} bannerContent={bannerContent} setBannerContent={setBannerContent} bannerBgColor={bannerBgColor} setBannerBgColor={setBannerBgColor} bannerTextColor={bannerTextColor} setBannerTextColor={setBannerTextColor} bannerEnabled={bannerEnabled} saveBannerEnabled={(v: boolean) => update(ref(db, "homepage-banner"), {enabled:v})} saveBanner={async () => { setSavingBanner(true); await set(ref(db, "homepage-banner"), { content: bannerContent, bgColor: bannerBgColor, textColor: bannerTextColor, enabled: bannerEnabled }); setSavingBanner(false); }} savingBanner={savingBanner} broadcasts={broadcasts} deleteBroadcast={(id: string) => smartRemove(`broadcast/${id}`)} />}
           {tab === "reels" && <ReelsTab tr={tr} reels={reels} togglePin={(r: Reel) => smartUpdate(`reels/${r.id}`, {pinned: !r.pinned})} deleteReel={(r: Reel) => smartRemove(`reels/${r.id}`)} />}
-          {tab === "api" && <div className="page-enter card-elevated rounded-2xl p-5 border-l-4 border-primary space-y-4"><h3 className="font-bold flex items-center gap-2"><Key size={18}/> API Settings</h3><input className="input-field px-3 py-2 text-sm w-full" type="password" value={apiSettings.groqKey} onChange={e => setApiSettings({...apiSettings, groqKey: e.target.value})} placeholder="Groq Key" /><button onClick={async () => { await smartSet("api-settings", { ...apiSettings, groqKey: apiSettings.groqKey?.startsWith("gsk") ? encryptKey(apiSettings.groqKey) : apiSettings.groqKey }); swalSuccess("Saved!"); }} className="btn-primary w-full py-3 rounded-xl font-bold">Save Settings</button></div>}
+          {tab === "api" && <div className="page-enter pixel-card pixel-border-wood p-5 space-y-5"><h3 className="pixel-font text-[10px] text-foreground flex items-center gap-2 uppercase tracking-tighter"><PixelIcon d={PX_ICONS.api} size={14}/> API Settings</h3><input className="pixel-input text-[9px] w-full" type="password" value={apiSettings.groqKey} onChange={e => setApiSettings({...apiSettings, groqKey: e.target.value})} placeholder="Groq Key" /><button onClick={async () => { await smartSet("api-settings", { ...apiSettings, groqKey: apiSettings.groqKey?.startsWith("gsk") ? encryptKey(apiSettings.groqKey) : apiSettings.groqKey }); swalSuccess("Saved!"); }} className="pixel-btn pixel-btn-primary w-full py-4 text-[10px] font-black uppercase">Save Settings</button></div>}
           {tab === "system" && <SystemTab tr={tr} />}
           {tab === "tables" && <TablesTab tr={tr} activeTables={useMemo(() => tablesRaw.map(t => ({ ...t, userCount: users.filter(u => u.tableNumber === t.number).length, status: users.some(u => u.tableNumber === t.number) ? "occupied" : "available" })).sort((a,b) => a.number-b.number), [tablesRaw, users])} users={users} />}
           {tab === "barista" && <BaristaTab tr={tr} />}

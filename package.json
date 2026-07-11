@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm --filter azura dev",
-    "build": "pnpm --filter azura build",
-    "preview": "pnpm --filter azura preview"
+    "dev": "pnpm --filter @workspace/azura dev",
+    "build": "pnpm --filter @workspace/azura build",
+    "preview": "pnpm --filter @workspace/azura preview"
   },
   "private": true
 }

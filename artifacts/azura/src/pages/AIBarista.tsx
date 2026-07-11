@@ -374,32 +374,33 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
   const sendMessage = async (msgText?: string) => {
     const text = (msgText || input).trim();
     if (!text || loading) return;
-
     if (!aiEnabled || !egyKey) return;
-
     setInput("");
     await baseSendMessage(text, egyKey, buildSystemPrompt(), parseMessage);
-    
-    // Update memory asynchronously after response
-    if (user) {
-      setTimeout(async () => {
-        try {
-          const lastMsgs = messages.slice(-4);
-          if (lastMsgs.length < 2) return;
-          const summaryPrompt = `Based on these messages, extract 1-2 key facts about the user's preferences (drinks, food, allergies, mood).
-          Format: "Prefers [X]", "Allergic to [Y]". Keep it very short. Use same language as user.
-          Recent Chat:
-          ${lastMsgs.map(m => `${m.role}: ${m.content}`).join("\n")}`;
-
-          const fact = await chatWithAI(egyKey, "Extract key user facts for memory.", [], summaryPrompt);
-          if (fact && fact.length > 5 && fact.length < 100) {
-            const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
-            await set(memRef, fact);
-          }
-        } catch (e) { console.warn("Memory update failed", e); }
-      }, 3000);
-    }
   };
+
+  // Extract memory facts after AI responds
+  useEffect(() => {
+    if (!user || messages.length < 2 || loading || isThinking) return;
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg.role !== "ai") return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const chatSlice = messages.slice(-4);
+        const summaryPrompt = `Extract 1 key fact about user preferences from this chat (e.g. "Loves sweet coffee", "Allergic to nuts").
+        Keep it under 6 words. Use same language as user.
+        Chat: ${chatSlice.map(m => `${m.role}: ${m.content}`).join(" | ")}`;
+
+        const fact = await chatWithAI(egyKey, "Summarize user preference.", [], summaryPrompt);
+        if (fact && fact.length > 3 && fact.length < 60 && !fact.includes("{")) {
+          const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
+          await set(memRef, fact.replace(/[".]/g, "").trim());
+        }
+      } catch (e) { /* silent */ }
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [messages.length, user, egyKey, loading, isThinking]);
 
   const handleViewItem = (item: SuggestedItem) => {
     setAddedItems(prev => new Set(prev).add(item.id));

@@ -286,7 +286,7 @@
   }
   .bubble-ai {
     background: hsl(var(--muted));
-    color: hsl(var(--foreground));
+    color: hsl(var(--muted-foreground));
     border-radius: 1.25rem 1.25rem 1.25rem 0.375rem;
     box-shadow: var(--shadow-xs);
   }

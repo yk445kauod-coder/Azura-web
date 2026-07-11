@@ -74,11 +74,11 @@ export function useAIChat(uid?: string) {
 
       // 3. Call AI
       const history = messages.slice(-10).map(m => ({
-        role: m.role === "ai" ? "assistant" : "user",
-        content: m.content
+        role: m.role === "ai" ? "model" : "user",
+        parts: [{ text: m.content }]
       }));
 
-      const aiResponse = await chatWithAI(apiKey, systemPrompt, history, text);
+      const aiResponse = await chatWithAI(apiKey, text, history, systemPrompt);
       setIsThinking(false);
 
       if (aiResponse) {

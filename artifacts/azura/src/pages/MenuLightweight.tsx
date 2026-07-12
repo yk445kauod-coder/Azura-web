@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { logUserActivity, updateUserCategoryAffinity } from "@/lib/activityTracker";
 import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface MenuItem {
@@ -395,6 +397,7 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
 
 export default function MenuLightweight() {
   const { lang, isRTL } = useLang();
+  const { user } = useAuth();
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -411,6 +414,18 @@ export default function MenuLightweight() {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const handleSelectItem = useCallback((item: MenuItem | null) => {
+    setSelectedItem(item);
+    if (user?.uid && item) {
+      logUserActivity(user.uid, "view_item", {
+        itemId: item.id,
+        name: item.name,
+        category: item.category
+      }, 6);
+      updateUserCategoryAffinity(user.uid, item.category, 8);
+    }
+  }, [user?.uid]);
 
   // Fetch menu from Firebase
   useEffect(() => {
@@ -442,6 +457,13 @@ export default function MenuLightweight() {
     const timer = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(timer);
   }, [search]);
+
+  // Track search terms in CRM
+  useEffect(() => {
+    if (debouncedSearch.trim() && user?.uid) {
+      logUserActivity(user.uid, "search_menu", { query: debouncedSearch.trim() }, 3);
+    }
+  }, [debouncedSearch, user?.uid]);
 
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
@@ -645,6 +667,10 @@ export default function MenuLightweight() {
               onClick={() => {
                 setCat(c.id);
                 if (search) setSearch(""); // Clear search when switching sections manually
+                if (user?.uid) {
+                  logUserActivity(user.uid, "click_category", { category: c.id }, 5);
+                  updateUserCategoryAffinity(user.uid, c.id, 10);
+                }
               }}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
@@ -707,7 +733,7 @@ export default function MenuLightweight() {
                 item={item}
                 lang={lang}
                 idx={idx}
-                onClick={setSelectedItem}
+                onClick={handleSelectItem}
                 CATS={CATS}
               />
             ))}

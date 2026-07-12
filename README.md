@@ -1,51 +1,61 @@
 # Azura Cafe & Restaurant - AI-Ready Infrastructure
 
-Azura is a modern, mobile-first web application for restaurants, featuring a TikTok-style menu, AI-powered assistants, and advanced user activity tracking.
+Azura is an advanced, high-performance, mobile-first web application for modern cafés and restaurants. It features a modern premium UI/UX, an optimized Reels hub, a Meta-style recommendation engine, and an enterprise-grade CRM activity tracker with an intuitive admin reporting dashboard.
 
-## 🚀 Quick Start
-- **Frontend**: React (Vite) + Tailwind CSS
-- **Backend**: Firebase Realtime Database
-- **AI**: Groq (Llama 3.3) + Pollinations.ai fallback
-- **Auth**: Name & Table Number system (Device-persistent)
+## 🚀 Key Features
+
+### 1. Modern Premium UI/UX Design
+- **High-Contrast Typography**: Uses *IBM Plex Sans Arabic* globally for clean, accessible English and Arabic text.
+- **Premium Styling**: Replaced all retro pixelated styling with an elegant, modern aesthetic, high-contrast elements, and luxurious brown-and-cream colors.
+- **Mobile-First Bottom Sheets**: High-quality drawers and sheets with smooth sliding transitions optimized for touch devices.
+
+### 2. High-Performance Video Reels Hub
+- **Touch Swipe & Wheel Scroll**: Supports seamless TikTok-like vertical swipe gestures, mouse drags, scroll wheel navigation, and keyboard Up/Down arrow actions.
+- **Buffered Rendering & Recycling**: Custom memory-saving system that mounts only the active, previous, and next videos. Faraway elements are recycled to support hundreds of high-definition video reels simultaneously without lag.
+- **Nested Comments & Quality Control**:
+  - Implements a visually nested replies hierarchy under parent comments.
+  - Features comment & reply liking (bubbling up popular feedback).
+  - High-quality automatic comment filtering with a robust English & Arabic offensive words list.
+  - One-click **Report & Hide** flags that immediately censor low-quality comments from view and alert CRM administrators.
+
+### 3. CRM Activity Tracking & User Diagnostics
+- **Real-Time Heartbeat Logger**: Periodically tracks total active time spent by clients and records guest login/visit frequencies.
+- **Audit Trails**: Chronicles user actions including menu searches, category filtering, detail views, reel engagements, and AI Barista chats.
+- **Technical Issue Diagnosis**: Logs technical errors, fallback occurrences, and low-rating feedbacks directly under the customer's profile, providing waiters or administrators with proactive intervention alerts.
+
+### 4. Meta-Style Recommendation Engine
+- Calculates customer interest levels across café categories (e.g. specialty coffee, desserts, mojitos) based on clicks, likes, and searches.
+- Persistently saves these affinity profiles under `users/${uid}/preferences/affinities`.
+- Customizes AI Barista recommendations and sorts "Top Picks" dynamically to match calculated tastes.
+
+---
 
 ## 📁 Project Structure
-- `/artifacts/azura`: Main application source code.
-- `DESIGN.md`: Architecture and UI/UX philosophy.
-- `SKILLS.md`: Core functionalities and capabilities.
+- `/artifacts/azura`: Main React & Vite application source code.
+- `DESIGN.md`: Architecture and premium design philosophy.
+- `SKILLS.md`: Core assistant capabilities and features.
 - `PROMPT.md`: Instructions for AI Agents working on this repo.
 - `FIREBASE_CONFIGS.md`: Database structure and security rules.
 
-## 🛠 Tech Stack & Recent Changes
-- **Typography**: IBM Plex Sans Arabic (Modern & Professional).
-- **UI Components**: Framer Motion, Radix UI, Lucide Icons.
-- **Modals**: Redesigned as mobile-first bottom sheets for better UX.
-- **Tracking**: 30s Heartbeat system for usage analytics and persistent user identification.
-- **AI Assistants**: Integrated 'Zura' AI (Groq + Pollinations) with persistent chat history.
-- **Database Fallback**: Robust Admin panel with Cloudflare R2 fallback layer.
-- **Video Reels**: Enhanced embedding support for Facebook and Instagram Reels.
+---
 
-## ☁️ Cloudflare Pages Deployment Settings
-To ensure a successful build and avoid deployment errors (like "Cannot read properties of null"), use the following settings in the Cloudflare Pages dashboard:
+## 🛠 Tech Stack & Build Settings
+- **Frontend**: React (Vite) + Tailwind CSS
+- **Database**: Firebase Realtime Database
+- **AI Engine**: Groq (Llama 3.3 70B) with automatic resilient Pollinations.ai fallback
 
-### **Build Settings**
+### **Cloudflare Pages Deployment**
 - **Framework preset**: `None`
 - **Build command**: `pnpm build`
 - **Build output directory**: `dist`
 - **Root directory**: `artifacts/azura`
-
-### **Environment Variables**
-- **NODE_VERSION**: `22` (or latest LTS)
-- **PNPM_VERSION**: `10` (or latest)
-
-### **Important Notes**
-1. **DO NOT** use `npm install` or `npm run build` as the build command. Cloudflare's `pnpm` support is more stable for this project's dependency tree.
-2. The `_redirects` file is already included in the `public` folder to handle Single Page Application (SPA) routing.
+- **Node Version**: `22` (or latest LTS)
 
 ```bash
-# Manual Build Process
+# To run locally:
 cd artifacts/azura
 pnpm install
 pnpm run build
 ```
 
-✨ jules wase her !
+*Azura Cafe - Where Quality is a Habit.*

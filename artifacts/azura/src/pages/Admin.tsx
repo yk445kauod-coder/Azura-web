@@ -13,7 +13,8 @@ import {
   AlertTriangle, Bot, LayoutDashboard, Users, ToggleRight, LayoutGrid,
   MessageCircle, Star, Sparkles, TrendingUp, Clock, Zap, MapPin, Coffee,
   User, Phone, MessageSquare, Armchair, UploadCloud, Download, Archive,
-  Check, Eye, EyeOff, Smartphone, Globe, Info, Package, Filter, List, Heart, LucideIcon, Database
+  Check, Eye, EyeOff, Smartphone, Globe, Info, Package, Filter, List, Heart, LucideIcon, Database,
+  AlertCircle, Activity
 } from "lucide-react";
 
 import { VideoProvider } from "@/lib/videoProviders";
@@ -443,20 +444,287 @@ const FeaturesTab = ({ tr, featureFlags, toggleFeatureFlag, savingFlag }: { tr: 
   </div>
 );
 
-const UsersTab = ({ tr, users, deleteUser, formatDuration }: { tr: any, users: any[], deleteUser: any, formatDuration: any }) => (
-  <div className="space-y-4 page-enter">
-    <div className="card-elevated rounded-2xl p-5 border border-border/10 bg-card"><h3 className="font-bold text-foreground flex items-center gap-2"><Users size={18} className="text-primary"/> {tr("User Management","إدارة المستخدمين")}</h3></div>
-    <div className="space-y-4">
-      {users.map((u) => (
-        <div key={u.uid} className="card p-4 flex items-center gap-4 group active:scale-[0.99] transition-transform border border-border/10 hover:shadow-md bg-card">
-          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">{u.name?.[0]?.toUpperCase() || "?"}</div>
-          <div className="flex-1 min-w-0"><p className="text-sm font-bold text-foreground truncate">{u.name || "Guest"}</p><div className="flex items-center gap-4 mt-1.5"><span className="text-xs text-primary font-semibold">visits: {u.loginCount || 1}</span><span className="text-xs text-muted-foreground font-semibold">time: {formatDuration(u.totalUsageTime || 0)}</span></div></div>
-          <button onClick={() => deleteUser(u.uid)} className="btn-secondary p-2.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive rounded-lg"><Trash2 size={14}/></button>
+const UsersTab = ({ tr, users, deleteUser, formatDuration }: { tr: any, users: any[], deleteUser: any, formatDuration: any }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterMode, setFilterMode] = useState<"all" | "returning" | "active" | "issues">("all");
+  const [expandedUid, setExpandedUid] = useState<string | null>(null);
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      const nameMatch = (u.name || "Guest").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (u.uid || "").toLowerCase().includes(searchTerm.toLowerCase());
+      if (!nameMatch) return false;
+
+      if (filterMode === "returning") return (u.loginCount || 1) >= 2;
+      if (filterMode === "active") {
+        const thirtyMins = 30 * 60 * 1000;
+        return (Date.now() - (u.lastSeenAt || u.lastLoginAt || 0)) < thirtyMins;
+      }
+      if (filterMode === "issues") return !!u.hasIssues;
+
+      return true;
+    });
+  }, [users, searchTerm, filterMode]);
+
+  const totalCount = users.length;
+  const highValueCount = users.filter(u => (u.loginCount || 1) >= 3 || (u.activityScore || 0) >= 100).length;
+  const issuesCount = users.filter(u => !!u.hasIssues).length;
+
+  return (
+    <div className="space-y-6 page-enter pb-10">
+      {/* CRM METRICS */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="card-elevated rounded-2xl p-3.5 bg-card border border-border/10 text-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-1.5">
+            <Users size={16} />
+          </div>
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">{tr("Total Clients", "إجمالي العملاء")}</p>
+          <h4 className="text-base font-black text-foreground mt-0.5">{totalCount}</h4>
         </div>
-      ))}
+        <div className="card-elevated rounded-2xl p-3.5 bg-card border border-border/10 text-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-1.5">
+            <Sparkles size={16} />
+          </div>
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">{tr("High Value", "عملاء مميزون")}</p>
+          <h4 className="text-base font-black text-amber-500 mt-0.5">{highValueCount}</h4>
+        </div>
+        <div className="card-elevated rounded-2xl p-3.5 bg-card border border-border/10 text-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-1.5">
+            <AlertTriangle size={16} />
+          </div>
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">{tr("Has Issues", "لديه مشاكل")}</p>
+          <h4 className="text-base font-black text-red-500 mt-0.5">{issuesCount}</h4>
+        </div>
+      </div>
+
+      {/* SEARCH & FILTER CONTROLS */}
+      <div className="card-elevated rounded-2xl p-4 bg-card border border-border/10 space-y-3.5 shadow-sm">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+          <input
+            type="text"
+            className="input-field w-full pl-10 pr-4 py-2.5 text-xs font-medium bg-muted/20"
+            placeholder={tr("Search by name or UID...", "ابحث بالاسم أو المعرّف...")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto scroll-hide pb-0.5">
+          {([
+            { id: "all", labelEn: "All", labelAr: "الكل" },
+            { id: "returning", labelEn: "Returning", labelAr: "متكرر" },
+            { id: "active", labelEn: "Active Now", labelAr: "نشط الآن" },
+            { id: "issues", labelEn: "With Issues", labelAr: "لديه مشاكل" }
+          ] as const).map(f => (
+            <button
+              key={f.id}
+              onClick={() => setFilterMode(f.id)}
+              className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all whitespace-nowrap border ${
+                filterMode === f.id
+                  ? "bg-primary border-primary text-white shadow-md shadow-primary/10"
+                  : "bg-muted/10 border-border/10 text-muted-foreground hover:bg-muted/20"
+              }`}
+            >
+              {tr(f.labelEn, f.labelAr)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* USERS LIST */}
+      <div className="space-y-3">
+        {filteredUsers.length === 0 ? (
+          <div className="text-center py-12 bg-card border border-border/10 rounded-2xl">
+            <Info className="mx-auto mb-2 text-muted-foreground/50" size={24} />
+            <p className="text-xs text-muted-foreground font-semibold">{tr("No clients matched your criteria", "لا يوجد عملاء يطابقون خياراتك")}</p>
+          </div>
+        ) : (
+          filteredUsers.map((u) => {
+            const isExpanded = expandedUid === u.uid;
+
+            const activitiesList = u.activities
+              ? Object.entries(u.activities).map(([aid, a]: any) => ({ aid, ...a })).sort((a,b) => b.createdAt - a.createdAt)
+              : [];
+            const issuesList = u.issues
+              ? Object.entries(u.issues).map(([iid, i]: any) => ({ iid, ...i })).sort((a,b) => b.createdAt - a.createdAt)
+              : [];
+
+            const affinities = u.preferences?.affinities
+              ? Object.entries(u.preferences.affinities).map(([catId, val]: any) => ({ catId, val: Number(val) })).sort((a,b) => b.val - a.val)
+              : [];
+
+            return (
+              <div
+                key={u.uid}
+                className={`card rounded-2xl border transition-all overflow-hidden ${
+                  isExpanded
+                    ? "border-primary/30 ring-1 ring-primary/15 bg-card shadow-lg shadow-primary/5 scale-[1.01]"
+                    : "border-border/10 hover:border-border/20 bg-card active:scale-[0.99]"
+                }`}
+              >
+                {/* Header Row */}
+                <div
+                  onClick={() => setExpandedUid(isExpanded ? null : u.uid)}
+                  className="p-4 flex items-center gap-3.5 cursor-pointer select-none"
+                >
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0 transition-colors ${
+                    isExpanded ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                  }`}>
+                    {u.name?.[0]?.toUpperCase() || "?"}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-foreground truncate">{u.name || "Guest"}</p>
+                      {u.tableNumber && (
+                        <span className="px-1.5 py-0.5 rounded-lg bg-secondary/15 text-secondary text-[9px] font-bold">
+                          T{u.tableNumber}
+                        </span>
+                      )}
+                      {u.hasIssues && (
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" title="Has Technical Issues" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground font-semibold">
+                      <span className="flex items-center gap-0.5"><Clock size={10} /> {formatDuration(u.totalUsageSeconds || 0)}</span>
+                      <span>•</span>
+                      <span>{tr(`Visits: ${u.loginCount || 1}`, `الزيارات: ${u.loginCount || 1}`)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="text-[10px] font-bold text-primary flex items-center gap-0.5 justify-end">
+                        <Zap size={10} /> {u.activityScore || 0}
+                      </div>
+                      <p className="text-[8px] text-muted-foreground font-semibold uppercase tracking-tight">{tr("Activity Score", "درجة النشاط")}</p>
+                    </div>
+                    <ChevronDown size={16} className={`text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`} />
+                  </div>
+                </div>
+
+                {/* Expanded Detailed CRM Report View */}
+                {isExpanded && (
+                  <div className="border-t border-border/10 p-4 bg-muted/5 space-y-4 animate-in fade-in duration-200">
+                    {/* Grid Info */}
+                    <div className="grid grid-cols-2 gap-3 text-[11px] bg-muted/20 rounded-xl p-3">
+                      <div>
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">{tr("Client ID", "معرّف العميل")}</p>
+                        <p className="font-mono text-foreground font-semibold mt-0.5 truncate">{u.uid}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">{tr("Device ID", "معرّف الجهاز")}</p>
+                        <p className="font-mono text-foreground font-semibold mt-0.5 truncate">{u.deviceId || "N/A"}</p>
+                      </div>
+                      <div className="mt-1.5">
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">{tr("First Joined", "أول دخول")}</p>
+                        <p className="text-foreground font-semibold mt-0.5">{u.createdAt ? new Date(u.createdAt).toLocaleString() : "N/A"}</p>
+                      </div>
+                      <div className="mt-1.5">
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">{tr("Last Active", "آخر نشاط")}</p>
+                        <p className="text-foreground font-semibold mt-0.5">{u.lastSeenAt || u.lastLoginAt ? new Date(u.lastSeenAt || u.lastLoginAt).toLocaleString() : "N/A"}</p>
+                      </div>
+                    </div>
+
+                    {/* Meta-Style Interest Affinities Chart */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                        <TrendingUp size={13} className="text-primary" />
+                        <span>{tr("Category Interest Profile (Meta Algorithm)", "ملف اهتمامات الفئات (خوارزمية ميتا)")}</span>
+                      </div>
+                      {affinities.length === 0 ? (
+                        <p className="text-[10px] text-muted-foreground italic font-medium pl-1">{tr("No category interaction recorded yet.", "لم يتم تسجيل تفاعلات فئات بعد.")}</p>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          {affinities.map(a => (
+                            <div key={a.catId} className="bg-card border border-border/10 rounded-xl p-2 flex flex-col justify-center">
+                              <div className="flex justify-between items-center text-[9px] font-bold text-foreground/80 mb-1">
+                                <span className="uppercase">#{a.catId}</span>
+                                <span>{a.val}%</span>
+                              </div>
+                              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div className="h-full bg-primary rounded-full" style={{ width: `${a.val}%` }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Technical Issues faced Section */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-red-500">
+                        <AlertTriangle size={13} />
+                        <span>{tr("Technical Issues & Fallbacks Faced", "الأخطاء والمشاكل الفنية التي واجهها")}</span>
+                      </div>
+                      {issuesList.length === 0 ? (
+                        <div className="flex items-center gap-1 bg-green-500/5 text-green-600 rounded-xl p-2.5 border border-green-500/10">
+                          <ShieldCheck size={13} />
+                          <span className="text-[10px] font-semibold">{tr("No issues or fallbacks logged for this customer.", "لا توجد أخطاء أو مشاكل مسجلة لهذا العميل.")}</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5 max-h-36 overflow-y-auto border border-red-500/10 rounded-xl p-2 bg-red-500/[0.01]">
+                          {issuesList.map((issue: any) => (
+                            <div key={issue.iid} className="text-[10px] bg-red-500/5 border border-red-500/10 rounded-lg p-2 flex items-start gap-1.5 font-sans">
+                              <AlertCircle size={12} className="text-red-500 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-red-700 capitalize">{issue.type.replace(/_/g, " ")}</p>
+                                <p className="text-muted-foreground mt-0.5 font-medium leading-normal">{issue.details}</p>
+                                <span className="text-[8px] text-muted-foreground mt-1 block">{new Date(issue.createdAt).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Timeline Audit Trail */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                        <Activity size={13} className="text-primary" />
+                        <span>{tr("Chronological Action Log (CRM)", "سجل العمليات الزمني (CRM)")}</span>
+                      </div>
+                      {activitiesList.length === 0 ? (
+                        <p className="text-[10px] text-muted-foreground italic font-medium pl-1">{tr("No recent activities recorded.", "لم يتم تسجيل نشاطات حديثة.")}</p>
+                      ) : (
+                        <div className="space-y-2 max-h-56 overflow-y-auto border border-border/10 rounded-xl p-3 bg-muted/10">
+                          {activitiesList.slice(0, 50).map((act: any) => (
+                            <div key={act.aid} className="text-[10px] flex gap-2 border-b border-border/5 pb-2 last:border-0 last:pb-0 font-sans">
+                              <span className="w-2.5 h-2.5 rounded-full bg-primary/20 flex-shrink-0 mt-1" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-foreground/90 capitalize">{act.actionType.replace(/_/g, " ")}</p>
+                                {act.details && (
+                                  <p className="text-[9px] text-muted-foreground mt-0.5 font-medium leading-relaxed truncate">
+                                    {typeof act.details === "object" ? JSON.stringify(act.details) : String(act.details)}
+                                  </p>
+                                )}
+                                <span className="text-[8px] text-muted-foreground/60 block mt-0.5">{new Date(act.createdAt).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Client deletion action */}
+                    <div className="flex justify-end pt-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteUser(u.uid); }}
+                        className="px-3.5 py-1.5 bg-destructive/10 text-destructive hover:bg-destructive text-[10px] font-bold rounded-xl transition-all flex items-center gap-1"
+                      >
+                        <Trash2 size={12} /> {tr("Delete Record", "حذف السجل")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ChatTab = ({ tr, isRTL, selectedChat, setSelectedChat, chats, chatMsgs, chatInput, setChatInput, sendReply, deleteChat, chatBottomRef }: { tr: any, isRTL: boolean, selectedChat: string | null, setSelectedChat: any, chats: ChatSession[], chatMsgs: ChatMsg[], chatInput: string, setChatInput: any, sendReply: any, deleteChat: any, chatBottomRef: any }) => (
   <div className="flex flex-col h-[70dvh] page-enter">

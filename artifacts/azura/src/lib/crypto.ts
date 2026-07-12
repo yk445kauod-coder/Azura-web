@@ -54,18 +54,20 @@ export function isValidApiKey(key: string): boolean {
 
 /**
  * Fallback AI Chat using Pollinations.ai (Free text API)
+ * Features a highly resilient GET fallback if the POST endpoint is offline or 502'ing.
  */
 export async function chatWithPollinations(
   message: string,
   history: Array<{ role: string; parts: Array<{ text: string }> }>,
   systemPrompt: string
 ): Promise<string> {
-  const url = "https://text.pollinations.ai/openai/chat/completions";
-
   const formattedHistory = history.map((h) => ({
     role: h.role === 'model' ? 'assistant' : 'user',
     content: h.parts[0]?.text || "",
   }));
+
+  // First try the official OpenAI-compatible POST endpoint
+  const url = "https://text.pollinations.ai/openai/chat/completions";
 
   try {
     const res = await fetch(url, {
@@ -82,11 +84,32 @@ export async function chatWithPollinations(
       }),
     });
 
-    if (!res.ok) throw new Error("Pollinations API failed");
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || "";
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content) return content;
+    }
   } catch (err) {
-    console.error("Pollinations error:", err);
+    console.warn("Pollinations POST endpoint failed, trying GET fallback:", err);
+  }
+
+  // Fallback to GET endpoint which is robust and bypasses Cloudflare 502 Bad Gateway
+  try {
+    const historyText = history.map((h) => `${h.role === 'model' ? 'Assistant' : 'User'}: ${h.parts[0]?.text || ""}`).join("\n");
+    const fullPrompt = historyText ? `${historyText}\nUser: ${message}` : message;
+
+    // We omit the 'model' parameter because the default anonymous model on GET is fully free and works perfectly.
+    // We pass the system prompt as a query parameter.
+    const getUrl = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?system=${encodeURIComponent(systemPrompt)}`;
+
+    const res = await fetch(getUrl);
+    if (res.ok) {
+      const text = await res.text();
+      if (text) return text;
+    }
+    throw new Error(`GET request failed with status: ${res.status}`);
+  } catch (err) {
+    console.error("Pollinations GET fallback failed:", err);
     throw err;
   }
 }

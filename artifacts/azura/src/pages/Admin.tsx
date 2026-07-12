@@ -13,7 +13,7 @@ import {
   AlertTriangle, Bot, LayoutDashboard, Users, ToggleRight, LayoutGrid,
   MessageCircle, Star, Sparkles, TrendingUp, Clock, Zap, MapPin, Coffee,
   User, Phone, MessageSquare, Armchair, UploadCloud, Download, Archive,
-  Check, Eye, EyeOff, Smartphone, Globe, Info, Package, Filter, List, Heart, LucideIcon
+  Check, Eye, EyeOff, Smartphone, Globe, Info, Package, Filter, List, Heart, LucideIcon, Database
 } from "lucide-react";
 
 import { VideoProvider } from "@/lib/videoProviders";
@@ -147,7 +147,7 @@ function ImagePicker({
   );
 }
 
-const OverviewTab = ({ tr, users, unreadChats, newReviewsCount }: { tr: any, users: any[], unreadChats: number, newReviewsCount: number }) => {
+const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount, apiSettings, connected }: { tr: any, users: any[], unreadChats: number, newReviewsCount: number, logs: string[], menuCount: number, apiSettings: any, connected: boolean }) => {
   const stats = useMemo(() => {
     const now = Date.now();
     const thirtyMins = 30 * 60 * 1000;
@@ -174,6 +174,120 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount }: { tr: any, use
           </div>
         ))}
       </div>
+
+      {/* Live System Logs Terminal Console */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <Settings size={18} className="text-primary animate-spin" style={{ animationDuration: '6s' }}/>
+          {tr("Live System Logs", "سجلات النظام المباشرة")}
+        </h3>
+        <div className="bg-black/95 text-green-400 font-mono text-[10px] p-4 rounded-xl h-44 overflow-y-auto space-y-1.5 scroll-hide shadow-inner border border-white/5">
+          {logs.length === 0 ? (
+            <p className="text-white/40 italic">{tr("No processes logged yet...", "لا توجد سجلات بعد...")}</p>
+          ) : (
+            logs.map((log, i) => (
+              <p key={i} className="truncate leading-normal">
+                <span className="text-white/30 mr-1.5">›</span>
+                {log}
+              </p>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Database Overview & Stats Card */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
+          <Database size={18} className="text-primary"/>
+          {tr("Database Overview & Stats", "ملخص وإحصائيات قاعدة البيانات")}
+        </h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 bg-muted/20 rounded-xl">
+            <p className="text-[10px] text-muted-foreground font-semibold uppercase">{tr("Database Mode", "وضع القاعدة")}</p>
+            <p className="text-sm font-bold text-foreground mt-0.5">Firebase Live RTDB</p>
+          </div>
+          <div className="p-3 bg-muted/20 rounded-xl">
+            <p className="text-[10px] text-muted-foreground font-semibold uppercase">{tr("Seated Guests", "الزوار الحاليين")}</p>
+            <p className="text-sm font-bold text-foreground mt-0.5">{users.filter(u => u.tableNumber).length} {tr("Active Tables", "طاولات نشطة")}</p>
+          </div>
+          <div className="p-3 bg-muted/20 rounded-xl">
+            <p className="text-[10px] text-muted-foreground font-semibold uppercase">{tr("Catalog Items", "أصناف القائمة")}</p>
+            <p className="text-sm font-bold text-foreground mt-0.5">{menuCount} {tr("Items", "صنف")}</p>
+          </div>
+          <div className="p-3 bg-muted/20 rounded-xl">
+            <p className="text-[10px] text-muted-foreground font-semibold uppercase">{tr("System Health", "حالة النظام")}</p>
+            <p className="text-sm font-bold text-green-500 mt-0.5">{connected ? tr("All Operational", "جميع الأنظمة تعمل") : tr("Offline Backup Mode", "وضع المزامنة الاحتياطي")}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Advisor & Strategic Business Advices Card */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <TrendingUp size={18} className="text-primary"/>
+          {tr("Strategic AI Advisor Insights", "نصائح وإرشادات الذكاء الاستراتيجية")}
+        </h3>
+        <div className="space-y-3">
+          {[
+            { tag: tr("Promotion Advice", "نصيحة ترويجية"), text: tr("Promote 'Mocktails' during warm afternoons to maximize high-margin beverage sales.", "قم بالترويج لـ 'الموكتيل' في أوقات الظهيرة الحارة لزيادة المبيعات ذات الهامش المرتفع.") },
+            { tag: tr("Menu Optimization", "نصيحة لتحسين القائمة"), text: tr("You have 250+ menu items. Keep high-value combos inside 'Top Picks' to boost average ticket size.", "لديك أكثر من ٢٥٠ صنفًا. ضع العروض الأكثر قيمة في 'الأفضل' لرفع متوسط الفاتورة.") },
+            { tag: tr("System Advice", "نصيحة تقنية"), text: tr("Regular manual backups are highly recommended before importing or bulk-seeding menu nodes.", "يُنصح بشدة بإنشاء نسخ احتياطية يدوية دورية قبل استيراد أو تعديل القائمة بالكامل.") }
+          ].map((adv, idx) => (
+            <div key={idx} className="p-3 bg-primary/5 rounded-xl border border-primary/10">
+              <span className="text-[9px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-full">{adv.tag}</span>
+              <p className="text-xs text-secondary font-semibold mt-2 leading-relaxed">{adv.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* System Health & Warnings Error Indicators Panel */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <AlertTriangle size={18} className="text-primary"/>
+          {tr("Health & Error Indicators", "مؤشرات المشاكل والأخطاء")}
+        </h3>
+        <div className="space-y-2.5">
+          {/* Check 1: Groq Key */}
+          {!apiSettings.groqKey && apiSettings.aiProvider !== "pollinations" ? (
+            <div className="flex items-start gap-3 p-3 bg-red-50 text-red-700 rounded-xl border border-red-100">
+              <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-bold">{tr("Groq AI Key is missing", "مفتاح Groq AI مفقود")}</p>
+                <p className="text-[10px] opacity-90 mt-0.5">{tr("Go to API tab to insert your Groq Key, or select Pollinations (Free) fallback.", "توجه إلى علامة تبويب API لإدخل المفتاح أو اختر بولينيشن (المجاني).")}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start gap-3 p-3 bg-green-50 text-green-700 rounded-xl border border-green-100">
+              <Check size={16} className="mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-bold">{tr("AI Provider Key: OK", "مفتاح مزود الذكاء: جاهز")}</p>
+                <p className="text-[10px] opacity-90 mt-0.5">{tr("Primary AI assistant key is loaded and operational.", "مفتاح المساعد الذكي نشط وجاهز للعمل.")}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Check 2: Connection Status */}
+          {!connected ? (
+            <div className="flex items-start gap-3 p-3 bg-amber-50 text-amber-700 rounded-xl border border-amber-100 animate-pulse">
+              <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-bold">{tr("Live sync status: Offline", "مزامنة البث المباشر: غير متصل")}</p>
+                <p className="text-[10px] opacity-90 mt-0.5">{tr("Currently operating in offline fallback mode. Sync will restore automatically.", "تعمل الأنظمة حالياً بوضع الاحتياط المحلي. ستعود المزامنة تلقائياً عند الاتصال.")}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start gap-3 p-3 bg-green-50 text-green-700 rounded-xl border border-green-100">
+              <Check size={16} className="mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-bold">{tr("Firebase Live Sync: Active", "اتصال المزامنة: بث حي")}</p>
+                <p className="text-[10px] opacity-90 mt-0.5">{tr("Real-time communication with database is healthy and synced.", "الاتصال المباشر مع قاعدة البيانات نشط والمزامنة مستمرة.")}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4"><LayoutDashboard size={18} className="text-primary"/> {tr("Business Insights","رؤى العمل")}</h3>
         <div className="space-y-4">
@@ -660,6 +774,25 @@ export default function Admin() {
   const [chatInput, setChatInput] = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // Live Firebase connection status & process logs
+  const [connected, setConnected] = useState(false);
+  const [logs, setLogs] = useState<string[]>([]);
+  const addLogRef = useRef<(msg: string) => void>(() => {});
+
+  useEffect(() => {
+    addLogRef.current = (msg: string) => {
+      const time = new Date().toLocaleTimeString();
+      setLogs(prev => [`[${time}] ${msg}`, ...prev].slice(0, 40));
+    };
+  }, []);
+
+  const addLog = (msg: string) => addLogRef.current?.(msg);
+
+  // Track tab changes in logs
+  useEffect(() => {
+    addLog(`Navigated to panel: ${tab.toUpperCase()}`);
+  }, [tab]);
+
   // Grown API settings state
   const [apiSettings, setApiSettings] = useState({
     groqKey: "",
@@ -685,21 +818,93 @@ export default function Admin() {
 
   useEffect(() => {
     if (!authed) return;
-    onValue(ref(db, "api-settings"), (s) => s.exists() && setApiSettings(prev => ({ ...prev, ...s.val() })));
-    onValue(ref(db, "feature-flags"), (s) => s.exists() && setFeatureFlags(s.val()));
-    onValue(ref(db, "homepage-banner"), (s) => { if (!s.exists()) return; const d = s.val(); setBannerContent(d.content || ""); setBannerBgColor(d.bgColor || "#FF6B35"); setBannerTextColor(d.textColor || "#FFFFFF"); setBannerEnabled(d.enabled !== false); });
+    addLogRef.current("Initializing live Firebase observers...");
+
+    // Watch connection status
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (s) => {
+      const isConn = s.val() === true;
+      setConnected(isConn);
+      addLogRef.current(`Firebase Live Sync: ${isConn ? "ONLINE" : "OFFLINE"}`);
+    });
+
+    onValue(ref(db, "api-settings"), (s) => {
+      if (s.exists()) {
+        setApiSettings(prev => ({ ...prev, ...s.val() }));
+        addLogRef.current("API and AI Provider settings loaded.");
+      }
+    });
+    onValue(ref(db, "feature-flags"), (s) => {
+      if (s.exists()) {
+        setFeatureFlags(s.val());
+        addLogRef.current("Active feature flags loaded.");
+      }
+    });
+    onValue(ref(db, "homepage-banner"), (s) => {
+      if (s.exists()) {
+        const d = s.val();
+        setBannerContent(d.content || "");
+        setBannerBgColor(d.bgColor || "#FF6B35");
+        setBannerTextColor(d.textColor || "#FFFFFF");
+        setBannerEnabled(d.enabled !== false);
+        addLogRef.current("Homepage banner configuration loaded.");
+      }
+    });
     onValue(ref(db, "menu"), (s) => {
       const data = s.val() || {}; const res: MenuItem[] = [];
-      Object.entries(data).forEach(([k, v]: any) => { if (v.price !== undefined) res.push({ id: k, ...v }); else Object.entries(v).forEach(([sk, sv]: any) => res.push({ id: sk, ...sv })); });
+      const normalizeCat = (c: string) => {
+        if (!c) return "other";
+        const lc = c.toLowerCase();
+        if (lc === "cocktail") return "cocktails";
+        if (lc === "mocktail") return "mocktails";
+        if (lc === "fries") return "add_ons";
+        return c;
+      };
+      Object.entries(data).forEach(([k, v]: any) => {
+        if (v.price !== undefined) {
+          res.push({ id: k, ...v, category: normalizeCat(v.category) });
+        } else {
+          Object.entries(v).forEach(([sk, sv]: any) => {
+            res.push({ id: sk, ...sv, category: normalizeCat(sv.category) });
+          });
+        }
+      });
       setMenu(res);
+      addLogRef.current(`Synced menu catalog (${res.length} items loaded & normalized).`);
     });
-    onValue(ref(db, "users"), (s) => setUsers(Object.entries(s.val() || {}).map(([uid, v]: any) => ({ uid, ...v })).sort((a,b) => (b.lastLoginAt||0)-(a.lastLoginAt||0))));
-    onValue(ref(db, "feedback"), (s) => setFeedback(Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v })).sort((a,b) => b.createdAt-a.createdAt)));
-    onValue(ref(db, "broadcast"), (s) => setBroadcasts(Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v })).sort((a,b) => b.createdAt-a.createdAt)));
-    onValue(ref(db, "reels"), (s) => setReels(Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v })).sort((a,b) => b.createdAt-a.createdAt)));
-    onValue(ref(db, "tables"), (s) => setTablesRaw(Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v }))));
-    onValue(ref(db, "support-chat"), (s) => setChats(Object.entries(s.val() || {}).filter(([k, v]: any) => v.meta).map(([uid, v]: any) => ({ uid, ...v.meta })).sort((a,b) => (b.lastAt||0)-(a.lastAt||0))));
-    return () => ["menu", "users", "feedback", "broadcast", "reels", "tables", "support-chat", "api-settings", "feature-flags", "homepage-banner"].forEach(p => off(ref(db, p)));
+    onValue(ref(db, "users"), (s) => {
+      const usersList = Object.entries(s.val() || {}).map(([uid, v]: any) => ({ uid, ...v })).sort((a,b) => (b.lastLoginAt||0)-(a.lastLoginAt||0));
+      setUsers(usersList);
+      addLogRef.current(`Synchronized client profiles (${usersList.length} records found).`);
+    });
+    onValue(ref(db, "feedback"), (s) => {
+      const feedbackList = Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v })).sort((a,b) => b.createdAt-a.createdAt);
+      setFeedback(feedbackList);
+      addLogRef.current(`Synced customer feedback entries (${feedbackList.length} reviews loaded).`);
+    });
+    onValue(ref(db, "broadcast"), (s) => {
+      const broadcastsList = Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v })).sort((a,b) => b.createdAt-a.createdAt);
+      setBroadcasts(broadcastsList);
+      addLogRef.current("Broadcast alert logs updated.");
+    });
+    onValue(ref(db, "reels"), (s) => {
+      const reelsList = Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v })).sort((a,b) => b.createdAt-a.createdAt);
+      setReels(reelsList);
+      addLogRef.current("Media Reels sync update completed.");
+    });
+    onValue(ref(db, "tables"), (s) => {
+      const tablesList = Object.entries(s.val() || {}).map(([id, v]: any) => ({ id, ...v }));
+      setTablesRaw(tablesList);
+      addLogRef.current("Armchairs and seating nodes updated.");
+    });
+    onValue(ref(db, "support-chat"), (s) => {
+      const chatList = Object.entries(s.val() || {}).filter(([k, v]: any) => v.meta).map(([uid, v]: any) => ({ uid, ...v.meta })).sort((a,b) => (b.lastAt||0)-(a.lastAt||0));
+      setChats(chatList);
+    });
+    return () => {
+      off(connectedRef);
+      ["menu", "users", "feedback", "broadcast", "reels", "tables", "support-chat", "api-settings", "feature-flags", "homepage-banner"].forEach(p => off(ref(db, p)));
+    };
   }, [authed]);
 
   useEffect(() => {
@@ -711,8 +916,8 @@ export default function Admin() {
 
   const login = () => { if (pin === ADMIN_PIN) { sessionStorage.setItem("azura-admin", "true"); setAuthed(true); } else setPinErr("Wrong PIN"); };
 
-  const MENU_CATEGORIES = ["recommended", "new_items", "soups", "appetizers", "salads", "pasta", "tortilla", "toast", "croissant", "breakfast", "main_dishes", "burgers", "smash_burgers", "fried_chicken", "hot_drinks", "coffee", "corto", "hot_chocolate", "sahlab", "frappuccino", "iced_coffee", "mojitos", "boba_tea", "fresh_juices", "mocktails", "smoothies", "milkshakes", "waffle", "desserts", "crepes", "pancakes", "add_ons", "shisha", "soft_drinks"];
-  const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = { recommended: { emoji: "⭐", en: "Top Picks", ar: "الأفضل" }, new_items: { emoji: "🆕", en: "New", ar: "جديد" }, soups: { emoji: "🍲", en: "Soup", ar: "شوربة" }, appetizers: { emoji: "🍟", en: "Appetizers", ar: "مقبلات" }, salads: { emoji: "🥗", en: "Salads", ar: "سلطات" }, pasta: { emoji: "🍝", en: "Pasta", ar: "مكرونة" }, tortilla: { emoji: "🌯", en: "Tortilla", ar: "تورتيلا" }, toast: { emoji: "🍞", en: "Toast", ar: "توست" }, croissant: { emoji: "🥐", en: "Croissant", ar: "كرواسون" }, breakfast: { emoji: "🍳", en: "Breakfast", ar: "فطور" }, main_dishes: { emoji: "🍽️", en: "Main Dishes", ar: "أطباق رئيسية" }, burgers: { emoji: "🍔", en: "Burgers", ar: "برجر" }, smash_burgers: { emoji: "🔥", en: "Smash Burgers", ar: "سماش برجر" }, fried_chicken: { emoji: "🍗", en: "Fried Chicken", ar: "فراخ مقلية" }, hot_drinks: { emoji: "☕", en: "Hot Drinks", ar: "مشروبات ساخنة" }, coffee: { emoji: "☕", en: "Coffee", ar: "قهوة" }, corto: { emoji: "🥛", en: "Corto", ar: "كورتو" }, hot_chocolate: { emoji: "🍫", en: "Hot Chocolate", ar: "شوكولاتة ساخنة" }, sahlab: { emoji: "🥛", en: "Sahlab", ar: "سحلب" }, frappuccino: { emoji: "🧊", en: "Frappuccino", ar: "فرابتشينو" }, iced_coffee: { emoji: "🧋", en: "Iced Coffee", ar: "قهوة مثلجة" }, mojitos: { emoji: "🍹", en: "Mojitos", ar: "موجيتو" }, boba_tea: { emoji: "🧋", en: "Boba Tea", ar: "بوبا تي" }, fresh_juices: { emoji: "🍊", en: "Fresh Juices", ar: "عصائر طازجة" }, mocktails: { emoji: "🍸", en: "Mocktails", ar: "موكتيل" }, smoothies: { emoji: "🥤", en: "Smoothies", ar: "سموذي" }, milkshakes: { emoji: "🥛", en: "Milkshakes", ar: "ميلك شيك" }, waffle: { emoji: "🧇", en: "Waffle", ar: "وافل" }, desserts: { emoji: "🍰", en: "Desserts", ar: "حلويات" }, crepes: { emoji: "🥞", en: "Crepes", ar: "كريب" }, pancakes: { emoji: "🥞", en: "Pancakes", ar: "بان كيك" }, add_ons: { emoji: "➕", en: "Add-ons", ar: "إضافات" }, shisha: { emoji: "💨", en: "Hookah", ar: "شيشة" }, soft_drinks: { emoji: "🥤", en: "Soft Drinks", ar: "مشروبات غازية" } };
+  const MENU_CATEGORIES = ["recommended", "new_items", "soups", "appetizers", "salads", "pasta", "tortilla", "toast", "croissant", "breakfast", "main_dishes", "burgers", "smash_burgers", "fried_chicken", "hot_drinks", "coffee", "corto", "hot_chocolate", "sahlab", "frappuccino", "iced_coffee", "mojitos", "boba_tea", "fresh_juices", "mocktails", "cocktails", "smoothies", "milkshakes", "waffle", "desserts", "crepes", "pancakes", "add_ons", "shisha", "soft_drinks"];
+  const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = { recommended: { emoji: "⭐", en: "Top Picks", ar: "الأفضل" }, new_items: { emoji: "🆕", en: "New", ar: "جديد" }, soups: { emoji: "🍲", en: "Soup", ar: "شوربة" }, appetizers: { emoji: "🍟", en: "Appetizers", ar: "مقبلات" }, salads: { emoji: "🥗", en: "Salads", ar: "سلطات" }, pasta: { emoji: "🍝", en: "Pasta", ar: "مكرونة" }, tortilla: { emoji: "🌯", en: "Tortilla", ar: "تورتيلا" }, toast: { emoji: "🍞", en: "Toast", ar: "توست" }, croissant: { emoji: "🥐", en: "Croissant", ar: "كرواسون" }, breakfast: { emoji: "🍳", en: "Breakfast", ar: "فطور" }, main_dishes: { emoji: "🍽️", en: "Main Dishes", ar: "أطباق رئيسية" }, burgers: { emoji: "🍔", en: "Burgers", ar: "برجر" }, smash_burgers: { emoji: "🔥", en: "Smash Burgers", ar: "سماش برجر" }, fried_chicken: { emoji: "🍗", en: "Fried Chicken", ar: "فراخ مقلية" }, hot_drinks: { emoji: "☕", en: "Hot Drinks", ar: "مشروبات ساخنة" }, coffee: { emoji: "☕", en: "Coffee", ar: "قهوة" }, corto: { emoji: "🥛", en: "Corto", ar: "كورتو" }, hot_chocolate: { emoji: "🍫", en: "Hot Chocolate", ar: "شوكولاتة ساخنة" }, sahlab: { emoji: "🥛", en: "Sahlab", ar: "سحلب" }, frappuccino: { emoji: "🧊", en: "Frappuccino", ar: "فرابتشينو" }, iced_coffee: { emoji: "🧋", en: "Iced Coffee", ar: "قهوة مثلجة" }, mojitos: { emoji: "🍹", en: "Mojitos", ar: "موجيتو" }, boba_tea: { emoji: "🧋", en: "Boba Tea", ar: "بوبا تي" }, fresh_juices: { emoji: "🍊", en: "Fresh Juices", ar: "عصائر طازجة" }, mocktails: { emoji: "🍸", en: "Mocktails", ar: "موكتيل" }, cocktails: { emoji: "🍹", en: "Cocktails", ar: "كوكتيل" }, smoothies: { emoji: "🥤", en: "Smoothies", ar: "سموذي" }, milkshakes: { emoji: "🥛", en: "Milkshakes", ar: "ميلك شيك" }, waffle: { emoji: "🧇", en: "Waffle", ar: "وافل" }, desserts: { emoji: "🍰", en: "Desserts", ar: "حلويات" }, crepes: { emoji: "🥞", en: "Crepes", ar: "كريب" }, pancakes: { emoji: "🥞", en: "Pancakes", ar: "بان كيك" }, add_ons: { emoji: "➕", en: "Add-ons", ar: "إضافات" }, shisha: { emoji: "💨", en: "Hookah", ar: "شيشة" }, soft_drinks: { emoji: "🥤", en: "Soft Drinks", ar: "مشروبات غازية" } };
 
   const activeTables = useMemo(() => {
     return tablesRaw.map(t => ({ ...t, userCount: users.filter(u => u.tableNumber === t.number).length, status: users.some(u => u.tableNumber === t.number) ? "occupied" : "available" })).sort((a,b) => a.number-b.number);
@@ -758,7 +963,13 @@ export default function Admin() {
           <ArrowLeft size={16} />
         </button>
         <div className="flex flex-col flex-1">
-          <span className="font-bold text-lg leading-none">AZURA</span>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-lg leading-none">AZURA</span>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/15 border border-white/10">
+              <div className={`w-2 h-2 rounded-full ${connected ? "bg-green-400 animate-pulse" : "bg-red-400"}`}/>
+              <span className="text-[8px] font-bold tracking-tight text-white/90 uppercase">{connected ? "Live" : "Offline"}</span>
+            </div>
+          </div>
           <span className="text-[10px] text-primary-foreground/80 tracking-tighter uppercase mt-0.5">quality is habit</span>
         </div>
         <button onClick={() => { sessionStorage.removeItem("azura-admin"); setAuthed(false); }} className="text-xs text-primary-foreground/90 hover:underline">Sign out</button>
@@ -775,7 +986,7 @@ export default function Admin() {
       </nav>
       <main className="max-w-2xl mx-auto px-4 py-6">
         <Suspense fallback={<div className="text-center py-20 opacity-50">Loading...</div>}>
-          {tab === "overview" && <OverviewTab tr={tr} users={users} unreadChats={chats.reduce((s,c)=>s+(c.unreadAdmin||0),0)} newReviewsCount={feedback.filter(f=>!f.read).length} />}
+          {tab === "overview" && <OverviewTab tr={tr} users={users} unreadChats={chats.reduce((s,c)=>s+(c.unreadAdmin||0),0)} newReviewsCount={feedback.filter(f=>!f.read).length} logs={logs} menuCount={menu.length} apiSettings={apiSettings} connected={connected} />}
           {tab === "menu" && <MenuTab tr={tr} lang={lang} menu={menu} MENU_CATEGORIES={MENU_CATEGORIES} CAT_META={CAT_META} />}
           {tab === "features" && <FeaturesTab tr={tr} featureFlags={featureFlags} toggleFeatureFlag={async (k: string, v: boolean) => { setSavingFlag(k); await update(ref(db, "feature-flags"), { [k]: v }); setSavingFlag(null); }} savingFlag={savingFlag} />}
           {tab === "users" && <UsersTab tr={tr} users={users} deleteUser={(uid: string) => smartRemove(`users/${uid}`)} formatDuration={(s: number) => s > 3600 ? `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m` : `${Math.floor(s/60)}m`} />}

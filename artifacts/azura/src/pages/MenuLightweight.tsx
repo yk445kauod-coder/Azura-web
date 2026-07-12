@@ -52,7 +52,6 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 const CATS = [
   { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
   { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
-  { id: "fries",            emoji: "🍟",  en: "Fries",               ar: "فرايز"           },
   { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
   { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
   { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
@@ -91,7 +90,6 @@ const CATS = [
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
   new_items:      ["new_items"],
-  fries:          ["fries"],
   appetizers:     ["appetizers", "appetizer"],
   soups:          ["soups", "soup"],
   salads:         ["salads", "salad"],
@@ -121,7 +119,7 @@ const CAT_ALIASES: Record<string, string[]> = {
   desserts:       ["desserts", "dessert"],
   crepes:         ["crepes", "crepe"],
   pancakes:       ["pancakes"],
-  add_ons:        ["add_ons", "extra_kitchen"],
+  add_ons:        ["add_ons", "extra_kitchen", "fries"],
   shisha:         ["shisha"],
   soft_drinks:    ["soft_drinks"],
 };

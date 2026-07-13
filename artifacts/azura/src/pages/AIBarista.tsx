@@ -140,6 +140,7 @@ export default function AIBarista() {
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
   const [egyKey, setEgyKey] = useState("");
+  const [aiProvider, setAiProvider] = useState("groq");
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
   const [memories, setMemories] = useState<string[]>([]);
 
@@ -169,6 +170,7 @@ export default function AIBarista() {
           setEgyKey("");
         }
         setAiEnabled(data.aiEnabled !== false);
+        setAiProvider(data.aiProvider || "groq");
         setMenuNode(data.menuNode || "menu");
       }
     });
@@ -375,10 +377,12 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled || !egyKey) return;
+    const isFree = aiProvider === "pollinations";
+    if (!aiEnabled || (!isFree && !egyKey)) return;
 
     setInput("");
-    await baseSendMessage(text, egyKey, buildSystemPrompt(), parseMessage);
+    const keyToUse = egyKey || "pollinations_free";
+    await baseSendMessage(text, keyToUse, buildSystemPrompt(), parseMessage);
     
     // Update memory asynchronously after response
     if (user) {
@@ -391,7 +395,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
           Recent Chat:
           ${lastMsgs.map(m => `${m.role}: ${m.content}`).join("\n")}`;
 
-          const fact = await chatWithAI(egyKey, "Extract key user facts for memory.", [], summaryPrompt);
+          const fact = await chatWithAI(keyToUse, "Extract key user facts for memory.", [], summaryPrompt);
           if (fact && fact.length > 5 && fact.length < 100) {
             const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
             await set(memRef, fact);

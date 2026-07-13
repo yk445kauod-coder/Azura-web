@@ -3,7 +3,7 @@ import { db, ref, onValue, off, update, set, push, remove, get, forceReseedMenu,
 import { smartGet, smartSet, smartUpdate, smartRemove, smartPush, getDBMode, setDBMode, onModeChange } from "@/lib/dbWrapper";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
-import { encryptKey } from "@/lib/crypto";
+import { encryptKey, decryptKey, chatWithAI } from "@/lib/crypto";
 import { swalSuccess, swalError, swalConfirm, swalLoading, swalClose } from "@/lib/swal";
 import { testR2Connection, listR2Objects, downloadFromR2, uploadToR2 } from "@/lib/r2";
 import {
@@ -16,6 +16,20 @@ import {
   Check, Eye, EyeOff, Smartphone, Globe, Info, Package, Filter, List, Heart, LucideIcon, Database,
   AlertCircle, Activity
 } from "lucide-react";
+
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+  PieChart,
+  Pie
+} from "recharts";
 
 import { VideoProvider } from "@/lib/videoProviders";
 import { compressToBase64, base64SizeKB } from "@/lib/imageUtils";
@@ -157,8 +171,104 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
     const returningRate = users.length ? Math.round((returning / users.length) * 100) : 0;
     return { activeNow, returningRate };
   }, [users]);
+
+  // Hourly Traffic Trends - Real calculation from live user activity timestamps
+  const hourlyTrends = useMemo(() => {
+    const hoursMap: Record<number, number> = {};
+    for (let i = 0; i < 24; i++) hoursMap[i] = 0;
+
+    users.forEach(u => {
+      if (u.activities) {
+        Object.values(u.activities).forEach((act: any) => {
+          if (act.createdAt) {
+            const hr = new Date(act.createdAt).getHours();
+            hoursMap[hr] = (hoursMap[hr] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    return Object.entries(hoursMap).map(([hour, count]) => ({
+      hour: `${hour}:00`,
+      interactions: count
+    }));
+  }, [users]);
+
+  // Meta Recommendation Interest distribution chart (average affinities across all active clients)
+  const categoryAffinities = useMemo(() => {
+    const sums: Record<string, number> = {};
+    const counts: Record<string, number> = {};
+
+    users.forEach(u => {
+      if (u.preferences?.affinities) {
+        Object.entries(u.preferences.affinities).forEach(([catId, val]) => {
+          const score = Number(val) || 0;
+          sums[catId] = (sums[catId] || 0) + score;
+          counts[catId] = (counts[catId] || 0) + 1;
+        });
+      }
+    });
+
+    const results = Object.keys(sums).map(catId => ({
+      name: catId.toUpperCase(),
+      affinity: Math.round(sums[catId] / counts[catId])
+    })).sort((a,b) => b.affinity - a.affinity).slice(0, 5);
+
+    return results.length > 0 ? results : [
+      { name: "COFFEE", affinity: 85 },
+      { name: "MOJITOS", affinity: 60 },
+      { name: "DESSERTS", affinity: 50 },
+      { name: "CREPES", affinity: 45 },
+      { name: "PASTA", affinity: 30 }
+    ];
+  }, [users]);
+
+  // System Diagnostics Pie Chart data
+  const systemSatisfaction = useMemo(() => {
+    const usersWithIssues = users.filter(u => !!u.hasIssues).length;
+    const satisfiedUsers = Math.max(1, users.length - usersWithIssues);
+    return [
+      { name: tr("Healthy Sessions", "جلسات مستقرة"), value: satisfiedUsers, color: "#10B981" },
+      { name: tr("Reported Issues", "مشاكل مسجلة"), value: usersWithIssues, color: "#EF4444" }
+    ];
+  }, [users]);
+
+  // Handle excel CSV history downloader system (Million Dollar CRM Exporter tool)
+  const exportCRMSpreadsheet = () => {
+    let csv = "User ID,Name,Table Number,Device ID,Visit Count,Active Seconds,Has Issues,Activity Score\n";
+    users.forEach(u => {
+      csv += `"${u.uid}","${u.name || 'Guest'}","${u.tableNumber || ''}","${u.deviceId || ''}",${u.loginCount || 1},${u.totalUsageSeconds || 0},${!!u.hasIssues},${u.activityScore || 0}\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `azura_crm_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    swalSuccess(tr("CRM Spreadsheet exported successfully!", "تم تصدير ملف CRM بنجاح!"));
+  };
+
+  const exportSystemLogs = () => {
+    let logText = "Azura Cafe Live Logs History System\n==================================\n\n";
+    logs.forEach(log => { logText += `${log}\n`; });
+
+    const blob = new Blob([logText], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `azura_system_logs_${Date.now()}.txt`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    swalSuccess(tr("System Logs exported successfully!", "تم تصدير سجلات التشغيل بنجاح!"));
+  };
+
   return (
-    <div className="space-y-4 page-enter">
+    <div className="space-y-6 page-enter pb-10">
+      {/* MILLION DOLLAR KPI DASHBOARD */}
       <div className="grid grid-cols-2 gap-3">
         {[
           { icon: Sparkles, label: tr("Active Now","نشط الآن"), value: stats.activeNow, color: "text-primary" },
@@ -166,7 +276,7 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
           { icon: MessageCircle, label: tr("Unread Messages","رسائل جديدة"), value: unreadChats, color: "text-info" },
           { icon: Star, label: tr("New Reviews","تقييمات جديدة"), value: newReviewsCount, color: "text-warning" },
         ].map((s) => (
-          <div key={s.label} className="card-elevated p-4 text-center active:scale-95 transition-transform bg-card border border-border/15 rounded-2xl">
+          <div key={s.label} className="card-elevated p-4 text-center active:scale-95 transition-transform bg-card border border-border/15 rounded-2xl shadow-sm">
             <div className="flex justify-center mb-2">
                <s.icon size={20} className={s.color} />
             </div>
@@ -174,6 +284,71 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
             <p className="text-[10px] text-muted-foreground font-bold uppercase mt-2 tracking-tighter">{s.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* EXCEL SHEET SYSTEM EXPORTERS (CRM and logs export history) */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15 shadow-sm space-y-3">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <Database size={18} className="text-primary"/>
+          {tr("Enterprise Documents & Data Exporter", "نظام تصدير المستندات وملفات إكسل")}
+        </h3>
+        <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
+          {tr("Export complete database history logs, guest profiles, and activity audit trails as perfectly formatted spreadsheets.", "تصدير سجلات قاعدة البيانات بالكامل، وملفات العملاء، والعمليات كجداول بيانات إكسل مهيأة تماماً.")}
+        </p>
+        <div className="grid grid-cols-2 gap-3 pt-2">
+          <button onClick={exportCRMSpreadsheet} className="btn-primary py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-primary/10">
+            <Download size={14}/> {tr("Export CRM (.CSV)", "تصدير إكسل CRM")}
+          </button>
+          <button onClick={exportSystemLogs} className="btn-secondary py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border border-border/15">
+            <Download size={14}/> {tr("Export Logs (.TXT)", "تصدير ملف السجلات")}
+          </button>
+        </div>
+      </div>
+
+      {/* RECHARTS AREA: HOURLY ACTIVITY TRAFFIC PEAK TRENDS */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15 shadow-sm">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <TrendingUp size={18} className="text-primary"/>
+          {tr("Hourly Client Engagement (Traffic)", "معدل تفاعل وحركة الزوار بالساعة")}
+        </h3>
+        <div className="h-44 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={hourlyTrends} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+              <XAxis dataKey="hour" tick={{ fontSize: 9, fontWeight: 'bold' }} stroke="currentColor" className="opacity-40" />
+              <YAxis tick={{ fontSize: 9, fontWeight: 'bold' }} stroke="currentColor" className="opacity-40" />
+              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 10, borderRadius: 12, fontWeight: "bold" }} />
+              <Area type="monotone" dataKey="interactions" stroke="hsl(var(--primary))" fillOpacity={0.15} fill="url(#colorInteractions)" />
+              <defs>
+                <linearGradient id="colorInteractions" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* RECHARTS BAR: META RECOMMENDATION AVERAGE CATEGORY AFFINITIES */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15 shadow-sm">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <Sparkles size={18} className="text-orange-500"/>
+          {tr("Average Category Taste Affinity (Meta)", "متوسط اهتمامات وتفضيلات العملاء (Meta)")}
+        </h3>
+        <div className="h-44 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={categoryAffinities} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+              <XAxis dataKey="name" tick={{ fontSize: 9, fontWeight: 'bold' }} stroke="currentColor" className="opacity-40" />
+              <YAxis tick={{ fontSize: 9, fontWeight: 'bold' }} stroke="currentColor" className="opacity-40" />
+              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 10, borderRadius: 12, fontWeight: "bold" }} />
+              <Bar dataKey="affinity" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]}>
+                {categoryAffinities.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={index === 0 ? "hsl(var(--primary))" : "rgba(139, 69, 19, 0.45)"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Live System Logs Terminal Console */}
@@ -304,7 +479,7 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
   const [menuSearch, setMenuSearch] = useState("");
   const [menuCategoryFilter, setMenuCategoryFilter] = useState<string>("all");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [addForm, setAddForm] = useState({ name: "", nameAr: "", price: "", category: "coffee", image: "", description: "", descriptionAr: "", ingredients: "", ingredientsAr: "", available: true });
+  const [addForm, setAddForm] = useState({ name: "", nameAr: "", price: "", category: "coffee", image: "", description: "", descriptionAr: "", ingredients: "", ingredientsAr: "", available: true, recommended: false });
   const [savingItem, setSavingItem] = useState(false);
   const [selectedMenuItemId, setSelectedMenuItemId] = useState<string | null>(null);
   const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set(["coffee", "hot_drinks", "recommended"]));
@@ -360,7 +535,19 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
               <div><label className={lbl}>{tr("Category","الفئة")}</label><select className="input-field w-full" value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}>{MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
             </div>
             <ImagePicker label={tr("Photo", "الصورة")} value={addForm.image} onChange={v => setAddForm(f => ({ ...f, image: v }))} />
-            <button disabled={savingItem || !addForm.name || !addForm.price} onClick={async () => { setSavingItem(true); const id = `${addForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${Date.now().toString(36)}`; await smartSet(`menu/${addForm.category}/${id}`, { ...addForm, price: Number(addForm.price) }); setAddForm({ name:"", nameAr:"", price:"", category:"coffee", image:"", description:"", descriptionAr:"", ingredients:"", ingredientsAr:"", available:true }); setShowAddForm(false); setSavingItem(false); swalSuccess(tr("Added!", "تمت الإضافة!")); }} className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">{savingItem ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={16}/>} {tr("Save Item","حفظ الصنف")}</button>
+            <div className="flex items-center gap-2 py-1">
+              <input
+                type="checkbox"
+                id="add-recommended"
+                checked={addForm.recommended}
+                onChange={e => setAddForm(f => ({ ...f, recommended: e.target.checked }))}
+                className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <label htmlFor="add-recommended" className="text-xs font-semibold text-foreground cursor-pointer">
+                {tr("Mark as Recommended / Promote to Top Picks", "تمييز كصنف موصى به / ترقية للأفضل")}
+              </label>
+            </div>
+            <button disabled={savingItem || !addForm.name || !addForm.price} onClick={async () => { setSavingItem(true); const id = `${addForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${Date.now().toString(36)}`; await smartSet(`menu/${addForm.category}/${id}`, { ...addForm, price: Number(addForm.price) }); setAddForm({ name:"", nameAr:"", price:"", category:"coffee", image:"", description:"", descriptionAr:"", ingredients:"", ingredientsAr:"", available:true, recommended:false }); setShowAddForm(false); setSavingItem(false); swalSuccess(tr("Added!", "تمت الإضافة!")); }} className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">{savingItem ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={16}/>} {tr("Save Item","حفظ الصنف")}</button>
           </div>
         )}
       </div>
@@ -410,6 +597,18 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
                                 <div><label className={lbl}>Ingredients (AR)</label><textarea className="input-field w-full h-24" dir="rtl" value={edits.ingredientsAr || item.ingredientsAr} onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], ingredientsAr: e.target.value } }))} /></div>
                               </div>
                               <ImagePicker label={tr("Photo", "الصورة")} value={edits.image || item.image} onChange={v => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], image: v } }))} />
+                              <div className="flex items-center gap-2 py-1">
+                                <input
+                                  type="checkbox"
+                                  id={`edit-rec-${item.id}`}
+                                  checked={edits.recommended !== undefined ? edits.recommended : !!item.recommended}
+                                  onChange={e => setMenuEdits(p => ({ ...p, [item.id]: { ...p[item.id], recommended: e.target.checked } }))}
+                                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                                />
+                                <label htmlFor={`edit-rec-${item.id}`} className="text-xs font-semibold text-foreground cursor-pointer">
+                                  {tr("Mark as Recommended / Promote to Top Picks", "تمييز كصنف موصى به / ترقية للأفضل")}
+                                </label>
+                              </div>
                               <div className="flex gap-3 pt-4">
                                 <button onClick={async () => { if (await swalConfirm(tr("Delete?", "حذف؟"), tr("Permanent.", "نهائي."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) { await smartRemove(`menu/${item.category}/${item.id}`); setSelectedMenuItemId(null); swalSuccess(tr("Deleted!", "تم الحذف!")); } }} className="btn-secondary px-4 py-3 rounded-xl hover:bg-destructive hover:text-white transition-colors"><Trash2 size={16} /></button>
                                 <button disabled={savingMenuId === item.id || !Object.keys(edits).length} onClick={async () => { setSavingMenuId(item.id); await smartUpdate(`menu/${item.category}/${item.id}`, edits); setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; }); swalSuccess(tr("Saved!", "تم الحفظ!")); setSelectedMenuItemId(null); setSavingMenuId(null); }} className="btn-primary flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2">{savingMenuId === item.id ? <Bot className="animate-spin" size={16}/> : <Save size={16}/>} {tr("Save Changes", "حفظ التعديلات")}</button>
@@ -897,6 +1096,315 @@ const BaristaTab = ({ tr }: { tr: any }) => {
   );
 };
 
+const ReservationsTab = ({ tr }: { tr: any }) => {
+  const [resList, setResList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [form, setForm] = useState({ guestName: "", phone: "", date: "", time: "", guestsCount: "2", tableNum: "1", source: "Facebook", notes: "" });
+
+  const [sheet, setSheet] = useState<string[][]>(() => {
+    const initial = Array(6).fill(null).map(() => Array(5).fill(""));
+    initial[0][0] = "Table #";
+    initial[0][1] = "Pax Max";
+    initial[0][2] = "Status";
+    initial[0][3] = "Client Name";
+    initial[0][4] = "Source";
+    return initial;
+  });
+
+  const [activeCell, setActiveCell] = useState<{ r: number; c: number } | null>(null);
+  const [cellText, setCellText] = useState("");
+
+  useEffect(() => {
+    const resRef = ref(db, "reservations");
+    const unsub = onValue(resRef, (snap) => {
+      if (snap.exists()) {
+        const data = Object.entries(snap.val()).map(([id, val]: any) => ({ id, ...val }));
+        setResList(data);
+      } else {
+        setResList([]);
+      }
+      setLoading(false);
+    });
+
+    get(ref(db, "reservations-sheet")).then((snap) => {
+      if (snap.exists()) setSheet(snap.val());
+    });
+
+    return () => off(resRef);
+  }, []);
+
+  const handleAddBooking = async () => {
+    if (!form.guestName.trim()) return;
+    const id = `res_${Date.now()}`;
+    await set(ref(db, `reservations/${id}`), {
+      ...form,
+      guestsCount: Number(form.guestsCount),
+      createdAt: Date.now()
+    });
+    setForm({ guestName: "", phone: "", date: "", time: "", guestsCount: "2", tableNum: "1", source: "Facebook", notes: "" });
+    swalSuccess(tr("Reservation saved successfully!", "تم حفظ الحجز بنجاح!"));
+  };
+
+  const handleSaveCell = () => {
+    if (!activeCell) return;
+    const updated = [...sheet];
+    updated[activeCell.r][activeCell.c] = cellText;
+    setSheet(updated);
+    set(ref(db, "reservations-sheet"), updated);
+    setActiveCell(null);
+  };
+
+  const handleDownloadSheetCSV = () => {
+    let csv = "";
+    sheet.forEach(row => {
+      csv += row.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(",") + "\n";
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `azura_custom_sheet_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    swalSuccess(tr("Custom Sheet CSV downloaded!", "تم تحميل ملف إكسل CSV!"));
+  };
+
+  const handleDeleteBooking = async (id: string) => {
+    if (await swalConfirm(tr("Delete Reservation?", "حذف الحجز؟"), tr("This cannot be undone.", "لا يمكن التراجع عن هذه العملية."))) {
+      await remove(ref(db, `reservations/${id}`));
+      swalSuccess(tr("Deleted!", "تم الحذف!"));
+    }
+  };
+
+  const handleDownloadPass = (res: any) => {
+    const data = `Guest Name: ${res.guestName}\nPhone: ${res.phone}\nDate: ${res.date}\nTime: ${res.time}\nPax: ${res.guestsCount}\nTable Assigned: ${res.tableNum}\nSource: ${res.source}\nNotes: ${res.notes || 'None'}\n`;
+    const blob = new Blob([data], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `reservation_pass_${res.guestName.replace(/\s+/g, "_")}.txt`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const facebookCount = resList.filter(r => r.source === "Facebook").length;
+  const otherCount = resList.length - facebookCount;
+  const pendingCount = resList.length;
+
+  return (
+    <div className="space-y-6 page-enter pb-10">
+      {/* MERMAID-LIKE STATUS FLOWCHART */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15 shadow-sm">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <TrendingUp size={18} className="text-primary"/>
+          {tr("Reservations Flowchart (Mermaid Model)", "مخطط تدفق الحجوزات (Mermaid)")}
+        </h3>
+        <div className="bg-muted/10 border border-border/15 rounded-xl p-4 flex flex-col items-center justify-center space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="px-3.5 py-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-500 text-xs font-bold rounded-lg text-center shadow-sm">
+              <p className="uppercase text-[8px] opacity-70">Facebook Incoming</p>
+              <p className="text-sm font-black mt-0.5">{facebookCount}</p>
+            </div>
+            <div className="text-muted-foreground text-xs font-bold">──▶</div>
+            <div className="px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-bold rounded-lg text-center shadow-sm">
+              <p className="uppercase text-[8px] opacity-70">Other Booking</p>
+              <p className="text-sm font-black mt-0.5">{otherCount}</p>
+            </div>
+          </div>
+
+          <div className="text-muted-foreground text-xs font-bold">▼</div>
+
+          <div className="px-5 py-2.5 bg-primary/10 border border-primary/30 text-primary text-xs font-bold rounded-xl text-center shadow-md w-full max-w-[240px]">
+            <p className="uppercase text-[9px] opacity-80 tracking-widest">{tr("Active Confirmed Bookings", "الحجوزات النشطة المؤكدة")}</p>
+            <p className="text-lg font-black mt-1">{pendingCount} {tr("Bookings", "حجز")}</p>
+          </div>
+
+          <div className="text-muted-foreground text-xs font-bold">▼</div>
+
+          <div className="flex gap-2">
+            <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg text-[10px] font-bold">
+              ✔ {tr("Tables Seated", "تم التسكين")}
+            </div>
+            <div className="px-3 py-1 bg-secondary/10 border border-secondary/20 text-secondary rounded-lg text-[10px] font-bold">
+              ★ {tr("Quality VIP Checked", "جودة الخدمة")}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SPREADSHEET DOC DESIGNER GRID */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-[#D2B48C] shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-sm font-bold text-[#654321] flex items-center gap-2">
+            <Database size={18} className="text-primary"/>
+            {tr("Interactive Spreadsheet Designer", "مصمم الجداول التفاعلية")}
+          </h3>
+          <button onClick={handleDownloadSheetCSV} className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-xl flex items-center gap-1">
+            <Download size={12}/> {tr("Export Excel (.CSV)", "تصدير ملف إكسل")}
+          </button>
+        </div>
+
+        <div className="overflow-x-auto border border-border/10 rounded-xl">
+          <table className="min-w-full divide-y divide-border/10 bg-white font-sans text-xs">
+            <tbody>
+              {sheet.map((row, r) => (
+                <tr key={r} className="divide-x divide-border/10">
+                  <td className="bg-muted/30 px-2 py-1.5 font-bold text-center w-8 select-none text-[10px]">
+                    {r + 1}
+                  </td>
+                  {row.map((cell, c) => (
+                    <td
+                      key={c}
+                      onClick={() => { setActiveCell({ r, c }); setCellText(cell || ""); }}
+                      className={`px-3 py-2 text-center cursor-pointer font-medium hover:bg-muted/15 transition-colors border-b border-border/10 ${
+                        activeCell?.r === r && activeCell?.c === c
+                          ? "bg-primary/10 ring-2 ring-primary/25 font-bold"
+                          : cell ? "bg-primary/[0.02]" : ""
+                      }`}
+                    >
+                      {cell || <span className="opacity-0">-</span>}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {activeCell && (
+          <div className="p-3 bg-muted/20 border border-border/15 rounded-xl flex gap-2 items-center animate-in fade-in duration-150">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase">Cell R{activeCell.r+1}C{activeCell.c+1}:</span>
+            <input
+              type="text"
+              className="flex-1 input-field px-3 py-1.5 text-xs font-semibold focus:outline-none"
+              value={cellText}
+              onChange={e => setCellText(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSaveCell()}
+              autoFocus
+            />
+            <button onClick={handleSaveCell} className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg">{tr("Apply", "تطبيق")}</button>
+            <button onClick={() => setActiveCell(null)} className="px-2.5 py-1.5 bg-muted text-foreground text-xs font-bold rounded-lg"><X size={14}/></button>
+          </div>
+        )}
+      </div>
+
+      {/* RESERVATIONS MANAGER FORM */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15 shadow-sm space-y-4">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <Plus size={18} className="text-primary"/>
+          {tr("Create Guest Reservation Account", "إنشاء وتوثيق حساب حجز عميل")}
+        </h3>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Guest Name", "اسم العميل")}</label>
+            <input className="input-field w-full px-3 py-2 text-xs font-medium" placeholder="E.g. Amr Mahmoud" value={form.guestName} onChange={e => setForm({...form, guestName: e.target.value})} />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Phone Number", "رقم الهاتف")}</label>
+            <input className="input-field w-full px-3 py-2 text-xs font-medium" placeholder="01xxxxxxxxx" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Reservation Date", "التاريخ")}</label>
+            <input type="date" className="input-field w-full px-2 py-2 text-xs font-semibold" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Time Slot", "الوقت")}</label>
+            <input type="time" className="input-field w-full px-2 py-2 text-xs font-semibold" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Seating Table #", "رقم الطاولة")}</label>
+            <input type="number" min={1} max={50} className="input-field w-full px-3 py-2 text-xs font-bold" value={form.tableNum} onChange={e => setForm({...form, tableNum: e.target.value})} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Number of Guests", "عدد الأفراد")}</label>
+            <input type="number" className="input-field w-full px-3 py-2 text-xs font-bold" value={form.guestsCount} onChange={e => setForm({...form, guestsCount: e.target.value})} />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Booking Source", "مصدر الطلب")}</label>
+            <select className="input-field w-full px-2 py-2 text-xs font-semibold" value={form.source} onChange={e => setForm({...form, source: e.target.value})}>
+              <option value="Facebook">Facebook (فيسبوك)</option>
+              <option value="Instagram">Instagram (انستجرام)</option>
+              <option value="Phone Call">Phone Call (هاتف)</option>
+              <option value="Walk-in">Walk-in (مباشر)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">{tr("Special Notes", "ملاحظات وتفضيلات")}</label>
+          <textarea className="input-field w-full px-3 py-2 text-xs min-h-[50px]" placeholder="Extra seat, outside table, VIP..." value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
+        </div>
+
+        <button
+          onClick={handleAddBooking}
+          disabled={!form.guestName.trim()}
+          className="btn-primary w-full py-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-primary/10 disabled:opacity-50"
+        >
+          <Save size={14}/> {tr("Save Reservation Pass Document", "حفظ وتوثيق حجز العميل")}
+        </button>
+      </div>
+
+      {/* BOOKINGS LIST */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5 px-1 uppercase tracking-wider">
+          <Users size={13}/>
+          <span>{tr("Active Logged Reservations", "سجلات الحجوزات النشطة الحالية")}</span>
+        </h4>
+
+        {loading ? (
+          <div className="text-center py-10 opacity-60">Loading...</div>
+        ) : resList.length === 0 ? (
+          <div className="text-center py-10 bg-card border border-border/10 rounded-2xl text-muted-foreground text-xs">
+            {tr("No incoming bookings logged yet.", "لا توجد حجوزات مسجلة حالياً.")}
+          </div>
+        ) : (
+          resList.map((res) => (
+            <div key={res.id} className="card p-4 bg-card border border-border/10 rounded-2xl flex flex-col space-y-3">
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                    {res.guestName?.charAt(0).toUpperCase() || "?"}
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-bold text-foreground">{res.guestName}</h5>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-semibold">T{res.tableNum} · {res.guestsCount} {tr("Pax", "أفراد")} · <span className="text-primary font-bold">{res.source}</span></p>
+                  </div>
+                </div>
+                <div className="flex gap-1.5">
+                  <button onClick={() => handleDownloadPass(res)} className="p-2 bg-muted/20 border border-border/10 text-foreground hover:bg-primary hover:text-white rounded-lg transition-colors" title={tr("Download Pass file", "تحميل تذكرة الحجز")}>
+                    <Download size={13} />
+                  </button>
+                  <button onClick={() => handleDeleteBooking(res.id)} className="p-2 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-lg transition-colors">
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[10px] bg-muted/15 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-foreground font-semibold font-sans">
+                <div>Date: <span className="font-bold text-primary">{res.date}</span></div>
+                <div>Time: <span className="font-bold text-primary">{res.time}</span></div>
+                {res.phone && <div className="col-span-2">Phone: <span className="font-mono">{res.phone}</span></div>}
+                {res.notes && <div className="col-span-2 italic text-muted-foreground mt-1">"{res.notes}"</div>}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
 const ReviewsTab = ({ tr, feedback, avgRating, ratingDist, maxRatingCount, markFeedbackRead }: any) => (
   <div className="space-y-8 page-enter">
     <div className="card-elevated p-8 text-center border border-border/10 rounded-2xl bg-card">
@@ -939,6 +1447,11 @@ const ReelsTab = ({ tr, reels, togglePin, deleteReel }: any) => {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ videoUrl: "", caption: "", captionAr: "" });
   const [saving, setSaving] = useState(false);
+
+  // Editing state
+  const [editingReelId, setEditingReelId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ videoUrl: "", caption: "", captionAr: "" });
+
   return (
     <div className="space-y-6 page-enter">
       <div className="flex items-center justify-between">
@@ -969,16 +1482,47 @@ const ReelsTab = ({ tr, reels, togglePin, deleteReel }: any) => {
       )}
       <div className="grid grid-cols-2 gap-4">
         {reels.map((r: any) => (
-          <div key={r.id} className="card rounded-2xl overflow-hidden border border-border/10 bg-card group">
-            <div className="aspect-[9/16] bg-muted relative flex items-center justify-center overflow-hidden">
-              <Film size={32} className="text-muted-foreground opacity-20" />
-              {r.pinned && <div className="absolute top-2 left-2 bg-primary text-white p-1 rounded-lg"><Check size={12}/></div>}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                 <button onClick={() => togglePin(r)} className="w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center shadow-lg"><Heart size={14} fill={r.pinned ? "currentColor" : "none"} /></button>
-                 <button onClick={async () => { if (confirm("Delete Reel?")) deleteReel(r); }} className="w-8 h-8 rounded-full bg-white text-destructive flex items-center justify-center shadow-lg"><Trash2 size={14}/></button>
+          <div key={r.id} className="card rounded-2xl overflow-hidden border border-border/10 bg-card group text-foreground">
+            {editingReelId === r.id ? (
+              <div className="p-4 space-y-3">
+                <h4 className="text-xs font-bold text-primary">{tr("Edit Reel", "تعديل الريل")}</h4>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Video URL", "رابط الفيديو")}</label>
+                    <input className="input-field px-2 py-1.5 text-xs" value={editForm.videoUrl} onChange={e => setEditForm({...editForm, videoUrl: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Caption (EN)", "الوصف بالإنجليزية")}</label>
+                    <input className="input-field px-2 py-1.5 text-xs" value={editForm.caption} onChange={e => setEditForm({...editForm, caption: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Caption (AR)", "الوصف بالعربية")}</label>
+                    <input className="input-field px-2 py-1.5 text-xs" dir="rtl" value={editForm.captionAr} onChange={e => setEditForm({...editForm, captionAr: e.target.value})} />
+                  </div>
+                </div>
+                <div className="flex gap-2 text-xs pt-1">
+                  <button onClick={() => setEditingReelId(null)} className="btn-secondary flex-1 py-2 text-xs">{tr("Cancel", "إلغاء")}</button>
+                  <button onClick={async () => {
+                    await smartUpdate(`reels/${r.id}`, editForm);
+                    setEditingReelId(null);
+                    swalSuccess(tr("Reel Updated!", "تم تحديث الريل!"));
+                  }} className="btn-primary flex-1 py-2 text-xs">{tr("Save", "حفظ")}</button>
+                </div>
               </div>
-            </div>
-            <div className="p-3"><p className="text-[10px] font-bold line-clamp-2">{tr(r.caption, r.captionAr)}</p></div>
+            ) : (
+              <>
+                <div className="aspect-[9/16] bg-muted relative flex items-center justify-center overflow-hidden">
+                  <Film size={32} className="text-muted-foreground opacity-20" />
+                  {r.pinned && <div className="absolute top-2 left-2 bg-primary text-white p-1 rounded-lg"><Check size={12}/></div>}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                     <button onClick={() => togglePin(r)} className="w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center shadow-lg"><Heart size={14} fill={r.pinned ? "currentColor" : "none"} /></button>
+                     <button onClick={() => { setEditingReelId(r.id); setEditForm({ videoUrl: r.videoUrl || "", caption: r.caption || "", captionAr: r.captionAr || "" }); }} className="w-8 h-8 rounded-full bg-white text-amber-500 flex items-center justify-center shadow-lg"><Pencil size={14}/></button>
+                     <button onClick={async () => { if (await swalConfirm(tr("Delete Reel?", "حذف الفيديو؟"), tr("This cannot be undone.", "لا يمكن التراجع."))) deleteReel(r); }} className="w-8 h-8 rounded-full bg-white text-destructive flex items-center justify-center shadow-lg"><Trash2 size={14}/></button>
+                  </div>
+                </div>
+                <div className="p-3"><p className="text-[10px] font-bold line-clamp-2">{tr(r.caption, r.captionAr)}</p></div>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -1019,7 +1563,7 @@ const TablesTab = ({ tr, activeTables, users }: any) => {
 // --- Main Admin Component ---
 
 const ADMIN_PIN = "azura2026";
-type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai" | "features" | "tables" | "barista";
+type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai" | "features" | "tables" | "barista" | "reservations";
 const BLANK_BROADCAST = { title: "", titleAr: "", message: "", messageAr: "", type: "info" as const, emoji: "📢" };
 const AIAdminAssistant = lazy(() => import("@/components/AIAdminAssistant"));
 
@@ -1071,6 +1615,41 @@ export default function Admin() {
   });
   const [showApiKey, setShowApiKey] = useState(false);
   const [savingApiKey, setSavingApiKey] = useState(false);
+
+  // Live AI Connection test states
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; latency?: number; response?: string; error?: string } | null>(null);
+
+  const handleTestAIConnection = async () => {
+    setTestingConnection(true);
+    setTestResult(null);
+    const start = Date.now();
+    try {
+      const rawKey = apiSettings.groqKey;
+      const keyToUse = (rawKey?.startsWith("___ENC___") ? decryptKey(rawKey) : rawKey) || "";
+      const testMsg = "Hello, respond with exactly 'Azura Live Connection Test Success!' in one short sentence.";
+      const systemPrompt = "You are a test helper.";
+
+      const response = await chatWithAI(keyToUse, testMsg, [], systemPrompt);
+      const latency = Date.now() - start;
+      if (response && response.trim().length > 0) {
+        setTestResult({
+          success: true,
+          latency,
+          response,
+        });
+      } else {
+        throw new Error("Received empty response from AI service.");
+      }
+    } catch (err: any) {
+      setTestResult({
+        success: false,
+        error: err.message || "Failed to establish a connection to the AI provider.",
+      });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
 
   const [featureFlags, setFeatureFlags] = useState({ baristaEnabled: true, reelsEnabled: true, supportEnabled: true });
   const [savingFlag, setSavingFlag] = useState<string | null>(null);
@@ -1204,6 +1783,7 @@ export default function Admin() {
     { id: "api", icon: <Key size={14}/>, en: "API", ar: "الربط" },
     { id: "system", icon: <Settings size={14}/>, en: "System", ar: "النظام" },
     { id: "tables", icon: <LayoutGrid size={14}/>, en: "Tables", ar: "الطاولات" },
+    { id: "reservations", icon: <List size={14}/>, en: "Bookings", ar: "الحجوزات" },
   ];
 
   if (!authed) return (
@@ -1336,6 +1916,43 @@ export default function Admin() {
                 <Settings size={16}/> {savingApiKey ? tr("Saving…","جاري الحفظ…") : tr("Save Settings","حفظ الإعدادات")}
               </button>
 
+              {/* Grown APIs Connection Diagnostics */}
+              <div className="border border-border/10 rounded-xl p-4 bg-muted/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Activity size={14} className="text-primary" /> {tr("Live Connection Tester", "مختبر الاتصال المباشر")}
+                  </h4>
+                  <button
+                    type="button"
+                    disabled={testingConnection}
+                    onClick={handleTestAIConnection}
+                    className="btn-secondary px-3 py-1 text-[10px] font-bold flex items-center gap-1 hover:bg-primary hover:text-white transition-colors"
+                  >
+                    {testingConnection ? <RotateCcw size={10} className="animate-spin" /> : <Zap size={10} />}
+                    {testingConnection ? tr("Testing...", "جاري الاختبار...") : tr("Test Now", "اختبر الآن")}
+                  </button>
+                </div>
+
+                {testResult && (
+                  <div className={`p-3 rounded-lg text-xs space-y-1.5 ${testResult.success ? "bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"}`}>
+                    <div className="flex items-center gap-2 font-bold">
+                      <span className={`w-1.5 h-1.5 rounded-full ${testResult.success ? "bg-green-500 animate-ping" : "bg-destructive"}`} />
+                      {testResult.success ? tr(`Success! Latency: ${testResult.latency}ms`, `تم بنجاح! وقت الاستجابة: ${testResult.latency}ملي ثانية`) : tr("Connection Failed", "فشل الاتصال")}
+                    </div>
+                    {testResult.success && testResult.response && (
+                      <p className="font-mono text-[10px] leading-relaxed bg-black/5 dark:bg-black/20 p-2 rounded max-h-[100px] overflow-y-auto">
+                        <strong>{tr("AI Response:", "استجابة الذكاء:")}</strong> {testResult.response}
+                      </p>
+                    )}
+                    {!testResult.success && testResult.error && (
+                      <p className="font-mono text-[10px] leading-relaxed">
+                        {testResult.error}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="rounded-xl p-3.5 bg-muted/20 border border-border/10">
                 <div className="flex items-center gap-2">
                   <div className={`w-2.5 h-2.5 rounded-full ${apiSettings.groqKey || apiSettings.aiProvider === 'pollinations' ? "bg-green-500" : "bg-amber-500"}`}/>
@@ -1354,6 +1971,7 @@ export default function Admin() {
           {tab === "tables" && <TablesTab tr={tr} activeTables={activeTables} users={users} />}
           {tab === "barista" && <BaristaTab tr={tr} />}
           {tab === "ai" && <div className="page-enter"><AIAdminAssistant /></div>}
+          {tab === "reservations" && <ReservationsTab tr={tr} />}
         </Suspense>
       </main>
     </div>

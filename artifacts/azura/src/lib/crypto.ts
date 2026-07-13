@@ -98,9 +98,8 @@ export async function chatWithPollinations(
     const historyText = history.map((h) => `${h.role === 'model' ? 'Assistant' : 'User'}: ${h.parts[0]?.text || ""}`).join("\n");
     const fullPrompt = historyText ? `${historyText}\nUser: ${message}` : message;
 
-    // We omit the 'model' parameter because the default anonymous model on GET is fully free and works perfectly.
-    // We pass the system prompt as a query parameter.
-    const getUrl = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?system=${encodeURIComponent(systemPrompt)}`;
+    // Append model=openai to utilize the full free reasoning model on pollinations.ai
+    const getUrl = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?system=${encodeURIComponent(systemPrompt)}&model=openai`;
 
     const res = await fetch(getUrl);
     if (res.ok) {

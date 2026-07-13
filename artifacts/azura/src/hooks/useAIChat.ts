@@ -43,7 +43,8 @@ export function useAIChat(uid?: string) {
     systemPrompt: string,
     parseResponse: (text: string) => { text: string; suggestedItems: any[] }
   ) => {
-    if (!uid || !text.trim() || !apiKey) return;
+    // We allow sending even without apiKey to support Pollinations free model fallback
+    if (!uid || !text.trim()) return;
 
     setLoading(true);
     setError(null);

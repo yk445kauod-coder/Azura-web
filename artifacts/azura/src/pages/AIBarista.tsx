@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { db, ref, onValue, off, set, remove, get } from "@/lib/firebase";
 import { decryptKey, isValidApiKey, chatWithAI } from "@/lib/crypto";
-import { fullMenuData } from "@/lib/fullMenu";
 import { useAIChat, type Message } from "@/hooks/useAIChat";
 import { Send, Eye, RefreshCw, ArrowLeft, Check, Instagram, Star, Zap, Coffee, Heart, Share2, Loader2, BrainCircuit } from "lucide-react";
 
@@ -13,26 +12,21 @@ interface SuggestedItem {
   id: string; name: string; nameAr: string; price: number; image: string; category: string;
 }
 
-interface RawMenuItem {
-  name?: string; nameEn?: string; nameAr?: string;
-  price?: number; category?: string; image?: string; img?: string;
-  available?: boolean; description?: string; descriptionAr?: string;
-  ingredients?: any; ingredientsAr?: any;
-}
-
 interface MenuItem {
   id: string; name: string; nameAr: string; price: number;
   category: string; image: string; ingredients?: string; ingredientsAr?: string;
   description?: string; descriptionAr?: string; available: boolean;
+  categoryAr?: string;
 }
 
-function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
+function normalizeItem(id: string, raw: Record<string, any>): MenuItem {
   return {
     id,
     name: raw.name || raw.nameEn || "",
     nameAr: raw.nameAr || "",
     price: Number(raw.price) || 0,
-    category: raw.category || "coffee",
+    category: raw.category || "general",
+    categoryAr: raw.categoryAr || "",
     image: raw.image || raw.img || "",
     ingredients: Array.isArray(raw.ingredients) ? raw.ingredients.join(", ") : (raw.ingredients || ""),
     ingredientsAr: Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr.join(", ") : (raw.ingredientsAr || ""),
@@ -41,23 +35,6 @@ function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
     available: raw.available !== false,
   };
 }
-
-// Convert fullMenuData to flat array for initial state/fallback
-const STATIC_MENU: MenuItem[] = Object.entries(fullMenuData).flatMap(([catId, items]) =>
-  Object.entries(items).map(([id, item]) => ({
-    id,
-    name: item.name,
-    nameAr: item.nameAr,
-    price: item.price,
-    category: catId,
-    image: item.image,
-    ingredients: item.ingredients?.join(", "),
-    ingredientsAr: item.ingredientsAr?.join(", "),
-    description: item.description,
-    descriptionAr: item.descriptionAr,
-    available: item.available !== false,
-  }))
-);
 
 function renderMarkdown(text: string): string {
   // Escape HTML to prevent XSS
@@ -76,13 +53,10 @@ function renderMarkdown(text: string): string {
     .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
     .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
-    // Images (Unescape the src for images specifically)
     .replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
       const cleanSrc = src.replace(/&amp;/g, "&");
       return `<img src="${cleanSrc}" alt="${alt}" class="w-full h-auto rounded-xl my-3 shadow-sm border border-primary/10" loading="lazy" />`;
-    })
-    // Instagram handle
-    .replace(/@azuracafeegy/gi, '<a href="https://instagram.com/azuracafeegy" target="_blank" class="text-pink-500 font-bold underline">@azuracafeegy</a>');
+    });
 
   // Enhanced Table handling
   if (html.includes("|")) {
@@ -133,7 +107,7 @@ export default function AIBarista() {
   } = useAIChat(user?.uid);
 
   const [input, setInput] = useState("");
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(STATIC_MENU);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [menuNode, setMenuNode] = useState("menu");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greetingMsg, setGreetingMsg] = useState("");
@@ -143,6 +117,9 @@ export default function AIBarista() {
   const [aiProvider, setAiProvider] = useState("groq");
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
   const [memories, setMemories] = useState<string[]>([]);
+
+  // DDS specific configurations
+  const [ddsConfig, setDdsConfig] = useState<any>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -158,6 +135,19 @@ export default function AIBarista() {
   };
 
   useEffect(() => {
+    const ddsRef = ref(db, "dds-config");
+    onValue(ddsRef, (snap) => {
+      if (snap.exists()) {
+        const cfg = snap.val();
+        setDdsConfig(cfg);
+        if (cfg.colors) {
+          document.documentElement.style.setProperty("--primary", cfg.colors.primary);
+          if (cfg.colors.secondary) document.documentElement.style.setProperty("--secondary", cfg.colors.secondary);
+          if (cfg.colors.accent) document.documentElement.style.setProperty("--accent", cfg.colors.accent);
+        }
+      }
+    });
+
     const apiRef = ref(db, "api-settings");
     const unsubscribe = onValue(apiRef, (snap) => {
       if (snap.exists()) {
@@ -174,7 +164,11 @@ export default function AIBarista() {
         setMenuNode(data.menuNode || "menu");
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      off(ddsRef);
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -187,11 +181,11 @@ export default function AIBarista() {
         if (typeof val !== "object" || val === null) return;
         const v = val as Record<string, unknown>;
         if (v.price !== undefined || v.name !== undefined || v.nameEn !== undefined) {
-          result.push(normalizeItem(key, v as RawMenuItem));
+          result.push(normalizeItem(key, v));
         } else {
           Object.entries(v).forEach(([subId, subVal]) => {
             if (typeof subVal === "object" && subVal !== null)
-              result.push(normalizeItem(subId, subVal as RawMenuItem));
+              result.push(normalizeItem(subId, subVal));
           });
         }
       });
@@ -229,8 +223,8 @@ export default function AIBarista() {
   useEffect(() => {
     if (menuItems.length === 0 || greeted || messages.length > 0) return;
     const defaultGreeting = lang === "ar"
-      ? `مرحباً! أنا ${baristaName}! كيف يمكنني مساعدتك اليوم؟ يسعدني مساعدتك في اختيار أفضل ما في قائمتنا!`
-      : `Hi! I'm ${baristaName}! What can I get for you today? I'm here to help you explore our full menu!`;
+      ? `مرحباً! أنا ${baristaName}! كيف يمكنني مساعدتك اليوم؟`
+      : `Hi! I'm ${baristaName}! How can I help you today? I am here to assist you with our services and catalogs.`;
 
     const greeting = greetingMsg || defaultGreeting;
     if (messages.length === 0 && user) {
@@ -243,7 +237,6 @@ export default function AIBarista() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const buildSystemPrompt = () => {
-    // Group items by category for better context, filtering unavailable items
     const byCategory = menuItems
       .filter(i => i.available)
       .reduce((acc, item) => {
@@ -254,110 +247,60 @@ export default function AIBarista() {
       }, {} as Record<string, MenuItem[]>);
     
     const menuCtx = Object.entries(byCategory)
-      .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
-        items.map((i) => {
-          const details = lang === "ar"
-            ? `${i.nameAr || i.name}${i.descriptionAr ? `: ${i.descriptionAr}` : ""}${i.ingredientsAr ? ` (المكونات: ${i.ingredientsAr})` : ""} - السعر: ${i.price} ج.م`
-            : `${i.name}${i.description ? `: ${i.description}` : ""}${i.ingredients ? ` (Ingredients: ${i.ingredients})` : ""} - Price: ${i.price} EGP`;
-          return `• [ID: ${i.id}] ${details}`;
-        })
-        .join("\n"))
+      .map(([cat, items]) => {
+        if (!Array.isArray(items)) return "";
+        return `=== ${cat.toUpperCase()} ===\n` +
+          items.map((i) => {
+            const details = lang === "ar"
+              ? `${i.nameAr || i.name}${i.descriptionAr ? `: ${i.descriptionAr}` : ""}${i.ingredientsAr ? ` (المواصفات: ${i.ingredientsAr})` : ""} - القيمة: ${i.price} ج.م`
+              : `${i.name}${i.description ? `: ${i.description}` : ""}${i.ingredients ? ` (Details: ${i.ingredients})` : ""} - Value: ${i.price} EGP`;
+            return `• [ID: ${i.id}] ${details}`;
+          })
+          .join("\n");
+      })
       .join("\n");
 
     const isArabic = lang === "ar";
     const langInstruction = isArabic
-      ? `IMPORTANT: RESPOND IN FLUENT EGYPTIAN ARABIC (عامية مصرية أصيلة). Use warm, local Alexandria-style hospitality. Keep it professional yet very friendly.`
-      : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm and professional like a high-end Alexandrian cafe host.`;
+      ? `IMPORTANT: RESPOND IN FLUENT, PROFESSIONAL ARABIC (or Egyptian Dialect if friendly). Keep it helpful and smart.`
+      : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm, precise, and professional.`;
 
     const userName = profile?.name || user?.displayName || user?.email?.split('@')[0] || (isArabic ? "صديقي" : "friend");
     const memCtx = memories.length > 0 ? `\nKNOWN ABOUT USER:\n${memories.map(m => `- ${m}`).join("\n")}` : "";
 
-    const defaultPrompt = `You are ${baristaName}, the friendly and knowledgeable AI barista at ${cafeInfo.name}.
-
-📍 Location: ${cafeInfo.location}
-⏰ Hours: ${cafeInfo.hours}
-📱 Instagram: ${instagram}
-📞 Phone: ${cafeInfo.phone}
+    const defaultPrompt = `You are ${baristaName}, the intelligent AI assistant for ${ddsConfig?.brandName || "our business platform"}.
 
 CURRENT USER: ${userName}
-TABLE: ${profile?.tableNumber || "N/A"}
-VISITS: ${profile?.loginCount || 1}
+SESSION ID: ${profile?.tableNumber || "N/A"}
 ${memCtx}
 
-## PERSONALITY & LANGUAGE
-- Warm, welcoming, and genuinely passionate about coffee and food.
+## PERSONALITY & RULES
+- You are warm, professional, smart, and fully context-aware.
 - ${langInstruction}
-- You speak naturally - not robotic, but like a knowledgeable friend.
-- You are a proactive SALES AGENT: Your goal is to guide guests to our signature high-margin items like Turkish Coffee (Single/Double), Azura Plate, and special Mocktails.
-- Use a proactive approach: "Would you like some almond milk with that?" or "That pairs perfectly with our croissant!"
-- Avoid robotic or repetitive phrases. Match the user's energy.
-
-## EXAMPLES OF GOOD CONVERSATION:
-${isArabic ? `
-User: "عاوز قهوة"
-Good response: "يا ${userName}! ☕ عادي ولا كافي؟ لو حابب حاجة حلوه، ممكن أجيبلك لاتيه بالكراميل، تحفة!"
-User: "إيه أحسن حاجة؟"
-Good response: "يعتمد علي ذوقك! لو عايز حاجة قوية، الإسبرسو عندنا ممتاز. لو عايز حاجة خفيفه، السموتشي الفواكه تحفة! عايز أعرض عليك حاجة منهم؟"
-` : `
-User: "I want coffee"
-Good response: "Hey ${userName}! ☕ Great choice! What kind of mood are you in? If you want something sweet, our Caramel Latte is amazing. Want me to recommend one?"
-User: "What's your best?"
-Good response: "Depends on your taste! For strong coffee lovers, our Espresso is top-notch. If you want something lighter, our Fruit Smoothie is super refreshing! Want me to show you either one?"
-`}
-
-## EXPERTISE:
-- Deep knowledge of the Azura Menu provided below.
-- You STRICTLY follow the names and IDs in the MENU DATA section.
-- You can explain ingredients and descriptions exactly as provided in the menu context.
+- You speak naturally like an expert advisor.
+- Do not make any references to cafes, coffee, tables, or waitstaff unless the business sector is cafe/restaurant.
+- Strive to help users explore our available dynamic categories and make correct recommendations.
+- Keep responses concise and use structured tables or bullets if helpful.
 
 ## TOOLS:
-- [ADD_ITEM:item_id] - Show one item (Use the EXACT [ID: ...] provided in menu data)
-- [ADD_ALL:id1,id2] - Show multiple items
-- Use **bold** for item names
-- Use *italics* for flavor descriptions
-- Use emojis: ☕🍰🌟✨🔥❤️
+- [ADD_ITEM:item_id] - Recommend one item/service (Use the EXACT [ID: ...] provided in catalog data)
+- Use **bold** for item/service names
+- Use emojis: ✨🌟📋📦❤️
 
 ## IMPORTANT RULES:
-1. You can mention prices if asked, using the prices provided in the MENU DATA.
-2. NEVER mention checkout, payment, or ordering - this is a digital menu only.
-3. DO NOT invent items. If it is not in the MENU DATA list, it does not exist.
-4. If a user asks for something not on the menu, politely steer them to a similar available item.
-5. Provide accurate descriptions and ingredients based on the data.
-6. Keep responses conversational, not robotic. Use friendly emojis occasionally.`;
+1. You can discuss values and listings directly from the CATALOG DATA.
+2. DO NOT invent items or doctors or listings. If it is not in the data, it does not exist.
+3. Steering rules apply: guide customers to suitable options listed.`;
 
-    return `${systemPrompt || defaultPrompt}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;
+    return `${systemPrompt || defaultPrompt}\n\nCATALOG DATA:\n${menuCtx}`;
   };
 
   const parseMessage = (raw: string) => {
     let text = raw;
     let suggestedItems: SuggestedItem[] = [];
     
-    const allMatch = text.match(/\[ADD_ALL:([^\]]+)\]/);
-    if (allMatch) {
-      const ids = allMatch[1].split(",").map(id => id.trim().replace(/^ID:\s*/i, ""));
-      ids.forEach(id => {
-        const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
-        if (item && !suggestedItems.find(s => s.id === item.id)) {
-          suggestedItems.push({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
-        }
-      });
-      text = text.replace(allMatch[0], "");
-    }
-    
-    const multiMatch = text.match(/\[ADD_ITEMS:([^\]]+)\]/);
-    if (multiMatch && suggestedItems.length === 0) {
-      const ids = multiMatch[1].split(",").map(id => id.trim().replace(/^ID:\s*/i, ""));
-      ids.forEach(id => {
-        const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
-        if (item && !suggestedItems.find(s => s.id === item.id)) {
-          suggestedItems.push({ id: item.id, name: item.name, nameAr: item.nameAr, price: item.price, image: item.image, category: item.category });
-        }
-      });
-      text = text.replace(multiMatch[0], "");
-    }
-    
     const singleMatch = text.match(/\[ADD_ITEM:([^\]]+)\]/);
-    if (singleMatch && suggestedItems.length === 0) {
+    if (singleMatch) {
       const id = singleMatch[1].trim().replace(/^ID:\s*/i, "");
       const item = menuItems.find((i) => i.id === id || i.name.toLowerCase().includes(id.toLowerCase()));
       if (item) {
@@ -390,12 +333,12 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
         try {
           const lastMsgs = messages.slice(-4);
           if (lastMsgs.length < 2) return;
-          const summaryPrompt = `Based on these messages, extract 1-2 key facts about the user's preferences (drinks, food, allergies, mood).
-          Format: "Prefers [X]", "Allergic to [Y]". Keep it very short. Use same language as user.
+          const summaryPrompt = `Based on these messages, extract 1 key fact about the user's preference or question.
+          Format: "Interested in [X]". Keep it very short.
           Recent Chat:
           ${lastMsgs.map(m => `${m.role}: ${m.content}`).join("\n")}`;
 
-          const fact = await chatWithAI(keyToUse, "Extract key user facts for memory.", [], summaryPrompt);
+          const fact = await chatWithAI(keyToUse, "Extract key user preference.", [], summaryPrompt);
           if (fact && fact.length > 5 && fact.length < 100) {
             const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
             await set(memRef, fact);
@@ -411,26 +354,20 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
   };
 
   const quickPrompts = lang === "ar" ? [
-    "☕ أوصني بقهوة",
-    "🍰 أريد حلويات",
-    "⭐ الأكثر شعبية؟",
-    "🧊 شيء بارد منعش",
-    "🌟 كومبو مثالي",
-    "🍔 أنا جائع"
+    "📋 ما هي الخدمات المتوفرة؟",
+    "⭐ أريد توصية مميزة",
+    "✨ كيف يمكنني التسجيل؟"
   ] : [
-    "☕ Best coffee?",
-    "🍰 Something sweet",
-    "⭐ What's popular?",
-    "🧊 Something cold",
-    "🌟 Perfect combo",
-    "🍔 I'm hungry"
+    "📋 What services do you offer?",
+    "⭐ What do you recommend?",
+    "✨ Help me get started"
   ];
 
   return (
     <div className="flex flex-col h-[calc(100dvh-7.5rem)] max-w-2xl mx-auto" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <div className="px-4 pt-3 pb-2 flex-shrink-0">
-        <div className="card rounded-2xl px-3 py-2.5 flex items-center gap-3">
+        <div className="card rounded-2xl px-3 py-2.5 flex items-center gap-3 border border-border">
           <button onClick={() => navigate("/menu")} className="btn-icon w-8 h-8">
             <ArrowLeft size={16} />
           </button>
@@ -440,14 +377,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-primary text-sm leading-tight">{baristaName}</p>
-            <a 
-              href={`https://instagram.com/${instagram.replace('@','')}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[11px] text-pink-500 font-medium hover:underline flex items-center gap-1"
-            >
-              <Instagram size={12} /> {instagram}
-            </a>
+            <span className="text-[9px] text-muted-foreground font-semibold mt-0.5 block">{ddsConfig?.brandName || "AI Assistant"}</span>
           </div>
           <button onClick={() => {
             clearChat();
@@ -485,13 +415,6 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
               
               {msg.suggestedItems && msg.suggestedItems.length > 0 && (
                 <div className="space-y-2">
-                  {msg.suggestedItems.length > 1 && (
-                    <div className="flex items-center px-1">
-                      <p className="text-xs font-bold text-primary">
-                        {lang === "ar" ? `${msg.suggestedItems.length} أصناف من قائمتنا` : `${msg.suggestedItems.length} items from our menu`}
-                      </p>
-                    </div>
-                  )}
                   {msg.suggestedItems.map((item) => {
                     const isSeen = addedItems.has(item.id);
                     return (
@@ -503,11 +426,10 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
                         onClick={() => handleViewItem(item)}
                       >
                         <img
-                          src={item.image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"}
+                          src={item.image || "https://images.unsplash.com/photo-1544256718-3bcf237f3974?w=80&q=60"}
                           alt={item.name}
                           className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           loading="lazy"
-                          onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=80&q=60"; }}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-primary truncate">
@@ -545,16 +467,6 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
                   </span>
                 </div>
               </div>
-              {thinkingSteps.length > 1 && (
-                <div className="flex flex-col gap-1 px-1">
-                  {thinkingSteps.slice(0, -1).map((step, i) => (
-                    <div key={i} className="flex items-center gap-2 opacity-40">
-                      <Check size={10} className="text-primary" />
-                      <span className="text-[9px] font-medium">{step}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -571,18 +483,12 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
             </div>
           </div>
         )}
-
-        {error && (
-          <div className="mx-auto max-w-[80%] text-center p-3 bg-destructive/10 text-destructive text-xs rounded-xl border border-destructive/20 my-2">
-            {error}
-          </div>
-        )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
       <div className="px-4 pb-3 pt-2 flex-shrink-0">
-        <div className="card rounded-2xl flex items-end gap-2 p-2">
+        <div className="card rounded-2xl flex items-end gap-2 p-2 border border-border">
           <textarea
             ref={inputRef}
             rows={1}
@@ -595,8 +501,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
                 el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
               });
             }}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder={lang === "ar" ? "اسألني عن القائمة أو التوصيات..." : "Ask me about our menu, recommendations, ingredients..."}
+            placeholder={lang === "ar" ? "اسأل المساعد الذكي عن الكتالوج والتوصيات..." : "Ask me about our catalog, recommendations, guidelines..."}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[36px] py-2 px-1"
             dir={isRTL ? "rtl" : "ltr"}
           />

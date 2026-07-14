@@ -11,6 +11,8 @@ import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
 const Welcome = lazy(() => import("@/pages/Welcome"));
 const MenuLightweight = lazy(() => import("@/pages/MenuLightweight"));
 const AIBarista = lazy(() => import("@/pages/AIBarista"));
+const OnboardingWizard = lazy(() => import("@/pages/OnboardingWizard"));
+const Landing = lazy(() => import("@/pages/Landing"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const Reels = lazy(() => import("@/pages/Reels"));
@@ -86,14 +88,15 @@ function AppRoutes() {
       </div>
     }>
       <Switch>
+        <Route path="/" component={Landing} />
         <Route path="/admin" component={Admin} />
+        <Route path="/onboarding" component={OnboardingWizard} />
         {!user ? (
-          <Route component={Welcome} />
+          <Route path="/menu" component={Welcome} />
         ) : (
           <Route>
             <Layout>
               <Switch>
-                <Route path="/" component={MenuLightweight} />
                 <Route path="/menu" component={MenuLightweight} />
                 <Route path="/barista">
                   {flags.baristaEnabled ? <AIBarista /> : <Redirect to="/menu" />}

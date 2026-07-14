@@ -19,14 +19,6 @@ import {
   UserIcon as UserIconSolid,
 } from "@heroicons/react/24/solid";
 
-const ALL_NAV = [
-  { path: "/menu",    key: "menu",    label: "القائمة",  labelEn: "Menu",    icon: HomeIcon,    iconActive: HomeIconSolid,    alwaysOn: true },
-  { path: "/barista", key: "barista", label: "المساعد",  labelEn: "AI",       icon: SparklesIcon, iconActive: SparklesIconSolid, alwaysOn: false },
-  { path: "/reels",   key: "reels",   label: "الفيديو",  labelEn: "Reels",    icon: FilmIcon,    iconActive: FilmIconSolid,     alwaysOn: false },
-  { path: "/support", key: "support", label: "الدعم",    labelEn: "Support",  icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid, alwaysOn: false },
-  { path: "/profile", key: "profile", label: "حسابي",    labelEn: "Profile",  icon: UserIcon,    iconActive: UserIconSolid,     alwaysOn: true },
-];
-
 interface Broadcast {
   id: string; title: string; titleAr: string;
   message: string; messageAr: string;
@@ -46,11 +38,11 @@ const BROADCAST_TYPE_STYLE: Record<string, string> = {
 };
 
 const DEFAULT_BROADCAST: Broadcast = {
-  id: "welcome-new",
-  title: "✨ Welcome to NEW Azura App!",
-  titleAr: "✨ مرحباً بكم في تطبيق أزورا الجديد!",
-  message: "🎬 Check out our NEW Video Reels! Swipe through delicious dishes 🍽️",
-  messageAr: "🎬 شاهد Reels الجديدة! اسحب لرؤية الأطباق اللذيذة 🍽️",
+  id: "welcome-dds",
+  title: "✨ Welcome to Dynamic Display System!",
+  titleAr: "✨ مرحباً بكم في منصة العرض الديناميكية!",
+  message: "📋 Check out our custom services list & dynamic catalogs",
+  messageAr: "📋 تصفح قائمة خدماتنا التفاعلية والكتالوج المباشر",
   type: "promo",
   emoji: "🎉",
   createdAt: Date.now(),
@@ -69,13 +61,31 @@ export default function Layout({ children }: { children: ReactNode }) {
     supportEnabled: true,
   });
 
+  // Dynamic DDS configuration states
+  const [ddsConfig, setDdsConfig] = useState<any>(null);
+
   const isActive = (p: string) => location === p || (p === "/menu" && (location === "/" || location === ""));
 
-  const getReadIds = (): string[] => JSON.parse(localStorage.getItem("azura-read-broadcasts") || "[]");
-  const saveReadIds = (ids: string[]) => localStorage.setItem("azura-read-broadcasts", JSON.stringify(ids));
+  const getReadIds = (): string[] => JSON.parse(localStorage.getItem("dds-read-broadcasts") || "[]");
+  const saveReadIds = (ids: string[]) => localStorage.setItem("dds-read-broadcasts", JSON.stringify(ids));
 
-  // Listen for feature flags
+  // Listen for feature flags & dds-config
   useEffect(() => {
+    const ddsRef = ref(db, "dds-config");
+    onValue(ddsRef, (snap) => {
+      if (snap.exists()) {
+        const cfg = snap.val();
+        setDdsConfig(cfg);
+        if (cfg.colors) {
+          document.documentElement.style.setProperty("--primary", cfg.colors.primary);
+          if (cfg.colors.secondary) document.documentElement.style.setProperty("--secondary", cfg.colors.secondary);
+          if (cfg.colors.accent) document.documentElement.style.setProperty("--accent", cfg.colors.accent);
+          if (cfg.colors.background) document.documentElement.style.setProperty("--background", cfg.colors.background);
+          if (cfg.colors.card) document.documentElement.style.setProperty("--card", cfg.colors.card);
+        }
+      }
+    });
+
     const ffRef = ref(db, "feature-flags");
     onValue(ffRef, (snap) => {
       if (snap.exists()) {
@@ -87,7 +97,11 @@ export default function Layout({ children }: { children: ReactNode }) {
         });
       }
     });
-    return () => off(ref(db, "feature-flags"));
+
+    return () => {
+      off(ddsRef);
+      off(ref(db, "feature-flags"));
+    };
   }, []);
 
   // Listen for broadcasts
@@ -97,7 +111,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       const readIds = getReadIds();
       if (!snap.exists()) {
         setAllBroadcasts([DEFAULT_BROADCAST]);
-        if (!readIds.includes("welcome-new")) setBroadcast(DEFAULT_BROADCAST);
+        if (!readIds.includes("welcome-dds")) setBroadcast(DEFAULT_BROADCAST);
         return;
       }
       const data = snap.val() as Record<string, Omit<Broadcast, "id">>;
@@ -126,6 +140,30 @@ export default function Layout({ children }: { children: ReactNode }) {
     setNotifOpen(false);
   };
 
+  // Compute dynamic navigation labels
+  const ALL_NAV = useMemo(() => {
+    const isClinic = ddsConfig?.sector === "clinic";
+    const isAcademy = ddsConfig?.sector === "academy";
+
+    let catalogLabel = "الكتالوج";
+    let catalogLabelEn = "Catalog";
+    if (isClinic) {
+      catalogLabel = "الخدمات";
+      catalogLabelEn = "Services";
+    } else if (isAcademy) {
+      catalogLabel = "الدورات";
+      catalogLabelEn = "Courses";
+    }
+
+    return [
+      { path: "/menu",    key: "menu",    label: catalogLabel,  labelEn: catalogLabelEn,  icon: HomeIcon,    iconActive: HomeIconSolid,    alwaysOn: true },
+      { path: "/barista", key: "barista", label: "المساعد",    labelEn: "AI",            icon: SparklesIcon, iconActive: SparklesIconSolid, alwaysOn: false },
+      { path: "/reels",   key: "reels",   label: "الفيديو",    labelEn: "Reels",         icon: FilmIcon,    iconActive: FilmIconSolid,     alwaysOn: false },
+      { path: "/support", key: "support", label: "الدعم",      labelEn: "Support",       icon: ChatBubbleLeftRightIcon, iconActive: ChatIconSolid, alwaysOn: false },
+      { path: "/profile", key: "profile", label: "حسابي",      labelEn: "Profile",       icon: UserIcon,    iconActive: UserIconSolid,     alwaysOn: true },
+    ];
+  }, [ddsConfig]);
+
   // Filter nav based on feature flags - memoized
   const NAV = useMemo(() => 
     ALL_NAV.filter(item => {
@@ -134,35 +172,40 @@ export default function Layout({ children }: { children: ReactNode }) {
       if (item.key === "reels") return featureFlags.reelsEnabled;
       if (item.key === "support") return featureFlags.supportEnabled;
       return true;
-    }), [featureFlags]);
+    }), [featureFlags, ALL_NAV]);
 
-  // Memoized broadcast style
-  const broadcastStyle = useMemo(() => 
-    BROADCAST_TYPE_STYLE[broadcast?.type || "info"] || BROADCAST_TYPE_STYLE.info,
-    [broadcast?.type]);
+  // Dynamic names & descriptions
+  const brandName = ddsConfig?.brandName || "DDS Display";
+  const brandTagline = ddsConfig?.brandTagline || ddsConfig?.brandDesc || "Interactive workspace portal";
+
+  const customWorkspaceLabel = lang === "ar"
+    ? `${ddsConfig?.labels?.tableLabelAr || "رقم المقعد"} ${profile?.tableNumber || ""}`
+    : `${ddsConfig?.labels?.tableLabelEn || "Seat"} ${profile?.tableNumber || ""}`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-2.5"
-        style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-sm)", borderBottom: "1px solid rgba(93,62,35,0.08)" }}>
+        style={{ background: "hsl(var(--card))", boxShadow: "var(--shadow-sm)", borderBottom: "1px solid hsl(var(--border))" }}>
         <Link href="/menu">
           <div className="flex items-center gap-2.5 cursor-pointer">
-            <img src="/logo.jpg" alt="Azura" className="w-9 h-9 rounded-full object-cover" style={{ boxShadow: "var(--shadow-sm)" }} loading="lazy" />
+            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary font-black text-xs flex items-center justify-center">
+              DDS
+            </div>
             <div>
-              <h1 className="text-sm font-bold text-primary leading-tight" style={{ fontFamily: "var(--font-heading)" }}>
-                Azura Cafe
+              <h1 className="text-xs sm:text-sm font-bold text-primary leading-tight">
+                {brandName}
               </h1>
-              <p className="text-[10px] text-muted-foreground leading-none">
-                Tivoli Dome, Alexandria
+              <p className="text-[10px] text-muted-foreground leading-none truncate max-w-[150px]">
+                {brandTagline}
               </p>
             </div>
           </div>
         </Link>
         <div className="flex items-center gap-2">
           {profile?.tableNumber && (
-            <span className="text-[11px] font-bold text-primary px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--muted))", boxShadow: "var(--shadow-xs)" }}>
-              {lang === "ar" ? `طاولة ${profile.tableNumber}` : `Table ${profile.tableNumber}`}
+            <span className="text-[10px] font-bold text-primary px-2.5 py-1 rounded-full bg-muted shadow-sm border border-border/40">
+              {customWorkspaceLabel}
             </span>
           )}
           <button
@@ -173,7 +216,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <Bell size={18} className="text-foreground" />
             {unreadCount > 0 && (
               <span className="absolute -top-0.5 -end-0.5 min-w-[16px] h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-extrabold flex items-center justify-center px-1 shadow-sm">
-                {unreadCount > 9 ? "9+" : unreadCount}
+                {unreadCount}
               </span>
             )}
           </button>
@@ -259,9 +302,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 inset-x-0 z-40 px-1 pb-safe">
-        <div 
-          className="mx-3 mb-2 rounded-2xl overflow-hidden shadow-lg bg-background border"
-        >
+        <div className="mx-3 mb-2 rounded-2xl overflow-hidden shadow-lg bg-background border border-border">
           <div className="flex items-stretch justify-around py-2 px-1">
             {NAV.map((item) => {
               const active = isActive(item.path);
@@ -270,27 +311,18 @@ export default function Layout({ children }: { children: ReactNode }) {
               
               return (
                 <Link key={item.path} href={item.path} className="flex-1">
-                  <button 
-                    className="relative flex flex-col items-center justify-center gap-1 px-1 py-1.5 w-full"
-                  >
+                  <button className="relative flex flex-col items-center justify-center gap-1 px-1 py-1.5 w-full">
                     {active && (
                       <div 
-                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full"
-                        style={{ background: "hsl(22,55%,28%)" }}
+                        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-primary"
                       />
                     )}
                     <div className="relative">
-                      <div 
-                        className={`p-1.5 rounded-xl ${active ? "bg-primary/20" : ""}`}
-                      >
-                        <Icon 
-                          className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} 
-                        />
+                      <div className={`p-1.5 rounded-xl ${active ? "bg-primary/10" : ""}`}>
+                        <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
                       </div>
                     </div>
-                    <span 
-                      className={`text-[10px] font-semibold leading-none ${active ? "text-primary font-bold" : "text-muted-foreground"}`}
-                    >
+                    <span className={`text-[9px] font-bold leading-none ${active ? "text-primary" : "text-muted-foreground"}`}>
                       {displayLabel}
                     </span>
                   </button>

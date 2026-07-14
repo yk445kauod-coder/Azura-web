@@ -1,0 +1,16 @@
+
+> @workspace/azura@1.0.0 serve /app/artifacts/azura
+> vite preview --config vite.config.ts --host 0.0.0.0
+
+error when starting preview server:
+Error: Port 5000 is already in use
+    at Se/app/artifacts/azura:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/azura@1.0.0 serve: `vite preview --config vite.config.ts --host 0.0.0.0`
+Exit status 143
+
+    at Server.emit (node:events:519:28)
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+/app/artifacts/azura:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/azura@1.0.0 serve: `vite preview --config vite.config.ts --host 0.0.0.0`
+Exit status 1

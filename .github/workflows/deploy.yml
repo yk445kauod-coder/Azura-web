@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages (Dynamic Repo Support)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: CI=true pnpm install --shamefully-hoist
+
+      - name: Build Application
+        run: pnpm build
+        env:
+          # If deploying to a different repo, replace this with your target repo name (e.g., "/my-target-repo/")
+          # Or if deploying to a custom root domain (like dds.mycompany.com), set this to "/"
+          BASE_PATH: "/${{ github.event.repository.name }}/"
+
+      - name: Configure SPA Routing Fallback for GitHub Pages
+        run: cp artifacts/azura/dist/index.html artifacts/azura/dist/404.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          # Root directory of the compiled web app
+          folder: artifacts/azura/dist
+
+          # Target branch for static hosting pages
+          branch: gh-pages
+
+          # ── DEPLOY TO A DIFFERENT GITHUB REPOSITORY ──
+          # If you want to push the compiled site to a different repository:
+          # 1. Generate a GitHub Personal Access Token (PAT) with "repo" write permissions.
+          # 2. Add it to this repository's secrets as DEPLOY_TOKEN.
+          # 3. Uncomment the two lines below (remove the #) and set your target repository:
+          #
+          # token: ${{ secrets.DEPLOY_TOKEN }}
+          # repository-name: username/target-repository-name
+
+          clean: true

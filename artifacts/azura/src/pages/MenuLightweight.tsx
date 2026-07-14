@@ -8,21 +8,22 @@ import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 interface MenuItem {
   id: string; name: string; nameAr: string;
   description: string; descriptionAr: string;
-  price: number; category: string; available: boolean; image: string;
+  price: number; category: string; categoryAr?: string; available: boolean; image: string;
   ingredients?: string[];
   ingredientsAr?: string[];
   recommended?: boolean;
   searchStr?: string;
 }
 
-function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
+function normalizeItem(id: string, raw: Record<string, any>): MenuItem {
   const name = String(raw.name || raw.nameEn || raw.title || "");
   const nameAr = String(raw.nameAr || raw.titleAr || "");
   const description = String(raw.description || raw.descEn || raw.desc || "");
   const descriptionAr = String(raw.descriptionAr || raw.descAr || "");
-  const category = String(raw.category || "food");
-  const ingredients = Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []);
-  const ingredientsAr = Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []);
+  const category = String(raw.category || "general");
+  const categoryAr = String(raw.categoryAr || "");
+  const ingredients = Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map((i: string) => i.trim()) : []);
+  const ingredientsAr = Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map((i: string) => i.trim()) : []);
 
   const searchStr = normalizeText([
     name,
@@ -42,6 +43,7 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
     descriptionAr,
     price: Number(raw.price) || 0,
     category,
+    categoryAr,
     available: raw.available !== false,
     image: String(raw.image || raw.img || ""),
     recommended: raw.recommended === true,
@@ -50,87 +52,6 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
     searchStr,
   };
 }
-
-const CATS = [
-  { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
-  { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
-  { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
-  { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
-  { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
-  { id: "cocktails",        emoji: "🍹",  en: "Cocktails",           ar: "كوكتيل"          },
-  { id: "soups",            emoji: "🍲",  en: "Soup",                ar: "شوربة"           },
-  { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
-  { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
-  { id: "tortilla",         emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
-  { id: "toast",            emoji: "🥪",  en: "Toast",               ar: "توست"            },
-  { id: "croissant",        emoji: "🥐",  en: "Croissant",           ar: "كرواسون"         },
-  { id: "breakfast",        emoji: "🍳",  en: "Breakfast",           ar: "إفطار"           },
-  { id: "main_dishes",      emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية"     },
-  { id: "burgers",          emoji: "🍔",  en: "Burgers",             ar: "برجر"            },
-  { id: "smash_burgers",    emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر"       },
-  { id: "fried_chicken",    emoji: "🍗",  en: "Fried Chicken",      ar: "فراخ مقلية"      },
-  { id: "hot_drinks",       emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة"   },
-  { id: "coffee",           emoji: "☕",  en: "Coffee",               ar: "قهوة"            },
-  { id: "corto",            emoji: "🥛",  en: "Corto",               ar: "كورتو"           },
-  { id: "hot_chocolate",    emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة"  },
-  { id: "sahlab",           emoji: "🥛",  en: "Sahlab",              ar: "سحلب"            },
-  { id: "frappuccino",      emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو"       },
-  { id: "iced_coffee",      emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
-  { id: "boba_tea",         emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
-  { id: "fresh_juices",     emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
-  { id: "smoothies",        emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
-  { id: "milkshakes",       emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
-  { id: "waffle",           emoji: "🧇",  en: "Waffle",               ar: "وافل"            },
-  { id: "desserts",         emoji: "🍰",  en: "Desserts",             ar: "حلويات"          },
-  { id: "crepes",           emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
-  { id: "pancakes",         emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
-  { id: "add_ons",          emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
-  { id: "shisha",           emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
-  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
-  { id: "all",              emoji: "✨",  en: "All",                  ar: "الكل"            },
-];
-
-const CAT_ALIASES: Record<string, string[]> = {
-  recommended:    ["recommended"],
-  new_items:      ["new_items"],
-  appetizers:     ["appetizers", "appetizer"],
-  soups:          ["soups", "soup"],
-  salads:         ["salads", "salad"],
-  pasta:          ["pasta"],
-  tortilla:       ["tortilla"],
-  toast:          ["toast"],
-  croissant:      ["croissant"],
-  breakfast:      ["breakfast"],
-  main_dishes:    ["main_dishes"],
-  burgers:        ["burgers", "burger", "beef_burgers"],
-  smash_burgers:  ["smash_burgers"],
-  fried_chicken:  ["fried_chicken"],
-  hot_drinks:     ["hot_drinks", "hot_drink"],
-  coffee:         ["coffee", "espresso"],
-  corto:          ["corto"],
-  hot_chocolate:  ["hot_chocolate"],
-  sahlab:         ["sahlab"],
-  frappuccino:    ["frappuccino", "frappe"],
-  iced_coffee:    ["iced_coffee"],
-  mojitos:        ["mojitos", "mojito"],
-  mocktails:      ["mocktails", "mocktail"],
-  cocktails:      ["cocktails", "cocktail"],
-  boba_tea:       ["boba_tea"],
-  fresh_juices:   ["fresh_juices", "fresh_juice"],
-  smoothies:      ["smoothies", "smoothie"],
-  milkshakes:     ["milkshakes", "milkshake"],
-  waffle:         ["waffle"],
-  desserts:       ["desserts", "dessert"],
-  crepes:         ["crepes", "crepe"],
-  pancakes:       ["pancakes"],
-  add_ons:        ["add_ons", "extra_kitchen", "fries"],
-  shisha:         ["shisha"],
-  soft_drinks:    ["soft_drinks"],
-};
-
-const CAT_ALIAS_SETS: Record<string, Set<string>> = Object.fromEntries(
-  Object.entries(CAT_ALIASES).map(([k, v]) => [k, new Set(v)])
-);
 
 // Advanced Search Normalization & Synonyms
 const normalizeText = (text: string) => {
@@ -145,20 +66,13 @@ const normalizeText = (text: string) => {
 };
 
 const SEARCH_SYNONYMS: Record<string, string[]> = {
-  "قهوه": ["كوفي", "coffee", "اسبريسو", "لاتيه", "بون", "تركي", "turkish"],
-  "كوفي": ["قهوه", "coffee", "تركي", "turkish"],
-  "شاي": ["tea", "t-shai"],
-  "بطاطس": ["fries", "potato", "فرنش فرايز", "صوابع", "فرايز"],
-  "فراخ": ["chicken", "تشيكن", "دجاج", "فرايد"],
-  "لحمه": ["beef", "بقر", "برجر", "meat"],
-  "بيبسي": ["سودا", "soda", "مشروب غازي", "cola", "كولا", "بارد", "cold"],
-  "مياه": ["وتر", "water", "مايه", "معدنية"],
-  "حلو": ["dessert", "حلويات", "سويت", "كيك", "وافل"],
-  "شيشه": ["hookah", "دخان", "معسل", "فحم"],
-  "مكرونه": ["pasta", "باستا", "نودلز", "مكرونة"],
-  "عصير": ["juice", "فرش", "fresh", "عصاير"],
-  "موهيتو": ["موجيتو", "mojito"],
-  "كوكتيل": ["موكتيل", "mocktail", "cocktail"],
+  "طبيب": ["دكتور", "doctor", "أخصائي", "specialist"],
+  "غرفة": ["جناح", "suite", "room", "غرف"],
+  "كورس": ["دورة", "مسار", "course", "تعليم"],
+  "منتج": ["جهاز", "حقيبة", "product", "أجهزة"],
+  "قهوه": ["كوفي", "coffee", "لاتيه"],
+  "شاي": ["tea"],
+  "عصير": ["juice", "فرش", "fresh"]
 };
 
 const NORMALIZED_SYNONYMS = Object.entries(SEARCH_SYNONYMS).map(([key, synonyms]) => ({
@@ -182,7 +96,7 @@ const MenuItemCard = memo(({
   onClick: (item: MenuItem) => void;
   CATS: any[];
 }) => {
-  const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+  const cat = CATS.find(c => c.id === item.category);
 
   return (
     <div
@@ -207,23 +121,18 @@ const MenuItemCard = memo(({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-4xl opacity-40">{cat?.emoji || "🍽️"}</span>
+              <span className="text-4xl opacity-40">{cat?.emoji || "📦"}</span>
             </div>
           )}
 
           <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[9px] font-bold flex items-center gap-1">
-            <span>{cat?.emoji}</span>
-            <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
+            <span>{cat?.emoji || "📦"}</span>
+            <span>{lang === "ar" ? (item.categoryAr || cat?.ar || item.category) : (cat?.en || item.category)}</span>
           </div>
           {item.recommended && (
             <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
               <span>⭐</span>
               <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
-            </div>
-          )}
-          {!item.recommended && item.category === "new_items" && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] font-black tracking-wide">
-              {lang === "ar" ? "جديد" : "NEW"}
             </div>
           )}
         </div>
@@ -247,42 +156,31 @@ const MenuItemCard = memo(({
   );
 });
 
-// Item Detail Modal Component - Fixed for Mobile Comfort (Bottom Sheet on Mobile)
-function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => void; lang: "en" | "ar" }) {
+// Item Detail Modal Component
+function ItemModal({ item, onClose, lang, CATS }: { item: MenuItem; onClose: () => void; lang: "en" | "ar"; CATS: any[] }) {
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
-  const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+  const cat = CATS.find(c => c.id === item.category);
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6"
       style={{ isolation: 'isolate' }}
     >
-      {/* Background Overlay - Non-scrollable fixed backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
-      {/* Modal Content - Bottom Sheet on Mobile, Centered on Desktop */}
       <div
         className="relative w-full max-w-md bg-card rounded-t-[2.5rem] sm:rounded-[2rem] shadow-2xl overflow-hidden border border-border/20 flex flex-col max-h-[92vh] sm:max-h-[85vh] animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Mobile Handle */}
         <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-4 mb-2 sm:hidden" />
         <div className="overflow-y-auto p-6 sm:p-8 scroll-hide">
           <div className="flex flex-col sm:flex-row gap-6">
-            {/* Image */}
             <div className="w-full sm:w-48 h-48 sm:h-48 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
               {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-6xl">
-                  {cat?.emoji || "🍽️"}
+                  {cat?.emoji || "📦"}
                 </div>
               )}
             </div>
@@ -309,20 +207,15 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
               </div>
 
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl font-black text-primary">
-                  {item.price}
-                </span>
-                <span className="text-sm text-muted-foreground font-bold uppercase tracking-wider">
+                <span className="text-2xl font-black text-primary">{item.price}</span>
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
                   {lang === "ar" ? "ج.م" : "EGP"}
                 </span>
-                {cat && (
-                  <span className="ml-auto badge bg-primary/5 text-primary border border-primary/10">
-                    {cat.emoji} {lang === "ar" ? cat.ar : cat.en}
-                  </span>
-                )}
+                <span className="ml-auto badge bg-primary/5 text-primary border border-primary/10">
+                  {cat?.emoji || "📦"} {lang === "ar" ? (item.categoryAr || cat?.ar || item.category) : (cat?.en || item.category)}
+                </span>
               </div>
 
-              {/* Description */}
               {(item.description || item.descriptionAr) && (
                 <div className="mb-6 p-4 rounded-2xl bg-muted/30 border border-border/30">
                   <p className="text-sm text-foreground/80 leading-relaxed italic">
@@ -334,11 +227,10 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
           </div>
           
           <div className="mt-6 space-y-6">
-            {/* Ingredients */}
             <div>
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px]">🧾</span>
-                {tr("Detailed Ingredients", "المكونات التفصيلية")}
+                {tr("Detailed Specifications", "المواصفات والتفاصيل")}
               </h3>
               <div className="grid grid-cols-2 gap-2">
                 {((lang === "ar" && item.ingredientsAr && item.ingredientsAr.length > 0) ? item.ingredientsAr : item.ingredients) && ((lang === "ar" && item.ingredientsAr && item.ingredientsAr.length > 0) ? item.ingredientsAr : item.ingredients)!.length > 0 ? (
@@ -355,42 +247,28 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
                   <>
                     <div className="px-3 py-2 rounded-xl bg-card border border-border/60 text-xs font-medium text-foreground/70 flex items-center gap-2">
                       <div className="w-1 h-1 rounded-full bg-primary/40" />
-                      {lang === "ar" ? "مكونات طازجة" : "Fresh ingredients"}
+                      {lang === "ar" ? "مواصفات ممتازة" : "Premium details"}
                     </div>
                     <div className="px-3 py-2 rounded-xl bg-card border border-border/60 text-xs font-medium text-foreground/70 flex items-center gap-2">
                       <div className="w-1 h-1 rounded-full bg-primary/40" />
-                      {lang === "ar" ? "جودة عالية" : "Premium quality"}
+                      {lang === "ar" ? "جودة مضمونة" : "Verified quality"}
                     </div>
                   </>
                 )}
               </div>
             </div>
 
-            {/* Info Footer */}
             <div className="flex flex-col gap-4 pt-6 mt-2 border-t border-border/40">
               <button
                 onClick={onClose}
-                className="btn-primary w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                className="btn-primary w-full py-4 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20"
               >
-                {tr("Back to Menu", "العودة للقائمة")}
+                {tr("Back to Catalog", "العودة للكتالوج")}
               </button>
             </div>
           </div>
         </div>
       </div>
-      
-      <style>{`
-        @keyframes modalSlideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-      `}</style>
     </div>
   );
 }
@@ -401,12 +279,14 @@ export default function MenuLightweight() {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("recommended");
+  const [cat, setCat] = useState("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Dynamic branding configuration states
+  const [ddsConfig, setDdsConfig] = useState<any>(null);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
 
@@ -427,48 +307,92 @@ export default function MenuLightweight() {
     }
   }, [user?.uid]);
 
-  // Fetch menu from Firebase
+  // Load configs & dynamic colors
   useEffect(() => {
+    const ddsRef = ref(db, "dds-config");
+    onValue(ddsRef, (snap) => {
+      if (snap.exists()) {
+        const cfg = snap.val();
+        setDdsConfig(cfg);
+
+        // Dynamically update document properties from onboarding setup!
+        if (cfg.colors) {
+          document.documentElement.style.setProperty("--primary", cfg.colors.primary);
+          if (cfg.colors.secondary) document.documentElement.style.setProperty("--secondary", cfg.colors.secondary);
+          if (cfg.colors.accent) document.documentElement.style.setProperty("--accent", cfg.colors.accent);
+          if (cfg.colors.background) document.documentElement.style.setProperty("--background", cfg.colors.background);
+          if (cfg.colors.card) document.documentElement.style.setProperty("--card", cfg.colors.card);
+        }
+      }
+    });
+
     const menuRef = ref(db, "menu");
     onValue(menuRef, (snap) => {
       if (!snap.exists()) { setLoading(false); return; }
-      const data = snap.val() as Record<string, Record<string, unknown>>;
+      const data = snap.val() as Record<string, Record<string, any>>;
       const result: MenuItem[] = [];
       Object.entries(data).forEach(([key, val]) => {
         if (typeof val !== "object" || val === null) return;
-        const v = val as Record<string, unknown>;
+        const v = val as Record<string, any>;
         if (v.price !== undefined || v.name !== undefined) {
           result.push(normalizeItem(key, v));
         } else {
           Object.entries(v).forEach(([subId, subVal]) => {
             if (typeof subVal === "object" && subVal !== null)
-              result.push(normalizeItem(subId, subVal as Record<string, unknown>));
+              result.push(normalizeItem(subId, subVal as Record<string, any>));
           });
         }
       });
       setItems(result);
       setLoading(false);
     });
-    return () => off(ref(db, "menu"));
+
+    return () => {
+      off(ddsRef);
+      off(menuRef);
+    };
   }, []);
 
-  // Debounced search - faster for snappier feel
+  // Compute dynamic category items from active database
+  const CATS = useMemo(() => {
+    const uniqueCats = Array.from(new Set(items.map(i => i.category)));
+    const mapped = uniqueCats.map(catId => {
+      const matched = items.find(i => i.category === catId);
+      let emoji = "📦";
+      if (catId === "specialists" || catId === "doctors") emoji = "🩺";
+      else if (catId === "courses") emoji = "🎓";
+      else if (catId === "suites_rooms") emoji = "🏨";
+      else if (catId === "tech_gadgets") emoji = "🔌";
+      else if (catId === "announcements") emoji = "📢";
+      else if (catId === "coffee") emoji = "☕";
+
+      return {
+        id: catId,
+        emoji,
+        en: matched?.categoryAr ? catId.replace(/_/g, " ") : catId,
+        ar: matched?.categoryAr || catId
+      };
+    });
+
+    return [
+      { id: "all", emoji: "✨", en: "All", ar: "الكل" },
+      ...mapped
+    ];
+  }, [items]);
+
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Track search terms in CRM
   useEffect(() => {
     if (debouncedSearch.trim() && user?.uid) {
       logUserActivity(user.uid, "search_menu", { query: debouncedSearch.trim() }, 3);
     }
   }, [debouncedSearch, user?.uid]);
 
-  // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
-  // Unified filtering and counting in a single pass for optimization
   const { filtered, counts, activeCats } = useMemo(() => {
     const countsMap: Record<string, number> = {};
     CATS.forEach(c => countsMap[c.id] = 0);
@@ -479,28 +403,18 @@ export default function MenuLightweight() {
       const itemCatLower = item.category.toLowerCase();
       const itemSearchStr = item.searchStr || "";
 
-      // Update counts for ALL categories this item belongs to
       CATS.forEach(c => {
         if (c.id === "all") {
           countsMap["all"]++;
-        } else if (c.id === "recommended") {
-          if (item.recommended) countsMap["recommended"]++;
-        } else {
-          const aliasSet = CAT_ALIAS_SETS[c.id];
-          if (aliasSet ? aliasSet.has(itemCatLower) : itemCatLower === c.id) {
-            countsMap[c.id]++;
-          }
+        } else if (itemCatLower === c.id) {
+          countsMap[c.id]++;
         }
       });
 
-      // 1. Search filter (Enhanced)
       if (debouncedSearch) {
         const q = normalizeText(debouncedSearch);
-
-        // Direct match
         let isMatch = itemSearchStr.includes(q);
 
-        // Synonym match
         if (!isMatch) {
           for (const entry of NORMALIZED_SYNONYMS) {
             const { key: normalizedKey, synonyms } = entry;
@@ -510,48 +424,20 @@ export default function MenuLightweight() {
                 break;
               }
             }
-            if (synonyms.some(s => s.includes(q))) {
-               if (itemSearchStr.includes(normalizedKey)) {
-                 isMatch = true;
-                 break;
-               }
-            }
           }
         }
-
         if (!isMatch) return false;
       }
 
-      // 2. Category filter
-      // If searching, we show global results UNLESS the user explicitly chose a category other than 'all' or 'recommended'
-      const isSearching = !!debouncedSearch;
-      const isFilteredCat = cat !== "all" && cat !== "recommended";
-
-      if (isSearching) {
-        if (isFilteredCat) {
-          const aliasSet = CAT_ALIAS_SETS[cat];
-          if (aliasSet ? !aliasSet.has(itemCatLower) : itemCatLower !== cat) return false;
-        }
-        // If searching and cat is "all" or "recommended", show global results.
-      } else {
-        if (cat !== "all") {
-          if (cat === "recommended") {
-            if (!item.recommended) return false;
-          } else {
-            const aliasSet = CAT_ALIAS_SETS[cat];
-            if (aliasSet ? !aliasSet.has(itemCatLower) : itemCatLower !== cat) return false;
-          }
-        }
-      }
+      if (cat !== "all" && itemCatLower !== cat) return false;
 
       return true;
     });
 
     const active = CATS.filter(c => c.id === "all" || countsMap[c.id] > 0);
     return { filtered: filteredList, counts: countsMap, activeCats: active };
-  }, [items, cat, debouncedSearch]);
+  }, [items, cat, debouncedSearch, CATS]);
 
-  // Paginated items
   const paginated = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
@@ -559,90 +445,44 @@ export default function MenuLightweight() {
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDF5E6] to-[#FAF0E6]" dir={isRTL ? "rtl" : "ltr"}>
-      {/* Header */}
-      <div
-        className="sticky top-0 z-30 bg-[#2D1B0F]"
-        style={{
-          background: "linear-gradient(180deg, #1A0F08 0%, #2D1B0F 100%)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-        }}
-      >
-        {/* Hero band — logo + branding */}
-        <div className="relative px-4 pt-4 pb-3 flex items-center gap-3 overflow-hidden">
-          {/* subtle texture overlay */}
-          <div
-            className="absolute inset-0 opacity-[0.06] pointer-events-none"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)",
-              backgroundSize: "6px 6px",
-            }}
-          />
+  // Dynamic text bindings
+  const brandName = ddsConfig?.brandName || "DDS Display";
+  const brandSlogan = ddsConfig?.brandTagline || tr("Interactive workspace portal", "بوابة تفاعلية ذكية");
 
-          {/* Logo */}
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#F3F4F6] to-[#E5E7EB] dark:from-slate-950 dark:to-slate-900" dir={isRTL ? "rtl" : "ltr"}>
+      {/* Header */}
+      <div className="sticky top-0 z-30 bg-primary text-primary-foreground shadow-md">
+        <div className="relative px-4 pt-4 pb-3 flex items-center gap-3 overflow-hidden">
           <div className="relative flex-shrink-0">
-            <div
-              className="absolute inset-0 rounded-2xl blur-lg opacity-40"
-              style={{ background: "rgba(255,200,80,0.6)", transform: "scale(1.2) translateY(4px)" }}
-            />
-            <div
-              className="relative rounded-2xl p-[3px] border border-white/20"
-              style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(6px)" }}
-            >
-              <img
-                src="/logo.jpg"
-                alt="Azura"
-                className="w-14 h-14 rounded-[14px] object-cover"
-                style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
-              />
+            <div className="absolute inset-0 rounded-2xl blur-lg opacity-40 bg-white/30" />
+            <div className="relative rounded-2xl p-[3px] border border-white/20 bg-white/10 text-white font-extrabold w-12 h-12 flex items-center justify-center">
+              DDS
             </div>
           </div>
 
-          {/* Brand text */}
           <div className="flex-1 min-w-0 z-10">
-            <h1
-              className="text-xl font-extrabold text-white leading-tight tracking-tight"
-              style={{ fontFamily: "var(--font-heading)", textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}
-            >
-              {lang === "ar" ? "أزورا كافيه" : "Azura Cafe"}
+            <h1 className="text-base font-extrabold truncate leading-tight">
+              {brandName}
             </h1>
-            <p
-              className="text-[11px] font-medium mt-0.5 italic"
-              style={{ color: "rgba(255,210,100,0.85)", fontFamily: "var(--font-handwritten)", fontSize: "0.85rem" }}
-            >
-              {tr("The quality is a habit", "الجودة عادة")}
+            <p className="text-[10px] text-white/70 italic truncate mt-0.5">
+              {brandSlogan}
             </p>
-            <p className="text-[10px] text-white/50 mt-0.5">
-              {filtered.length} {tr("items", "صنف")}
+            <p className="text-[9px] text-white/50 mt-0.5">
+              {filtered.length} {tr("items loaded", "صنف متوفر")}
             </p>
           </div>
-
-          {/* Full menu link */}
-          <a
-            href="https://azura-menu.pages.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-shrink-0 z-10 px-3 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
-            style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(6px)" }}
-            title={tr("View Full Menu", "القائمة الكاملة")}
-          >
-            <span>📖</span>
-            <span className="hidden sm:inline">{tr("Full Menu", "القائمة الكاملة")}</span>
-          </a>
         </div>
 
         {/* Search */}
         <div className="relative px-4 pb-3">
           <Search size={16} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "right-7" : "left-7"} text-gray-400`} />
           <input
-            ref={searchRef}
             type="text"
-            placeholder={tr("Search for something tasty...", "ابحث عن شيء لذيذ...")}
+            placeholder={tr("Search catalog...", "ابحث في الكتالوج...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full py-2.5 rounded-2xl text-sm bg-white shadow-lg border-0 focus:ring-2 focus:ring-amber-300 ${
+            className={`w-full py-2.5 rounded-xl text-xs bg-white text-slate-900 border-0 focus:ring-2 focus:ring-primary ${
               isRTL ? "pr-9 pl-4" : "pl-9 pr-4"
             }`}
           />
@@ -650,7 +490,6 @@ export default function MenuLightweight() {
             <button
               onClick={() => setSearch("")}
               className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-7" : "right-7"} text-gray-400 hover:text-gray-600`}
-              aria-label={tr("Clear Search", "مسح البحث")}
             >
               <X size={14} />
             </button>
@@ -658,38 +497,30 @@ export default function MenuLightweight() {
         </div>
       </div>
 
-      {/* Categories - Only show active ones to clean up UI */}
-      <div className="sticky top-[105px] z-20 bg-[#FDF5E6] px-4 py-3 border-b border-[#D2B48C]">
-        <div className="flex gap-2.5 overflow-x-auto scroll-hide pb-1 will-change-transform">
-          {activeCats.map((c, idx) => (
+      {/* Categories chips */}
+      <div className="sticky top-[105px] z-20 bg-background/95 backdrop-blur-md px-4 py-3 border-b border-border">
+        <div className="flex gap-2 overflow-x-auto scroll-hide pb-1">
+          {activeCats.map((c) => (
             <button
               key={c.id}
               onClick={() => {
                 setCat(c.id);
-                if (search) setSearch(""); // Clear search when switching sections manually
-                if (user?.uid) {
-                  logUserActivity(user.uid, "click_category", { category: c.id }, 5);
-                  updateUserCategoryAffinity(user.uid, c.id, 10);
-                }
+                if (search) setSearch("");
               }}
               className={`
-                flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
-                transition-all duration-300 ease-out shadow-sm
+                flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold whitespace-nowrap
+                transition-all duration-200 shadow-sm
                 ${cat === c.id 
-                  ? "bg-gradient-to-r from-[#654321] to-[#8B4513] text-white shadow-lg shadow-[#D2B48C] scale-105" 
-                  : "bg-white text-[#654321] hover:bg-[#FDF5E6] hover:scale-102"
+                  ? "bg-primary text-primary-foreground shadow-md scale-105"
+                  : "bg-card text-muted-foreground border border-border hover:bg-muted"
                 }
               `}
-              style={{ 
-                animationDelay: `${idx * 50}ms`,
-                transform: cat === c.id ? "scale(1.05)" : "scale(1)"
-              }}
             >
-              <span className="text-lg">{c.emoji}</span>
+              <span className="text-sm">{c.emoji}</span>
               <span>{lang === "ar" ? c.ar : c.en}</span>
               <span className={`
-                text-[10px] px-1.5 py-0.5 rounded-full font-bold
-                ${cat === c.id ? "bg-white/20 text-white" : "bg-[#D2B48C] text-[#654321]"}
+                text-[9px] px-1.5 py-0.5 rounded-full font-bold
+                ${cat === c.id ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"}
               `}>
                 {counts[c.id] || 0}
               </span>
@@ -702,30 +533,22 @@ export default function MenuLightweight() {
       <div className="p-4">
         {loading ? (
           <div className="grid grid-cols-2 gap-4">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(4)].map((_, i) => (
               <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/40 shadow-sm animate-pulse">
                 <div className="relative h-36 bg-muted" />
                 <div className="p-3 space-y-2">
                   <div className="h-4 bg-muted rounded w-3/4" />
-                  <div className="h-3 bg-muted rounded w-1/2" />
                 </div>
               </div>
             ))}
           </div>
         ) : paginated.length === 0 ? (
           <div className="text-center py-20 flex flex-col items-center">
-            <div className="text-7xl mb-4 animate-bounce" style={{ animationDuration: '3s' }}>🔍</div>
-            <p className="text-xl font-bold text-gray-700">{tr("Nothing found", "لا توجد نتائج")}</p>
-            <p className="text-sm text-gray-500 mt-2">{tr("Try a different search", "جرب بحث مختلف")}</p>
-            <button
-              onClick={() => setSearch("")}
-              className="mt-8 px-8 py-3 rounded-2xl bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all"
-            >
-              {tr("Clear Search", "مسح البحث")}
-            </button>
+            <div className="text-7xl mb-4 animate-bounce">🔍</div>
+            <p className="text-base font-bold text-slate-700 dark:text-slate-300">{tr("No catalog entries found", "لا توجد نتائج مطابقة")}</p>
+            <p className="text-xs text-slate-400 mt-1">{tr("Try a different keywords", "جرب كلمات بحث أخرى")}</p>
           </div>
         ) : (
-          /* GRID VIEW WITH SHIMMER */
           <div className="grid grid-cols-2 gap-4">
             {paginated.map((item, idx) => (
               <MenuItemCard
@@ -747,106 +570,51 @@ export default function MenuLightweight() {
               <button
                 onClick={() => handlePageChange(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
-                aria-label={tr("Previous Page", "الصفحة السابقة")}
+                className="px-3 h-10 rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-border flex items-center gap-1 disabled:opacity-30 text-xs font-bold"
               >
                 {isRTL ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 <span>{tr("Prev", "السابق")}</span>
               </button>
 
               <div className="flex items-center gap-1.5 mx-1">
-                {(() => {
-                  const maxVisible = 4;
-                  const chunkIndex = Math.floor((page - 1) / maxVisible);
-                  const start = (chunkIndex * maxVisible) + 1;
-                  const end = Math.min(totalPages, start + maxVisible - 1);
-
-                  const pages = [];
-                  for (let i = start; i <= end; i++) {
-                    pages.push(
-                      <button
-                        key={i}
-                        onClick={() => handlePageChange(i)}
-                        className={`w-9 h-9 rounded-xl text-sm font-bold transition-all active:scale-90 ${
-                          page === i
-                            ? "bg-[#654321] text-white shadow-md scale-105"
-                            : "bg-white text-[#654321] border border-border/40 hover:bg-muted"
-                        }`}
-                        aria-label={`${tr("Page", "صفحة")} ${i}`}
-                        aria-current={page === i ? "page" : undefined}
-                      >
-                        {i}
-                      </button>
-                    );
-                  }
-                  return pages;
-                })()}
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
+                      page === (i + 1)
+                        ? "bg-primary text-primary-foreground shadow"
+                        : "bg-white dark:bg-slate-900 border border-border hover:bg-muted text-slate-700 dark:text-slate-300"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
               </div>
 
               <button
                 onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="px-3 h-10 rounded-xl bg-white shadow-sm border border-border/40 flex items-center gap-1 disabled:opacity-30 hover:bg-muted transition-all active:scale-95 text-[#654321] font-bold text-xs"
-                aria-label={tr("Next Page", "الصفحة التالية")}
+                className="px-3 h-10 rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-border flex items-center gap-1 disabled:opacity-30 text-xs font-bold"
               >
                 <span>{tr("Next", "التالي")}</span>
                 {isRTL ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
               </button>
             </div>
-
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
-              {tr("Page", "صفحة")} {page} {tr("of", "من")} {totalPages}
-            </p>
           </div>
         )}
       </div>
 
-      {/* Bottom spacer for nav */}
       <div className="h-24" />
       
-      {/* Item Detail Modal */}
       {selectedItem && (
         <ItemModal 
           item={selectedItem} 
           onClose={() => setSelectedItem(null)} 
           lang={lang}
+          CATS={CATS}
         />
       )}
-      
-      {/* Global Styles */}
-      <style>{`
-        @keyframes fadeInSimple {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-        
-        .scroll-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scroll-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 }

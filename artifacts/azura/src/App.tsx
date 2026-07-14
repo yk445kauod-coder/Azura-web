@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -11,6 +11,8 @@ import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
 const Welcome = lazy(() => import("@/pages/Welcome"));
 const MenuLightweight = lazy(() => import("@/pages/MenuLightweight"));
 const AIBarista = lazy(() => import("@/pages/AIBarista"));
+const OnboardingWizard = lazy(() => import("@/pages/OnboardingWizard"));
+const Landing = lazy(() => import("@/pages/Landing"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const Reels = lazy(() => import("@/pages/Reels"));
@@ -34,11 +36,34 @@ interface FeatureFlags {
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const [loc, setLoc] = useLocation();
+  const [activated, setActivated] = useState<boolean | null>(null);
   const [flags, setFlags] = useState<FeatureFlags>({
     baristaEnabled: true,
     reelsEnabled: true,
     supportEnabled: true,
   });
+
+  // Watch dynamic activation gate status
+  useEffect(() => {
+    const ddsRef = ref(db, "dds-config");
+    onValue(ddsRef, (snap) => {
+      if (snap.exists()) {
+        const d = snap.val();
+        setActivated(d.activated === true);
+      } else {
+        setActivated(false);
+      }
+    });
+    return () => off(ddsRef);
+  }, []);
+
+  // Enforce activation routing blocks
+  useEffect(() => {
+    if (activated === false && loc !== "/" && loc !== "/onboarding") {
+      setLoc("/onboarding");
+    }
+  }, [activated, loc]);
 
   useEffect(() => {
     seedMenuIfEmpty()
@@ -66,7 +91,7 @@ function AppRoutes() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-primary">
         <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white/30">
-          <img src="/logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
+          <img src="logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
         </div>
       </div>
     );
@@ -76,7 +101,7 @@ function AppRoutes() {
     <Suspense fallback={
       <div className="min-h-screen flex flex-col items-center justify-center bg-primary text-primary-foreground gap-4">
         <div className="w-20 h-20 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 animate-pulse">
-          <img src="/logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
+          <img src="logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
         </div>
         <div className="flex gap-1">
           <div className="w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -86,14 +111,15 @@ function AppRoutes() {
       </div>
     }>
       <Switch>
+        <Route path="/" component={Landing} />
         <Route path="/admin" component={Admin} />
+        <Route path="/onboarding" component={OnboardingWizard} />
         {!user ? (
-          <Route component={Welcome} />
+          <Route path="/menu" component={Welcome} />
         ) : (
           <Route>
             <Layout>
               <Switch>
-                <Route path="/" component={MenuLightweight} />
                 <Route path="/menu" component={MenuLightweight} />
                 <Route path="/barista">
                   {flags.baristaEnabled ? <AIBarista /> : <Redirect to="/menu" />}

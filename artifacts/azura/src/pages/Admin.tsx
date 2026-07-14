@@ -172,6 +172,8 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
     return { activeNow, returningRate };
   }, [users]);
 
+  const [, navigate] = useLocation();
+
   // Hourly Traffic Trends - Real calculation from live user activity timestamps
   const hourlyTrends = useMemo(() => {
     const hoursMap: Record<number, number> = {};
@@ -268,6 +270,23 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
 
   return (
     <div className="space-y-6 page-enter pb-10">
+      {/* SETUP WIZARD QUICK LINK */}
+      <div className="card-elevated p-5 rounded-2xl bg-gradient-to-r from-indigo-900 to-slate-900 border border-indigo-500/20 text-white shadow-lg space-y-3.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bot className="text-indigo-400 animate-pulse" size={20} />
+            <h3 className="text-sm font-black uppercase tracking-tight">{tr("Platform Setup Wizard", "معالج تهيئة المنصة")}</h3>
+          </div>
+          <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[9px] font-black border border-indigo-500/30 uppercase">{tr("Onboarding", "إعداد")}</span>
+        </div>
+        <p className="text-[11px] text-indigo-200/80 leading-relaxed font-semibold">
+          {tr("Re-run the Advanced Setup Wizard to change your business sector (Clinic, Hotel, Academy, retail), swap primary brand colors, modify your AI Assistant name, or seed preset catalog databases instantly.", "أعد تشغيل معالج الإعداد المطور لتغيير قطاع عملك (عيادة، فندق، أكاديمية، متجر)، تعديل ألوان هويتك البصرية، أو إعادة تهيئة قاعدة البيانات فورياً.")}
+        </p>
+        <button onClick={() => navigate("/onboarding")} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-indigo-600/20 active:scale-[0.98]">
+          {tr("Launch System Onboarding Wizard", "تشغيل معالج تهيئة وإعداد النظام")}
+        </button>
+      </div>
+
       {/* MILLION DOLLAR KPI DASHBOARD */}
       <div className="grid grid-cols-2 gap-3">
         {[

@@ -73,7 +73,7 @@ function normalizeFacebookUrl(url: string): string {
 }
 
 export default function Reels() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { lang } = useLang();
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +87,7 @@ export default function Reels() {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hoverRating, setHoverRating] = useState(0);
   const [commentPage, setCommentPage] = useState(0);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   // Wheel and Swipe Navigation refs
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -352,15 +353,27 @@ export default function Reels() {
 
   const handleRate = async () => {
     if (!user || userRating === 0) return;
-    await push(ref(db, "ratings"), { userId: user.uid, userName: user.displayName || "Guest", rating: userRating, comment: userComment.trim(), createdAt: Date.now() });
+    const finalComment = [userComment.trim(), ...selectedTags].filter(Boolean).join(" | ");
+    const ratingObj = {
+      userId: user.uid,
+      userName: profile?.name || user.displayName || "Guest",
+      rating: userRating,
+      comment: finalComment,
+      createdAt: Date.now(),
+      read: false
+    };
 
-    logUserActivity(user.uid, "rate_cafe", { rating: userRating, comment: userComment.trim() }, 30);
+    // Save to both ratings and feedback paths so that the Admin Review panel picks it up instantly!
+    await push(ref(db, "ratings"), ratingObj);
+    await push(ref(db, "feedback"), ratingObj);
+
+    logUserActivity(user.uid, "rate_cafe", { rating: userRating, comment: finalComment }, 30);
 
     // If rating is low (1 or 2 stars), log it as an issue/feedback warning for CRM
     if (userRating <= 2) {
       await push(ref(db, `users/${user.uid}/issues`), {
         type: "low_rating_given",
-        details: `${userRating}-star rating: "${userComment.trim()}"`,
+        details: `${userRating}-star rating: "${finalComment}"`,
         createdAt: Date.now()
       });
     }
@@ -368,6 +381,7 @@ export default function Reels() {
     setShowRateModal(false);
     setUserRating(0);
     setUserComment("");
+    setSelectedTags([]);
     swalInfo(tr("Thanks for your rating!", "شكراً على تقييمك!"));
   };
 
@@ -669,13 +683,43 @@ export default function Reels() {
               <h3 className="font-bold text-foreground text-base">{tr("Rate Us", "قيمنا")}</h3>
               <button onClick={() => setShowRateModal(false)} className="p-1 hover:bg-muted rounded-full"><X size={18} /></button>
             </div>
-            <div className="flex justify-center gap-2.5 mb-5">
+            <div className="flex justify-center gap-2.5 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button key={star} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} onClick={() => setUserRating(star)} className="p-1 hover:scale-110 transition-transform">
                   <Star size={38} className={(hoverRating || userRating) >= star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
                 </button>
               ))}
             </div>
+
+            {/* Cozy Tag Chips selection */}
+            <div className="mb-4">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-2 text-center">{tr("What did you enjoy?", "ما الذي أعجبك أكثر؟")}</label>
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                {[
+                  { en: "☕ Great Coffee", ar: "☕ قهوة رائعة" },
+                  { en: "🍰 Yum Desserts", ar: "🍰 حلويات شهية" },
+                  { en: "✨ Cozy Atmosphere", ar: "✨ أجواء دافئة" },
+                  { en: "⚡ Super Fast", ar: "⚡ خدمة سريعة" },
+                  { en: "🎵 Chill Music", ar: "🎵 موسيقى هادئة" }
+                ].map(tag => {
+                  const tagText = lang === "ar" ? tag.ar : tag.en;
+                  const isSelected = selectedTags.includes(tagText);
+                  return (
+                    <button
+                      key={tag.en}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTags(prev => isSelected ? prev.filter(t => t !== tagText) : [...prev, tagText]);
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${isSelected ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted-foreground/10"}`}
+                    >
+                      {tagText}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <textarea className="w-full px-4 py-3 rounded-xl bg-muted mb-4 resize-none text-sm font-medium focus:outline-none" placeholder={tr("Write review (optional)", "اكتب تقييم (اختياري)")} rows={3} value={userComment} onChange={(e) => setUserComment(e.target.value)} />
             <button onClick={handleRate} disabled={userRating === 0} className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl text-white font-bold text-sm tracking-wide shadow-lg disabled:opacity-50">{tr("Submit", "إرسال")}</button>
           </div>

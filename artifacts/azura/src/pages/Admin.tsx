@@ -48,6 +48,7 @@ export interface MenuItem {
   ingredients?: string;
   ingredientsAr?: string;
   recommended?: boolean;
+  originalCategory?: string;
 }
 
 export interface ChatSession {
@@ -610,8 +611,8 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
                                 </label>
                               </div>
                               <div className="flex gap-3 pt-4">
-                                <button onClick={async () => { if (await swalConfirm(tr("Delete?", "حذف؟"), tr("Permanent.", "نهائي."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) { await smartRemove(`menu/${item.category}/${item.id}`); setSelectedMenuItemId(null); swalSuccess(tr("Deleted!", "تم الحذف!")); } }} className="btn-secondary px-4 py-3 rounded-xl hover:bg-destructive hover:text-white transition-colors"><Trash2 size={16} /></button>
-                                <button disabled={savingMenuId === item.id || !Object.keys(edits).length} onClick={async () => { setSavingMenuId(item.id); await smartUpdate(`menu/${item.category}/${item.id}`, edits); setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; }); swalSuccess(tr("Saved!", "تم الحفظ!")); setSelectedMenuItemId(null); setSavingMenuId(null); }} className="btn-primary flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2">{savingMenuId === item.id ? <Bot className="animate-spin" size={16}/> : <Save size={16}/>} {tr("Save Changes", "حفظ التعديلات")}</button>
+                                <button onClick={async () => { if (await swalConfirm(tr("Delete?", "حذف؟"), tr("Permanent.", "نهائي."), tr("Delete", "حذف"), tr("Cancel", "إلغاء"))) { await smartRemove(`menu/${item.originalCategory || item.category}/${item.id}`); setSelectedMenuItemId(null); swalSuccess(tr("Deleted!", "تم الحذف!")); } }} className="btn-secondary px-4 py-3 rounded-xl hover:bg-destructive hover:text-white transition-colors"><Trash2 size={16} /></button>
+                                <button disabled={savingMenuId === item.id || !Object.keys(edits).length} onClick={async () => { setSavingMenuId(item.id); await smartUpdate(`menu/${item.originalCategory || item.category}/${item.id}`, edits); setMenuEdits(prev => { const n = { ...prev }; delete n[item.id]; return n; }); swalSuccess(tr("Saved!", "تم الحفظ!")); setSelectedMenuItemId(null); setSavingMenuId(null); }} className="btn-primary flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2">{savingMenuId === item.id ? <Bot className="animate-spin" size={16}/> : <Save size={16}/>} {tr("Save Changes", "حفظ التعديلات")}</button>
                               </div>
                             </div>
                           </div>
@@ -1053,17 +1054,51 @@ const SystemTab = ({ tr }: { tr: any }) => {
 
 const BaristaTab = ({ tr }: { tr: any }) => {
   const [config, setConfig] = useState({ baristaName: "", baristaAvatar: "", instagram: "", cafeName: "", cafeLocation: "", cafeHours: "", cafePhone: "", systemPrompt: "", systemPromptAr: "", greeting: "", greetingAr: "" });
-  const [apiSettings, setApiSettings] = useState({ aiEnabled: true, groqKey: "", menuNode: "menu" });
+  const [apiSettings, setApiSettings] = useState({ aiEnabled: true, groqKey: "", menuNode: "menu", workStyle: "Egyptian Dialect" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [kbText, setKbText] = useState("");
+
   useEffect(() => {
     const cfgRef = ref(db, "ai-config");
     const apiRef = ref(db, "api-settings");
+    const kbRef = ref(db, "ai-knowledge-base");
     onValue(cfgRef, (snap) => snap.exists() && setConfig(prev => ({ ...prev, ...snap.val() })));
-    onValue(apiRef, (snap) => { if (snap.exists()) setApiSettings(snap.val()); setLoading(false); });
-    return () => { off(cfgRef); off(apiRef); };
+    onValue(apiRef, (snap) => { if (snap.exists()) setApiSettings(snap.val()); });
+    onValue(kbRef, (snap) => {
+      if (snap.exists()) setKbText(snap.val() || "");
+      setLoading(false);
+    });
+    return () => { off(cfgRef); off(apiRef); off(kbRef); };
   }, []);
-  const handleSave = async () => { setSaving(true); try { await smartSet("ai-config", config); await smartSet("api-settings", apiSettings); swalSuccess(tr("Saved!", "تم الحفظ!")); } catch (err) { swalError(tr("Error", "خطأ")); } setSaving(false); };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await smartSet("ai-config", config);
+      await smartSet("api-settings", apiSettings);
+      await smartSet("ai-knowledge-base", kbText);
+      swalSuccess(tr("Saved!", "تم الحفظ!"));
+    } catch (err) {
+      swalError(tr("Error", "خطأ"));
+    }
+    setSaving(false);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result;
+      if (typeof result === "string") {
+        setKbText(result);
+        swalSuccess(tr("Knowledge base loaded from file!", "تم تحميل قاعدة المعرفة من الملف!"));
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const inp = "input-field px-3 py-2 text-sm w-full";
   const lbl = "text-[11px] font-bold text-muted-foreground uppercase block mb-1";
   if (loading) return <div className="py-20 text-center animate-pulse">{tr("Loading...", "جاري التحميل...")}</div>;
@@ -1074,6 +1109,27 @@ const BaristaTab = ({ tr }: { tr: any }) => {
         <button onClick={() => setApiSettings(p => ({ ...p, aiEnabled: !p.aiEnabled }))} className={`px-4 py-2 rounded-xl text-xs font-bold ${apiSettings.aiEnabled ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>{apiSettings.aiEnabled ? tr("Disable", "تعطيل") : tr("Enable", "تفعيل")}</button>
       </div>
       <div className="card-elevated rounded-2xl p-5 space-y-4 border border-border/10 border-l-4 border-orange-500 bg-card"><div className="flex items-center gap-2 mb-2"><Sparkles size={18} className="text-orange-500"/><h3 className="font-bold text-foreground">{tr("Menu Data Source", "مصدر القائمة")}</h3></div><input className={inp} value={apiSettings.menuNode || "menu"} onChange={e => setApiSettings({ ...apiSettings, menuNode: e.target.value })} placeholder="e.g. menu" /></div>
+
+      <div className="card-elevated rounded-2xl p-5 space-y-4 border border-border/10 border-l-4 border-indigo-500 bg-card">
+        <div className="flex items-center gap-2 mb-2">
+          <Settings size={18} className="text-indigo-500"/>
+          <h3 className="font-bold text-foreground">{tr("AI Persona & Work Style", "أسلوب عمل ومزاج الذكاء")}</h3>
+        </div>
+        <div>
+          <label className={lbl}>{tr("AI Work Style / Accent", "أسلوب وطبيعة المحادثة")}</label>
+          <select
+            className={inp}
+            value={apiSettings.workStyle || "Egyptian Dialect"}
+            onChange={e => setApiSettings({...apiSettings, workStyle: e.target.value})}
+          >
+            <option value="Egyptian Dialect">Egyptian Dialect (عامية مصرية)</option>
+            <option value="Chatty & Fun">Chatty & Fun (مرح وتفاعلي)</option>
+            <option value="Professional Cafe Host">Professional Cafe Host (راقي ورسمي)</option>
+            <option value="Quick & Direct">Quick & Direct (سريع ومختصر)</option>
+          </select>
+        </div>
+      </div>
+
       <div className="card-elevated rounded-2xl p-5 space-y-4 border border-border/10 border-l-4 border-primary bg-card">
         <div className="flex items-center gap-2 mb-2"><User size={18} className="text-primary"/><h3 className="font-bold text-foreground">{tr("Persona", "الشخصية")}</h3></div>
         <div className="grid grid-cols-2 gap-4">
@@ -1089,11 +1145,87 @@ const BaristaTab = ({ tr }: { tr: any }) => {
           <div><label className={lbl}>Greeting (AR)</label><textarea className={`${inp} h-20`} dir="rtl" value={config.greetingAr} onChange={e => setConfig({...config, greetingAr: e.target.value})} /></div>
         </div>
       </div>
+
+      <div className="card-elevated rounded-2xl p-5 space-y-4 border border-border/10 border-l-4 border-teal-500 bg-card">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Database size={18} className="text-teal-500"/>
+            <h3 className="font-bold text-foreground">{tr("AI Custom Knowledge Base", "قاعدة المعرفة المخصصة للذكاء")}</h3>
+          </div>
+          <label className="btn-secondary px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-primary hover:text-white transition-colors">
+            <UploadCloud size={12} className="inline mr-1" />
+            {tr("Upload TXT/JSON", "رفع ملف")}
+            <input type="file" accept=".txt,.json" onChange={handleFileUpload} className="hidden" />
+          </label>
+        </div>
+        <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">
+          {tr("Add custom guidelines, history, special rules, or secret recipes that you want the AI to remember and utilize in client recommendations.", "أضف توجيهات مخصصة، تاريخ الكافيه، أو قواعد خاصة تريد أن يتذكرها الذكاء الاصطناعي ويستخدمها في التوصيات.")}
+        </p>
+        <textarea
+          className={`${inp} h-32 font-mono text-xs`}
+          placeholder={tr("Paste your custom text knowledge or load a file...", "الصق نص المعرفة هنا أو ارفع ملف...")}
+          value={kbText}
+          onChange={e => setKbText(e.target.value)}
+        />
+      </div>
+
       <button onClick={handleSave} disabled={saving} className="btn-primary w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 sticky bottom-4">
         {saving ? <Bot className="animate-spin" size={18}/> : <Save size={18}/>} {tr("Save Barista Config", "حفظ الإعدادات")}
       </button>
     </div>
   );
+};
+
+const evaluateCellFormula = (val: string, sheetData: string[][]): string => {
+  if (!val || !val.startsWith("=")) return val;
+  try {
+    const expr = val.slice(1).toUpperCase().trim();
+
+    // Support SUM(A1:A5)
+    const sumMatch = expr.match(/SUM\(([A-E])(\d+):([A-E])(\d+)\)/);
+    if (sumMatch) {
+      const colStart = sumMatch[1].charCodeAt(0) - 65; // A=0, B=1...
+      const rowStart = parseInt(sumMatch[2]) - 1;
+      const colEnd = sumMatch[3].charCodeAt(0) - 65;
+      const rowEnd = parseInt(sumMatch[4]) - 1;
+
+      let sum = 0;
+      for (let r = Math.min(rowStart, rowEnd); r <= Math.max(rowStart, rowEnd); r++) {
+        for (let c = Math.min(colStart, colEnd); c <= Math.max(colStart, colEnd); c++) {
+          const rawCell = sheetData[r]?.[c] || "";
+          const cellVal = rawCell.startsWith("=") ? parseFloat(evaluateCellFormula(rawCell, sheetData)) : parseFloat(rawCell);
+          if (!isNaN(cellVal)) sum += cellVal;
+        }
+      }
+      return String(sum);
+    }
+
+    // Support cell references like A1, B2 in general math expressions
+    let parsedExpr = expr;
+    const cellRegex = /([A-E])(\d+)/g;
+    let match;
+    const replacedCells = new Set<string>();
+    while ((match = cellRegex.exec(expr)) !== null) {
+      const cellRef = match[0];
+      if (replacedCells.has(cellRef)) continue;
+      replacedCells.add(cellRef);
+      const col = match[1].charCodeAt(0) - 65;
+      const row = parseInt(match[2]) - 1;
+      const rawCell = sheetData[row]?.[col] || "";
+      const cellVal = rawCell.startsWith("=") ? parseFloat(evaluateCellFormula(rawCell, sheetData)) : parseFloat(rawCell);
+      parsedExpr = parsedExpr.replace(new RegExp(cellRef, 'g'), isNaN(cellVal) ? "0" : String(cellVal));
+    }
+
+    // Safely evaluate simple math expressions
+    const sanitized = parsedExpr.replace(/[^0-9+\-*/().]/g, "");
+    if (sanitized) {
+      const result = new Function(`return (${sanitized})`)();
+      return String(result);
+    }
+  } catch (e) {
+    return "#ERROR";
+  }
+  return val;
 };
 
 const ReservationsTab = ({ tr }: { tr: any }) => {
@@ -1116,6 +1248,11 @@ const ReservationsTab = ({ tr }: { tr: any }) => {
   const [activeCell, setActiveCell] = useState<{ r: number; c: number } | null>(null);
   const [cellText, setCellText] = useState("");
 
+  // Azura Docs & Workspace Office notes states
+  const [docsList, setDocsList] = useState<any[]>([]);
+  const [docForm, setDocForm] = useState({ title: "", content: "" });
+  const [activeDocId, setActiveDocId] = useState<string | null>(null);
+
   useEffect(() => {
     const resRef = ref(db, "reservations");
     const unsub = onValue(resRef, (snap) => {
@@ -1132,7 +1269,18 @@ const ReservationsTab = ({ tr }: { tr: any }) => {
       if (snap.exists()) setSheet(snap.val());
     });
 
-    return () => off(resRef);
+    // Sub to workspace documentation logs
+    const docsRef = ref(db, "workspace-docs");
+    const unsubDocs = onValue(docsRef, (snap) => {
+      if (snap.exists()) {
+        const data = Object.entries(snap.val()).map(([id, val]: any) => ({ id, ...val }));
+        setDocsList(data);
+      } else {
+        setDocsList([]);
+      }
+    });
+
+    return () => { off(resRef); off(docsRef); };
   }, []);
 
   const handleAddBooking = async () => {
@@ -1191,6 +1339,27 @@ const ReservationsTab = ({ tr }: { tr: any }) => {
     document.body.removeChild(link);
   };
 
+  // Document saving
+  const handleSaveDoc = async () => {
+    if (!docForm.title.trim() || !docForm.content.trim()) return;
+    const id = activeDocId || `doc_${Date.now()}`;
+    await set(ref(db, `workspace-docs/${id}`), {
+      ...docForm,
+      id,
+      updatedAt: Date.now()
+    });
+    setDocForm({ title: "", content: "" });
+    setActiveDocId(null);
+    swalSuccess(tr("Office Document Saved!", "تم حفظ مستند العمل بنجاح!"));
+  };
+
+  const handleDeleteDoc = async (id: string) => {
+    if (await swalConfirm(tr("Delete Document?", "حذف المستند؟"), tr("This cannot be undone.", "لا يمكن التراجع عن هذه العملية."))) {
+      await remove(ref(db, `workspace-docs/${id}`));
+      swalSuccess(tr("Document Deleted!", "تم حذف المستند!"));
+    }
+  };
+
   const facebookCount = resList.filter(r => r.source === "Facebook").length;
   const otherCount = resList.length - facebookCount;
   const pendingCount = resList.length;
@@ -1241,34 +1410,55 @@ const ReservationsTab = ({ tr }: { tr: any }) => {
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h3 className="text-sm font-bold text-[#654321] flex items-center gap-2">
             <Database size={18} className="text-primary"/>
-            {tr("Interactive Spreadsheet Designer", "مصمم الجداول التفاعلية")}
+            {tr("Interactive Spreadsheet Designer (Live Formulas)", "مصمم الجداول التفاعلية (معادلات رياضية مباشرة)")}
           </h3>
           <button onClick={handleDownloadSheetCSV} className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded-xl flex items-center gap-1">
             <Download size={12}/> {tr("Export Excel (.CSV)", "تصدير ملف إكسل")}
           </button>
         </div>
 
+        <p className="text-[9px] text-muted-foreground leading-normal">
+          💡 {tr("Formula supported! Type '=' followed by equation (e.g. '=A2+B2', '=SUM(A1:A5)' or '=C3*D3') to automatically compute and display results in real-time.", "تدعم المعادلات الحسابية! اكتب '=' متبوعة بالمعادلة (مثال: '=A2+B2' أو '=SUM(A1:A5)') لحساب وعرض النتائج فوراً.")}
+        </p>
+
         <div className="overflow-x-auto border border-border/10 rounded-xl">
           <table className="min-w-full divide-y divide-border/10 bg-white font-sans text-xs">
+            <thead>
+              <tr className="bg-muted/10 divide-x divide-border/10 text-center font-bold">
+                <th className="w-8"></th>
+                <th className="py-1">A</th>
+                <th className="py-1">B</th>
+                <th className="py-1">C</th>
+                <th className="py-1">D</th>
+                <th className="py-1">E</th>
+              </tr>
+            </thead>
             <tbody>
               {sheet.map((row, r) => (
                 <tr key={r} className="divide-x divide-border/10">
                   <td className="bg-muted/30 px-2 py-1.5 font-bold text-center w-8 select-none text-[10px]">
                     {r + 1}
                   </td>
-                  {row.map((cell, c) => (
-                    <td
-                      key={c}
-                      onClick={() => { setActiveCell({ r, c }); setCellText(cell || ""); }}
-                      className={`px-3 py-2 text-center cursor-pointer font-medium hover:bg-muted/15 transition-colors border-b border-border/10 ${
-                        activeCell?.r === r && activeCell?.c === c
-                          ? "bg-primary/10 ring-2 ring-primary/25 font-bold"
-                          : cell ? "bg-primary/[0.02]" : ""
-                      }`}
-                    >
-                      {cell || <span className="opacity-0">-</span>}
-                    </td>
-                  ))}
+                  {row.map((cell, c) => {
+                    const isFormula = cell?.startsWith("=");
+                    const displayedValue = isFormula ? evaluateCellFormula(cell, sheet) : cell;
+                    return (
+                      <td
+                        key={c}
+                        onClick={() => { setActiveCell({ r, c }); setCellText(cell || ""); }}
+                        title={isFormula ? `Formula: ${cell}` : ""}
+                        className={`px-3 py-2 text-center cursor-pointer font-medium hover:bg-muted/15 transition-colors border-b border-border/10 ${
+                          activeCell?.r === r && activeCell?.c === c
+                            ? "bg-primary/10 ring-2 ring-primary/25 font-bold"
+                            : isFormula
+                              ? "bg-amber-500/5 text-amber-800 dark:text-amber-300 font-bold border-amber-500/10"
+                              : cell ? "bg-primary/[0.02]" : ""
+                        }`}
+                      >
+                        {displayedValue || <span className="opacity-0">-</span>}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>
@@ -1277,17 +1467,99 @@ const ReservationsTab = ({ tr }: { tr: any }) => {
 
         {activeCell && (
           <div className="p-3 bg-muted/20 border border-border/15 rounded-xl flex gap-2 items-center animate-in fade-in duration-150">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase">Cell R{activeCell.r+1}C{activeCell.c+1}:</span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase">Cell {String.fromCharCode(65 + activeCell.c)}{activeCell.r+1}:</span>
             <input
               type="text"
               className="flex-1 input-field px-3 py-1.5 text-xs font-semibold focus:outline-none"
               value={cellText}
               onChange={e => setCellText(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSaveCell()}
+              placeholder="e.g. 100 or =A2+B2"
               autoFocus
             />
             <button onClick={handleSaveCell} className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg">{tr("Apply", "تطبيق")}</button>
             <button onClick={() => setActiveCell(null)} className="px-2.5 py-1.5 bg-muted text-foreground text-xs font-bold rounded-lg"><X size={14}/></button>
+          </div>
+        )}
+      </div>
+
+      {/* AZURA DOCS WORKSPACE OFFICE MANAGER */}
+      <div className="card-elevated p-5 rounded-2xl bg-card border border-teal-500/20 shadow-sm space-y-4">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <Archive size={18} className="text-teal-500"/>
+          {tr("Azura Office Workspace Docs & Checklists", "مستندات مكتب العمل وقوائم المراجعة")}
+        </h3>
+        <p className="text-[10px] text-muted-foreground leading-normal">
+          {tr("Create and documentation checklists, staff task list, shift reports, cafe recipes, and store them permanently in the Workspace cloud catalog.", "قم بإنشاء وتوثيق قوائم المهام، تقارير الشفتات، أو وصفات الكافيه وحفظها في سحابة العمل للرجوع إليها وتعديلها في أي وقت.")}
+        </p>
+
+        <div className="space-y-3">
+          <input
+            className="input-field w-full px-3 py-2 text-xs font-bold"
+            placeholder={tr("Document Title (e.g., Opening Checklist)", "عنوان المستند")}
+            value={docForm.title}
+            onChange={e => setDocForm({...docForm, title: e.target.value})}
+          />
+          <textarea
+            className="input-field w-full px-3 py-2 text-xs min-h-[100px] font-sans"
+            placeholder={tr("Write rich notes, employee roles, or shift handovers here...", "اكتب الملاحظات أو المهام هنا...")}
+            value={docForm.content}
+            onChange={e => setDocForm({...docForm, content: e.target.value})}
+          />
+          <div className="flex gap-2 justify-end">
+            {activeDocId && (
+              <button
+                type="button"
+                onClick={() => { setActiveDocId(null); setDocForm({ title: "", content: "" }); }}
+                className="btn-secondary px-4 py-2 rounded-xl text-xs font-bold"
+              >
+                {tr("Cancel Edit", "إلغاء التعديل")}
+              </button>
+            )}
+            <button
+              onClick={handleSaveDoc}
+              disabled={!docForm.title.trim() || !docForm.content.trim()}
+              className="btn-primary px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-primary/10 disabled:opacity-50"
+            >
+              <Save size={12}/> {activeDocId ? tr("Update Document", "تحديث المستند") : tr("Save Document", "حفظ وتوثيق المستند")}
+            </button>
+          </div>
+        </div>
+
+        {docsList.length > 0 && (
+          <div className="space-y-2.5 pt-2 border-t border-border/10">
+            <h5 className="text-[10px] font-bold text-muted-foreground uppercase">{tr("Saved Cafe Logs & Manuals", "مستندات العمل المحفوظة")}</h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {docsList.map(doc => (
+                <div key={doc.id} className="p-3 bg-muted/15 rounded-xl border border-border/10 flex flex-col justify-between space-y-2">
+                  <div>
+                    <h6 className="text-xs font-bold text-foreground line-clamp-1">{doc.title}</h6>
+                    <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1 leading-normal">"{doc.content}"</p>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-border/5 text-[9px] text-muted-foreground">
+                    <span>{new Date(doc.updatedAt).toLocaleDateString()}</span>
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => {
+                          setActiveDocId(doc.id);
+                          setDocForm({ title: doc.title, content: doc.content });
+                        }}
+                        className="text-primary hover:underline font-bold"
+                      >
+                        {tr("Edit", "تعديل")}
+                      </button>
+                      <span>·</span>
+                      <button
+                        onClick={() => handleDeleteDoc(doc.id)}
+                        className="text-destructive hover:underline font-bold"
+                      >
+                        {tr("Delete", "حذف")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -1709,10 +1981,10 @@ export default function Admin() {
       };
       Object.entries(data).forEach(([k, v]: any) => {
         if (v.price !== undefined) {
-          res.push({ id: k, ...v, category: normalizeCat(v.category) });
+          res.push({ id: k, ...v, category: normalizeCat(v.category), originalCategory: v.category });
         } else {
           Object.entries(v).forEach(([sk, sv]: any) => {
-            res.push({ id: sk, ...sv, category: normalizeCat(sv.category) });
+            res.push({ id: sk, ...sv, category: normalizeCat(sv.category), originalCategory: k });
           });
         }
       });

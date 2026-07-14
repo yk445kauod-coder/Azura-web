@@ -60,8 +60,8 @@ function AppRoutes() {
 
   // Enforce activation routing blocks
   useEffect(() => {
-    if (activated === false && loc !== "/" && loc !== "/onboarding") {
-      setLoc("/onboarding");
+    if (activated === false && loc !== "/" && loc !== "/onboarding" && loc !== "/activation") {
+      setLoc("/activation");
     }
   }, [activated, loc]);
 
@@ -114,6 +114,7 @@ function AppRoutes() {
         <Route path="/" component={Landing} />
         <Route path="/admin" component={Admin} />
         <Route path="/onboarding" component={OnboardingWizard} />
+        <Route path="/activation" component={OnboardingWizard} />
         {!user ? (
           <Route path="/menu" component={Welcome} />
         ) : (

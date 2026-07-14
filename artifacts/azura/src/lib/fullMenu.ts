@@ -1,4 +1,4 @@
-// Full Azura Cafe Menu — 250 items across 30 categories
+// Full DDS Portal Menu — 250 items across 30 categories
 // Generated from official menu JSON — DO NOT edit manually, use admin panel to update Firebase
 
 export const fullMenuData: Record<string, Record<string, {
@@ -119,8 +119,8 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "appetizers": {
-    "azura-plate": {
-      "name": "Azura Plate",
+    "dds-plate": {
+      "name": "DDS Premium Plate",
       "nameAr": "ازورا بليت",
       "description": "Mozzarella sticks, strips, onion rings, fries, nachos with three sauces",
       "descriptionAr": "موتزريلا ستيك، ستربس، حلقات بصل، فرايز، ناتشوز مع ثلاث صوصات من اختيارك",
@@ -145,8 +145,8 @@ export const fullMenuData: Record<string, Record<string, {
       ],
       "recommended": true
     },
-    "azura-potato": {
-      "name": "Azura Potato",
+    "dds-potato": {
+      "name": "DDS Potato Specialty",
       "nameAr": "ازورا بوتيتو",
       "description": "Mash Potato, Smoked Turkey, Olives, Cheddar Mix, Mozzarella, Ranch Sauce",
       "descriptionAr": "ماش بوتيتو، سموك تركي، زيتون، ميكس شيدر، موتزريلا، صوص رانش",
@@ -385,8 +385,8 @@ export const fullMenuData: Record<string, Record<string, {
       "ingredients": ["Avocado", "poached eggs", "sourdough bread", "cherry tomatoes", "microgreens"],
       "ingredientsAr": ["أفوكادو", "بيض مسلوق", "خبز sourdough", "طماطم cherry", "microgreens"]
     },
-    "azura-breakfast": {
-      "name": "Azura Breakfast",
+    "dds-breakfast": {
+      "name": "DDS Breakfast Core",
       "nameAr": "ازورا بريك فاست",
       "description": "Cheese Omelette, Hot Dog, Fries, Smoked Turkey, Toast",
       "descriptionAr": "تشيز اومليت، هوت دوج، فرايز، سموك تركي، توست",
@@ -1055,8 +1055,8 @@ export const fullMenuData: Record<string, Record<string, {
       "available": true,
       "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80"
     },
-    "azura-croissant": {
-      "name": "Azura Croissant",
+    "dds-croissant": {
+      "name": "DDS French Croissant",
       "nameAr": "ازورا كرواسون",
       "description": "Lettuce, Smoked Turkey, Pepperoni, Cheddar",
       "descriptionAr": "خس، سموك تركي، ببروني، شيدر",
@@ -2686,8 +2686,8 @@ export const fullMenuData: Record<string, Record<string, {
       "ingredients": ["Pasta", "Alfredo cream sauce", "Parmesan"],
       "ingredientsAr": ["باستا", "صوص الفريدو الكريمي", "بارميزان"]
     },
-    "azura-spicy-pasta": {
-      "name": "Azura Spicy Pasta",
+    "dds-spicy-pasta": {
+      "name": "DDS Spicy Pasta Core",
       "nameAr": "ازورا سبايسي باستا",
       "description": "Jalapeno, Spices, White Sauce, Pepperoni, Sweet Chili",
       "descriptionAr": "هالبينو، توابل، وايت صوص، ببروني، سويت شيلي",
@@ -2906,8 +2906,8 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "salads": {
-    "azura-disco-salad": {
-      "name": "Azura Disco Salad",
+    "dds-disco-salad": {
+      "name": "DDS Fresh Salad",
       "nameAr": "ازورا ديسكو سالاد",
       "description": "Lettuce, Crispy Chicken, Smoked Turkey, Smoked Beef, Colored Peppers, Cheddar Mix, Nachos, Honey Mustard Sauce",
       "descriptionAr": "خس، فراخ كريسبي، سموك تركي، سموك بيف، فلفل الوان، ميكس شيدر، ناتشوز، هوني ماسترد صوص",
@@ -3748,8 +3748,8 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "tortilla": {
-    "azura-tortilla": {
-      "name": "Azura Tortilla",
+    "dds-tortilla": {
+      "name": "DDS Tortilla Wrap",
       "nameAr": "ازورا تورتيلا",
       "description": "Lettuce, tomato, smoked turkey, smoked beef, cheese sauce, crispy chicken",
       "descriptionAr": "خس، طماطم، سموك تركي، سموك بيف، صوص جبنه، فراخ كريسبي",

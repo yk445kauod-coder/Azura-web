@@ -1,5 +1,5 @@
 {
-  "restaurant_name": "Azura",
+  "restaurant_name": "DDS",
   "menu": [
     {
       "section": "New Items",
@@ -12,7 +12,7 @@
     {
       "section": "Breakfast",
       "items": [
-        { "name": "Azura Breakfast", "price": 204, "currency": "LE" },
+        { "name": "DDS Breakfast Core", "price": 204, "currency": "LE" },
         { "name": "Mexican Breakfast", "price": 174, "currency": "LE" },
         { "name": "Greek Breakfast", "price": 189, "currency": "LE" }
       ]
@@ -31,7 +31,7 @@
       "items": [
         { "name": "Classic", "price": 71, "currency": "LE" },
         { "name": "Mix Cheese", "price": 114, "currency": "LE" },
-        { "name": "Azura Croissant", "price": 149, "currency": "LE" }
+        { "name": "DDS French Croissant", "price": 149, "currency": "LE" }
       ]
     },
     {
@@ -56,9 +56,9 @@
         { "name": "Mozzarella Steak", "price": 96, "currency": "LE" },
         { "name": "Strips", "price": 189, "currency": "LE" },
         { "name": "Onion Rings", "price": 88, "currency": "LE" },
-        { "name": "Azura Plate", "price": 256, "currency": "LE" },
+        { "name": "DDS Premium Plate", "price": 256, "currency": "LE" },
         { "name": "Baked Potato", "price": 92, "currency": "LE" },
-        { "name": "Azura Potato", "price": 123, "currency": "LE" }
+        { "name": "DDS Potato Specialty", "price": 123, "currency": "LE" }
       ]
     },
     {
@@ -68,7 +68,7 @@
         { "name": "Chicken Caesar Salad", "price": 204, "currency": "LE" },
         { "name": "Rocca Salad", "price": 124, "currency": "LE" },
         { "name": "California Salad", "price": 193, "currency": "LE" },
-        { "name": "Azura Diso Salad", "price": 248, "currency": "LE" },
+        { "name": "DDS Diso Salad", "price": 248, "currency": "LE" },
         { "name": "Tuna Salad", "price": 206, "currency": "LE" }
       ]
     },
@@ -81,7 +81,7 @@
         { "name": "Pesto Pasta", "price": 216, "currency": "LE" },
         { "name": "Chicken Gravy Pasta", "price": 206, "currency": "LE" },
         { "name": "Beef Stroganoff Pasta", "price": 279, "currency": "LE" },
-        { "name": "Azura Spicy Pasta", "price": 189, "currency": "LE" },
+        { "name": "DDS Spicy Pasta Core", "price": 189, "currency": "LE" },
         { "name": "Pasta Arrabbiata", "price": 165, "currency": "LE" },
         { "name": "Pasta Forno", "price": 204, "currency": "LE" },
         { "name": "Spaghetti Bolognese", "price": 197, "currency": "LE" },
@@ -399,7 +399,7 @@
         { "name": "Nutella", "price": 184, "currency": "LE" },
         { "name": "Mixed Chocolate", "price": 209, "currency": "LE" },
         { "name": "Lotus Caramel", "price": 204, "currency": "LE" },
-        { "name": "Azura Ice Cream Sandwich", "price": 189, "currency": "LE" },
+        { "name": "DDS Ice Cream Sandwich", "price": 189, "currency": "LE" },
         { "name": "Kinder", "price": 219, "currency": "LE" },
         { "name": "Pistachio", "price": 234, "currency": "LE" },
         { "name": "Chocolate Marshmallow", "price": 199, "currency": "LE" },
@@ -431,7 +431,7 @@
         { "name": "Crepe Brownies", "price": 229, "currency": "LE" },
         { "name": "Cheesecake Crepe", "price": 239, "currency": "LE" },
         { "name": "Pistachio Crepe", "price": 219, "currency": "LE" },
-        { "name": "Azura Crepe", "price": 219, "currency": "LE" }
+        { "name": "DDS Premium Crepe", "price": 219, "currency": "LE" }
       ]
     },
     {
@@ -485,7 +485,7 @@
         { "name": "Luxury Hookah", "price": 150, "currency": "LE" },
         { "name": "Hookah", "price": 65, "currency": "LE" },
         { "name": "Pyrex Twin Hookah", "price": 210, "currency": "LE" },
-        { "name": "Azura Hookah", "price": 220, "currency": "LE" },
+        { "name": "DDS Premium Service", "price": 220, "currency": "LE" },
         { "name": "Ice Lay", "price": 30, "currency": "LE" },
         { "name": "Extra", "price": 55, "currency": "LE" }
       ]

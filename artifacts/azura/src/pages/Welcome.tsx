@@ -104,11 +104,11 @@ export default function Welcome() {
     }
     setLoading(true);
     try {
-      localStorage.setItem("azura-tips-pending", "true");
+      localStorage.setItem("dds-tips-pending", "true");
       await loginAnonymous(name.trim(), tableNum.trim());
     }
     catch {
-      localStorage.removeItem("azura-tips-pending");
+      localStorage.removeItem("dds-tips-pending");
       setError(tr("Something went wrong. Try again.", "حدث خطأ، حاول مجدداً"));
     }
     setLoading(false);

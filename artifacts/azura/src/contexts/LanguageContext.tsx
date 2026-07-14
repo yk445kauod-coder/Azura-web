@@ -12,12 +12,12 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
-    return (localStorage.getItem("azura-lang") as Lang) || "en";
+    return (localStorage.getItem("dds-lang") as Lang) || "en";
   });
 
   const setLang = (l: Lang) => {
     setLangState(l);
-    localStorage.setItem("azura-lang", l);
+    localStorage.setItem("dds-lang", l);
   };
 
   useEffect(() => {

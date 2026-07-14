@@ -3,7 +3,7 @@
  * Uses IndexedDB for local caching to reduce RTDB load
  */
 
-const DB_NAME = "AzuraVideos";
+const DB_NAME = "DDSVideos";
 const DB_VERSION = 1;
 const STORE_NAME = "videos";
 

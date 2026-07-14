@@ -1,5 +1,5 @@
 /**
- * Azura Cafe Menu Data
+ * DDS Portal Menu Data
  * Updated: June 2026
  */
 
@@ -22,7 +22,7 @@ export const menuData = {
     "grilled-chicken-caesar": { name: "Grilled Chicken Caesar", nameAr: "سيزر فراخ مشوية", description: "Caesar salad with grilled chicken", descriptionAr: "سلطة سيزر مع فراخ مشوية", price: 130, category: "salads", image: "", available: true },
     "rocky-salad": { name: "Rocky Salad", nameAr: "سلطة روكي", description: "Mixed greens with mushrooms and parmesan", descriptionAr: "خضروات مشكلة مع مشروم وبارميزان", price: 95, category: "salads", image: "", available: true },
     "california-salad": { name: "California Salad", nameAr: "سلطة كاليفورنيا", description: "Fresh salad with corn and hawaiian sauce", descriptionAr: "سلطة طازجة مع ذرة وصوص هاواي", price: 115, category: "salads", image: "", available: true },
-    "azura-disco-salad": { name: "Azura Disco Salad", nameAr: "سلطة ازورا ديسكو", description: "Loaded salad with crispy chicken and bacon", descriptionAr: "سلطة محملة مع فراخ كريسبي ولحم", price: 145, category: "salads", image: "", available: true },
+    "dds-disco-salad": { name: "DDS Fresh Salad", nameAr: "سلطة ازورا ديسكو", description: "Loaded salad with crispy chicken and bacon", descriptionAr: "سلطة محملة مع فراخ كريسبي ولحم", price: 145, category: "salads", image: "", available: true },
     "tuna-salad": { name: "Tuna Salad", nameAr: "سلطة تونة", description: "Salad with fresh tuna and vegetables", descriptionAr: "سلطة مع تونة طازجة وخضروات", price: 125, category: "salads", image: "", available: true },
     "greek-salad": { name: "Greek Salad", nameAr: "سلطة يونانية", description: "Feta cheese with olives and tomatoes", descriptionAr: "جبنه فيتا مع زيتون وطماطم", price: 100, category: "salads", image: "", available: true },
     "grilled-shrimp-salad": { name: "Grilled Shrimp Salad", nameAr: "سلطة روبيان مشوي", description: "Salad with grilled shrimp", descriptionAr: "سلطة مع روبيان مشوي", price: 155, category: "salads", image: "", available: true },
@@ -39,7 +39,7 @@ export const menuData = {
   breakfast: {
     "avocado-toast": { name: "Avocado Toast", nameAr: "توست أفوكادو", description: "Sourdough with smashed avocado", descriptionAr: "خبز بالمعجن مع الأفوكادو المهروس", price: 95, category: "breakfast", image: "", available: true },
     "croissant": { name: "Butter Croissant", nameAr: "كروسان زبدة", description: "Flaky butter croissant", descriptionAr: "كروسان هشه بالزبدة", price: 55, category: "breakfast", image: "", available: true },
-    "azura-croissant": { name: "Azura Croissant", nameAr: "كروسان ازورا", description: "Croissant with smoked turkey and cheese", descriptionAr: "كروسان مع حبش مدخن وجبنه", price: 95, category: "breakfast", image: "", available: true },
+    "dds-croissant": { name: "DDS French Croissant", nameAr: "كروسان ازورا", description: "Croissant with smoked turkey and cheese", descriptionAr: "كروسان مع حبش مدخن وجبنه", price: 95, category: "breakfast", image: "", available: true },
     "omelette": { name: "French Omelette", nameAr: "أومليت فرنسي", description: "Fluffy omelette with fillings", descriptionAr: "أومليت هش مع حشوات", price: 75, category: "breakfast", image: "", available: true },
     "shakshuka": { name: "Shakshuka", nameAr: "شكشوكة", description: "Eggs poached in tomato sauce", descriptionAr: "بيض مطبوخ في صوص طماطم", price: 85, category: "breakfast", image: "", available: true },
     "pancakes": { name: "Fluffy Pancakes", nameAr: "بان كيك", description: "Stack of fluffy pancakes", descriptionAr: "حزمة بان كيك هش", price: 90, category: "breakfast", image: "", available: true },
@@ -47,7 +47,7 @@ export const menuData = {
   },
 
   burgers: {
-    "azura-burger": { name: "Azura Burger", nameAr: "برجر ازورا", description: "Signature burger with special sauce", descriptionAr: "برجر سيجنتشر مع صوص خاص", price: 165, category: "burgers", image: "", available: true },
+    "dds-burger": { name: "DDS Burger Core", nameAr: "برجر ازورا", description: "Signature burger with special sauce", descriptionAr: "برجر سيجنتشر مع صوص خاص", price: 165, category: "burgers", image: "", available: true },
     "cheese-burger": { name: "Cheese Burger", nameAr: "برجر جبنه", description: "Classic cheeseburger", descriptionAr: "برجر كلاسيكي بالجبنه", price: 135, category: "burgers", image: "", available: true },
     "double-burger": { name: "Double Burger", nameAr: "دبل برجر", description: "Double patty burger", descriptionAr: "برجر مضاعف", price: 185, category: "burgers", image: "", available: true },
     "chicken-burger": { name: "Chicken Burger", nameAr: "برجر فراخ", description: "Grilled chicken burger", descriptionAr: "برجر فراخ مشوية", price: 125, category: "burgers", image: "", available: true },
@@ -156,7 +156,7 @@ export const menuData = {
     "hazelnut": { name: "Hazelnut", nameAr: "هازيلنات", description: "Nutty hazelnut", descriptionAr: "مكسرات هازيلنت", price: 135, category: "shisha", image: "", available: true },
     "pineapple": { name: "Pineapple", nameAr: "أناناس", description: "Tropical pineapple", descriptionAr: "أناناس استوائي", price: 130, category: "shisha", image: "", available: true },
     "blueberry": { name: "Blueberry", nameAr: "توت أزرق", description: "Sweet blueberry", descriptionAr: "توت أزرق حلو", price: 140, category: "shisha", image: "", available: true },
-    "azura-mix": { name: "Azura Special Mix", nameAr: "ميكس ازورا", description: "House special mix", descriptionAr: "خليط خاص المحل", price: 180, category: "shisha", image: "", available: true },
+    "dds-mix": { name: "DDS Special Preset", nameAr: "ميكس ازورا", description: "House special mix", descriptionAr: "خليط خاص المحل", price: 180, category: "shisha", image: "", available: true },
     "premium": { name: "Premium Mix", nameAr: "ميكس فاخر", description: "Premium flavor mix", descriptionAr: "نكهة مميزة", price: 190, category: "shisha", image: "", available: true },
     "luxury": { name: "Luxury Mix", nameAr: "شيشة فاخره", description: "Luxury shisha", descriptionAr: "شيشة فاخرة", price: 220, category: "shisha", image: "", available: true },
   },

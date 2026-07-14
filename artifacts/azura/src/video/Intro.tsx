@@ -193,7 +193,7 @@ export const IntroVideo: React.FC = () => {
             textShadow: "2px 2px 4px rgba(139, 69, 19, 0.2)",
           }}
         >
-          AZURA
+          DDS
         </h1>
       </div>
       

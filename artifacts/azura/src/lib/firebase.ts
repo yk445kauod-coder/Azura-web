@@ -123,16 +123,16 @@ export async function seedMenuIfEmpty() {
   const staffData = {
     "ahmed": { name: "Ahmed Hassan", nameAr: "أحمد حسن", role: "Head Barista", roleAr: "كبير الباريستا", bio: "10 years of coffee expertise, champion of Egyptian barista competitions.", bioAr: "10 سنوات من الخبرة في القهوة، بطل مسابقات الباريستا المصرية.", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80" },
     "nour": { name: "Nour El-Din", nameAr: "نور الدين", role: "Pastry Chef", roleAr: "شيف المعجنات", bio: "Trained in Paris, brings French technique to Egyptian flavors.", bioAr: "تدرب في باريس، يجمع بين التقنية الفرنسية والنكهات المصرية.", photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&q=80" },
-    "sara": { name: "Sara Khaled", nameAr: "سارة خالد", role: "Cafe Manager", roleAr: "مديرة المقهى", bio: "Ensures every guest at Azura feels at home. Hospitality is her passion.", bioAr: "تحرص على أن يشعر كل ضيف في أزورا بالراحة. الضيافة شغفها.", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80" },
-    "omar": { name: "Omar Farouk", nameAr: "عمر فاروق", role: "Barista", roleAr: "باريستا", bio: "Specializes in latte art and specialty drinks. Creative coffee enthusiast.", bioAr: "متخصص في فن اللاتيه والمشروبات المميزة. مهووس بالقهوة الإبداعية.", photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80" },
-    "layla": { name: "Layla Mansour", nameAr: "ليلى منصور", role: "Waitress", roleAr: "نادلة", bio: "Fluent in Arabic, English & French. Makes every visit special.", bioAr: "تتحدث العربية والإنجليزية والفرنسية. تجعل كل زيارة مميزة.", photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&q=80" },
+    "sara": { name: "Sara Khaled", nameAr: "سارة خالد", role: "Portal Manager", roleAr: "مديرة النظام", bio: "Ensures every guest at DDS feels at home. Hospitality is her passion.", bioAr: "تحرص على أن يشعر كل ضيف في النظام بالراحة. الضيافة شغفها.", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80" },
+    "omar": { name: "Omar Farouk", nameAr: "عمر فاروق", role: "Operator", roleAr: "مشغل نظام", bio: "Specializes in design art and specialty drinks. Creative dynamic enthusiast.", bioAr: "متخصص في فن التصميم الإبداعي وإدارة المجموعات التفاعلية.", photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80" },
+    "layla": { name: "Layla Mansour", nameAr: "ليلى منصور", role: "Coordinator", roleAr: "مستقبلة", bio: "Fluent in Arabic, English & French. Makes every visit special.", bioAr: "تتحدث العربية والإنجليزية والفرنسية. تجعل كل زيارة مميزة.", photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&q=80" },
   };
 
   await set(ref(db, "staff"), staffData);
 
   const aiConfig = {
-    systemPrompt: `You are Zura (or Zure), a friendly and knowledgeable AI barista at Azura Cafe & Restaurant, located in Tivoli Dome, Alexandria, Egypt. You are warm, helpful, and passionate about coffee and food. You help customers explore the menu, make recommendations based on their preferences, and assist with placing orders. When speaking Arabic, use Egyptian dialect (العامية المصرية). Always be welcoming and personable. You can discuss: menu items, ingredients, preparation methods, café ambiance, and local Alexandria culture. Keep responses concise and friendly. DO NOT mention prices.`,
-    systemPromptAr: `أنت زورا (أو زور)، باريستا ذكاء اصطناعي ودود وعالم في مقهى أزورا للمأكولات والمشروبات، في التيفولي دوم، الإسكندرية، مصر. أنت دافئ ومفيد ومتحمس للقهوة والطعام. تساعد العملاء في استكشاف القائمة وتقديم التوصيات وتقديم الطلبات. تكلم بالعامية المصرية. كن مرحبًا وودودًا. يمكنك مناقشة: القائمة، المكونات، طرق التحضير، أجواء المقهى والثقافة الإسكندرانية. لا تذكر الأسعار أبدًا.`,
+    systemPrompt: `You are Zura (or Zure), a friendly and knowledgeable AI Assistant at DDS, located dynamically based on the active configurations. You help customers explore the catalog, make recommendations based on their preferences, and assist with finding info. Keep responses concise and friendly.`,
+    systemPromptAr: `أنت زورا (أو زور)، مساعد ذكاء اصطناعي ودود وعالم في نظام DDS. تساعد العملاء في استكشاف القائمة وتقديم التوصيات المناسبة لهم. كن مرحبًا وودودًا.`,
     baristaFemale: "Zura",
     barista_female_name: "زورا",
     barista_male: "Zure",

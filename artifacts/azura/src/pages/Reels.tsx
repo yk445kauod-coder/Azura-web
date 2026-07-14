@@ -591,7 +591,7 @@ export default function Reels() {
                             <Flag size={11} /> {tr("Report", "إبلاغ")}
                           </button>
 
-                          {(user?.uid === c.userId || user?.uid === "admin" || sessionStorage.getItem("azura-admin")) && (
+                          {(user?.uid === c.userId || user?.uid === "admin" || sessionStorage.getItem("dds-admin")) && (
                             <button onClick={() => handleDeleteComment(c.id)} className="text-[11px] font-semibold text-muted-foreground hover:text-destructive flex items-center gap-1">
                               <Trash2 size={11} />
                             </button>
@@ -621,7 +621,7 @@ export default function Reels() {
                                     <Flag size={10} /> {tr("Report", "إبلاغ")}
                                   </button>
 
-                                  {(user?.uid === r.userId || user?.uid === "admin" || sessionStorage.getItem("azura-admin")) && (
+                                  {(user?.uid === r.userId || user?.uid === "admin" || sessionStorage.getItem("dds-admin")) && (
                                     <button onClick={() => handleDeleteReply(c.id, r.id)} className="text-[10px] font-semibold text-muted-foreground hover:text-destructive flex items-center gap-0.5">
                                       <Trash2 size={10} />
                                     </button>

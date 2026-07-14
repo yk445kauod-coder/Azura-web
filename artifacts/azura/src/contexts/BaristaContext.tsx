@@ -23,9 +23,9 @@ export function BaristaProvider({ children }: { children: ReactNode }) {
   const [persona] = useState<BaristaPersona>("female");
   const [baristaName, setBaristaName] = useState("Zura");
   const [baristaAvatar, setBaristaAvatar] = useState("https://api.dicebear.com/7.x/avataaars-neutral/svg?seed=Zura&backgroundColor=c0aede&clothingColor=5d3e6e&skinColor=f5d0c5&hairColor=4a3728&topType=LongHairStraight");
-  const [instagram, setInstagram] = useState("@azuracafeegy");
+  const [instagram, setInstagram] = useState("@ddsportalegy");
   const [cafeInfo, setCafeInfo] = useState({
-    name: "Azura Cafe & Restaurant",
+    name: "DDS Portal & Restaurant",
     location: "Tivoli Dome, Alexandria, Egypt",
     hours: "10:00 AM - 12:00 AM",
     phone: "+20 100 000 0000"

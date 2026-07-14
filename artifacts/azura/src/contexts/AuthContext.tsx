@@ -46,21 +46,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [tableNumber, setTableNumberState] = useState<string | null>(
-    () => sessionStorage.getItem("azura-table")
+    () => sessionStorage.getItem("dds-table")
   );
 
   const getDeviceId = () => {
-    let id = localStorage.getItem("azura-device-id");
+    let id = localStorage.getItem("dds-device-id");
     if (!id) {
       id = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
-      localStorage.setItem("azura-device-id", id);
+      localStorage.setItem("dds-device-id", id);
     }
     return id;
   };
 
   const setTableNumber = (t: string) => {
     setTableNumberState(t);
-    sessionStorage.setItem("azura-table", t);
+    sessionStorage.setItem("dds-table", t);
   };
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             uid: u.uid,
             name: u.displayName || u.email?.split("@")[0] || "User",
             email: u.email,
-            tableNumber: sessionStorage.getItem("azura-table"),
+            tableNumber: sessionStorage.getItem("dds-table"),
             deviceId: deviceId,
             isGuest: false,
             photoURL: u.photoURL,
@@ -177,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
-    sessionStorage.removeItem("azura-table");
+    sessionStorage.removeItem("dds-table");
     setTableNumberState(null);
   };
 

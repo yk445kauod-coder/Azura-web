@@ -65,7 +65,7 @@ export function useAIChat(uid?: string) {
       setIsThinking(true);
       const steps = [
         "Analyzing your request...",
-        "Scanning Azura menu...",
+        "Scanning dynamic database...",
         "Checking availability...",
         "Crafting perfect recommendation..."
       ];

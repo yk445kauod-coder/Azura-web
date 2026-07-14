@@ -4,7 +4,7 @@
  * but prevents casual inspection of the key in Firebase
  */
 
-const SECRET_SALT = "Azura2024Cafe";
+const SECRET_SALT = "DDS2026Core";
 
 // Markers to identify encrypted vs plain text keys
 const ENCRYPTED_PREFIX = "___ENC___";

@@ -127,7 +127,7 @@ export default function SplashScreen() {
             >
               <img
                 src="/logo.jpg"
-                alt="Azura"
+                alt="DDS"
                 className="w-24 h-24 rounded-[18px] object-cover"
                 style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
               />
@@ -141,7 +141,7 @@ export default function SplashScreen() {
           style={{ transitionDelay: "0.3s" }}
         >
           <p className="text-white/70 text-sm font-semibold tracking-[0.25em] uppercase mb-1">
-            {tr("AZURA CAFE", "أزورا كافيه")}
+            {tr("DDS SYSTEM", "النظام كافيه")}
           </p>
         </div>
 

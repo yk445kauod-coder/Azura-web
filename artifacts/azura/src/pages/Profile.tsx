@@ -149,8 +149,8 @@ export default function Profile() {
         <p className="font-semibold text-foreground mb-1">{lang === "ar" ? "تواصل معنا" : "Contact Us"}</p>
         <p className="text-muted-foreground">📍 {tr.location}</p>
         <p className="text-muted-foreground">📞 {tr.phone}</p>
-        <a href="https://instagram.com/azuracafee" target="_blank" rel="noopener noreferrer" className="text-secondary hover:underline block">
-          📸 @azuracafee
+        <a href="https://instagram.com/ddsportale" target="_blank" rel="noopener noreferrer" className="text-secondary hover:underline block">
+          📸 @ddsportale
         </a>
       </div>
 

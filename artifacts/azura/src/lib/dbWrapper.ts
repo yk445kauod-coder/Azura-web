@@ -25,7 +25,7 @@ async function getR2Config() {
   if (r2Config) return r2Config;
 
   // Try localStorage first (for fallback mode persistence)
-  const local = localStorage.getItem("azura-r2-config");
+  const local = localStorage.getItem("dds-r2-config");
   if (local) {
     try {
       r2Config = JSON.parse(local);
@@ -40,7 +40,7 @@ async function getR2Config() {
     if (snap.exists()) {
       r2Config = snap.val();
       if (r2Config) {
-        localStorage.setItem("azura-r2-config", JSON.stringify(r2Config));
+        localStorage.setItem("dds-r2-config", JSON.stringify(r2Config));
         initR2(r2Config);
       }
       return r2Config;
@@ -53,7 +53,7 @@ async function getR2Config() {
 
 export function saveR2Locally(config: R2Config) {
   r2Config = config;
-  localStorage.setItem("azura-r2-config", JSON.stringify(config));
+  localStorage.setItem("dds-r2-config", JSON.stringify(config));
   initR2(config);
 }
 

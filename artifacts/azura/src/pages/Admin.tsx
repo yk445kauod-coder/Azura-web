@@ -246,7 +246,7 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `azura_crm_export_${Date.now()}.csv`);
+    link.setAttribute("download", `dds_crm_export_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -254,14 +254,14 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
   };
 
   const exportSystemLogs = () => {
-    let logText = "Azura Cafe Live Logs History System\n==================================\n\n";
+    let logText = "DDS Portal Live Logs History System\n==================================\n\n";
     logs.forEach(log => { logText += `${log}\n`; });
 
     const blob = new Blob([logText], { type: "text/plain;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `azura_system_logs_${Date.now()}.txt`);
+    link.setAttribute("download", `dds_system_logs_${Date.now()}.txt`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1184,7 +1184,7 @@ const ReservationsTab = ({ tr }: { tr: any }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `azura_custom_sheet_${Date.now()}.csv`);
+    link.setAttribute("download", `dds_custom_sheet_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1489,7 +1489,7 @@ const ReelsTab = ({ tr, reels, togglePin, deleteReel }: any) => {
           <button disabled={saving || !form.videoUrl} onClick={async () => {
             setSaving(true);
             const id = `reel_${Date.now()}`;
-            await smartSet(`reels/${id}`, { ...form, id, createdAt: Date.now(), likes: 0, authorName: "Azura" });
+            await smartSet(`reels/${id}`, { ...form, id, createdAt: Date.now(), likes: 0, authorName: "DDS" });
             setForm({ videoUrl: "", caption: "", captionAr: "" });
             setShowAdd(false);
             setSaving(false);
@@ -1581,7 +1581,7 @@ const TablesTab = ({ tr, activeTables, users }: any) => {
 
 // --- Main Admin Component ---
 
-const ADMIN_PIN = "azura2026";
+const ADMIN_PIN = "dds2026";
 type Tab = "overview" | "menu" | "users" | "chat" | "reviews" | "broadcast" | "reels" | "api" | "system" | "ai" | "features" | "tables" | "barista" | "reservations";
 const BLANK_BROADCAST = { title: "", titleAr: "", message: "", messageAr: "", type: "info" as const, emoji: "📢" };
 const AIAdminAssistant = lazy(() => import("@/components/AIAdminAssistant"));
@@ -1590,7 +1590,7 @@ export default function Admin() {
   const { lang, isRTL } = useLang();
   const [, navigate] = useLocation();
   const [pin, setPin] = useState("");
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem("azura-admin") === "true");
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem("dds-admin") === "true");
   const [pinErr, setPinErr] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
   const [menu, setMenu] = useState<MenuItem[]>([]);
@@ -1646,7 +1646,7 @@ export default function Admin() {
     try {
       const rawKey = apiSettings.groqKey;
       const keyToUse = (rawKey?.startsWith("___ENC___") ? decryptKey(rawKey) : rawKey) || "";
-      const testMsg = "Hello, respond with exactly 'Azura Live Connection Test Success!' in one short sentence.";
+      const testMsg = "Hello, respond with exactly 'DDS Live Connection Test Success!' in one short sentence.";
       const systemPrompt = "You are a test helper.";
 
       const response = await chatWithAI(keyToUse, testMsg, [], systemPrompt);
@@ -1780,7 +1780,7 @@ export default function Admin() {
     return () => off(ref(db, `support-chat/${selectedChat}/messages`));
   }, [selectedChat]);
 
-  const login = () => { if (pin === ADMIN_PIN) { sessionStorage.setItem("azura-admin", "true"); setAuthed(true); } else setPinErr("Wrong PIN"); };
+  const login = () => { if (pin === ADMIN_PIN) { sessionStorage.setItem("dds-admin", "true"); setAuthed(true); } else setPinErr("Wrong PIN"); };
 
   const MENU_CATEGORIES = ["recommended", "new_items", "soups", "appetizers", "salads", "pasta", "tortilla", "toast", "croissant", "breakfast", "main_dishes", "burgers", "smash_burgers", "fried_chicken", "hot_drinks", "coffee", "corto", "hot_chocolate", "sahlab", "frappuccino", "iced_coffee", "mojitos", "boba_tea", "fresh_juices", "mocktails", "cocktails", "smoothies", "milkshakes", "waffle", "desserts", "crepes", "pancakes", "add_ons", "shisha", "soft_drinks"];
   const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = { recommended: { emoji: "⭐", en: "Top Picks", ar: "الأفضل" }, new_items: { emoji: "🆕", en: "New", ar: "جديد" }, soups: { emoji: "🍲", en: "Soup", ar: "شوربة" }, appetizers: { emoji: "🍟", en: "Appetizers", ar: "مقبلات" }, salads: { emoji: "🥗", en: "Salads", ar: "سلطات" }, pasta: { emoji: "🍝", en: "Pasta", ar: "مكرونة" }, tortilla: { emoji: "🌯", en: "Tortilla", ar: "تورتيلا" }, toast: { emoji: "🍞", en: "Toast", ar: "توست" }, croissant: { emoji: "🥐", en: "Croissant", ar: "كرواسون" }, breakfast: { emoji: "🍳", en: "Breakfast", ar: "فطور" }, main_dishes: { emoji: "🍽️", en: "Main Dishes", ar: "أطباق رئيسية" }, burgers: { emoji: "🍔", en: "Burgers", ar: "برجر" }, smash_burgers: { emoji: "🔥", en: "Smash Burgers", ar: "سماش برجر" }, fried_chicken: { emoji: "🍗", en: "Fried Chicken", ar: "فراخ مقلية" }, hot_drinks: { emoji: "☕", en: "Hot Drinks", ar: "مشروبات ساخنة" }, coffee: { emoji: "☕", en: "Coffee", ar: "قهوة" }, corto: { emoji: "🥛", en: "Corto", ar: "كورتو" }, hot_chocolate: { emoji: "🍫", en: "Hot Chocolate", ar: "شوكولاتة ساخنة" }, sahlab: { emoji: "🥛", en: "Sahlab", ar: "سحلب" }, frappuccino: { emoji: "🧊", en: "Frappuccino", ar: "فرابتشينو" }, iced_coffee: { emoji: "🧋", en: "Iced Coffee", ar: "قهوة مثلجة" }, mojitos: { emoji: "🍹", en: "Mojitos", ar: "موجيتو" }, boba_tea: { emoji: "🧋", en: "Boba Tea", ar: "بوبا تي" }, fresh_juices: { emoji: "🍊", en: "Fresh Juices", ar: "عصائر طازجة" }, mocktails: { emoji: "🍸", en: "Mocktails", ar: "موكتيل" }, cocktails: { emoji: "🍹", en: "Cocktails", ar: "كوكتيل" }, smoothies: { emoji: "🥤", en: "Smoothies", ar: "سموذي" }, milkshakes: { emoji: "🥛", en: "Milkshakes", ar: "ميلك شيك" }, waffle: { emoji: "🧇", en: "Waffle", ar: "وافل" }, desserts: { emoji: "🍰", en: "Desserts", ar: "حلويات" }, crepes: { emoji: "🥞", en: "Crepes", ar: "كريب" }, pancakes: { emoji: "🥞", en: "Pancakes", ar: "بان كيك" }, add_ons: { emoji: "➕", en: "Add-ons", ar: "إضافات" }, shisha: { emoji: "💨", en: "Hookah", ar: "شيشة" }, soft_drinks: { emoji: "🥤", en: "Soft Drinks", ar: "مشروبات غازية" } };
@@ -1831,7 +1831,7 @@ export default function Admin() {
         </button>
         <div className="flex flex-col flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-lg leading-none">AZURA</span>
+            <span className="font-bold text-lg leading-none">DDS</span>
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/15 border border-white/10">
               <div className={`w-2 h-2 rounded-full ${connected ? "bg-green-400 animate-pulse" : "bg-red-400"}`}/>
               <span className="text-[8px] font-bold tracking-tight text-white/90 uppercase">{connected ? "Live" : "Offline"}</span>
@@ -1839,7 +1839,7 @@ export default function Admin() {
           </div>
           <span className="text-[10px] text-primary-foreground/80 tracking-tighter uppercase mt-0.5">quality is habit</span>
         </div>
-        <button onClick={() => { sessionStorage.removeItem("azura-admin"); setAuthed(false); }} className="text-xs text-primary-foreground/90 hover:underline">Sign out</button>
+        <button onClick={() => { sessionStorage.removeItem("dds-admin"); setAuthed(false); }} className="text-xs text-primary-foreground/90 hover:underline">Sign out</button>
       </header>
       <nav className="sticky top-[60px] z-30 px-3 py-2.5 overflow-x-auto scroll-hide bg-card border-b border-border shadow-sm">
         <div className="flex gap-2 min-w-max">

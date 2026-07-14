@@ -16,26 +16,26 @@ interface Tip {
 const TIPS: Tip[] = [
   {
     icon: <Coffee size={32} />,
-    title: { en: "Welcome to Azura ☕", ar: "أهلاً بيك في أزورا ☕" },
-    desc: { en: "Your favorite cafe, now at your fingertips! Order your favorites with just a few taps.", ar: "كافيهك المفضل، دلوقتي في ايدك. اطلب اللي تحبه بلمسة زر!" },
-    color: "from-amber-500 to-orange-500",
+    title: { en: "Welcome to DDS ⚙️", ar: "أهلاً بيك في نظام DDS ⚙️" },
+    desc: { en: "Your smart dynamic catalog, now at your fingertips! Explore interactive components.", ar: "كتالوجك الذكي التفاعلي، الآن بين يديك! استكشف المكونات فورياً." },
+    color: "from-blue-500 to-indigo-500",
   },
   {
     icon: <Sparkles size={32} />,
-    title: { en: "AI Barista ✨", ar: "البارستا الذكي ✨" },
-    desc: { en: "Chat with our AI barista to get personalized drink recommendations!", ar: "تكلم مع البارستا الذكي عشان يوصلك بأفضل مشروب!" },
+    title: { en: "AI Personalization ✨", ar: "الذكاء الاصطناعي ✨" },
+    desc: { en: "Interactive multi-agent swarms assist you with everything dynamically!", ar: "أسراب ذكاء اصطناعي متعددة المهام تساندك في كل شيء فورياً!" },
     color: "from-purple-500 to-pink-500",
   },
   {
     icon: <MessageCircle size={32} />,
-    title: { en: "Order Tracking 📦", ar: "تتبع الطلبات 📦" },
-    desc: { en: "Real-time updates on your order status. Know exactly when your order is ready!", ar: "تحديثات فورية لحالة طلبك. اعرف بالظبط امتى طلبك جاهز!" },
-    color: "from-blue-500 to-cyan-500",
+    title: { en: "Live Interactions 📦", ar: "التفاعل المباشر 📦" },
+    desc: { en: "Real-time updates on services, rosters, and products. Sync on the fly!", ar: "مزامنة وتحديثات فورية للخدمات والمنتجات والأصناف المتاحة!" },
+    color: "from-teal-500 to-cyan-500",
   },
   {
     icon: <Star size={32} />,
-    title: { en: "Share Feedback ⭐", ar: "شارك رأيك ⭐" },
-    desc: { en: "Rate your experience and suggest new items. Your opinion matters!", ar: "قيّم تجربتك واقترح عناصر جديدة. رأيك مهم!" },
+    title: { en: "Quality Standard ⭐", ar: "تقييم الجودة ⭐" },
+    desc: { en: "Continuous optimization through analytical customer feedback monitors.", ar: "تحسين مستمر عبر نظام متقدم لرصد وتحليل آراء العملاء." },
     color: "from-green-500 to-emerald-500",
   },
 ];
@@ -53,7 +53,7 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
     if (isLast) {
       setFadeOut(true);
       setTimeout(() => {
-        localStorage.setItem("azura_tip_seen", "true");
+        localStorage.setItem("dds_tip_seen", "true");
         onComplete();
       }, 400);
     } else {
@@ -64,7 +64,7 @@ export default function TipOverlay({ onComplete }: TipOverlayProps) {
   const handleSkip = () => {
     setFadeOut(true);
     setTimeout(() => {
-      localStorage.setItem("azura_tip_seen", "true");
+      localStorage.setItem("dds_tip_seen", "true");
       onComplete();
     }, 400);
   };

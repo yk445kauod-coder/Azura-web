@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (Dynamic Repo Support)
 
 on:
   push:
@@ -33,6 +33,8 @@ jobs:
       - name: Build Application
         run: pnpm build
         env:
+          # If deploying to a different repo, replace this with your target repo name (e.g., "/my-target-repo/")
+          # Or if deploying to a custom root domain (like dds.mycompany.com), set this to "/"
           BASE_PATH: "/${{ github.event.repository.name }}/"
 
       - name: Configure SPA Routing Fallback for GitHub Pages
@@ -41,6 +43,19 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
+          # Root directory of the compiled web app
           folder: artifacts/azura/dist
+
+          # Target branch for static hosting pages
           branch: gh-pages
+
+          # ── DEPLOY TO A DIFFERENT GITHUB REPOSITORY ──
+          # If you want to push the compiled site to a different repository:
+          # 1. Generate a GitHub Personal Access Token (PAT) with "repo" write permissions.
+          # 2. Add it to this repository's secrets as DEPLOY_TOKEN.
+          # 3. Uncomment the two lines below (remove the #) and set your target repository:
+          #
+          # token: ${{ secrets.DEPLOY_TOKEN }}
+          # repository-name: username/target-repository-name
+
           clean: true

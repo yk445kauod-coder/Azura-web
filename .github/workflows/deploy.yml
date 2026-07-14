@@ -32,6 +32,11 @@ jobs:
 
       - name: Build Application
         run: pnpm build
+        env:
+          BASE_PATH: "/${{ github.event.repository.name }}/"
+
+      - name: Configure SPA Routing Fallback for GitHub Pages
+        run: cp artifacts/azura/dist/index.html artifacts/azura/dist/404.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4

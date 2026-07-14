@@ -68,7 +68,7 @@ function AppRoutes() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-primary">
         <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white/30">
-          <img src="/logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
+          <img src="logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
         </div>
       </div>
     );
@@ -78,7 +78,7 @@ function AppRoutes() {
     <Suspense fallback={
       <div className="min-h-screen flex flex-col items-center justify-center bg-primary text-primary-foreground gap-4">
         <div className="w-20 h-20 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 animate-pulse">
-          <img src="/logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
+          <img src="logo.jpg" alt="Azura" className="w-full h-full object-cover" loading="lazy" />
         </div>
         <div className="flex gap-1">
           <div className="w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: "0ms" }} />

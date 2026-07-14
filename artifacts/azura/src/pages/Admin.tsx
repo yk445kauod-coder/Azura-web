@@ -418,56 +418,56 @@ const OverviewTab = ({ tr, users, unreadChats, newReviewsCount, logs, menuCount,
         </div>
       </div>
 
-      {/* MODEL CONTEXT PROTOCOL (MCP) PROTOCOLS SYNC & AGENTIC REGISTRY HUB */}
-      <div className="card-elevated p-5 rounded-2xl bg-card border border-border/15 space-y-4">
+      {/* MODEL CONTEXT PROTOCOL (MCP) COSY COMMAND PORTAL */}
+      <div className="glass-premium p-5 rounded-2xl border border-border/10 space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Zap size={18} className="text-cyan-400 animate-pulse"/>
-            <span className="cyber-glow-cyan">{tr("Model Context Protocol (MCP) Command Registry", "مركز بروتوكولات ذكاء الآلة (MCP)")}</span>
+            <Zap size={18} className="text-primary animate-pulse"/>
+            <span>{tr("Model Context Protocol (MCP) Registry Telemetry", "مركز بروتوكولات المزامنة والربط (MCP)")}</span>
           </h3>
-          <span className="text-[9px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            Protocols: Active
+          <span className="text-[9px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            {tr("Telemetry: Operational", "الحالة: نشط ومستقر")}
           </span>
         </div>
 
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
-          {tr("Autonomous agent nodes are synchronized utilizing the Model Context Protocol (MCP). Control live semantic menu routers and diagnostic agents.", "تتم مزامنة عقد الأنظمة الذكية المستقلة ببروتوكول MCP. راقب ووجه موجّهات البيانات المباشرة وعقد الفحص الذاتي.")}
+        <p className="text-[10px] text-muted-foreground leading-relaxed font-semibold">
+          {tr("Autonomous context agents are synchronized utilizing MCP protocols to manage real-time semantic menu router pipelines and diagnostics.", "تتم مزامنة عقد المساعدين المستقلة ببروتوكولات MCP لإدارة موجّهات البيانات المباشرة وعمليات الفحص الذاتي.")}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
-            { name: "menu-retrieval-mcp", status: "ONLINE", speed: "4ms", type: "Context-Injected tool context tool", color: "text-cyan-400" },
-            { name: "client-crm-mcp", status: "ONLINE", speed: "12ms", type: "Preference affinity analyzer", color: "text-green-400" },
-            { name: "rtdb-mcp-gateway", status: "ONLINE", speed: "8ms", type: "Real-time DB sync channel", color: "text-purple-400" }
+            { name: "menu-retrieval-mcp", status: tr("ONLINE", "متصل"), speed: "4ms", type: tr("Semantic menu filter", "موجّه القائمة الذكي") },
+            { name: "client-crm-mcp", status: tr("ONLINE", "متصل"), speed: "12ms", type: tr("Preference analyzer", "محلل الاهتمامات") },
+            { name: "rtdb-mcp-gateway", status: tr("ONLINE", "متصل"), speed: "8ms", type: tr("Live DB sync channel", "قناة المزامنة الحية") }
           ].map((mcp) => (
-            <div key={mcp.name} className="p-3 bg-black/40 border border-white/5 rounded-xl space-y-1.5 hover:border-cyan-500/30 transition-all">
+            <div key={mcp.name} className="p-3 bg-muted/10 border border-border/10 rounded-xl space-y-1 hover:border-primary/30 transition-all">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[9px] font-bold text-foreground truncate">{mcp.name}</span>
-                <span className={`text-[8px] font-bold ${mcp.color}`}>{mcp.status}</span>
+                <span className="text-[8px] font-bold text-green-600">{mcp.status}</span>
               </div>
               <div className="flex justify-between items-center text-[8px] text-muted-foreground">
                 <span>{mcp.type}</span>
-                <span className="font-mono">{mcp.speed}</span>
+                <span className="font-mono font-bold text-primary">{mcp.speed}</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* MCP Action calibration button */}
+        {/* Action calibration button */}
         <button
           onClick={async () => {
-            swalLoading(tr("Calibrating MCP Host Protocols...", "جاري ضبط بروتوكولات المضيف..."));
-            await new Promise(r => setTimeout(r, 1200));
-            addLog("MCP PROTOCOL CALIBRATION: Synchronized menu-retrieval-mcp pipeline.");
-            addLog("MCP PROTOCOL CALIBRATION: Initialized client-crm-mcp affinity channels.");
-            addLog("MCP SYSTEM HEALTH: MCPS Sync operational (100% data fidelity).");
+            swalLoading(tr("Calibrating MCP Host Channels...", "جاري ضبط قنوات المزامنة..."));
+            await new Promise(r => setTimeout(r, 1000));
+            addLog("MCP CHANNEL CALIBRATION: Calibrated menu-retrieval-mcp pipeline.");
+            addLog("MCP CHANNEL CALIBRATION: Calibrated client-crm-mcp preference affinity pathways.");
+            addLog("MCP SYSTEM Telemetry: All MCP links active.");
             swalClose();
-            swalSuccess(tr("MCP Protocols calibrated successfully! Logs updated.", "تمت معايرة بروتوكولات MCP بنجاح! تم تحديث السجلات."));
+            swalSuccess(tr("MCP Telemetry channels calibrated successfully!", "تمت معايرة قنوات المزامنة والربط بنجاح!"));
           }}
-          className="btn-secondary w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors border border-border/10"
+          className="btn-secondary w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border border-border/10"
         >
-          <Activity size={14} className="text-cyan-400 animate-spin" style={{ animationDuration: '3s' }}/>
-          {tr("Trigger Autonomous MCP Calibration", "تفعيل معايرة بروتوكولات MCP")}
+          <Activity size={14} className="text-primary animate-spin" style={{ animationDuration: '3s' }}/>
+          {tr("Calibrate MCP Telemetry Link", "بدء معايرة قنوات المزامنة")}
         </button>
       </div>
 
@@ -2130,27 +2130,27 @@ export default function Admin() {
   const inp = "input-field px-3 py-2.5 text-sm";
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 cyber-grid-bg font-sans" dir={isRTL ? "rtl" : "ltr"}>
-      <header className="sticky top-0 z-40 bg-[#040814]/85 backdrop-blur-md px-4 py-4 flex items-center gap-4 text-[#00f2fe] border-b border-[#00f2fe]/20 shadow-lg shadow-cyan-500/5">
+    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
+      <header className="sticky top-0 z-40 bg-card px-4 py-4 flex items-center gap-4 text-foreground border-b border-border/10 shadow-sm glass-premium">
         <button onClick={() => navigate("/menu")} className="btn-icon w-8 h-8 rounded-full text-foreground flex items-center justify-center bg-white shadow-sm border border-border/10">
           <ArrowLeft size={16} />
         </button>
         <div className="flex flex-col flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-lg leading-none cyber-glow-cyan">AZURA COMMAND</span>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/15 border border-white/10">
-              <div className={`w-2 h-2 rounded-full ${connected ? "bg-cyan-400 animate-pulse" : "bg-red-400"}`}/>
-              <span className="text-[8px] font-bold tracking-tight text-white/90 uppercase">{connected ? "Active" : "Offline"}</span>
+            <span className="font-extrabold text-lg leading-none text-primary uppercase tracking-tight">{tr("Azura Control Panel", "لوحة تحكم أزورا")}</span>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+              <div className={`w-2 h-2 rounded-full ${connected ? "bg-green-500 animate-pulse" : "bg-red-500"}`}/>
+              <span className="text-[8px] font-bold tracking-tight text-primary uppercase">{connected ? tr("Sync Active", "مزامنة نشطة") : tr("Offline", "غير متصل")}</span>
             </div>
           </div>
-          <span className="text-[10px] text-cyan-400/80 tracking-tighter uppercase mt-0.5 font-mono">AGENTIC MCP SYSTEM</span>
+          <span className="text-[10px] text-muted-foreground/80 tracking-tighter uppercase mt-0.5 font-bold">mcp protocol services</span>
         </div>
-        <button onClick={() => { sessionStorage.removeItem("azura-admin"); setAuthed(false); }} className="text-xs text-[#00f2fe]/90 hover:underline">Sign out</button>
+        <button onClick={() => { sessionStorage.removeItem("azura-admin"); setAuthed(false); }} className="text-xs text-primary font-bold hover:underline">Sign out</button>
       </header>
-      <nav className="sticky top-[60px] z-30 px-3 py-2.5 overflow-x-auto scroll-hide bg-[#040814]/90 backdrop-blur-md border-b border-border/10 shadow-sm">
+      <nav className="sticky top-[60px] z-30 px-3 py-2.5 overflow-x-auto scroll-hide bg-card border-b border-border shadow-sm glass-premium">
         <div className="flex gap-2 min-w-max">
           {TABS.map(t => (
-            <button key={t.id} onClick={() => { setTab(t.id); setSelectedChat(null); }} className={`relative chip flex items-center gap-1.5 ${tab === t.id ? "bg-[#00f2fe]/10 text-[#00f2fe] border border-[#00f2fe]/40 shadow-[0_0_15px_rgba(0,242,254,0.15)] font-bold" : "bg-[#0f172a]/40 text-slate-400 border border-white/5 hover:bg-slate-800/30"}`}>
+            <button key={t.id} onClick={() => { setTab(t.id); setSelectedChat(null); }} className={`relative chip flex items-center gap-1.5 ${tab === t.id ? "bg-primary text-primary-foreground shadow-md font-bold" : "bg-white/40 text-muted-foreground border border-border/10 hover:bg-white/60"}`}>
               {t.icon} <span>{tr(t.en, t.ar)}</span>
               {!!t.badge && <span className="absolute -top-1 -right-1 bg-destructive text-white text-[9px] min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 font-bold">{t.badge}</span>}
             </button>

@@ -18,14 +18,12 @@ interface RawMenuItem {
   price?: number; category?: string; image?: string; img?: string;
   available?: boolean; description?: string; descriptionAr?: string;
   ingredients?: any; ingredientsAr?: any;
-  recommended?: boolean;
 }
 
 interface MenuItem {
   id: string; name: string; nameAr: string; price: number;
   category: string; image: string; ingredients?: string; ingredientsAr?: string;
   description?: string; descriptionAr?: string; available: boolean;
-  recommended?: boolean;
 }
 
 function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
@@ -41,7 +39,6 @@ function normalizeItem(id: string, raw: RawMenuItem): MenuItem {
     description: raw.description || "",
     descriptionAr: raw.descriptionAr || "",
     available: raw.available !== false,
-    recommended: !!raw.recommended,
   };
 }
 
@@ -273,38 +270,16 @@ export default function AIBarista() {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const buildSystemPrompt = (userQuery?: string) => {
+  const buildSystemPrompt = () => {
     // Group items by category for better context, filtering unavailable items
-    // Optimize prompt context size to fit organization TPM limit of 12000 tokens
-    const queryLower = (userQuery || "").toLowerCase();
-    const words = queryLower.split(/\s+/).filter(w => w.length > 2);
-
-    const recommendedItems = menuItems.filter(i => i.available && i.recommended);
-    let matchedItems: MenuItem[] = [];
-
-    if (words.length > 0) {
-      matchedItems = menuItems.filter(i => {
-        if (!i.available || i.recommended) return false;
-        const matchString = `${i.name} ${i.nameAr} ${i.description} ${i.descriptionAr} ${i.category}`.toLowerCase();
-        return words.some(w => matchString.includes(w));
-      });
-    }
-
-    if (matchedItems.length === 0) {
-      matchedItems = menuItems.filter(i => i.available && !i.recommended).slice(0, 15);
-    } else {
-      matchedItems = matchedItems.slice(0, 15);
-    }
-
-    const finalItemsToInject = [...recommendedItems, ...matchedItems];
-    const byCategory = finalItemsToInject.reduce((acc, item) => {
-      const cat = item.category || "other";
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(item);
-      return acc;
-    }, {} as Record<string, MenuItem[]>);
-
-    const categoriesList = Array.from(new Set(menuItems.map(i => i.category))).join(", ");
+    const byCategory = menuItems
+      .filter(i => i.available)
+      .reduce((acc, item) => {
+        const cat = item.category || "other";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
+        return acc;
+      }, {} as Record<string, MenuItem[]>);
     
     const menuCtx = Object.entries(byCategory)
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
@@ -449,7 +424,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 
     setInput("");
     const keyToUse = egyKey || "pollinations_free";
-    await baseSendMessage(text, keyToUse, buildSystemPrompt(text), parseMessage);
+    await baseSendMessage(text, keyToUse, buildSystemPrompt(), parseMessage);
     
     // Update memory asynchronously after response
     if (user) {

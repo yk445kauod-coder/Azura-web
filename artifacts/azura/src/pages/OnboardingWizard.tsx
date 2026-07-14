@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
-import { db, ref, set } from "@/lib/firebase";
+import { db, ref, onValue, off, set } from "@/lib/firebase";
 import { smartSet } from "@/lib/dbWrapper";
 import { swalSuccess, swalError, swalLoading, swalClose } from "@/lib/swal";
-import { ShieldCheck, ArrowRight, ArrowLeft, Bot, Palette, Sparkles, Check, Layout, Database, ShoppingBag, Stethoscope, Hotel, GraduationCap, Tv, Coffee, HelpCircle, MapPin, Phone, Instagram, FileText, CheckCircle2, User } from "lucide-react";
+import { ShieldCheck, ArrowRight, ArrowLeft, Bot, Palette, Sparkles, Check, Layout, Database, ShoppingBag, Stethoscope, Hotel, GraduationCap, Tv, Coffee, HelpCircle, MapPin, Phone, Instagram, FileText, CheckCircle2, User, Key, Lock, Unlock } from "lucide-react";
+import { validateAndActivateKey } from "@/lib/activation";
 
 export interface ColorPreset {
   id: string;
@@ -383,6 +384,11 @@ export default function OnboardingWizard() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  // Activation Key state
+  const [activationKey, setActivationKey] = useState("");
+  const [isActivated, setIsActivated] = useState(false);
+  const [activationError, setActivationError] = useState("");
+
   // Form States (Step 1-3)
   const [selectedSector, setSelectedSector] = useState("custom");
   const [brandName, setBrandName] = useState("");
@@ -406,6 +412,41 @@ export default function OnboardingWizard() {
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
   const activePreset = COLOR_PRESETS.find(p => p.id === selectedTheme) || COLOR_PRESETS[0];
+
+  // Watch central activation on mount
+  useEffect(() => {
+    const ddsRef = ref(db, "dds-config");
+    onValue(ddsRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        if (data.activated === true) {
+          setIsActivated(true);
+        }
+      }
+    });
+    return () => off(ddsRef);
+  }, []);
+
+  const handleVerifyActivationKey = async () => {
+    setLoading(true);
+    setActivationError("");
+    try {
+      const res = await validateAndActivateKey(activationKey);
+      if (res.valid) {
+        setIsActivated(true);
+        swalSuccess(lang === "ar" ? res.messageAr : res.message);
+
+        // Auto progress to sector selection step
+        setStep(2);
+      } else {
+        setActivationError(lang === "ar" ? res.messageAr : res.message);
+      }
+    } catch (err) {
+      setActivationError(tr("Activation failed. Connection error.", "فشل التحقق والتفعيل. مشكلة في الاتصال."));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSectorSelect = (sectorId: string) => {
     setSelectedSector(sectorId);
@@ -476,6 +517,7 @@ export default function OnboardingWizard() {
           tableLabelEn,
           tableLabelAr,
         },
+        activated: true, // locked active status
         onboarded: true,
         updatedAt: Date.now()
       };
@@ -583,8 +625,67 @@ export default function OnboardingWizard() {
         {/* Step container content */}
         <div className="min-h-[380px] flex flex-col justify-center relative z-10 py-2">
 
-          {/* STEP 1: SELECT INDUSTRY / SECTOR */}
+          {/* STEP 1: KEY ACTIVATION (Required before everything) */}
           {step === 1 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-1 text-center mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center mx-auto text-indigo-400 mb-2">
+                  <Lock size={20} className={isActivated ? "hidden" : "block"} />
+                  <Unlock size={20} className={isActivated ? "block animate-bounce" : "hidden"} />
+                </div>
+                <h3 className="text-base font-black text-white">{tr("License Activation Check", "تنشيط رخصة المنصة")}</h3>
+                <p className="text-xs text-slate-400">
+                  {tr("DDS requires a valid, unused lifetime activation key to boot the system core.", "يتطلب نظام DDS إدخال مفتاح تفعيل نشط وصحيح لتشغيل وتفعيل نواة النظام.")}
+                </p>
+              </div>
+
+              {isActivated ? (
+                <div className="p-4 rounded-2xl border border-green-500/20 bg-green-500/5 text-center space-y-2">
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto">
+                    <Check size={16} />
+                  </div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">{tr("System Fully Activated", "النظام منشط ومفعل بالكامل")}</h4>
+                  <p className="text-[10px] text-green-400/80 leading-normal">{tr("Your lifetime enterprise license has been verified. Click Next to configure.", "تم تأكيد وتوثيق رخصة الاستخدام مدى الحياة. اضغط التالي لبدء الإعداد.")}</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className={lblClass}>{tr("Enter Lifetime Activation Key", "أدخل مفتاح التفعيل مدى الحياة")}</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        className={`${inpClass} flex-1 text-center font-mono font-bold tracking-wider`}
+                        placeholder="DDS-LIFE-XXXXX-XXXXX-..."
+                        value={activationKey}
+                        onChange={e => {
+                          setActivationKey(e.target.value);
+                          setActivationError("");
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {activationError && (
+                    <div className="p-3 bg-red-500/5 border border-red-500/20 text-red-400 rounded-xl text-[11px] font-semibold text-center leading-normal">
+                      ⚠️ {activationError}
+                    </div>
+                  )}
+
+                  <button
+                    disabled={loading || !activationKey.trim()}
+                    onClick={handleVerifyActivationKey}
+                    className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-xs font-black uppercase text-white shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Key size={14} />}
+                    {tr("Verify & Activate Core", "التحقق وتنشيط النظام")}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* STEP 2: SELECT INDUSTRY / SECTOR */}
+          {step === 2 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-1 text-center mb-2">
                 <h3 className="text-base font-black text-white">{tr("Choose Your Business Industry", "اختر قطاع عملك")}</h3>
@@ -624,8 +725,8 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {/* STEP 2: GENERAL BRAND METADATA */}
-          {step === 2 && (
+          {/* STEP 3: GENERAL BRAND METADATA */}
+          {step === 3 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-1 text-center mb-2">
                 <h3 className="text-base font-black text-white">{tr("Configure Brand Details", "إعداد تفاصيل العلامة التجارية")}</h3>
@@ -700,8 +801,8 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {/* STEP 3: COLOR PALETTE & VISUAL CUSTOMIZATION */}
-          {step === 3 && (
+          {/* STEP 4: COLOR PALETTE & VISUAL CUSTOMIZATION */}
+          {step === 4 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-1 text-center mb-2">
                 <h3 className="text-base font-black text-white">{tr("Choose Brand Visual Identity", "اختر الهوية البصرية والألوان")}</h3>
@@ -765,8 +866,8 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {/* STEP 4: AI INTUITIVE PERSONA CUSTOMIZATION */}
-          {step === 4 && (
+          {/* STEP 5: AI INTUITIVE PERSONA CUSTOMIZATION */}
+          {step === 5 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-1 text-center mb-2">
                 <h3 className="text-base font-black text-white">{tr("AI Persona Assistant Settings", "إعداد مساعد الذكاء الاصطناعي")}</h3>
@@ -828,8 +929,8 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {/* STEP 5: DEPLOY CATALOG & SEED PRESET DATABASE */}
-          {step === 5 && (
+          {/* STEP 6: DEPLOY CATALOG & SEED PRESET DATABASE */}
+          {step === 6 && (
             <div className="space-y-4 text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="w-16 h-16 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center mx-auto text-indigo-400">
                 <Database size={28} className="animate-bounce" />
@@ -871,14 +972,18 @@ export default function OnboardingWizard() {
             <ArrowLeft size={14} /> {tr("Back", "السابق")}
           </button>
 
-          {step < 5 && (
+          {step < 6 && (
             <button
               onClick={() => {
-                if (step === 2 && !brandName.trim()) {
+                if (step === 1 && !isActivated) {
+                  swalError(tr("Please activate the system using a valid unused key.", "يرجى تنشيط رخصة المنصة بمفتاح تفعيل صحيح أولاً للمتابعة."));
+                  return;
+                }
+                if (step === 3 && !brandName.trim()) {
                   swalError(tr("Please enter your business name to continue.", "يرجى إدخال اسم النشاط التجاري للمتابعة."));
                   return;
                 }
-                setStep(prev => Math.min(5, prev + 1));
+                setStep(prev => Math.min(6, prev + 1));
               }}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
             >

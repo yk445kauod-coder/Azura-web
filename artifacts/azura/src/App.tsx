@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -36,11 +36,34 @@ interface FeatureFlags {
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const [loc, setLoc] = useLocation();
+  const [activated, setActivated] = useState<boolean | null>(null);
   const [flags, setFlags] = useState<FeatureFlags>({
     baristaEnabled: true,
     reelsEnabled: true,
     supportEnabled: true,
   });
+
+  // Watch dynamic activation gate status
+  useEffect(() => {
+    const ddsRef = ref(db, "dds-config");
+    onValue(ddsRef, (snap) => {
+      if (snap.exists()) {
+        const d = snap.val();
+        setActivated(d.activated === true);
+      } else {
+        setActivated(false);
+      }
+    });
+    return () => off(ddsRef);
+  }, []);
+
+  // Enforce activation routing blocks
+  useEffect(() => {
+    if (activated === false && loc !== "/" && loc !== "/onboarding") {
+      setLoc("/onboarding");
+    }
+  }, [activated, loc]);
 
   useEffect(() => {
     seedMenuIfEmpty()

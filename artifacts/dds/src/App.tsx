@@ -13,8 +13,10 @@ const MenuLightweight = lazy(() => import("@/pages/MenuLightweight"));
 const AIBarista = lazy(() => import("@/pages/AIBarista"));
 const OnboardingWizard = lazy(() => import("@/pages/OnboardingWizard"));
 const Landing = lazy(() => import("@/pages/Landing"));
+const Activation = lazy(() => import("@/pages/Activation"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Admin = lazy(() => import("@/pages/Admin"));
+const DevMode = lazy(() => import("@/pages/DevMode"));
 const Reels = lazy(() => import("@/pages/Reels"));
 const SupportChat = lazy(() => import("@/pages/SupportChat"));
 const NotFound = lazy(() => import("@/pages/not-found"));
@@ -114,7 +116,9 @@ function AppRoutes() {
         <Route path="/" component={Landing} />
         <Route path="/admin" component={Admin} />
         <Route path="/onboarding" component={OnboardingWizard} />
-        <Route path="/activation" component={OnboardingWizard} />
+        <Route path="/Activation" component={Activation} />
+        <Route path="/activation" component={Activation} />
+        <Route path="/dev" component={DevMode} />
         {!user ? (
           <Route path="/menu" component={Welcome} />
         ) : (

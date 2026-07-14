@@ -23,13 +23,16 @@ import {
   remove,
 } from "firebase/database";
 
+// User's Firebase configuration - DDS Project
 const firebaseConfig = {
-  apiKey: "AIzaSyBr0a3R8wTSJ3qAPEuRRDosP7seMZK6iPQ",
-  authDomain: "azura-cafe-55897.firebaseapp.com",
-  databaseURL: "https://azura-cafe-55897-default-rtdb.firebaseio.com",
-  projectId: "azura-cafe-55897",
-  messagingSenderId: "183645729963",
-  appId: "1:183645729963:web:0240db967365a56af033ee",
+  apiKey: "AIzaSyBiGVLGkz8aisadph9WIdrii0lFWF-wVzc",
+  authDomain: "project-dds-6a8d5.firebaseapp.com",
+  databaseURL: "https://project-dds-6a8d5-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "project-dds-6a8d5",
+  storageBucket: "project-dds-6a8d5.firebasestorage.app",
+  messagingSenderId: "462113250221",
+  appId: "1:462113250221:web:357638cefd38de68f59f24",
+  measurementId: "G-FNF7S96YCL"
 };
 
 /*
@@ -131,12 +134,12 @@ export async function seedMenuIfEmpty() {
   await set(ref(db, "staff"), staffData);
 
   const aiConfig = {
-    systemPrompt: `You are Zura (or Zure), a friendly and knowledgeable AI Assistant at DDS, located dynamically based on the active configurations. You help customers explore the catalog, make recommendations based on their preferences, and assist with finding info. Keep responses concise and friendly.`,
-    systemPromptAr: `أنت زورا (أو زور)، مساعد ذكاء اصطناعي ودود وعالم في نظام DDS. تساعد العملاء في استكشاف القائمة وتقديم التوصيات المناسبة لهم. كن مرحبًا وودودًا.`,
-    baristaFemale: "Zura",
-    barista_female_name: "زورا",
-    barista_male: "Zure",
-    barista_male_name: "زور",
+    systemPrompt: `You are DDS Assistant, a friendly and knowledgeable AI Assistant at Dynamic Display System. You help customers explore the catalog, make recommendations based on their preferences, and assist with finding info. Keep responses concise and friendly.`,
+    systemPromptAr: `أنت مساعد DDS، مساعد ذكاء اصطناعي ودود وعالم في نظام العرض الديناميكي. تساعد العملاء في استكشاف الكتالوج وتقديم التوصيات المناسبة لهم. كن مرحبًا وودودًا.`,
+    baristaName: "DDS Assistant",
+    barista_female_name: "مساعد DDS",
+    barista_male: "DDS Helper",
+    barista_male_name: "مساعد DDS",
   };
 
   await set(ref(db, "ai-config"), aiConfig);

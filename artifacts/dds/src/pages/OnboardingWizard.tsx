@@ -90,9 +90,9 @@ export const SECTOR_PRESETS = [
     description: "Digitize specialty coffees, warm lounge appetizers, and shisha catalog.",
     descriptionAr: "تحويل قائمة القهوة المختصة، المقبلات، وحلويات الصالة إلى تجربة رقمية تفاعلية.",
     themeId: "cafe",
-    assistantName: "Zura AI",
-    assistantGreeting: "Hey! I am Zura, your smart AI barista. What delicious coffee, dessert, or drink can I suggest for you today?",
-    assistantGreetingAr: "أهلاً بك! أنا زورا، الباريستا الذكي لمساعدتك. ما هي القهوة أو الحلويات اللذيذة التي ترغب بها اليوم؟"
+    assistantName: "DDS AI",
+    assistantGreeting: "Hey! I am DDS Assistant, your smart AI helper. What can I suggest for you today?",
+    assistantGreetingAr: "أهلاً بك! أنا مساعد DDS، المساعد الذكي لك. ما الذي يمكنني اقتراحه لك اليوم؟"
   },
   {
     id: "custom",

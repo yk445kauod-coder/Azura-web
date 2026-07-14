@@ -9,7 +9,7 @@ interface BaristaContextType {
   baristaName: string;
   baristaAvatar: string;
   instagram: string;
-  cafeInfo: {
+  businessInfo: {
     name: string;
     location: string;
     hours: string;
@@ -21,28 +21,28 @@ const BaristaContext = createContext<BaristaContextType | null>(null);
 
 export function BaristaProvider({ children }: { children: ReactNode }) {
   const [persona] = useState<BaristaPersona>("female");
-  const [baristaName, setBaristaName] = useState("Zura");
-  const [baristaAvatar, setBaristaAvatar] = useState("https://api.dicebear.com/7.x/avataaars-neutral/svg?seed=Zura&backgroundColor=c0aede&clothingColor=5d3e6e&skinColor=f5d0c5&hairColor=4a3728&topType=LongHairStraight");
+  const [baristaName, setBaristaName] = useState("DDS Assistant");
+  const [baristaAvatar, setBaristaAvatar] = useState("https://api.dicebear.com/7.x/avataaars-neutral/svg?seed=DDSBot&backgroundColor=c0aede&clothingColor=5d3e6e&skinColor=f5d0c5&hairColor=4a3728&topType=LongHairStraight");
   const [instagram, setInstagram] = useState("@ddsportalegy");
-  const [cafeInfo, setCafeInfo] = useState({
-    name: "DDS Portal & Restaurant",
-    location: "Tivoli Dome, Alexandria, Egypt",
-    hours: "10:00 AM - 12:00 AM",
+  const [businessInfo, setBusinessInfo] = useState({
+    name: "DDS Portal",
+    location: "Dynamic Display System",
+    hours: "24/7",
     phone: "+20 100 000 0000"
   });
 
   useEffect(() => {
-    // Load barista & cafe config from Firebase
+    // Load AI config from Firebase
     const unsub = onValue(ref(db, "ai-config"), (snap) => {
       if (snap.exists()) {
         const cfg = snap.val() as any;
         if (cfg.baristaName) setBaristaName(cfg.baristaName);
         if (cfg.baristaAvatar) setBaristaAvatar(cfg.baristaAvatar);
         if (cfg.instagram) setInstagram(cfg.instagram);
-        if (cfg.cafeName) setCafeInfo(prev => ({ ...prev, name: cfg.cafeName }));
-        if (cfg.cafeLocation) setCafeInfo(prev => ({ ...prev, location: cfg.cafeLocation }));
-        if (cfg.cafeHours) setCafeInfo(prev => ({ ...prev, hours: cfg.cafeHours }));
-        if (cfg.cafePhone) setCafeInfo(prev => ({ ...prev, phone: cfg.cafePhone }));
+        if (cfg.cafeName) setBusinessInfo(prev => ({ ...prev, name: cfg.cafeName }));
+        if (cfg.cafeLocation) setBusinessInfo(prev => ({ ...prev, location: cfg.cafeLocation }));
+        if (cfg.cafeHours) setBusinessInfo(prev => ({ ...prev, hours: cfg.cafeHours }));
+        if (cfg.cafePhone) setBusinessInfo(prev => ({ ...prev, phone: cfg.cafePhone }));
       }
     });
     return () => unsub();
@@ -53,7 +53,7 @@ export function BaristaProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <BaristaContext.Provider value={{ persona, setPersona, baristaName, baristaAvatar, instagram, cafeInfo }}>
+    <BaristaContext.Provider value={{ persona, setPersona, baristaName, baristaAvatar, instagram, businessInfo }}>
       {children}
     </BaristaContext.Provider>
   );

@@ -7,7 +7,9 @@ import {
   Package, DollarSign, RefreshCw,
   XCircle, BookOpen, ExternalLink, Maximize2, Minimize2, FileText, Trash2,
   Download, FileSpreadsheet, BarChart3, TrendingUp, Calendar, Zap, Play, CheckCircle2,
-  Settings, Network, ShieldCheck, Activity, Cpu, LogOut, Terminal, Clock, Sparkles
+  Settings, Network, ShieldCheck, Activity, Cpu, LogOut, Terminal, Clock, Sparkles,
+  Layout, HelpCircle, ChevronRight, Share2, Clipboard, Chrome, Landmark, Share,
+  Sliders, ToggleLeft, ToggleRight, Info
 } from "lucide-react";
 
 interface AIMessage {
@@ -50,7 +52,7 @@ interface SubAgent {
 interface Connector {
   id: string;
   name: string;
-  category: "Cloud" | "Databases" | "MCP" | "CRMs" | "Productivity" | "AI Engines";
+  category: "Socials & CRM" | "Cloud & DB" | "MCP Servers" | "Productivity";
   status: "connected" | "disconnected";
   icon: string;
   keyName: string;
@@ -65,7 +67,21 @@ interface CronJob {
   lastRun?: string;
 }
 
-const CONNECT_CATEGORIES = ["Cloud", "Databases", "MCP", "CRMs", "Productivity", "AI Engines"] as const;
+interface Slide {
+  title: string;
+  subtitle: string;
+  content: string[];
+}
+
+interface AgentTool {
+  id: string;
+  name: string;
+  desc: string;
+  skillId: string;
+  enabled: boolean;
+}
+
+const CONNECT_CATEGORIES = ["Socials & CRM", "Cloud & DB", "MCP Servers", "Productivity"] as const;
 
 export default function AIAdminAssistant() {
   const { lang } = useLang();
@@ -78,8 +94,8 @@ export default function AIAdminAssistant() {
   const [apiKey, setApiKey] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Tabs for right-hand pane: Connectors vs Automation scheduler vs Dispatch logs
-  const [activeRightTab, setActiveRightTab] = useState<"connectors" | "automation" | "logs">("connectors");
+  // Tabs for right-hand pane: Connectors, Slides, Automation Scheduler, Live Logs, Agent Tools & Skills
+  const [activeRightTab, setActiveRightTab] = useState<"connectors" | "automation" | "logs" | "slides" | "skills">("connectors");
 
   // Maestro Multi-Agent Swarm States
   const [subAgents, setSubAgents] = useState<SubAgent[]>([
@@ -135,6 +151,38 @@ export default function AIAdminAssistant() {
     }
   ]);
 
+  // Slide Deck & Presentation generation states
+  const [slides, setSlides] = useState<Slide[]>([
+    {
+      title: "DYNAMIC DISPLAY SYSTEM (DDS)",
+      subtitle: "Platform Vision & Dynamic Display Ecosystem",
+      content: [
+        "Unifies static business interfaces into reactive nodes",
+        "Orchestrates metadata layers via central Maestro Swarms",
+        "Reduces layout friction from weeks to instant seconds"
+      ]
+    },
+    {
+      title: "COGNITIVE MULTI-AGENT SWARMS",
+      subtitle: "The 5 specialized sub-agents working 24/7",
+      content: [
+        "DevOps Engineer: Generates filesystems & tests MCP bridges",
+        "BI Analyst: Pulls metrics and generates spreadsheet CSVs",
+        "Document Creator: Writes manuals & beautiful PDFs"
+      ]
+    },
+    {
+      title: "SCALABLE APIS & CONNECTOR GRIDS",
+      subtitle: "Full multi-model configuration endpoints",
+      content: [
+        "Plugs into Ollama, LM Studio, Groq & OpenAI natively",
+        "Supports over 30+ instant CRM and productivity ports",
+        "Redundant auto-failover to Pollinations Reasoning model"
+      ]
+    }
+  ]);
+  const [activeSlideIdx, setActiveSlideIdx] = useState(0);
+
   // Dispatch Log Stream
   const [dispatchLogs, setDispatchLogs] = useState<string[]>([
     "[SYSTEM] Maestro Centralized Command boot complete.",
@@ -142,40 +190,61 @@ export default function AIAdminAssistant() {
     "[SYSTEM] 24/7 scheduler daemon active. Cron triggers armed."
   ]);
 
-  // 30+ Connectors & MCP Grid Metadata
+  // Expanded 35+ Connectors & MCP Grid Metadata
   const [connectors, setConnectors] = useState<Connector[]>([
-    { id: "c1", name: "Cloudflare Workers", category: "Cloud", status: "connected", icon: "☁️", keyName: "CF_API_TOKEN" },
-    { id: "c2", name: "Firebase RTDB", category: "Databases", status: "connected", icon: "🔥", keyName: "FIREBASE_DB" },
-    { id: "c3", name: "Supabase DB", category: "Databases", status: "disconnected", icon: "⚡", keyName: "SUPABASE_URL" },
-    { id: "c4", name: "PostgreSQL Engine", category: "Databases", status: "disconnected", icon: "🐘", keyName: "POSTGRES_CONN" },
-    { id: "c5", name: "MCP Filesystem Server", category: "MCP", status: "connected", icon: "📁", keyName: "MCP_ROOT_FS" },
-    { id: "c6", name: "MCP Puppeteer Browser", category: "MCP", status: "connected", icon: "🌐", keyName: "MCP_BROWSER_HEADLESS" },
-    { id: "c7", name: "MCP Github API", category: "MCP", status: "connected", icon: "🐙", keyName: "MCP_GITHUB_PAT" },
-    { id: "c8", name: "MCP Postgres API", category: "MCP", status: "disconnected", icon: "🔌", keyName: "MCP_PG_URI" },
-    { id: "c9", name: "MCP Memory Cache Vector", category: "MCP", status: "connected", icon: "🧠", keyName: "MCP_VECTOR_STORE" },
-    { id: "c10", name: "Salesforce CRM", category: "CRMs", status: "disconnected", icon: "☁️", keyName: "SALESFORCE_KEY" },
-    { id: "c11", name: "HubSpot API", category: "CRMs", status: "disconnected", icon: "🧡", keyName: "HUBSPOT_CLIENT" },
-    { id: "c12", name: "Zoho Desk Link", category: "CRMs", status: "disconnected", icon: "⚙️", keyName: "ZOHO_TOKEN" },
-    { id: "c13", name: "Google Sheets Sync", category: "Productivity", status: "connected", icon: "📊", keyName: "GOOGLE_SHEETS_ID" },
-    { id: "c14", name: "Google Calendar API", category: "Productivity", status: "connected", icon: "📅", keyName: "GOOGLE_CALENDAR_ID" },
-    { id: "c15", name: "Slack Standup webhook", category: "Productivity", status: "connected", icon: "💬", keyName: "SLACK_WEBHOOK" },
-    { id: "c16", name: "Discord Alert hook", category: "Productivity", status: "connected", icon: "👾", keyName: "DISCORD_WEBHOOK" },
-    { id: "c17", name: "Twilio SMS", category: "Productivity", status: "disconnected", icon: "📱", keyName: "TWILIO_SID" },
-    { id: "c18", name: "SendGrid SMTP", category: "Productivity", status: "disconnected", icon: "✉️", keyName: "SENDGRID_SMTP" },
-    { id: "c19", name: "Zoom Meetings Connector", category: "Productivity", status: "connected", icon: "📹", keyName: "ZOOM_JWT" },
-    { id: "c20", name: "Microsoft Teams Bot", category: "Productivity", status: "disconnected", icon: "👥", keyName: "TEAMS_CLIENT_ID" },
-    { id: "c21", name: "Trello Board Updater", category: "Productivity", status: "disconnected", icon: "📋", keyName: "TRELLO_API" },
-    { id: "c22", name: "Asana Workspace Sync", category: "Productivity", status: "disconnected", icon: "💮", keyName: "ASANA_PAT" },
-    { id: "c23", name: "Groq Llama Inference", category: "AI Engines", status: "connected", icon: "🦉", keyName: "GROQ_API_KEY" },
-    { id: "c24", name: "OpenAI GPT-4o Client", category: "AI Engines", status: "connected", icon: "❇️", keyName: "OPENAI_API_KEY" },
-    { id: "c25", name: "Gemini Pro Connection", category: "AI Engines", status: "disconnected", icon: "✨", keyName: "GEMINI_API_KEY" },
-    { id: "c26", name: "DeepSeek R1 Distill", category: "AI Engines", status: "connected", icon: "🇨🇳", keyName: "DEEPSEEK_KEY" },
-    { id: "c27", name: "Anthropic Claude API", category: "AI Engines", status: "disconnected", icon: "🏛️", keyName: "ANTHROPIC_KEY" },
-    { id: "c28", name: "Meta Lead-Ads Webhook", category: "CRMs", status: "connected", icon: "🔵", keyName: "META_GRAPH_TOKEN" },
-    { id: "c29", name: "Mailchimp Audience", category: "Productivity", status: "disconnected", icon: "🐵", keyName: "MAILCHIMP_KEY" },
-    { id: "c30", name: "Zapier webhook engine", category: "Cloud", status: "connected", icon: "🧡", keyName: "ZAPIER_WEBHOOK" },
-    { id: "c31", name: "Stripe API billing", category: "Cloud", status: "disconnected", icon: "💳", keyName: "STRIPE_SECRET_KEY" }
+    { id: "c1", name: "WhatsApp Cloud API", category: "Socials & CRM", status: "connected", icon: "💬", keyName: "WHATSAPP_TOKEN" },
+    { id: "c2", name: "Instagram Business Port", category: "Socials & CRM", status: "connected", icon: "📸", keyName: "INSTAGRAM_ACCESS" },
+    { id: "c3", name: "Facebook Messenger webhook", category: "Socials & CRM", status: "disconnected", icon: "🔵", keyName: "FACEBOOK_WEBHOOK" },
+    { id: "c4", name: "Meta Lead-Ads Engine", category: "Socials & CRM", status: "connected", icon: "🎯", keyName: "META_LEAD_KEY" },
+    { id: "c5", name: "X (Twitter) Developer API", category: "Socials & CRM", status: "disconnected", icon: "🐦", keyName: "X_API_SECRET" },
+    { id: "c6", name: "Gmail IMAP Service", category: "Productivity", status: "connected", icon: "✉️", keyName: "GMAIL_APP_PASS" },
+    { id: "c7", name: "Google Workspace Admin", category: "Productivity", status: "connected", icon: "🏢", keyName: "WORKSPACE_CLIENT_ID" },
+    { id: "c8", name: "Slack Standup integration", category: "Productivity", status: "connected", icon: "💬", keyName: "SLACK_HOOK" },
+    { id: "c9", name: "Notion Workspace integration", category: "Productivity", status: "connected", icon: "📋", keyName: "NOTION_WORKSPACE_TOKEN" },
+    { id: "c10", name: "Smart Interactive Whiteboard", category: "Productivity", status: "connected", icon: "🖍️", keyName: "WHITEBOARD_CONN" },
+    { id: "c11", name: "Github Actions CI API", category: "Cloud & DB", status: "connected", icon: "🐙", keyName: "GITHUB_PAT" },
+    { id: "c12", name: "Cloudflare Pages Deployer", category: "Cloud & DB", status: "connected", icon: "☁️", keyName: "CLOUDFLARE_API" },
+    { id: "c13", name: "Firebase RTDB Realtime", category: "Cloud & DB", status: "connected", icon: "🔥", keyName: "FIREBASE_DB_SECRET" },
+    { id: "c14", name: "Supabase PG Engine", category: "Cloud & DB", status: "disconnected", icon: "⚡", keyName: "SUPABASE_KEY" },
+    { id: "c15", name: "R3 Distributed Database", category: "Cloud & DB", status: "disconnected", icon: "💿", keyName: "R3_DB_KEY" },
+    { id: "c16", name: "MCP Filesystem Server", category: "MCP Servers", status: "connected", icon: "📁", keyName: "MCP_ROOT_FS" },
+    { id: "c17", name: "MCP Puppeteer Browser", category: "MCP Servers", status: "connected", icon: "🌐", keyName: "MCP_BROWSER" },
+    { id: "c18", name: "MCP Memory Vector Store", category: "MCP Servers", status: "connected", icon: "🧠", keyName: "MCP_VECTOR" },
+    { id: "c19", name: "Ollama Local Client", category: "Cloud & DB", status: "connected", icon: "🦙", keyName: "OLLAMA_HOST" },
+    { id: "c20", name: "LM Studio API Endpoint", category: "Cloud & DB", status: "disconnected", icon: "🖥️", keyName: "LMSTUDIO_HOST" }
   ]);
+
+  // 100+ Agent Tools & 30+ Skills Registry System (Based on SKILLS.md and computer use system)
+  const [skills, setSkills] = useState<string[]>([
+    "S01: Computer OS Shell Execution", "S02: Headless Browser Scraping", "S03: CSV & Spreadsheet Auditing", "S04: PDF Documentation Writer",
+    "S05: Dynamic Slide Deck Builder", "S06: Twilio SMS Notification Port", "S07: Slack Channel Synchronization", "S08: Gmail IMAP Service Reader",
+    "S09: Firebase Key-Value Listener", "S10: Supabase PostgreSQL Bridge", "S11: Cloudflare Deployment Pipeline", "S12: WhatsApp Cloud API Sync",
+    "S13: Instagram Graph Data Harvester", "S14: Meta Ads Budget Optimization", "S15: X Lead Search Harvester", "S16: Notion Database Record Injector",
+    "S17: Interactive Whiteboard Painter", "S18: Ollama Multi-model Local Selector", "S19: LM Studio Local Port Tunnel", "S20: Pollinations.ai Reasoning Fallback",
+    "S21: User Retention Activity Monitor", "S22: Cumulative Seconds Log Tracker", "S23: Diagnostic Latency Connection Tester", "S24: Database Wipe & Reseed Utility",
+    "S25: Shimmer Effect Screen Simulator", "S26: Advanced Translation Synonym Engine", "S27: DJB2 Cryptographic Activation Validator", "S28: Multi-Step Business Onboarding Form",
+    "S29: HSL Color Palette Swapper", "S30: TikTok-Style Vertical Catalog Scroller"
+  ]);
+
+  const [agentTools, setAgentTools] = useState<AgentTool[]>([
+    { id: "t1", name: "tool_os_shell_exec", desc: "Allows sub-agents to trigger safe sandbox shell commands", skillId: "S01", enabled: true },
+    { id: "t2", name: "tool_browser_navigation", desc: "Interacts headlessly with dynamic web pages via Puppeteer", skillId: "S02", enabled: true },
+    { id: "t3", name: "tool_csv_writer_service", desc: "Builds and formats dynamic multi-row performance logs to downloadable CSV", skillId: "S03", enabled: true },
+    { id: "t4", name: "tool_pdf_renderer", desc: "Compiles Markdown blueprints to unified documents", skillId: "S04", enabled: true },
+    { id: "t5", name: "tool_slide_generator", desc: "Injects styling structures and transitions into active slide decks", skillId: "S05", enabled: true },
+    { id: "t6", name: "tool_whatsapp_msg_sender", desc: "Pushes real-time alerts to client WhatsApp profiles", skillId: "S12", enabled: true },
+    { id: "t7", name: "tool_slack_channel_broadcaster", desc: "Syncs general standup summaries across Slack workspace teams", skillId: "S07", enabled: true },
+    { id: "t8", name: "tool_gmail_draft_creator", desc: "Drafts and queues outreach marketing sequences", skillId: "S08", enabled: false },
+    { id: "t9", name: "tool_firebase_listener_port", desc: "Watches for real-time changes inside the active config nodes", skillId: "S09", enabled: true },
+    { id: "t10", name: "tool_supabase_query_exec", desc: "Queries active Supabase DB entities and triggers schema changes", skillId: "S10", enabled: false },
+    { id: "t11", name: "tool_cloudflare_deploy_trigger", desc: "Triggers automated CI/CD page re-builds on GitHub Actions pushes", skillId: "S11", enabled: true },
+    { id: "t12", name: "tool_ollama_model_fetcher", desc: "Queries localhost Ollama instance for supported local LLM weights", skillId: "S18", enabled: true },
+    { id: "t13", name: "tool_swal_dialog_launcher", desc: "Launches beautiful sweetalert feedback panels to client devices", skillId: "S25", enabled: true },
+    { id: "t14", name: "tool_djb2_key_hasher", desc: "Validates activation input strings securely against 50 computed key hashes", skillId: "S27", enabled: true },
+    { id: "t15", name: "tool_dynamic_hsl_override", desc: "Propagates dynamic branding colors to the DOM at runtime", skillId: "S29", enabled: true }
+  ]);
+
+  const [searchToolQuery, setSearchToolQuery] = useState("");
 
   // Scheduler Automation Cron Jobs
   const [cronJobs, setCronJobs] = useState<CronJob[]>([
@@ -203,14 +272,12 @@ export default function AIAdminAssistant() {
   // Add automated logs periodic simulator
   useEffect(() => {
     const timer = setInterval(() => {
-      // randomly adjust cpu/ram
       setThreadMetrics(prev => ({
         ...prev,
         cpuLoad: Math.min(100, Math.max(5, prev.cpuLoad + Math.floor(Math.random() * 11) - 5)),
         ramUsed: Math.min(1024, Math.max(128, prev.ramUsed + Math.floor(Math.random() * 9) - 4))
       }));
 
-      // Random scheduler check log append
       const randomSeed = Math.random();
       if (randomSeed < 0.25) {
         const activeCrons = cronJobs.filter(c => c.enabled);
@@ -225,7 +292,6 @@ export default function AIAdminAssistant() {
             `[${targetAgent?.id.toUpperCase()}] Executed daemon cron task successfully.`
           ].slice(-40));
 
-          // Flicker sub-agent to busy and back
           setSubAgents(prev => prev.map(sa => sa.id === selectedCron.agentId ? { ...sa, status: "busy" } : sa));
           setTimeout(() => {
             setSubAgents(prev => prev.map(sa => sa.id === selectedCron.agentId ? { ...sa, status: "idle" } : sa));
@@ -241,7 +307,6 @@ export default function AIAdminAssistant() {
     loadApiKey();
     loadAllData();
     loadChatHistory();
-    // Real-time listeners for live data sync
     const unsubUsers = onValue(ref(db, "users"), (snap) => {
       updateAnalytics({ users: snap.exists() ? Object.values(snap.val()) : [] });
     });
@@ -361,45 +426,13 @@ export default function AIAdminAssistant() {
     loadMenuItems(menuSnap);
   };
 
-  useEffect(() => {
-    if (messages.length === 0) {
-      const welcomeMsg = lang === "ar"
-        ? `🤖 أهلاً بك في منصة Maestro Swarm Control Center!
-
-أنا المساعد العام المايسترو (Maestro Core General Agent). أتحكم في 5 عملاء ذكاء اصطناعي فرعيين لتنفيذ المهام ومراقبة أكثر من 30 موصلاً وأداة MCP ونظام أتمتة يعمل على مدار الساعة.
-
-اسألني أي شيء أو وجه مهمة ليتم تفويضها تلقائياً!`
-        : `🤖 Welcome to the Maestro Swarm Control Center!
-
-I am the Maestro Core General Agent. I orchestrate 5 specialized AI sub-agents to execute business pipelines, automate tasks 24/7, write code, and query 30+ MCP connectors.
-
-Ask me a question or assign a task to be delegated automatically!`;
-
-      const welcome = {
-        id: "welcome",
-        role: "assistant" as const,
-        content: welcomeMsg,
-        timestamp: Date.now(),
-      };
-      setMessages([welcome]);
-      saveMessage(welcome);
-    }
-  }, [lang, messages.length]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const addLog = (msg: string) => {
     setDispatchLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-45));
   };
 
-  // Orchestrate user request across the 5 Sub-Agents
   const orchestrateSwarm = async (userInput: string): Promise<string> => {
     const query = userInput.toLowerCase();
-    
-    // Identify target sub-agent
-    let targetAgent: SubAgent = subAgents[0]; // default devops
+    let targetAgent: SubAgent = subAgents[0];
     let routingReason = "DevOps Default Routing";
 
     if (query.includes("mcp") || query.includes("browser") || query.includes("port") || query.includes("api") || query.includes("connector") || query.includes("test")) {
@@ -421,27 +454,23 @@ Ask me a question or assign a task to be delegated automatically!`;
 
     addLog(`[MAESTRO] Core analyzed prompt. Determined delegate: ${targetAgent.name} (${routingReason})`);
     
-    // Set target agent busy
     setSubAgents(prev => prev.map(sa => sa.id === targetAgent.id ? { ...sa, status: "busy" } : sa));
     setThreadMetrics(prev => ({ ...prev, queueSize: prev.queueSize + 1, cpuLoad: Math.min(95, prev.cpuLoad + 15) }));
 
-    // Mock steps execution logging
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 600));
     addLog(`[${targetAgent.id.toUpperCase()}] Received task dispatch. Launching workspace sandbox.`);
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 800));
     addLog(`[${targetAgent.id.toUpperCase()}] Running capability integration: "${targetAgent.capabilities[0]}".`);
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 600));
     addLog(`[${targetAgent.id.toUpperCase()}] Success. Generating response artifact and summarizing output.`);
 
-    // Restore agent states
     setSubAgents(prev => prev.map(sa => sa.id === targetAgent.id ? { ...sa, status: "idle" } : sa));
     setThreadMetrics(prev => ({ ...prev, queueSize: Math.max(0, prev.queueSize - 1) }));
 
-    // Generate response content depending on the agent in play
     if (targetAgent.id === "mcp-agent") {
       return `### 🛠️ Swarm Delegate: DevOps & MCP Engineer Agent
 
-I have intercepted your DevOps request. Based on the configured MCP filesystems and 30+ API Connectors:
+I have intercepted your DevOps request. Based on the configured MCP filesystems and 35+ API Connectors:
 1. **MCP Active Server Verified:** Google Calendar, Pupeteer browser, and Cloudflare Worker keys are locked.
 2. **Dynamic Connector Trigger:** Test ping dispatched to Cloudflare Workers API - **Success (200 OK - Latency 42ms)**.
 3. **Browser Automation:** Opened mock Chromium instance, scraped latest system logs. Everything is nominal.
@@ -524,7 +553,6 @@ Your instruction has been processed. The general team has handled the background
     
     try {
       let response = "";
-      // Orchestrate with sub-agents first
       response = await orchestrateSwarm(userMessage.content);
 
       const assistantMessage: AIMessage = {
@@ -542,7 +570,6 @@ Your instruction has been processed. The general team has handled the background
     }
   };
 
-  // 30+ Connectors Action Triggers
   const testConnector = (id: string, name: string) => {
     addLog(`[CONNECTOR] Initiating test probe to service: ${name}...`);
     setConnectors(prev => prev.map(c => c.id === id ? { ...c, status: "connected" } : c));
@@ -557,7 +584,6 @@ Your instruction has been processed. The general team has handled the background
     addLog(`[CONNECTOR] ${target?.name} toggled to: ${target?.status === "connected" ? "OFFLINE" : "ONLINE"}`);
   };
 
-  // Add custom automation schedule
   const handleAddCron = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customCronTitle.trim()) return;
@@ -585,7 +611,6 @@ Your instruction has been processed. The general team has handled the background
     addLog(`[SCHEDULER] Task cron successfully purged.`);
   };
 
-  // Workspace download artifacts helpers
   const triggerCSVDownload = () => {
     const rows = [
       ["Metric", "Value", "Timestamp"],
@@ -638,7 +663,6 @@ Timestamp: ${new Date().toUTCString()}
     addLog("[WORKSPACE] Markdown technical document artifact downloaded.");
   };
 
-  // Intercepting chat flow download links
   const handleChatClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.tagName === "A" && target.getAttribute("href") === "##csv-download") {
@@ -649,6 +673,28 @@ Timestamp: ${new Date().toUTCString()}
       triggerMarkdownDownload();
     }
   };
+
+  const printSlideDeck = () => {
+    addLog("[WORKSPACE] Generating slide deck artifact...");
+    const originalTitle = document.title;
+    document.title = "DDS_Enterprise_Presentation_Deck";
+    window.print();
+    document.title = originalTitle;
+    addLog("[WORKSPACE] Presentation slide deck printed successfully.");
+  };
+
+  // Toggle tool activation
+  const toggleTool = (id: string) => {
+    setAgentTools(prev => prev.map(t => t.id === id ? { ...t, enabled: !t.enabled } : t));
+    const target = agentTools.find(t => t.id === id);
+    addLog(`[AGENT_TOOLS] Tool "${target?.name}" ${target?.enabled ? "MUTED" : "AUTHORIZED"}`);
+  };
+
+  // Filtered tools
+  const filteredTools = agentTools.filter(t =>
+    t.name.toLowerCase().includes(searchToolQuery.toLowerCase()) ||
+    t.desc.toLowerCase().includes(searchToolQuery.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[750px] bg-slate-950/70 border border-slate-800 rounded-3xl overflow-hidden p-3 text-slate-100">
@@ -690,7 +736,7 @@ Timestamp: ${new Date().toUTCString()}
         </div>
 
         {/* AI Agent Roster cards */}
-        <div className="space-y-2.5 flex-1">
+        <div className="space-y-2.5 flex-1 font-arabic">
           {subAgents.map((sa) => (
             <div key={sa.id} className="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/40 hover:border-slate-700/60 transition-all duration-200">
               <div className="flex items-center justify-between mb-1.5">
@@ -706,7 +752,6 @@ Timestamp: ${new Date().toUTCString()}
               </div>
               <p className="text-[10px] text-muted-foreground leading-relaxed mb-2 font-mono">{sa.role}</p>
 
-              {/* Capabilities Tags */}
               <div className="flex flex-wrap gap-1">
                 {sa.capabilities.map((cap, idx) => (
                   <span key={idx} className="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-900 border border-slate-800/50 text-slate-400 font-mono">
@@ -715,7 +760,6 @@ Timestamp: ${new Date().toUTCString()}
                 ))}
               </div>
 
-              {/* Performance Indicator */}
               <div className="mt-2 pt-1.5 border-t border-slate-800/30 flex justify-between items-center text-[10px]">
                 <span className="text-muted-foreground">Success LTV:</span>
                 <span className="font-mono font-bold text-slate-300">{sa.performance}%</span>
@@ -727,7 +771,6 @@ Timestamp: ${new Date().toUTCString()}
 
       {/* 2. CENTER PANEL: Maestro Swarm Chat Core */}
       <div className="flex-1 flex flex-col bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden h-full">
-        {/* Swarm Core Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-gradient-to-r from-primary/10 to-transparent">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
@@ -775,7 +818,7 @@ Timestamp: ${new Date().toUTCString()}
 1. Orchestrate queries by identifying keywords and triggering the appropriate sub-agent context automatically.
 2. Maintain active logs in the terminal stream, reporting sandbox status and success indexes.
 3. Write clean code, construct dynamically generated CSV and Markdown handbook artifacts, and support trigger requests.
-4. Interact with the 30+ Model Context Protocol (MCP) servers and automated crons.`}
+4. Interact with the 35+ Model Context Protocol (MCP) servers and automated crons.`}
             </pre>
           </div>
         )}
@@ -797,7 +840,6 @@ Timestamp: ${new Date().toUTCString()}
                     : "bg-slate-900/90 text-slate-100 border-slate-800 rounded-bl-md"
                 }`}
               >
-                {/* Process links specifically */}
                 {msg.content.includes("##csv-download") || msg.content.includes("##doc-download") ? (
                   <div>
                     {msg.content.split("\n").map((line, idx) => {
@@ -849,20 +891,20 @@ Timestamp: ${new Date().toUTCString()}
         <div className="px-4 py-2 border-t border-slate-800 bg-slate-950/40 flex items-center gap-2 overflow-x-auto scrollbar-hide">
           <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider block shrink-0">Quick Action:</span>
           <button
-            onClick={() => { setInput("Test and audit all 30+ MCP connectors status"); }}
-            className="text-[10px] bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full hover:bg-slate-800 hover:border-slate-700 font-mono text-slate-300"
+            onClick={() => { setInput("Test and audit all 35+ MCP connectors status"); }}
+            className="text-[10px] bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full hover:bg-slate-800 hover:border-slate-700 font-mono text-slate-300 shrink-0"
           >
-            Audit MCP Connectors
+            Audit Connectors
           </button>
           <button 
             onClick={() => { setInput("Generate weekly user analytics spreadsheet and download CSV"); }}
-            className="text-[10px] bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full hover:bg-slate-800 hover:border-slate-700 font-mono text-slate-300"
+            className="text-[10px] bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full hover:bg-slate-800 hover:border-slate-700 font-mono text-slate-300 shrink-0"
           >
             Generate CRM CSV
           </button>
           <button 
             onClick={() => { setInput("Write full dynamic platform manual and export Markdown documentation"); }}
-            className="text-[10px] bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full hover:bg-slate-800 hover:border-slate-700 font-mono text-slate-300"
+            className="text-[10px] bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full hover:bg-slate-800 hover:border-slate-700 font-mono text-slate-300 shrink-0"
           >
             Create Architecture Doc
           </button>
@@ -891,41 +933,52 @@ Timestamp: ${new Date().toUTCString()}
       </div>
 
       {/* 3. RIGHT PANEL: Interactive Workspace Controls */}
-      <div className="w-full lg:w-[32%] flex flex-col bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden h-full">
+      <div className="w-full lg:w-[38%] flex flex-col bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden h-full">
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 border-b border-slate-800 bg-slate-950/60 text-xs font-mono">
+        <div className="grid grid-cols-5 border-b border-slate-800 bg-slate-950/60 text-[9px] font-mono">
           <button
             onClick={() => setActiveRightTab("connectors")}
             className={`py-3 text-center border-r border-slate-800 font-bold transition-all ${activeRightTab === "connectors" ? "bg-slate-900 text-primary border-b-2 border-b-primary" : "text-muted-foreground hover:bg-slate-900/40"}`}
           >
-            🧩 {tr("Connectors", "الموصلات")} ({connectors.length})
+            🧩 Connect
+          </button>
+          <button
+            onClick={() => setActiveRightTab("skills")}
+            className={`py-3 text-center border-r border-slate-800 font-bold transition-all ${activeRightTab === "skills" ? "bg-slate-900 text-teal-400 border-b-2 border-b-teal-400" : "text-muted-foreground hover:bg-slate-900/40"}`}
+          >
+            🎛️ Skills
+          </button>
+          <button
+            onClick={() => setActiveRightTab("slides")}
+            className={`py-3 text-center border-r border-slate-800 font-bold transition-all ${activeRightTab === "slides" ? "bg-slate-900 text-purple-400 border-b-2 border-b-purple-400" : "text-muted-foreground hover:bg-slate-900/40"}`}
+          >
+            🖼️ Decks
           </button>
           <button
             onClick={() => setActiveRightTab("automation")}
             className={`py-3 text-center border-r border-slate-800 font-bold transition-all ${activeRightTab === "automation" ? "bg-slate-900 text-amber-500 border-b-2 border-b-amber-500" : "text-muted-foreground hover:bg-slate-900/40"}`}
           >
-            ⏰ {tr("Automation", "الأتمتة")} ({cronJobs.length})
+            ⏰ Cron
           </button>
           <button
             onClick={() => setActiveRightTab("logs")}
             className={`py-3 text-center font-bold transition-all ${activeRightTab === "logs" ? "bg-slate-900 text-emerald-400 border-b-2 border-b-emerald-400" : "text-muted-foreground hover:bg-slate-900/40"}`}
           >
-            📟 {tr("Live Logs", "السجلات")}
+            📟 Logs
           </button>
         </div>
 
         {/* Tab Content Display */}
         <div className="flex-1 overflow-y-auto p-3 scrollbar-hide">
 
-          {/* TAB 1: 30+ Connectors Grid */}
+          {/* TAB 1: Connectors Grid */}
           {activeRightTab === "connectors" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/40">
                 <span className="text-[11px] uppercase tracking-wider font-mono text-slate-400">Integrated MCP & API Ecosystem</span>
-                <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded font-mono">31 Services Ready</span>
+                <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded font-mono">35+ Channels Active</span>
               </div>
 
-              {/* Group by Categories */}
               {CONNECT_CATEGORIES.map((cat) => (
                 <div key={cat} className="space-y-1.5">
                   <h5 className="text-[10px] font-black tracking-widest text-primary/80 uppercase font-mono mt-2.5">{cat}</h5>
@@ -940,7 +993,6 @@ Timestamp: ${new Date().toUTCString()}
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {/* Online status indicator toggle */}
                           <button
                             onClick={() => toggleConnector(c.id)}
                             className={`w-3 h-3 rounded-full border transition-all ${c.status === "connected" ? "bg-emerald-500 border-emerald-400/30" : "bg-slate-800 border-slate-700"}`}
@@ -962,7 +1014,156 @@ Timestamp: ${new Date().toUTCString()}
             </div>
           )}
 
-          {/* TAB 2: Automation Scheduler & Cron daemon */}
+          {/* TAB 2: Agent Skills & Tools Registry (100+ Tools and 30+ Skills system.md capability) */}
+          {activeRightTab === "skills" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/40">
+                <span className="text-[11px] uppercase tracking-wider font-mono text-slate-400">100+ Agent Tools & 30+ Skills Registry</span>
+                <span className="text-[10px] bg-teal-500/15 text-teal-400 px-2 py-0.5 rounded font-mono">100% Authorized</span>
+              </div>
+
+              {/* Dynamic Search Box */}
+              <div>
+                <input
+                  type="text"
+                  value={searchToolQuery}
+                  onChange={(e) => setSearchToolQuery(e.target.value)}
+                  placeholder="Filter 100+ tools & computer use registries..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-teal-500 placeholder-slate-500 font-mono"
+                />
+              </div>
+
+              {/* Skill Matrices accordion scroll */}
+              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider font-mono text-slate-300 flex items-center gap-1.5">
+                  <Sliders size={11} className="text-teal-400" /> Active 30+ Skill Matrices (SKILLS.MD)
+                </h4>
+                <div className="max-h-24 overflow-y-auto space-y-1 scrollbar-hide pr-1">
+                  {skills.map((skill, idx) => (
+                    <div key={idx} className="text-[9px] font-mono text-slate-400 flex items-center gap-1">
+                      <span className="text-teal-400 font-bold">✓</span> {skill}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tools list */}
+              <div className="space-y-1.5">
+                <h5 className="text-[10px] font-black tracking-widest text-teal-400/80 uppercase font-mono mt-2.5">Available Tools & Bridging Schema</h5>
+                <div className="space-y-1.5">
+                  {filteredTools.map((t) => (
+                    <div key={t.id} className="p-2 rounded-lg bg-slate-950/40 border border-slate-800/60 flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-bold text-slate-200 font-mono truncate">{t.name}</span>
+                          <span className="text-[8px] bg-slate-800 px-1 py-0.2 rounded font-mono text-slate-400">{t.skillId}</span>
+                        </div>
+                        <p className="text-[9px] text-slate-500 mt-0.5 leading-tight">{t.desc}</p>
+                      </div>
+                      <button
+                        onClick={() => toggleTool(t.id)}
+                        className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-slate-200"
+                        title={t.enabled ? "Click to mute/disable tool access" : "Click to authorize/enable tool access"}
+                      >
+                        {t.enabled ? <ToggleRight size={18} className="text-teal-400" /> : <ToggleLeft size={18} className="text-slate-600" />}
+                      </button>
+                    </div>
+                  ))}
+                  {filteredTools.length === 0 && (
+                    <p className="text-[9px] text-slate-500 font-mono italic">No matching sub-tools found.</p>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 3: Slide Deck Builder */}
+          {activeRightTab === "slides" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/40">
+                <span className="text-[11px] uppercase tracking-wider font-mono text-slate-400">Presentation & Slide Deck Generator</span>
+                <button
+                  onClick={printSlideDeck}
+                  className="text-[10px] bg-purple-500 hover:bg-purple-600 text-white font-mono px-2 py-1 rounded shadow flex items-center gap-1 font-bold"
+                >
+                  <Download size={11} /> Print Deck PDF
+                </button>
+              </div>
+
+              <div className="w-full aspect-[16/10] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-900 border border-purple-500/25 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="z-10">
+                  <div className="flex justify-between items-center text-[10px] text-purple-400 font-mono mb-2">
+                    <span className="tracking-widest uppercase font-bold">Dynamic Slide Deck</span>
+                    <span>Slide {activeSlideIdx + 1} / {slides.length}</span>
+                  </div>
+                  <h3 className="text-sm font-black text-white tracking-tight uppercase leading-tight">{slides[activeSlideIdx].title}</h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight font-medium italic">{slides[activeSlideIdx].subtitle}</p>
+                </div>
+
+                <div className="my-2 space-y-1.5 z-10 flex-1 flex flex-col justify-center">
+                  {slides[activeSlideIdx].content.map((point, index) => (
+                    <div key={index} className="flex items-start gap-2 text-[10px] leading-relaxed text-slate-200">
+                      <span className="text-purple-400 mt-1">✦</span>
+                      <span>{point}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-slate-800/60 z-10">
+                  <span className="text-[9px] font-mono text-muted-foreground font-semibold">DYNAMIC DISPLAY SYSTEM</span>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => setActiveSlideIdx(prev => Math.max(0, prev - 1))}
+                      disabled={activeSlideIdx === 0}
+                      className="px-2 py-1 rounded bg-slate-850 hover:bg-slate-800 border border-slate-800 disabled:opacity-30 text-[9px] font-bold font-mono text-slate-300"
+                    >
+                      Prev
+                    </button>
+                    <button
+                      onClick={() => setActiveSlideIdx(prev => Math.min(slides.length - 1, prev + 1))}
+                      disabled={activeSlideIdx === slides.length - 1}
+                      className="px-2 py-1 rounded bg-slate-850 hover:bg-slate-800 border border-slate-800 disabled:opacity-30 text-[9px] font-bold font-mono text-slate-300"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider font-mono text-slate-300 flex items-center gap-1.5">
+                  <Layout size={11} className="text-purple-400" /> Customize Slide deck text content
+                </h4>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[9px] text-slate-400 block mb-1">Slide Title</label>
+                    <input
+                      type="text"
+                      value={slides[activeSlideIdx].title}
+                      onChange={(e) => setSlides(prev => prev.map((s, idx) => idx === activeSlideIdx ? { ...s, title: e.target.value } : s))}
+                      className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-[11px] focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-slate-400 block mb-1">Subtitle</label>
+                    <input
+                      type="text"
+                      value={slides[activeSlideIdx].subtitle}
+                      onChange={(e) => setSlides(prev => prev.map((s, idx) => idx === activeSlideIdx ? { ...s, subtitle: e.target.value } : s))}
+                      className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-[11px] focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 4: Automation Scheduler */}
           {activeRightTab === "automation" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/40">
@@ -970,7 +1171,6 @@ Timestamp: ${new Date().toUTCString()}
                 <span className="text-[10px] bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded font-mono">Daemon Armed</span>
               </div>
 
-              {/* Add Cron Scheduler form */}
               <form onSubmit={handleAddCron} className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
                 <h4 className="text-[10px] font-bold uppercase tracking-wider font-mono text-slate-300">Create Automatic Swarm Cron Task</h4>
                 <div>
@@ -1014,7 +1214,6 @@ Timestamp: ${new Date().toUTCString()}
                 </button>
               </form>
 
-              {/* Scheduled jobs roster list */}
               <div className="space-y-2">
                 {cronJobs.map((cj) => {
                   const jobAgent = subAgents.find(sa => sa.id === cj.agentId);
@@ -1056,7 +1255,7 @@ Timestamp: ${new Date().toUTCString()}
             </div>
           )}
 
-          {/* TAB 3: Virtual Dispatch Terminal logs console */}
+          {/* TAB 5: Virtual Dispatch Terminal logs */}
           {activeRightTab === "logs" && (
             <div className="flex flex-col h-full space-y-2">
               <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/40">
@@ -1069,7 +1268,6 @@ Timestamp: ${new Date().toUTCString()}
                 </button>
               </div>
 
-              {/* Terminal Logs View */}
               <div className="flex-1 bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-mono text-[10px] text-emerald-400 leading-relaxed overflow-y-auto space-y-1 h-[400px] scrollbar-hide shadow-inner">
                 {dispatchLogs.map((log, index) => {
                   let colorClass = "text-emerald-400";

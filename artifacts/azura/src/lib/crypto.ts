@@ -45,9 +45,8 @@ export function decryptKey(encrypted: string): string {
 // Check if key looks valid (basic validation)
 export function isValidApiKey(key: string): boolean {
   if (!key) return false;
-  // Groq keys start with gsk_
-  // Gemini keys: AIza... or AQ...
-  return key.length >= 30 && (key.startsWith("gsk_") || key.startsWith("AIza") || key.startsWith("AQ."));
+  // Support custom/local keys and traditional ones
+  return key.length >= 8;
 }
 
 // ── AI Chat ─────────────────────────────────────────────────
@@ -113,7 +112,7 @@ export async function chatWithPollinations(
   }
 }
 
-// Using Groq API with smart conversational AI (Primary)
+// Using smart conversational AI with full multi-model and local model support (Ollama / LM Studio)
 export async function chatWithAI(
   apiKey: string,
   message: string,
@@ -123,6 +122,7 @@ export async function chatWithAI(
   // Load settings to determine provider
   let aiProvider = "groq";
   let openaiEndpoint = "";
+  let activeModel = "llama-3.3-70b-versatile";
 
   try {
     const { db, ref, get } = await import("./firebase");
@@ -131,6 +131,7 @@ export async function chatWithAI(
       const data = snap.val();
       aiProvider = data.aiProvider || "groq";
       openaiEndpoint = data.openaiEndpoint || "";
+      activeModel = data.activeModel || (aiProvider === "local" ? "llama3" : "llama-3.3-70b-versatile");
     }
   } catch (e) {
     console.warn("Could not load AI settings, defaulting to groq", e);
@@ -146,6 +147,33 @@ export async function chatWithAI(
     return chatWithPollinations(message, history, systemPrompt);
   }
 
+  // Local Ollama / LM Studio Server Support
+  if (aiProvider === "local" || aiProvider === "lmstudio") {
+    const localEndpoint = openaiEndpoint || (aiProvider === "local" ? "http://localhost:11434/v1" : "http://localhost:1234/v1");
+    try {
+      const res = await fetch(`${localEndpoint.replace(/\/$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: activeModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...formattedHistory,
+            { role: "user", content: message }
+          ],
+          temperature: 0.7
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "";
+      }
+    } catch (e) {
+      console.warn("Local model endpoint offline, falling back to Pollinations:", e);
+      return chatWithPollinations(message, history, systemPrompt);
+    }
+  }
+
   // OpenAI Compatible
   if (aiProvider === "openai" && openaiEndpoint) {
     try {
@@ -153,7 +181,7 @@ export async function chatWithAI(
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: "gpt-4-turbo",
+          model: activeModel || "gpt-4-turbo",
           messages: [
             { role: "system", content: systemPrompt },
             ...formattedHistory,
@@ -180,7 +208,7 @@ export async function chatWithAI(
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // High quality best Arabic support model
+        model: activeModel || "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: systemPrompt },
           ...history.map((h) => ({

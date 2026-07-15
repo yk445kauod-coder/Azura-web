@@ -438,11 +438,17 @@ export default function MenuLightweight() {
         if (typeof val !== "object" || val === null) return;
         const v = val as Record<string, unknown>;
         if (v.price !== undefined || v.name !== undefined) {
-          result.push(normalizeItem(key, v));
+          result.push(normalizeItem(key, { category: "recommended", ...v }));
         } else {
           Object.entries(v).forEach(([subId, subVal]) => {
-            if (typeof subVal === "object" && subVal !== null)
-              result.push(normalizeItem(subId, subVal as Record<string, unknown>));
+            if (typeof subVal === "object" && subVal !== null) {
+              const rawItem = subVal as Record<string, unknown>;
+              const normalized = {
+                category: key,
+                ...rawItem
+              };
+              result.push(normalizeItem(subId, normalized));
+            }
           });
         }
       });

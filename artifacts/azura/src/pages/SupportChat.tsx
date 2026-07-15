@@ -79,22 +79,47 @@ export default function SupportChat() {
     setSending(true);
     await ensureMeta();
     
+    const userText = input.trim();
     const msgRef = push(ref(db, `support-chat/${user.uid}/messages`));
     await set(msgRef, {
-      text: input.trim(),
+      text: userText,
       sender: "user",
       createdAt: Date.now(),
       readByAdmin: false,
     });
     
     await update(ref(db, `support-chat/${user.uid}/meta`), {
-      lastMessage: input.trim(),
+      lastMessage: userText,
       lastAt: Date.now(),
       unreadAdmin: (msgs.filter((m) => m.sender === "user").length + 1),
     });
     
     setInput("");
     setSending(false);
+
+    // AI instant auto response helper (Wait 1.5 seconds)
+    setTimeout(async () => {
+      try {
+        const autoReplyText = lang === "ar"
+          ? "🤖 (رد تلقائي) شكراً لتواصلك مع دعم أزورا! يرجى الانتظار لحظة حتى يقوم فريقنا بمراجعة طلبك والرد عليك."
+          : "🤖 (Auto-Reply) Thank you for reaching out to Azura Support! Please wait a moment while our staff reviews your request and gets back to you.";
+
+        const aiMsgRef = push(ref(db, `support-chat/${user.uid}/messages`));
+        await set(aiMsgRef, {
+          text: autoReplyText,
+          sender: "admin",
+          createdAt: Date.now(),
+          readByAdmin: true,
+        });
+
+        await update(ref(db, `support-chat/${user.uid}/meta`), {
+          lastMessage: autoReplyText,
+          lastAt: Date.now(),
+        });
+      } catch (e) {
+        console.error("Auto response failed:", e);
+      }
+    }, 1500);
   };
 
   if (!user) {

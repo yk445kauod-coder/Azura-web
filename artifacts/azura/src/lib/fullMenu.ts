@@ -410,19 +410,6 @@ export const fullMenuData: Record<string, Record<string, {
         "توست"
       ]
     },
-    "english-breakfast": {
-      "name": "English Breakfast",
-      "nameAr": "إنجلش بريكفاست",
-      "description": "Classic English breakfast with eggs, bacon, sausages, beans, and toast",
-      "descriptionAr": "إفطار إنجليزي كلاسيكي بالبيض واللحم المقدد والنقانق والفول والتوست",
-      "price": 195,
-      "category": "breakfast",
-      "categoryAr": "بريك فاست",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1484723088339-0b2833a2595d?w=600&q=80",
-      "ingredients": ["Eggs", "bacon", "sausages", "baked beans", "toast"],
-      "ingredientsAr": ["بيض", "لحم مقدد", "نقانق", "فول", "توست"]
-    },
     "greek-breakfast": {
       "name": "Greek Breakfast",
       "nameAr": "جريك بريك فاست",
@@ -469,19 +456,6 @@ export const fullMenuData: Record<string, Record<string, {
         "توست"
       ]
     },
-    "shakshuka-deluxe": {
-      "name": "Shakshuka Deluxe",
-      "nameAr": "شكشوكة ديلوكس",
-      "description": "Eggs poached in rich tomato sauce with peppers, onions, and feta cheese, served with fresh pita",
-      "descriptionAr": "بيض مطبوخ في صوص طماطم غني مع الفلفل والبصل وجبنه الفيتا، يقدم مع خبز pita طازج",
-      "price": 125,
-      "category": "breakfast",
-      "categoryAr": "بريك فاست",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80",
-      "ingredients": ["Eggs", "tomato sauce", "peppers", "onions", "feta cheese", "pita bread"],
-      "ingredientsAr": ["بيض", "صوص طماطم", "فلفل", "بصل", "جبنه فيتا", "خبز pita"]
-    }
   },
   "burgers": {
     "bbq-burger": {

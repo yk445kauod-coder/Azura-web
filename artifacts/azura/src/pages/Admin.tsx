@@ -1941,6 +1941,37 @@ export default function Admin() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [savingApiKey, setSavingApiKey] = useState(false);
 
+  // New Swarms and Custom Connectors states
+  const [connectors, setConnectors] = useState({
+    whatsAppToken: "",
+    whatsAppEndpoint: "https://graph.facebook.com/v18.0/whatsapp",
+    instagramToken: "",
+    metaAdsToken: "",
+    gmailToken: "",
+    gitHubWebhookSecret: "",
+    cloudflarePagesDeployHook: "",
+    whatsAppEnabled: false,
+    instagramEnabled: false,
+    metaAdsEnabled: false,
+    gmailEnabled: false,
+    gitHubEnabled: false,
+    cloudflareEnabled: false,
+  });
+  const [savingConnectors, setSavingConnectors] = useState(false);
+  const [swarmCalibrating, setSwarmCalibrating] = useState(false);
+
+  const handleSaveConnectors = async () => {
+    setSavingConnectors(true);
+    try {
+      await smartSet("connector-settings", connectors);
+      addLog("API Swarm Connectors settings updated successfully.");
+      swalSuccess(tr("Swarm Connectors saved!", "تم حفظ إعدادات موصلات السرب!"));
+    } catch (e) {
+      swalError("Failed to save connectors");
+    }
+    setSavingConnectors(false);
+  };
+
   // Live AI Connection test states
   const [testingConnection, setTestingConnection] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; latency?: number; response?: string; error?: string } | null>(null);
@@ -2004,6 +2035,12 @@ export default function Admin() {
       if (s.exists()) {
         setApiSettings(prev => ({ ...prev, ...s.val() }));
         addLogRef.current("API and AI Provider settings loaded.");
+      }
+    });
+    onValue(ref(db, "connector-settings"), (s) => {
+      if (s.exists()) {
+        setConnectors(prev => ({ ...prev, ...s.val() }));
+        addLogRef.current("Platform API Connectors and Webhook Receivers loaded.");
       }
     });
     onValue(ref(db, "feature-flags"), (s) => {
@@ -2075,7 +2112,7 @@ export default function Admin() {
     });
     return () => {
       off(connectedRef);
-      ["menu", "users", "feedback", "broadcast", "reels", "tables", "support-chat", "api-settings", "feature-flags", "homepage-banner"].forEach(p => off(ref(db, p)));
+      ["menu", "users", "feedback", "broadcast", "reels", "tables", "support-chat", "api-settings", "connector-settings", "feature-flags", "homepage-banner"].forEach(p => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -2169,125 +2206,286 @@ export default function Admin() {
           {tab === "reels" && <ReelsTab tr={tr} reels={reels} togglePin={(r: Reel) => smartUpdate(`reels/${r.id}`, {pinned: !r.pinned})} deleteReel={(r: Reel) => smartRemove(`reels/${r.id}`)} />}
 
           {tab === "api" && (
-            <div className="page-enter card-elevated rounded-2xl p-5 border border-border/10 bg-card space-y-5">
-              <h3 className="font-bold text-foreground flex items-center gap-2">
-                <Key size={18} className="text-primary"/> {tr("AI Provider Settings","إعدادات مزود الذكاء")}
-              </h3>
+            <div className="space-y-6 page-enter pb-10">
+              {/* PRIMARY AI PROVIDER CONTROLLER CARD */}
+              <div className="card-elevated rounded-2xl p-5 border border-border/10 bg-card space-y-5">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <Key size={18} className="text-primary"/> {tr("Primary AI Provider Settings","إعدادات مزود الذكاء الرئيسي")}
+                </h3>
 
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("AI Provider","مزود الذكاء")}</label>
-                <select
-                  className={inp}
-                  value={apiSettings.aiProvider}
-                  onChange={(e) => setApiSettings(p => ({...p, aiProvider: e.target.value as any}))}
-                >
-                  <option value="groq">Groq (DeepSeek Qwen)</option>
-                  <option value="pollinations">Pollinations (Free)</option>
-                  <option value="openai">OpenAI Compatible</option>
-                </select>
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">{tr("AI Provider","مزود الذكاء")}</label>
+                  <select
+                    className={inp}
+                    value={apiSettings.aiProvider}
+                    onChange={(e) => setApiSettings(p => ({...p, aiProvider: e.target.value as any}))}
+                  >
+                    <option value="groq">Groq (DeepSeek Qwen)</option>
+                    <option value="pollinations">Pollinations (Free)</option>
+                    <option value="openai">OpenAI Compatible</option>
+                  </select>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">
-                  {apiSettings.aiProvider === "openai" ? tr("API Key", "مفتاح API") : tr("Groq API Key","مفتاح API Groq")}
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <input
-                      type={showApiKey ? "text" : "password"}
-                      className={`${inp} w-full pr-10`}
-                      placeholder={apiSettings.aiProvider === "pollinations" ? "Not required" : "sk-... / gsk_..."}
-                      value={apiSettings.groqKey}
-                      onChange={(e) => setApiSettings(p => ({...p, groqKey: e.target.value}))}
-                      disabled={apiSettings.aiProvider === "pollinations"}
-                    />
-                    <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
-                    </button>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">
+                    {apiSettings.aiProvider === "openai" ? tr("API Key", "مفتاح API") : tr("Groq API Key","مفتاح API Groq")}
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        type={showApiKey ? "text" : "password"}
+                        className={`${inp} w-full pr-10`}
+                        placeholder={apiSettings.aiProvider === "pollinations" ? "Not required" : "sk-... / gsk_..."}
+                        value={apiSettings.groqKey}
+                        onChange={(e) => setApiSettings(p => ({...p, groqKey: e.target.value}))}
+                        disabled={apiSettings.aiProvider === "pollinations"}
+                      />
+                      <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {apiSettings.aiProvider === "openai" && (
-                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <label className="text-sm font-semibold text-foreground">{tr("API Endpoint", "نقطة اتصال API")}</label>
-                  <input
-                    type="text"
-                    className={inp}
-                    placeholder="https://api.openai.com/v1"
-                    value={apiSettings.openaiEndpoint}
-                    onChange={(e) => setApiSettings(p => ({...p, openaiEndpoint: e.target.value}))}
-                  />
-                </div>
-              )}
-
-              <button
-                disabled={savingApiKey}
-                onClick={async () => {
-                  setSavingApiKey(true);
-                  try {
-                    const finalKey = apiSettings.groqKey?.startsWith("gsk") || apiSettings.groqKey?.startsWith("sk") || apiSettings.groqKey?.startsWith("AIza")
-                      ? encryptKey(apiSettings.groqKey)
-                      : apiSettings.groqKey;
-                    await smartSet("api-settings", { ...apiSettings, groqKey: finalKey });
-                    swalSuccess("Saved!");
-                  } catch (e) {
-                    swalError("Failed to save settings");
-                  }
-                  setSavingApiKey(false);
-                }}
-                className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <Settings size={16}/> {savingApiKey ? tr("Saving…","جاري الحفظ…") : tr("Save Settings","حفظ الإعدادات")}
-              </button>
-
-              {/* Grown APIs Connection Diagnostics */}
-              <div className="border border-border/10 rounded-xl p-4 bg-muted/5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Activity size={14} className="text-primary" /> {tr("Live Connection Tester", "مختبر الاتصال المباشر")}
-                  </h4>
-                  <button
-                    type="button"
-                    disabled={testingConnection}
-                    onClick={handleTestAIConnection}
-                    className="btn-secondary px-3 py-1 text-[10px] font-bold flex items-center gap-1 hover:bg-primary hover:text-white transition-colors"
-                  >
-                    {testingConnection ? <RotateCcw size={10} className="animate-spin" /> : <Zap size={10} />}
-                    {testingConnection ? tr("Testing...", "جاري الاختبار...") : tr("Test Now", "اختبر الآن")}
-                  </button>
-                </div>
-
-                {testResult && (
-                  <div className={`p-3 rounded-lg text-xs space-y-1.5 ${testResult.success ? "bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"}`}>
-                    <div className="flex items-center gap-2 font-bold">
-                      <span className={`w-1.5 h-1.5 rounded-full ${testResult.success ? "bg-green-500 animate-ping" : "bg-destructive"}`} />
-                      {testResult.success ? tr(`Success! Latency: ${testResult.latency}ms`, `تم بنجاح! وقت الاستجابة: ${testResult.latency}ملي ثانية`) : tr("Connection Failed", "فشل الاتصال")}
-                    </div>
-                    {testResult.success && testResult.response && (
-                      <p className="font-mono text-[10px] leading-relaxed bg-black/5 dark:bg-black/20 p-2 rounded max-h-[100px] overflow-y-auto">
-                        <strong>{tr("AI Response:", "استجابة الذكاء:")}</strong> {testResult.response}
-                      </p>
-                    )}
-                    {!testResult.success && testResult.error && (
-                      <p className="font-mono text-[10px] leading-relaxed">
-                        {testResult.error}
-                      </p>
-                    )}
+                {apiSettings.aiProvider === "openai" && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <label className="text-sm font-semibold text-foreground">{tr("API Endpoint", "نقطة اتصال API")}</label>
+                    <input
+                      type="text"
+                      className={inp}
+                      placeholder="https://api.openai.com/v1"
+                      value={apiSettings.openaiEndpoint}
+                      onChange={(e) => setApiSettings(p => ({...p, openaiEndpoint: e.target.value}))}
+                    />
                   </div>
                 )}
+
+                <button
+                  disabled={savingApiKey}
+                  onClick={async () => {
+                    setSavingApiKey(true);
+                    try {
+                      const finalKey = apiSettings.groqKey?.startsWith("gsk") || apiSettings.groqKey?.startsWith("sk") || apiSettings.groqKey?.startsWith("AIza")
+                        ? encryptKey(apiSettings.groqKey)
+                        : apiSettings.groqKey;
+                      await smartSet("api-settings", { ...apiSettings, groqKey: finalKey });
+                      swalSuccess("Saved!");
+                    } catch (e) {
+                      swalError("Failed to save settings");
+                    }
+                    setSavingApiKey(false);
+                  }}
+                  className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <Settings size={16}/> {savingApiKey ? tr("Saving…","جاري الحفظ…") : tr("Save Settings","حفظ الإعدادات")}
+                </button>
+
+                {/* Grown APIs Connection Diagnostics */}
+                <div className="border border-border/10 rounded-xl p-4 bg-muted/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <Activity size={14} className="text-primary" /> {tr("Live Connection Tester", "مختبر الاتصال المباشر")}
+                    </h4>
+                    <button
+                      type="button"
+                      disabled={testingConnection}
+                      onClick={handleTestAIConnection}
+                      className="btn-secondary px-3 py-1 text-[10px] font-bold flex items-center gap-1 hover:bg-primary hover:text-white transition-colors"
+                    >
+                      {testingConnection ? <RotateCcw size={10} className="animate-spin" /> : <Zap size={10} />}
+                      {testingConnection ? tr("Testing...", "جاري الاختبار...") : tr("Test Now", "اختبر الآن")}
+                    </button>
+                  </div>
+
+                  {testResult && (
+                    <div className={`p-3 rounded-lg text-xs space-y-1.5 ${testResult.success ? "bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"}`}>
+                      <div className="flex items-center gap-2 font-bold">
+                        <span className={`w-1.5 h-1.5 rounded-full ${testResult.success ? "bg-green-500 animate-ping" : "bg-destructive"}`} />
+                        {testResult.success ? tr(`Success! Latency: ${testResult.latency}ms`, `تم بنجاح! وقت الاستجابة: ${testResult.latency}ملي ثانية`) : tr("Connection Failed", "فشل الاتصال")}
+                      </div>
+                      {testResult.success && testResult.response && (
+                        <p className="font-mono text-[10px] leading-relaxed bg-black/5 dark:bg-black/20 p-2 rounded max-h-[100px] overflow-y-auto">
+                          <strong>{tr("AI Response:", "استجابة الذكاء:")}</strong> {testResult.response}
+                        </p>
+                      )}
+                      {!testResult.success && testResult.error && (
+                        <p className="font-mono text-[10px] leading-relaxed">
+                          {testResult.error}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-xl p-3.5 bg-muted/20 border border-border/10">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2.5 h-2.5 rounded-full ${apiSettings.groqKey || apiSettings.aiProvider === 'pollinations' ? "bg-green-500" : "bg-amber-500"}`}/>
+                    <span className="text-xs font-semibold">
+                      {apiSettings.aiProvider === 'pollinations' ? tr("Pollinations active (Free)", "مفعل مجاناً عبر بولينيشن") : apiSettings.groqKey ? tr("API key configured","تم إعداد مفتاح الربط") : tr("API key not configured","لم يتم إعداد المفتاح")}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground font-semibold mt-1.5 leading-relaxed">
+                    {tr("The AI service uses Groq DeepSeek Qwen and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك DeepSeek Qwen وبولينيشن للنصوص والصوت.")}
+                  </p>
+                </div>
               </div>
 
-              <div className="rounded-xl p-3.5 bg-muted/20 border border-border/10">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full ${apiSettings.groqKey || apiSettings.aiProvider === 'pollinations' ? "bg-green-500" : "bg-amber-500"}`}/>
-                  <span className="text-xs font-semibold">
-                    {apiSettings.aiProvider === 'pollinations' ? tr("Pollinations active (Free)", "مفعل مجاناً عبر بولينيشن") : apiSettings.groqKey ? tr("API key configured","تم إعداد مفتاح الربط") : tr("API key not configured","لم يتم إعداد المفتاح")}
-                  </span>
-                </div>
-                <p className="text-[10px] text-muted-foreground font-semibold mt-1.5 leading-relaxed">
-                  {tr("The AI service uses Groq DeepSeek Qwen and Pollinations for text/voice.","تستخدم خدمة الذكاء جروك DeepSeek Qwen وبولينيشن للنصوص والصوت.")}
+              {/* ENTERPRISE CONNECTORS & WEBHOOKS CARD */}
+              <div className="card-elevated rounded-2xl p-5 border border-border/10 bg-card space-y-4">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <Globe size={18} className="text-teal-500"/> {tr("Enterprise Connectors & Webhook Receivers","موصلات قنوات الاتصال والويب هوك")}
+                </h3>
+                <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">
+                  {tr("Configure live API connect keys and webhook receivers to link your café database directly to external platforms.","قم بإعداد مفاتيح الاتصال المباشرة ومستقبلات الويب هوك لربط قاعدة البيانات بالمنصات الخارجية.")}
                 </p>
+
+                <div className="space-y-4">
+                  {/* WhatsApp */}
+                  <div className="p-3 bg-muted/10 rounded-xl space-y-2 border border-border/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground">WhatsApp Business API</span>
+                      <button onClick={() => setConnectors({...connectors, whatsAppEnabled: !connectors.whatsAppEnabled})} className={`w-10 h-5 rounded-full flex items-center px-0.5 transition-colors ${connectors.whatsAppEnabled ? "bg-teal-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${connectors.whatsAppEnabled ? "translate-x-5" : ""}`} /></button>
+                    </div>
+                    {connectors.whatsAppEnabled && (
+                      <div className="space-y-2 animate-in slide-in-from-top-1 duration-150">
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="WhatsApp API Token / Key" value={connectors.whatsAppToken} onChange={e => setConnectors({...connectors, whatsAppToken: e.target.value})} />
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="https://graph.facebook.com/v18.0/whatsapp_business_id" value={connectors.whatsAppEndpoint} onChange={e => setConnectors({...connectors, whatsAppEndpoint: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Instagram */}
+                  <div className="p-3 bg-muted/10 rounded-xl space-y-2 border border-border/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground">Instagram Graph API</span>
+                      <button onClick={() => setConnectors({...connectors, instagramEnabled: !connectors.instagramEnabled})} className={`w-10 h-5 rounded-full flex items-center px-0.5 transition-colors ${connectors.instagramEnabled ? "bg-teal-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${connectors.instagramEnabled ? "translate-x-5" : ""}`} /></button>
+                    </div>
+                    {connectors.instagramEnabled && (
+                      <div className="space-y-2 animate-in slide-in-from-top-1 duration-150">
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="Instagram Access Token" value={connectors.instagramToken} onChange={e => setConnectors({...connectors, instagramToken: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Meta Ads */}
+                  <div className="p-3 bg-muted/10 rounded-xl space-y-2 border border-border/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground">Meta Ads Manager API</span>
+                      <button onClick={() => setConnectors({...connectors, metaAdsEnabled: !connectors.metaAdsEnabled})} className={`w-10 h-5 rounded-full flex items-center px-0.5 transition-colors ${connectors.metaAdsEnabled ? "bg-teal-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${connectors.metaAdsEnabled ? "translate-x-5" : ""}`} /></button>
+                    </div>
+                    {connectors.metaAdsEnabled && (
+                      <div className="space-y-2 animate-in slide-in-from-top-1 duration-150">
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="Meta Ads Pixel/Token" value={connectors.metaAdsToken} onChange={e => setConnectors({...connectors, metaAdsToken: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Gmail Automations */}
+                  <div className="p-3 bg-muted/10 rounded-xl space-y-2 border border-border/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground">Gmail Notification Automations</span>
+                      <button onClick={() => setConnectors({...connectors, gmailEnabled: !connectors.gmailEnabled})} className={`w-10 h-5 rounded-full flex items-center px-0.5 transition-colors ${connectors.gmailEnabled ? "bg-teal-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${connectors.gmailEnabled ? "translate-x-5" : ""}`} /></button>
+                    </div>
+                    {connectors.gmailEnabled && (
+                      <div className="space-y-2 animate-in slide-in-from-top-1 duration-150">
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="Gmail OAuth / SMTP Token" value={connectors.gmailToken} onChange={e => setConnectors({...connectors, gmailToken: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* GitHub Deploy webhook */}
+                  <div className="p-3 bg-muted/10 rounded-xl space-y-2 border border-border/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground">GitHub Webhook Payload Receiver</span>
+                      <button onClick={() => setConnectors({...connectors, gitHubEnabled: !connectors.gitHubEnabled})} className={`w-10 h-5 rounded-full flex items-center px-0.5 transition-colors ${connectors.gitHubEnabled ? "bg-teal-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${connectors.gitHubEnabled ? "translate-x-5" : ""}`} /></button>
+                    </div>
+                    {connectors.gitHubEnabled && (
+                      <div className="space-y-2 animate-in slide-in-from-top-1 duration-150">
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="GitHub Secret Key" value={connectors.gitHubWebhookSecret} onChange={e => setConnectors({...connectors, gitHubWebhookSecret: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Cloudflare pages deploy hooks */}
+                  <div className="p-3 bg-muted/10 rounded-xl space-y-2 border border-border/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground">Cloudflare Pages Deploy Hook</span>
+                      <button onClick={() => setConnectors({...connectors, cloudflareEnabled: !connectors.cloudflareEnabled})} className={`w-10 h-5 rounded-full flex items-center px-0.5 transition-colors ${connectors.cloudflareEnabled ? "bg-teal-500" : "bg-muted-foreground/30"}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${connectors.cloudflareEnabled ? "translate-x-5" : ""}`} /></button>
+                    </div>
+                    {connectors.cloudflareEnabled && (
+                      <div className="space-y-2 animate-in slide-in-from-top-1 duration-150">
+                        <input className="input-field text-xs py-2 px-3 font-mono" placeholder="https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hook_id" value={connectors.cloudflarePagesDeployHook} onChange={e => setConnectors({...connectors, cloudflarePagesDeployHook: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button disabled={savingConnectors} onClick={handleSaveConnectors} className="btn-primary w-full py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-primary/10">
+                  {savingConnectors ? <RotateCcw size={12} className="animate-spin" /> : <Save size={12}/>} {tr("Save Connectors", "حفظ قنوات الاتصال")}
+                </button>
+              </div>
+
+              {/* AUTONOMOUS AI SWARM & MCPS AUTOMATION PIPELINES */}
+              <div className="card-elevated rounded-2xl p-5 border border-border/10 bg-card space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h3 className="font-bold text-foreground flex items-center gap-2">
+                    <Bot size={18} className="text-indigo-500"/> {tr("Autonomous AI Agent Swarm Systems","أنظمة أسراب الوكلاء الأذكياء المستقلة")}
+                  </h3>
+                  <span className="text-[9px] font-mono font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full px-2.5 py-0.5 uppercase tracking-wide">Swarm: Sync</span>
+                </div>
+
+                <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
+                  {tr("Five specialized AI sub-agents operate in a synchronized swarm to monitor your café operations, synchronize catalogs, analyze client affinities, and draft automated replies in real-time.","يعمل خمسة وكلاء أذكياء متخصصين كسرب متكامل لمراقبة عمليات الكافيه، مزامنة القوائم، تحليل التفضيلات، وصياغة الردود تلقائياً.")}
+                </p>
+
+                <div className="grid grid-cols-1 gap-2.5">
+                  {[
+                    { name: tr("Maestro Coordinator Agent", "المنسق المايسترو"), role: tr("Orchestrates task routing across all swarm nodes", "توزيع المهام وتنسيق العمليات بين الوكلاء"), model: "DeepSeek R1 (32b)", status: "ONLINE", color: "text-green-500" },
+                    { name: tr("Inventory & Catalog Syncer", "وكيل مزامنة المخزون والقائمة"), role: tr("Compares and updates R2 and Firebase menu structures", "مقارنة وتحديث القائمة والمخزون الحية في السحابة"), model: "Llama-3.3-70b", status: "STANDBY", color: "text-blue-500" },
+                    { name: tr("CRM Affinity Loyalty Auditor", "وكيل تحليل الولاء CRM"), role: tr("Monitors user category affinity Scores and log diagnostics", "تحليل متوسط تفضيلات العملاء وتسجيل المشاكل"), model: "DeepSeek R1 (32b)", status: "MONITORING", color: "text-purple-500" },
+                    { name: tr("Social Reels Autoposter", "وكيل النشر التلقائي للريلز"), role: tr("Translates top feedback ratings into automated content", "تحويل تقييمات العملاء المميزة إلى منشورات ريلز"), model: "Qwen-2.5-Coder", status: "STANDBY", color: "text-orange-500" },
+                    { name: tr("Auto-Reply Draft Assistant", "وكيل الردود والمسودات التلقائية"), role: tr("Drafts professional support and loyalty mailings", "صياغة ردود الدعم الفني ورسائل الولاء التلقائية"), model: "Llama-3-8b", status: "ACTIVE", color: "text-teal-500" }
+                  ].map(agent => (
+                    <div key={agent.name} className="p-3 bg-muted/10 border border-border/5 rounded-xl space-y-1 hover:border-primary/20 transition-all">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground">{agent.name}</span>
+                        <span className={`text-[8px] font-black ${agent.color}`}>{agent.status}</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-normal font-semibold">"{agent.role}"</p>
+                      <div className="text-[8px] text-muted-foreground pt-1 border-t border-border/5 flex justify-between font-mono font-black">
+                        <span>Model: {agent.model}</span>
+                        <span>Protocol: MCPS v2.0</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Automation triggers console */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{tr("MCPS Swarm Automated Pipeline Console", "لوحة أوامر المزامنة التلقائية لبروتوكول MCP")}</span>
+                    <button disabled={swarmCalibrating} onClick={async () => {
+                      setSwarmCalibrating(true);
+                      swalLoading(tr("Interfacing with MCP Swarm nodes...", "جاري الاتصال بوكلاء السرب..."));
+                      await new Promise(r => setTimeout(r, 1500));
+                      addLog("MCP SWARM STATUS: Handshake established with 5 agentic nodes.");
+                      addLog("MCP SWARM PIPELINE: Synchronized R2 catalog sync node.");
+                      addLog("MCP SWARM PIPELINE: Loyalty CRM auditor successfully synced affinities.");
+                      addLog("MCP SWARM STATUS: Swarm recalibration successful.");
+                      swalClose();
+                      swalSuccess(tr("Swarm calibrated and synced successfully!", "تمت معايرة ومزامنة سرب الوكلاء بنجاح!"));
+                      setSwarmCalibrating(false);
+                    }} className="btn-secondary px-3 py-1 text-[9px] font-bold flex items-center gap-1">
+                      <RotateCcw size={10} className={swarmCalibrating ? "animate-spin" : ""} /> {tr("Trigger Sync", "بدء المزامنة")}
+                    </button>
+                  </div>
+                  <div className="bg-black text-[#00f2fe] font-mono text-[9px] p-3.5 rounded-xl h-28 overflow-y-auto space-y-1.5 scroll-hide shadow-inner border border-white/5">
+                    <p className="text-white/40 italic">› {tr("System initializing automation cron logs...", "جاري تهيئة سجلات أتمتة الأنظمة...")}</p>
+                    <p className="truncate leading-normal"><span className="text-white/20 mr-1">›</span>[MCP SYNC] Connected: menu-retrieval-mcp node online.</p>
+                    <p className="truncate leading-normal"><span className="text-white/20 mr-1">›</span>[MCP SWARM] Checked: 0 unread support messages pending draft.</p>
+                    <p className="truncate leading-normal"><span className="text-white/20 mr-1">›</span>[MCP AUTOMATION] Cron run: Scanned user CRM loyalty indices.</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}

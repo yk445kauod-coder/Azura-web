@@ -271,20 +271,62 @@ export default function AIBarista() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const buildSystemPrompt = () => {
-    // Group items by category for better context, filtering unavailable items
-    const byCategory = menuItems
+    const isArabic = lang === "ar";
+
+    // 1. COMPACT LOOKUP INDEX (Ensures 100% complete catalog awareness)
+    const compactLookup = menuItems
       .filter(i => i.available)
-      .reduce((acc, item) => {
-        const cat = item.category || "other";
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(item);
-        return acc;
-      }, {} as Record<string, MenuItem[]>);
+      .map(i => {
+        const name = isArabic ? (i.nameAr || i.name) : i.name;
+        return `[ID: ${i.id}] ${name} (${i.category}) - ${i.price} ${isArabic ? 'ج.م' : 'EGP'}`;
+      })
+      .join(", ");
+
+    // 2. CONTEXTUAL DEEP DETAILS (Loads matching details to fit inside token boundaries)
+    const recentTexts = messages.slice(-3).map(m => m.content.toLowerCase()).join(" ") + " " + input.toLowerCase();
     
-    const menuCtx = Object.entries(byCategory)
+    const targetCategories = new Set<string>();
+    const categories = ["coffee", "dessert", "main", "beverages", "breakfast", "salad", "appetizer", "pasta", "pizza", "burger", "sandwiches", "mocktails", "croissant"];
+    categories.forEach(cat => {
+      if (recentTexts.includes(cat) || (isArabic && (
+        (cat === "coffee" && (recentTexts.includes("قهوة") || recentTexts.includes("بن"))) ||
+        (cat === "dessert" && (recentTexts.includes("حلو") || recentTexts.includes("كيك"))) ||
+        (cat === "beverages" && (recentTexts.includes("مشروب") || recentTexts.includes("عصير"))) ||
+        (cat === "breakfast" && (recentTexts.includes("فطار") || recentTexts.includes("فطور"))) ||
+        (cat === "croissant" && recentTexts.includes("كرواسون"))
+      ))) {
+        targetCategories.add(cat);
+      }
+    });
+
+    const matchedItems = menuItems.filter(i => {
+      if (!i.available) return false;
+      const name = i.name.toLowerCase();
+      const nameAr = (i.nameAr || "").toLowerCase();
+      return recentTexts.includes(name) || (nameAr && recentTexts.includes(nameAr)) || recentTexts.includes(i.id.toLowerCase());
+    });
+
+    const detailItems = menuItems.filter(i => {
+      if (!i.available) return false;
+      if (targetCategories.has(i.category || "") || matchedItems.some(m => m.id === i.id)) {
+        return true;
+      }
+      return false;
+    });
+
+    const finalDetailItems = detailItems.length > 0 ? detailItems.slice(0, 25) : menuItems.filter(i => i.available).slice(0, 20);
+
+    const byCategory = finalDetailItems.reduce((acc, item) => {
+      const cat = item.category || "other";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(item);
+      return acc;
+    }, {} as Record<string, MenuItem[]>);
+
+    const detailCtx = Object.entries(byCategory)
       .map(([cat, items]) => `=== ${cat.toUpperCase()} ===\n` + 
         items.map((i) => {
-          const details = lang === "ar"
+          const details = isArabic
             ? `${i.nameAr || i.name}${i.descriptionAr ? `: ${i.descriptionAr}` : ""}${i.ingredientsAr ? ` (المكونات: ${i.ingredientsAr})` : ""} - السعر: ${i.price} ج.م`
             : `${i.name}${i.description ? `: ${i.description}` : ""}${i.ingredients ? ` (Ingredients: ${i.ingredients})` : ""} - Price: ${i.price} EGP`;
           return `• [ID: ${i.id}] ${details}`;
@@ -292,7 +334,8 @@ export default function AIBarista() {
         .join("\n"))
       .join("\n");
 
-    const isArabic = lang === "ar";
+    const menuCtx = `COMPACT LOOKUP LIST (ALL AVAILABLE ITEMS IN CAFE):\n${compactLookup}\n\nDETAILED MENU CARD (CONTAINS INGREDIENTS & DESCRIPTIONS):\n${detailCtx}`;
+
     const langInstruction = isArabic
       ? `IMPORTANT: RESPOND IN FLUENT EGYPTIAN ARABIC (عامية مصرية أصيلة). Use warm, local Alexandria-style hospitality. Keep it professional yet very friendly.`
       : `IMPORTANT: RESPOND IN NATURAL, SOPHISTICATED ENGLISH. Be warm and professional like a high-end Alexandrian cafe host.`;
@@ -311,6 +354,11 @@ CURRENT USER: ${userName}
 TABLE: ${profile?.tableNumber || "N/A"}
 VISITS: ${profile?.loginCount || 1}
 ${memCtx}
+
+## CURRENCY DIRECTIVE
+- We operate strictly and exclusively using Egyptian Pounds (EGP / ج.م).
+- All items in our lookup list and details are priced in EGP / ج.م.
+- Always quote prices and discuss costs using Egyptian Pounds (EGP / ج.م).
 
 ## PERSONALITY & LANGUAGE
 - Warm, welcoming, and genuinely passionate about coffee and food.

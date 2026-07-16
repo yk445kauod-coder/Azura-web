@@ -2026,18 +2026,28 @@ export default function Admin() {
       const data = s.val() || {}; const res: MenuItem[] = [];
       const normalizeCat = (c: string) => {
         if (!c) return "other";
-        const lc = c.toLowerCase();
+        const lc = c.toLowerCase().trim();
         if (lc === "cocktail") return "cocktails";
         if (lc === "mocktail") return "mocktails";
+        if (lc === "smoothie" || lc === "smoothies") return "smoothies";
+        if (lc === "soup") return "soups";
+        if (lc === "salad") return "salads";
+        if (lc === "burger") return "burgers";
+        if (lc === "hot_drink") return "hot_drinks";
+        if (lc === "fresh_juice" || lc === "fresh_juices") return "fresh_juices";
+        if (lc === "milkshake") return "milkshakes";
+        if (lc === "crepe") return "crepes";
+        if (lc === "dessert") return "desserts";
         if (lc === "fries") return "add_ons";
-        return c;
+        return lc;
       };
       Object.entries(data).forEach(([k, v]: any) => {
+        const parentKeyNormalized = normalizeCat(k);
         if (v.price !== undefined) {
-          res.push({ id: k, ...v, category: normalizeCat(v.category), originalCategory: v.category });
+          res.push({ id: k, ...v, category: normalizeCat(v.category), originalCategory: normalizeCat(v.category) });
         } else {
           Object.entries(v).forEach(([sk, sv]: any) => {
-            res.push({ id: sk, ...sv, category: normalizeCat(sv.category), originalCategory: k });
+            res.push({ id: sk, ...sv, category: normalizeCat(sv.category), originalCategory: parentKeyNormalized });
           });
         }
       });

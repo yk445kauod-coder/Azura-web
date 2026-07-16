@@ -2073,14 +2073,9 @@ export default function Admin() {
       const chatList = Object.entries(s.val() || {}).filter(([k, v]: any) => v.meta).map(([uid, v]: any) => ({ uid, ...v.meta })).sort((a,b) => (b.lastAt||0)-(a.lastAt||0));
       setChats(chatList);
     });
-    onValue(ref(db, "admin-config/activeTab"), (s) => {
-      if (s.exists() && s.val()) {
-        setTab(s.val() as Tab);
-      }
-    });
     return () => {
       off(connectedRef);
-      ["menu", "users", "feedback", "broadcast", "reels", "tables", "support-chat", "api-settings", "feature-flags", "homepage-banner", "admin-config"].forEach(p => off(ref(db, p)));
+      ["menu", "users", "feedback", "broadcast", "reels", "tables", "support-chat", "api-settings", "feature-flags", "homepage-banner"].forEach(p => off(ref(db, p)));
     };
   }, [authed]);
 
@@ -2110,7 +2105,6 @@ export default function Admin() {
     { id: "broadcast", icon: <Megaphone size={14}/>, en: "Broadcast", ar: "إشعارات" },
     { id: "reels", icon: <Film size={14}/>, en: "Reels", ar: "ريلز" },
     { id: "barista", icon: <Sparkles size={14}/>, en: "AI Barista", ar: "الباريستا" },
-    { id: "ai", icon: <Bot size={14}/>, en: "AI Advisor", ar: "المستشار الذكي" },
     { id: "api", icon: <Key size={14}/>, en: "API", ar: "الربط" },
     { id: "system", icon: <Settings size={14}/>, en: "System", ar: "النظام" },
     { id: "tables", icon: <LayoutGrid size={14}/>, en: "Tables", ar: "الطاولات" },

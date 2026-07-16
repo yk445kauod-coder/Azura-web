@@ -15,12 +15,12 @@ interface MenuItem {
   searchStr?: string;
 }
 
-function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
+function normalizeItem(id: string, raw: Record<string, unknown>, parentCategory?: string): MenuItem {
   const name = String(raw.name || raw.nameEn || raw.title || "");
   const nameAr = String(raw.nameAr || raw.titleAr || "");
   const description = String(raw.description || raw.descEn || raw.desc || "");
   const descriptionAr = String(raw.descriptionAr || raw.descAr || "");
-  const category = String(raw.category || "food");
+  const category = String(raw.category || parentCategory || "food").toLowerCase().trim();
   const ingredients = Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []);
   const ingredientsAr = Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []);
 
@@ -438,17 +438,11 @@ export default function MenuLightweight() {
         if (typeof val !== "object" || val === null) return;
         const v = val as Record<string, unknown>;
         if (v.price !== undefined || v.name !== undefined) {
-          result.push(normalizeItem(key, { category: "recommended", ...v }));
+          result.push(normalizeItem(key, v));
         } else {
           Object.entries(v).forEach(([subId, subVal]) => {
-            if (typeof subVal === "object" && subVal !== null) {
-              const rawItem = subVal as Record<string, unknown>;
-              const normalized = {
-                category: key,
-                ...rawItem
-              };
-              result.push(normalizeItem(subId, normalized));
-            }
+            if (typeof subVal === "object" && subVal !== null)
+              result.push(normalizeItem(subId, subVal as Record<string, unknown>, key));
           });
         }
       });
@@ -482,7 +476,7 @@ export default function MenuLightweight() {
     const filteredList = items.filter((item) => {
       if (!item.available) return false;
 
-      const itemCatLower = item.category.toLowerCase();
+      const itemCatLower = item.category.toLowerCase().trim();
       const itemSearchStr = item.searchStr || "";
 
       // Update counts for ALL categories this item belongs to

@@ -419,8 +419,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    const isFree = aiProvider === "pollinations";
-    if (!aiEnabled || (!isFree && !egyKey)) return;
+    if (!aiEnabled) return;
 
     setInput("");
     const keyToUse = egyKey || "pollinations_free";

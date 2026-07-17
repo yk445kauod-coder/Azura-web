@@ -2047,7 +2047,7 @@ export default function Admin() {
           res.push({ id: k, ...v, category: normalizeCat(v.category), originalCategory: normalizeCat(v.category) });
         } else {
           Object.entries(v).forEach(([sk, sv]: any) => {
-            res.push({ id: sk, ...sv, category: normalizeCat(sv.category), originalCategory: parentKeyNormalized });
+            res.push({ id: sk, ...sv, category: parentKeyNormalized, originalCategory: parentKeyNormalized });
           });
         }
       });

@@ -20,7 +20,7 @@ function normalizeItem(id: string, raw: Record<string, unknown>, parentCategory?
   const nameAr = String(raw.nameAr || raw.titleAr || "");
   const description = String(raw.description || raw.descEn || raw.desc || "");
   const descriptionAr = String(raw.descriptionAr || raw.descAr || "");
-  const category = String(raw.category || parentCategory || "food").toLowerCase().trim();
+  const category = String(parentCategory || raw.category || "food").toLowerCase().trim();
   const ingredients = Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []);
   const ingredientsAr = Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []);
 

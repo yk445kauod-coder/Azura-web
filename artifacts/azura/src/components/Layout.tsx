@@ -103,6 +103,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       const data = snap.val() as Record<string, Omit<Broadcast, "id">>;
       const all = Object.entries(data)
         .map(([id, v]) => ({ id, ...v }))
+        .filter((b) => b.title && b.title.trim() !== "" && b.title !== "<title>" && b.message && b.message.trim() !== "" && b.message !== "<message>")
         .sort((a, b) => b.createdAt - a.createdAt);
       setAllBroadcasts(all.length > 0 ? all : [DEFAULT_BROADCAST]);
       const latest = all.filter((b) => !readIds.includes(b.id))[0];

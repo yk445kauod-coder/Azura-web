@@ -6,7 +6,7 @@ import { BaristaProvider } from "@/contexts/BaristaContext";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useEffect, useState, lazy, Suspense } from "react";
 import Layout from "@/components/Layout";
-import { seedMenuIfEmpty, mergeMenuIngredients } from "@/lib/firebase";
+import { seedMenuIfEmpty, mergeMenuIngredients, cleanDeletedItemsFromDB } from "@/lib/firebase";
 
 const Welcome = lazy(() => import("@/pages/Welcome"));
 const MenuLightweight = lazy(() => import("@/pages/MenuLightweight"));
@@ -43,6 +43,7 @@ function AppRoutes() {
   useEffect(() => {
     seedMenuIfEmpty()
       .then(() => mergeMenuIngredients())
+      .then(() => cleanDeletedItemsFromDB())
       .catch(() => {});
   }, []);
 

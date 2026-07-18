@@ -372,19 +372,6 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "breakfast": {
-    "avocado-eggs": {
-      "name": "Avocado & Eggs",
-      "nameAr": "أفوكادو وبيض",
-      "description": "Smashed avocado with poached eggs on sourdough, topped with cherry tomatoes and microgreens",
-      "descriptionAr": "أفوكادو مهروس مع بيض مسلوق على خبز sourdough مع طماطم cherry و microgreens",
-      "price": 135,
-      "category": "breakfast",
-      "categoryAr": "بريك فاست",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
-      "ingredients": ["Avocado", "poached eggs", "sourdough bread", "cherry tomatoes", "microgreens"],
-      "ingredientsAr": ["أفوكادو", "بيض مسلوق", "خبز sourdough", "طماطم cherry", "microgreens"]
-    },
     "azura-breakfast": {
       "name": "Azura Breakfast",
       "nameAr": "ازورا بريك فاست",
@@ -409,19 +396,6 @@ export const fullMenuData: Record<string, Record<string, {
         "سموك تركي",
         "توست"
       ]
-    },
-    "english-breakfast": {
-      "name": "English Breakfast",
-      "nameAr": "إنجلش بريكفاست",
-      "description": "Classic English breakfast with eggs, bacon, sausages, beans, and toast",
-      "descriptionAr": "إفطار إنجليزي كلاسيكي بالبيض واللحم المقدد والنقانق والفول والتوست",
-      "price": 195,
-      "category": "breakfast",
-      "categoryAr": "بريك فاست",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1484723088339-0b2833a2595d?w=600&q=80",
-      "ingredients": ["Eggs", "bacon", "sausages", "baked beans", "toast"],
-      "ingredientsAr": ["بيض", "لحم مقدد", "نقانق", "فول", "توست"]
     },
     "greek-breakfast": {
       "name": "Greek Breakfast",
@@ -468,19 +442,6 @@ export const fullMenuData: Record<string, Record<string, {
         "بطاطس بيكد",
         "توست"
       ]
-    },
-    "shakshuka-deluxe": {
-      "name": "Shakshuka Deluxe",
-      "nameAr": "شكشوكة ديلوكس",
-      "description": "Eggs poached in rich tomato sauce with peppers, onions, and feta cheese, served with fresh pita",
-      "descriptionAr": "بيض مطبوخ في صوص طماطم غني مع الفلفل والبصل وجبنه الفيتا، يقدم مع خبز pita طازج",
-      "price": 125,
-      "category": "breakfast",
-      "categoryAr": "بريك فاست",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80",
-      "ingredients": ["Eggs", "tomato sauce", "peppers", "onions", "feta cheese", "pita bread"],
-      "ingredientsAr": ["بيض", "صوص طماطم", "فلفل", "بصل", "جبنه فيتا", "خبز pita"]
     }
   },
   "burgers": {
@@ -2217,6 +2178,50 @@ export const fullMenuData: Record<string, Record<string, {
       "categoryAr": "موكتيل",
       "available": true,
       "image": "https://images.unsplash.com/photo-1505252585441-ca40d922998a?w=600&q=80"
+    },
+    "lemon-mint": {
+      "name": "Lemon Mint",
+      "nameAr": "ليمون مينت",
+      "description": "Lemon Mint",
+      "descriptionAr": "ليمون مينت",
+      "price": 99,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
+    },
+    "lemon-passion": {
+      "name": "Lemon Passion",
+      "nameAr": "ليمون باشون",
+      "description": "Lemon Passion",
+      "descriptionAr": "ليمون باشون",
+      "price": 109,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
+    },
+    "lemon-pink": {
+      "name": "Lemon Pink",
+      "nameAr": "ليمون بينك",
+      "description": "Lemon Pink",
+      "descriptionAr": "ليمون بينك",
+      "price": 99,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
+    },
+    "lemon-strawberry": {
+      "name": "Lemon Strawberry",
+      "nameAr": "ليمون ستروبري",
+      "description": "Lemon Strawberry",
+      "descriptionAr": "ليمون ستروبري",
+      "price": 99,
+      "category": "mocktails",
+      "categoryAr": "موكتيل",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
     }
   },
   "mojitos": {
@@ -2281,50 +2286,6 @@ export const fullMenuData: Record<string, Record<string, {
       "description": "French Cola",
       "descriptionAr": "فرنش كولا",
       "price": 144,
-      "category": "mojitos",
-      "categoryAr": "موهيتو اند كولد درينكس",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
-    },
-    "lemon-mint": {
-      "name": "Lemon Mint",
-      "nameAr": "ليمون مينت",
-      "description": "Lemon Mint",
-      "descriptionAr": "ليمون مينت",
-      "price": 99,
-      "category": "mojitos",
-      "categoryAr": "موهيتو اند كولد درينكس",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
-    },
-    "lemon-passion": {
-      "name": "Lemon Passion",
-      "nameAr": "ليمون باشون",
-      "description": "Lemon Passion",
-      "descriptionAr": "ليمون باشون",
-      "price": 109,
-      "category": "mojitos",
-      "categoryAr": "موهيتو اند كولد درينكس",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
-    },
-    "lemon-pink": {
-      "name": "Lemon Pink",
-      "nameAr": "ليمون بينك",
-      "description": "Lemon Pink",
-      "descriptionAr": "ليمون بينك",
-      "price": 99,
-      "category": "mojitos",
-      "categoryAr": "موهيتو اند كولد درينكس",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
-    },
-    "lemon-strawberry": {
-      "name": "Lemon Strawberry",
-      "nameAr": "ليمون ستروبري",
-      "description": "Lemon Strawberry",
-      "descriptionAr": "ليمون ستروبري",
-      "price": 99,
       "category": "mojitos",
       "categoryAr": "موهيتو اند كولد درينكس",
       "available": true,
@@ -2511,19 +2472,6 @@ export const fullMenuData: Record<string, Record<string, {
         "قطع فراخ كريسبي",
         "صوص الدايناميت الخاص"
       ]
-    },
-    "smoky-bbq-wings": {
-      "name": "Smoky BBQ Wings",
-      "nameAr": "أجنحة بباربكيو مدخنة",
-      "description": "Smoky BBQ glazed chicken wings with crispy texture",
-      "descriptionAr": "أجنحة فراخ بصوص الباربكيو المدخن المقرمش",
-      "price": 145,
-      "category": "new_items",
-      "categoryAr": "أصناف جديدة",
-      "available": true,
-      "image": "https://images.unsplash.com/photo-1632778149975-4abc9507963e?w=600&q=80",
-      "ingredients": ["Chicken wings", "BBQ sauce", "smoked paprika"],
-      "ingredientsAr": ["أجنحة فراخ", "صوص باربكيو", "بابريكا مدخنة"]
     }
   },
   "pancakes": {

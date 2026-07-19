@@ -353,7 +353,8 @@ export default function Reels() {
 
   const handleRate = async () => {
     if (!user || userRating === 0) return;
-    const finalComment = [userComment.trim(), ...selectedTags].filter(Boolean).join(" | ");
+    const trimmedComment = userComment.trim();
+    const finalComment = [trimmedComment, ...selectedTags].filter(Boolean).join(" | ");
     const ratingObj = {
       userId: user.uid,
       userName: profile?.name || user.displayName || "Guest",
@@ -378,11 +379,38 @@ export default function Reels() {
       });
     }
 
+    const isHighRating = userRating >= 4;
+
     setShowRateModal(false);
     setUserRating(0);
     setUserComment("");
     setSelectedTags([]);
-    swalInfo(tr("Thanks for your rating!", "شكراً على تقييمك!"));
+
+    if (isHighRating) {
+      // Copy review text or pre-filled premium feedback text to Clipboard
+      const copyText = trimmedComment || tr(
+        "Excellent service, friendly staff, cozy atmosphere, and outstanding menu choices. Strongly recommended!",
+        "خدمة ممتازة، طاقم عمل ودود ومتعاون، أجواء دافئة ورائعة، وأصناف المنيو لذيذة جداً. ننصح بزيارته بشدة!"
+      );
+      try {
+        await navigator.clipboard.writeText(copyText);
+      } catch (err) {
+        console.warn("Clipboard access denied/failed:", err);
+      }
+
+      // Show beautiful success notification informing user of the copied text & redirecting
+      swalInfo(
+        tr("Thank you for your 5-star review! We have copied your feedback to your clipboard. Please paste and share it on Google Maps!",
+           "شكراً لتقييمك الرائع بـ 5 نجوم! لقد قمنا بنسخ رأيك إلى الحافظة تلقائياً. يرجى لصقه ومشاركته على جوجل ماب لتأكيد تقييمك!")
+      );
+
+      // Open Google Maps review URL in a new tab smoothly after 2 seconds
+      setTimeout(() => {
+        window.open("https://share.google/fgyXKem10AYKTpNJ9", "_blank");
+      }, 2000);
+    } else {
+      swalInfo(tr("Thanks for your rating!", "شكراً على تقييمك!"));
+    }
   };
 
   const formatTime = (ts: number) => {

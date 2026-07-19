@@ -166,6 +166,94 @@ const NORMALIZED_SYNONYMS = Object.entries(SEARCH_SYNONYMS).map(([key, synonyms]
   synonyms: synonyms.map(s => normalizeText(s))
 }));
 
+const CAT_HERO_IMAGES: Record<string, { image: string, titleAr: string, titleEn: string, descAr: string, descEn: string }> = {
+  "new_items": {
+    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80",
+    titleEn: "Top Picks & Featured Dishes",
+    titleAr: "أطباقنا المميزة والموصى بها",
+    descEn: "Chef's curated selection of delightful meals and drinks",
+    descAr: "تشكيلة مختارة بعناية من أشهى أطباقنا ومشروباتنا"
+  },
+  "breakfast": {
+    image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&q=80",
+    titleEn: "Premium Breakfast Spread",
+    titleAr: "ركن الفطور الفاخر",
+    descEn: "Start your day with our nutritious and delicious breakfast choices",
+    descAr: "ابدأ يومك بنشاط وحيوية مع وجبات الفطور الطازجة والشهية"
+  },
+  "croissant": {
+    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80",
+    titleEn: "Fresh Baked Croissants",
+    titleAr: "مخبوزات الكرواسون الطازجة",
+    descEn: "Flaky, buttery, and baked fresh daily with your favorite fillings",
+    descAr: "كرواسون مقرمش وهش بالزبدة، يُخبز طازجاً يومياً بحشواتك المفضلة"
+  },
+  "soft_drinks": {
+    image: "https://images.unsplash.com/photo-1629203851022-36c64237d951?w=800&q=80",
+    titleEn: "Chilled Soda & Cans",
+    titleAr: "المشروبات الغازية المنعشة",
+    descEn: "Stay refreshed with our select chilled soft drinks and beverages",
+    descAr: "انتعش مع تشكيلة من المشروبات الغازية الباردة"
+  },
+  "coffee": {
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
+    titleEn: "Specialty Espresso & Coffee",
+    titleAr: "ركن القهوة المختصة والاسبريسو",
+    descEn: "Rich, aromatic, and brewed to perfection from premium Arabica beans",
+    descAr: "قهوة غنية وعطرية مُعدة من أجود حبوب البن الفاخرة"
+  },
+  "smoothies": {
+    image: "https://images.unsplash.com/photo-1505252585441-ca40d922998a?w=800&q=80",
+    titleEn: "Fresh Fruit Smoothies",
+    titleAr: "سموزي الفواكه الطبيعية",
+    descEn: "Creamy, naturally sweet, and blended with real delicious fruits",
+    descAr: "مشروبات سموزي طبيعية وباردة مخفوقة بالفواكه الطازجة"
+  },
+  "mocktails": {
+    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&q=80",
+    titleEn: "Signature Mocktails & Drinks",
+    titleAr: "موكتيلات وأكواب منعشة",
+    descEn: "Expertly mixed non-alcoholic signature creations",
+    descAr: "مشروبات وموكتيلات مبتكرة ومنعشة لتعديل مزاجك"
+  },
+  "appetizers": {
+    image: "https://images.unsplash.com/photo-1573821663912-6df460f9c684?w=800&q=80",
+    titleEn: "Starters & Appetizers",
+    titleAr: "المقبلات والمشهيات",
+    descEn: "Perfect platters and bites to share with friends and family",
+    descAr: "أطباق مقبلات ووجبات خفيفة مثالية للمشاركة"
+  },
+  "burgers": {
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",
+    titleEn: "Juicy Beef Burgers",
+    titleAr: "برجر اللحم المشوي",
+    descEn: "Premium beef patties grilled with fresh toppings and specialty sauces",
+    descAr: "برجر لحم فاخر مشوي على اللهب مع خضروات طازجة وصوصات خاصة"
+  },
+  "pasta": {
+    image: "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=800&q=80",
+    titleEn: "Gourmet Italian Pasta",
+    titleAr: "الباستا والمعكرونة الإيطالية",
+    descEn: "Fresh penne and spaghetti tossed in creamy and savory rich sauces",
+    descAr: "باستا إيطالية أصيلة بصوصات كريمية وطماطم غنية بالبارميزان"
+  },
+  "desserts": {
+    image: "https://images.unsplash.com/photo-1551024601-bec78acc704b?w=800&q=80",
+    titleEn: "Heavenly Desserts & Cakes",
+    titleAr: "الحلويات والكيك الفاخر",
+    descEn: "Indulge in our exquisite sweet creations and warm baked cakes",
+    descAr: "دلل نفسك مع تشكيلتنا الرائعة من الكيك والحلويات اللذيذة"
+  }
+};
+
+const DEFAULT_CAT_HERO = {
+  image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
+  titleEn: "Azura Selection",
+  titleAr: "قائمة أزورا الفاخرة",
+  descEn: "Handcrafted recipes made with premium, fresh ingredients",
+  descAr: "أصناف ومأكولات محضرة بأجود المكونات الطازجة"
+};
+
 const ITEMS_PER_PAGE = 24;
 
 // Memoized individual item card for peak scroll performance
@@ -183,6 +271,7 @@ const MenuItemCard = memo(({
   CATS: any[];
 }) => {
   const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+  const hasDesc = lang === "ar" ? item.descriptionAr : item.description;
 
   return (
     <div
@@ -192,54 +281,42 @@ const MenuItemCard = memo(({
         animationDelay: `${idx * 20}ms`,
         animation: "fadeInSimple 0.25s ease-out forwards",
         contentVisibility: "auto",
-        containIntrinsicSize: "0 200px"
+        containIntrinsicSize: "0 150px"
       }}
     >
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20">
-        <div className="relative h-36 overflow-hidden bg-muted/30">
-          {item.image ? (
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-              decoding="async"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-4xl opacity-40">{cat?.emoji || "🍽️"}</span>
+      <div className="h-full rounded-2xl bg-card border border-border/30 p-3 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20 flex flex-col justify-between">
+        <div>
+          {/* Badges/Category & Recommendation */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="px-1.5 py-0.5 rounded-full bg-primary/5 text-primary text-[8px] font-bold flex items-center gap-1">
+              <span>{cat?.emoji || "🍽️"}</span>
+              <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
             </div>
-          )}
-
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[9px] font-bold flex items-center gap-1">
-            <span>{cat?.emoji}</span>
-            <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
+            {item.recommended && (
+              <span className="text-[10px]" title={lang === "ar" ? "مُوصى به" : "Recommended"}>⭐</span>
+            )}
+            {!item.recommended && item.category === "new_items" && (
+              <span className="text-[8px] font-bold text-red-500 uppercase">{lang === "ar" ? "جديد" : "NEW"}</span>
+            )}
           </div>
-          {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
-              <span>⭐</span>
-              <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
-            </div>
-          )}
-          {!item.recommended && item.category === "new_items" && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] font-black tracking-wide">
-              {lang === "ar" ? "جديد" : "NEW"}
-            </div>
-          )}
-        </div>
 
-        <div className="p-3">
-          <h3 className="font-bold text-sm text-foreground truncate">
+          <h3 className="font-bold text-sm text-foreground line-clamp-1 leading-snug">
             {lang === "ar" ? item.nameAr : item.name}
           </h3>
-          <div className="flex items-center justify-between mt-2.5">
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-base font-black text-primary">{item.price}</span>
-              <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
-            </div>
-            <div className="px-2 py-0.5 rounded-lg bg-primary/5 text-primary text-[9px] font-bold">
-              {lang === "ar" ? "تفاصيل" : "Details"}
-            </div>
+
+          <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1 min-h-[24px] leading-relaxed">
+            {hasDesc ? hasDesc : (lang === "ar" ? "اضغط لعرض المكونات والتفاصيل الكاملة" : "Click to view ingredients and details")}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/10">
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-sm font-black text-primary">{item.price}</span>
+            <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
+          </div>
+          <div className="text-[9px] text-primary/80 font-bold group-hover:text-primary transition-colors flex items-center gap-0.5">
+            <span>{lang === "ar" ? "تفاصيل" : "Details"}</span>
+            <span className="text-[8px]">{lang === "ar" ? "←" : "→"}</span>
           </div>
         </div>
       </div>
@@ -726,18 +803,47 @@ export default function MenuLightweight() {
           </div>
         ) : (
           /* GRID VIEW WITH SHIMMER */
-          <div className="grid grid-cols-2 gap-4">
-            {paginated.map((item, idx) => (
-              <MenuItemCard
-                key={item.id}
-                item={item}
-                lang={lang}
-                idx={idx}
-                onClick={handleSelectItem}
-                CATS={CATS}
-              />
-            ))}
-          </div>
+          <>
+            {/* Category Hero Header Banner */}
+            {!search && (() => {
+              const hero = CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
+              const currentCatObj = CATS.find(c => c.id === cat);
+              return (
+                <div className="relative w-full h-44 rounded-3xl overflow-hidden shadow-md mb-6 border border-border/20 group">
+                  <img
+                    src={hero.image}
+                    alt={cat}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">{currentCatObj?.emoji || "🍽️"}</span>
+                      <h2 className="text-base font-black tracking-wide">
+                        {lang === "ar" ? hero.titleAr : hero.titleEn}
+                      </h2>
+                    </div>
+                    <p className="text-[11px] text-white/80 font-medium line-clamp-2 leading-relaxed">
+                      {lang === "ar" ? hero.descAr : hero.descEn}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="grid grid-cols-2 gap-4">
+              {paginated.map((item, idx) => (
+                <MenuItemCard
+                  key={item.id}
+                  item={item}
+                  lang={lang}
+                  idx={idx}
+                  onClick={handleSelectItem}
+                  CATS={CATS}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination */}

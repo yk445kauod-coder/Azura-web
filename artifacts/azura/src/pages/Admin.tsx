@@ -539,6 +539,42 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
   const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set(["coffee", "hot_drinks", "recommended"]));
   const [menuEdits, setMenuEdits] = useState<Record<string, Partial<MenuItem>>>({});
   const [savingMenuId, setSavingMenuId] = useState<string | null>(null);
+
+  const [banners, setBanners] = useState<Record<string, { image: string, titleAr: string, titleEn: string, descAr: string, descEn: string }>>({});
+  const [selectedBannerCat, setSelectedBannerCat] = useState<string>("coffee");
+  const [bannerEdits, setBannerEdits] = useState<{ image: string, titleAr: string, titleEn: string, descAr: string, descEn: string }>({ image: "", titleAr: "", titleEn: "", descAr: "", descEn: "" });
+  const [showBannerEditor, setShowBannerEditor] = useState(false);
+  const [savingBanner, setSavingBanner] = useState(false);
+
+  useEffect(() => {
+    const bannersRef = ref(db, "category-banners");
+    onValue(bannersRef, (s) => {
+      if (s.exists()) {
+        const val = s.val();
+        setBanners(val);
+        if (val[selectedBannerCat]) {
+          setBannerEdits(val[selectedBannerCat]);
+        }
+      }
+    });
+    return () => off(bannersRef);
+  }, []);
+
+  useEffect(() => {
+    if (banners[selectedBannerCat]) {
+      setBannerEdits(banners[selectedBannerCat]);
+    } else {
+      setBannerEdits({ image: "", titleAr: "", titleEn: "", descAr: "", descEn: "" });
+    }
+  }, [selectedBannerCat, banners]);
+
+  const saveBanner = async () => {
+    setSavingBanner(true);
+    await set(ref(db, `category-banners/${selectedBannerCat}`), bannerEdits);
+    setSavingBanner(false);
+    swalSuccess(tr("Banner saved!", "تم حفظ غلاف القسم!"));
+  };
+
   const groupedMenu = useMemo(() => {
     const filtered = menu.filter(item => {
       const matchesSearch = !menuSearch || item.name?.toLowerCase().includes(menuSearch.toLowerCase()) || item.nameAr?.includes(menuSearch);
@@ -605,6 +641,61 @@ const MenuTab = ({ tr, lang, menu, MENU_CATEGORIES, CAT_META }: { tr: any, lang:
           </div>
         )}
       </div>
+
+      {/* Category Banners Editor Card */}
+      <div className="card-elevated p-5 rounded-2xl border border-border/10 space-y-4">
+        <button onClick={() => setShowBannerEditor(!showBannerEditor)} className="w-full flex items-center justify-between text-left">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2 uppercase tracking-tighter">
+            <ImageIcon size={18} className="text-orange-500"/> {tr("Category Header Banners", "أغلفة الأقسام العريضة")}
+          </h3>
+          <ChevronDown size={18} className={`text-muted-foreground transition-transform ${showBannerEditor ? "rotate-180" : ""}`} />
+        </button>
+
+        {showBannerEditor && (
+          <div className="pt-2 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div>
+              <label className={lbl}>{tr("Select Category", "اختر القسم")}</label>
+              <select value={selectedBannerCat} onChange={(e) => setSelectedBannerCat(e.target.value)} className="input-field w-full text-sm">
+                {MENU_CATEGORIES.map(c => (
+                  <option key={c} value={c}>
+                    {CAT_META[c] ? `${CAT_META[c].emoji} ${tr(CAT_META[c].en, CAT_META[c].ar)}` : c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>{tr("Banner Title (EN)", "عنوان الغلاف (EN)")}</label>
+                <input className="input-field w-full text-sm" value={bannerEdits.titleEn || ""} onChange={e => setBannerEdits(b => ({ ...b, titleEn: e.target.value }))} />
+              </div>
+              <div>
+                <label className={lbl}>{tr("Banner Title (AR)", "عنوان الغلاف (AR)")}</label>
+                <input className="input-field w-full text-sm" dir="rtl" value={bannerEdits.titleAr || ""} onChange={e => setBannerEdits(b => ({ ...b, titleAr: e.target.value }))} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>{tr("Banner Description (EN)", "وصف الغلاف (EN)")}</label>
+                <textarea className="input-field w-full text-sm h-16" value={bannerEdits.descEn || ""} onChange={e => setBannerEdits(b => ({ ...b, descEn: e.target.value }))} />
+              </div>
+              <div>
+                <label className={lbl}>{tr("Banner Description (AR)", "وصف الغلاف (AR)")}</label>
+                <textarea className="input-field w-full text-sm h-16" dir="rtl" value={bannerEdits.descAr || ""} onChange={e => setBannerEdits(b => ({ ...b, descAr: e.target.value }))} />
+              </div>
+            </div>
+
+            <ImagePicker label={tr("Banner Image URL", "رابط صورة الغلاف")} value={bannerEdits.image || ""} onChange={v => setBannerEdits(b => ({ ...b, image: v }))} />
+
+            <button disabled={savingBanner} onClick={saveBanner} className="btn-primary w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+              {savingBanner ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <Save size={16}/>}
+              {tr("Save Banner Settings", "حفظ إعدادات الغلاف")}
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="space-y-4">
         {Object.entries(groupedMenu).map(([catId, catItems]) => {
           const isExpanded = expandedCats.has(catId);

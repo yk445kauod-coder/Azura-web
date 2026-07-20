@@ -483,6 +483,7 @@ export default function MenuLightweight() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [banners, setBanners] = useState<Record<string, { image: string, titleAr: string, titleEn: string, descAr: string, descEn: string }>>({});
   const searchRef = useRef<HTMLInputElement>(null);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
@@ -503,6 +504,17 @@ export default function MenuLightweight() {
       updateUserCategoryAffinity(user.uid, item.category, 8);
     }
   }, [user?.uid]);
+
+  // Fetch banners from Firebase RTDB
+  useEffect(() => {
+    const bannersRef = ref(db, "category-banners");
+    onValue(bannersRef, (snap) => {
+      if (snap.exists()) {
+        setBanners(snap.val());
+      }
+    });
+    return () => off(bannersRef);
+  }, []);
 
   // Fetch menu from Firebase
   useEffect(() => {
@@ -806,7 +818,7 @@ export default function MenuLightweight() {
           <>
             {/* Category Hero Header Banner */}
             {!search && (() => {
-              const hero = CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
+              const hero = banners[cat] || CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
               const currentCatObj = CATS.find(c => c.id === cat);
               return (
                 <div className="relative w-full h-44 rounded-3xl overflow-hidden shadow-md mb-6 border border-border/20 group">

@@ -112,7 +112,93 @@ export {
 
 export type { User };
 
+const defaultCategoryBanners = {
+  "new_items": {
+    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80",
+    titleEn: "Top Picks & Featured Dishes",
+    titleAr: "أطباقنا المميزة والموصى بها",
+    descEn: "Chef's curated selection of delightful meals and drinks",
+    descAr: "تشكيلة مختارة بعناية من أشهى أطباقنا ومشروباتنا"
+  },
+  "breakfast": {
+    image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&q=80",
+    titleEn: "Premium Breakfast Spread",
+    titleAr: "ركن الفطور الفاخر",
+    descEn: "Start your day with our nutritious and delicious breakfast choices",
+    descAr: "ابدأ يومك بنشاط وحيوية مع وجبات الفطور الطازجة والشهية"
+  },
+  "croissant": {
+    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80",
+    titleEn: "Fresh Baked Croissants",
+    titleAr: "مخبوزات الكرواسون الطازجة",
+    descEn: "Flaky, buttery, and baked fresh daily with your favorite fillings",
+    descAr: "كرواسون مقرمش وهش بالزبدة، يُخبز طازجاً يومياً بحشواتك المفضلة"
+  },
+  "soft_drinks": {
+    image: "https://images.unsplash.com/photo-1629203851022-36c64237d951?w=800&q=80",
+    titleEn: "Chilled Soda & Cans",
+    titleAr: "المشروبات الغازية المنعشة",
+    descEn: "Stay refreshed with our select chilled soft drinks and beverages",
+    descAr: "انتعش مع تشكيلة من المشروبات الغازية الباردة"
+  },
+  "coffee": {
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
+    titleEn: "Specialty Espresso & Coffee",
+    titleAr: "ركن القهوة المختصة والاسبريسو",
+    descEn: "Rich, aromatic, and brewed to perfection from premium Arabica beans",
+    descAr: "قهوة غنية وعطرية مُعدة من أجود حبوب البن الفاخرة"
+  },
+  "smoothies": {
+    image: "https://images.unsplash.com/photo-1505252585441-ca40d922998a?w=800&q=80",
+    titleEn: "Fresh Fruit Smoothies",
+    titleAr: "سموزي الفواكه الطبيعية",
+    descEn: "Creamy, naturally sweet, and blended with real delicious fruits",
+    descAr: "مشروبات سموزي طبيعية وباردة مخفوقة بالفواكه الطازجة"
+  },
+  "mocktails": {
+    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&q=80",
+    titleEn: "Signature Mocktails & Drinks",
+    titleAr: "موكتيلات وأكواب منعشة",
+    descEn: "Expertly mixed non-alcoholic signature creations",
+    descAr: "مشروبات وموكتيلات مبتكرة ومنعشة لتعديل مزاجك"
+  },
+  "appetizers": {
+    image: "https://images.unsplash.com/photo-1573821663912-6df460f9c684?w=800&q=80",
+    titleEn: "Starters & Appetizers",
+    titleAr: "المقبلات والمشهيات",
+    descEn: "Perfect platters and bites to share with friends and family",
+    descAr: "أطباق مقبلات ووجبات خفيفة مثالية للمشاركة"
+  },
+  "burgers": {
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",
+    titleEn: "Juicy Beef Burgers",
+    titleAr: "برجر اللحم المشوي",
+    descEn: "Premium beef patties grilled with fresh toppings and specialty sauces",
+    descAr: "برجر لحم فاخر مشوي على اللهب مع خضروات طازجة وصوصات خاصة"
+  },
+  "pasta": {
+    image: "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=800&q=80",
+    titleEn: "Gourmet Italian Pasta",
+    titleAr: "الباستا والمعكرونة الإيطالية",
+    descEn: "Fresh penne and spaghetti tossed in creamy and savory rich sauces",
+    descAr: "باستا إيطالية أصيلة بصوصات كريمية وطماطم غنية بالبارميزان"
+  },
+  "desserts": {
+    image: "https://images.unsplash.com/photo-1551024601-bec78acc704b?w=800&q=80",
+    titleEn: "Heavenly Desserts & Cakes",
+    titleAr: "الحلويات والكيك الفاخر",
+    descEn: "Indulge in our exquisite sweet creations and warm baked cakes",
+    descAr: "دلل نفسك مع تشكيلتنا الرائعة من الكيك والحلويات اللذيذة"
+  }
+};
+
 export async function seedMenuIfEmpty() {
+  const bannersRef = ref(db, "category-banners");
+  const bannersSnap = await get(bannersRef);
+  if (!bannersSnap.exists()) {
+    await set(bannersRef, defaultCategoryBanners);
+  }
+
   const menuRef = ref(db, "menu");
   const snap = await get(menuRef);
   if (snap.exists()) return;
@@ -188,7 +274,11 @@ export async function cleanDeletedItemsFromDB() {
       "menu/new_items/smoky-bbq-wings",
       "menu/breakfast/avocado-eggs",
       "menu/breakfast/shakshuka-deluxe",
-      "menu/breakfast/english-breakfast"
+      "menu/breakfast/english-breakfast",
+      "menu/croissant/almond-croissant",
+      "menu/croissant/chocolate-croissant",
+      "menu/croissant/cream-croissant",
+      "menu/croissant/nutella-croissant"
     ];
     for (const path of itemsToDelete) {
       await remove(ref(db, path));

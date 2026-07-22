@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
-import { db, ref, onValue, off } from "@/lib/firebase";
+import { db, ref, onValue, off, get } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { logUserActivity, updateUserCategoryAffinity } from "@/lib/activityTracker";
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight, Instagram, Facebook } from "lucide-react";
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
@@ -51,44 +51,47 @@ function normalizeItem(id: string, raw: Record<string, unknown>, parentCategory?
   };
 }
 
-const CATS = [
-  { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
-  { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
-  { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
-  { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
-  { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
-  { id: "cocktails",        emoji: "🍹",  en: "Cocktails",           ar: "كوكتيل"          },
-  { id: "soups",            emoji: "🍲",  en: "Soup",                ar: "شوربة"           },
-  { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
-  { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
-  { id: "tortilla",         emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
-  { id: "toast",            emoji: "🥪",  en: "Toast",               ar: "توست"            },
-  { id: "croissant",        emoji: "🥐",  en: "Croissant",           ar: "كرواسون"         },
-  { id: "breakfast",        emoji: "🍳",  en: "Breakfast",           ar: "إفطار"           },
-  { id: "main_dishes",      emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية"     },
-  { id: "burgers",          emoji: "🍔",  en: "Burgers",             ar: "برجر"            },
-  { id: "smash_burgers",    emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر"       },
-  { id: "fried_chicken",    emoji: "🍗",  en: "Fried Chicken",      ar: "فراخ مقلية"      },
-  { id: "hot_drinks",       emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة"   },
-  { id: "coffee",           emoji: "☕",  en: "Coffee",               ar: "قهوة"            },
-  { id: "corto",            emoji: "🥛",  en: "Corto",               ar: "كورتو"           },
-  { id: "hot_chocolate",    emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة"  },
-  { id: "sahlab",           emoji: "🥛",  en: "Sahlab",              ar: "سحلب"            },
-  { id: "frappuccino",      emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو"       },
-  { id: "iced_coffee",      emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
-  { id: "boba_tea",         emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
-  { id: "fresh_juices",     emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
-  { id: "smoothies",        emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
-  { id: "milkshakes",       emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
-  { id: "waffle",           emoji: "🧇",  en: "Waffle",               ar: "وافل"            },
-  { id: "desserts",         emoji: "🍰",  en: "Desserts",             ar: "حلويات"          },
-  { id: "crepes",           emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
-  { id: "pancakes",         emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
-  { id: "add_ons",          emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
-  { id: "shisha",           emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
-  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
-  { id: "all",              emoji: "✨",  en: "All",                  ar: "الكل"            },
+const DEFAULT_CATEGORIES = [
+  { id: "offers",        emoji: "🏷️",  en: "Offers",              ar: "العروض",         group: "special" },
+  { id: "recommended",   emoji: "⭐",  en: "Top Picks",           ar: "الأفضل",         group: "special" },
+  { id: "new_items",     emoji: "🆕",  en: "New",                 ar: "جديد",           group: "special" },
+  { id: "breakfast",     emoji: "🍳",  en: "Breakfast",           ar: "إفطار",          group: "special" },
+  { id: "soups",         emoji: "🍲",  en: "Soup",                ar: "شوربة",          group: "food"    },
+  { id: "appetizers",    emoji: "🍟",  en: "Appetizers",          ar: "مقبلات",          group: "food"    },
+  { id: "salads",        emoji: "🥗",  en: "Salads",              ar: "سلطات",          group: "food"    },
+  { id: "pasta",         emoji: "🍝",  en: "Pasta",               ar: "مكرونة",         group: "food"    },
+  { id: "tortilla",      emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا",        group: "food"    },
+  { id: "toast",         emoji: "🥪",  en: "Toast",               ar: "توست",           group: "food"    },
+  { id: "croissant",     emoji: "🥐",  en: "Croissant",           ar: "كرواسون",        group: "food"    },
+  { id: "main_dishes",   emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية",    group: "food"    },
+  { id: "burgers",       emoji: "🍔",  en: "Burgers",             ar: "برجر",           group: "food"    },
+  { id: "smash_burgers", emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر",      group: "food"    },
+  { id: "fried_chicken", emoji: "🍗",  en: "Fried Chicken",       ar: "فراخ مقلية",     group: "food"    },
+  { id: "waffle",        emoji: "🧇",  en: "Waffle",              ar: "وافل",           group: "food"    },
+  { id: "desserts",      emoji: "🍰",  en: "Desserts",             ar: "حلويات",         group: "food"    },
+  { id: "crepes",        emoji: "🥞",  en: "Crepes",              ar: "كريب",           group: "food"    },
+  { id: "pancakes",      emoji: "🥞",  en: "Pancakes",             ar: "بان كيك",        group: "food"    },
+  { id: "hot_drinks",    emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة",   group: "barista" },
+  { id: "coffee",        emoji: "☕",  en: "Coffee",               ar: "قهوة",           group: "barista" },
+  { id: "corto",         emoji: "🥛",  en: "Corto",               ar: "كورتو",          group: "barista" },
+  { id: "hot_chocolate", emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة",  group: "barista" },
+  { id: "sahlab",        emoji: "🥛",  en: "Sahlab",              ar: "سحلب",          group: "barista" },
+  { id: "frappuccino",   emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو",      group: "barista" },
+  { id: "iced_coffee",   emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة",     group: "barista" },
+  { id: "mojitos",       emoji: "🍹",  en: "Mojitos",             ar: "موجيتو",         group: "barista" },
+  { id: "boba_tea",      emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي",        group: "barista" },
+  { id: "fresh_juices",  emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج",       group: "barista" },
+  { id: "mocktails",     emoji: "🍸",  en: "Mocktails",           ar: "موكتيل",         group: "barista" },
+  { id: "cocktails",     emoji: "🍹",  en: "Cocktails",           ar: "كوكتيل",         group: "barista" },
+  { id: "smoothies",     emoji: "🥤",  en: "Smoothie",            ar: "سموذي",          group: "barista" },
+  { id: "milkshakes",    emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك",       group: "barista" },
+  { id: "add_ons",       emoji: "➕",  en: "Add-ons",              ar: "إضافات",         group: "barista" },
+  { id: "shisha",        emoji: "💨",  en: "Hookah",                ar: "شيشة",           group: "barista" },
+  { id: "soft_drinks",   emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية",   group: "barista" },
+  { id: "all",           emoji: "✨",  en: "All",                  ar: "الكل",           group: "special" }
 ];
+
+const CATS = DEFAULT_CATEGORIES;
 
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
@@ -478,13 +481,25 @@ export default function MenuLightweight() {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("recommended");
+  const [cat, setCat] = useState("offers"); // Offers page is the first page/tab
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [banners, setBanners] = useState<Record<string, { image: string, titleAr: string, titleEn: string, descAr: string, descEn: string }>>({});
   const searchRef = useRef<HTMLInputElement>(null);
+
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
+  const [categoryBanners, setCategoryBanners] = useState<Record<string, any>>({});
+
+  const CATS = useMemo(() => {
+    const list = dbCategories.length > 0 ? dbCategories : DEFAULT_CATEGORIES;
+    // Ensure "All" is appended at the end dynamically
+    if (!list.some(c => c.id === "all")) {
+      return [...list, { id: "all", emoji: "✨", en: "All", ar: "الكل", group: "special" }];
+    }
+    return list;
+  }, [dbCategories]);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
 
@@ -505,40 +520,61 @@ export default function MenuLightweight() {
     }
   }, [user?.uid]);
 
-  // Fetch banners from Firebase RTDB
+  // Fetch all menu, category, banner, and offers dynamically.
+  // We use get() single-time reads, and subscribe ONLY to a tiny lightweight "db-version" number.
+  // Whenever the admin updates something, the tiny "db-version" changes and triggers fetchAllData().
+  // This is highly optimal and completely eliminates websocket connection limits on Firebase Spark plan!
   useEffect(() => {
-    const bannersRef = ref(db, "category-banners");
-    onValue(bannersRef, (snap) => {
-      if (snap.exists()) {
-        setBanners(snap.val());
-      }
-    });
-    return () => off(bannersRef);
-  }, []);
+    const fetchAllData = async () => {
+      try {
+        const [menuSnap, catsSnap, offersSnap, bannersSnap] = await Promise.all([
+          get(ref(db, "menu")),
+          get(ref(db, "categories")),
+          get(ref(db, "offers")),
+          get(ref(db, "category-banners"))
+        ]);
 
-  // Fetch menu from Firebase
-  useEffect(() => {
-    const menuRef = ref(db, "menu");
-    onValue(menuRef, (snap) => {
-      if (!snap.exists()) { setLoading(false); return; }
-      const data = snap.val() as Record<string, Record<string, unknown>>;
-      const result: MenuItem[] = [];
-      Object.entries(data).forEach(([key, val]) => {
-        if (typeof val !== "object" || val === null) return;
-        const v = val as Record<string, unknown>;
-        if (v.price !== undefined || v.name !== undefined) {
-          result.push(normalizeItem(key, v));
-        } else {
-          Object.entries(v).forEach(([subId, subVal]) => {
-            if (typeof subVal === "object" && subVal !== null)
-              result.push(normalizeItem(subId, subVal as Record<string, unknown>, key));
-          });
+        if (catsSnap.exists()) {
+          setDbCategories(catsSnap.val() || []);
         }
-      });
-      setItems(result);
-      setLoading(false);
+        if (offersSnap.exists()) {
+          const offersData = offersSnap.val() || {};
+          setOffers(Object.entries(offersData).map(([id, v]: any) => ({ id, ...v })));
+        }
+        if (bannersSnap.exists()) {
+          setCategoryBanners(bannersSnap.val() || {});
+        }
+
+        if (menuSnap.exists()) {
+          const data = menuSnap.val() as Record<string, Record<string, unknown>>;
+          const result: MenuItem[] = [];
+          Object.entries(data).forEach(([key, val]) => {
+            if (typeof val !== "object" || val === null) return;
+            const v = val as Record<string, unknown>;
+            if (v.price !== undefined || v.name !== undefined) {
+              result.push(normalizeItem(key, v));
+            } else {
+              Object.entries(v).forEach(([subId, subVal]) => {
+                if (typeof subVal === "object" && subVal !== null)
+                  result.push(normalizeItem(subId, subVal as Record<string, unknown>, key));
+              });
+            }
+          });
+          setItems(result);
+        }
+      } catch (err) {
+        console.error("Error loading menu data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const versionRef = ref(db, "db-version");
+    const unsub = onValue(versionRef, () => {
+      fetchAllData();
     });
-    return () => off(ref(db, "menu"));
+
+    return () => unsub();
   }, []);
 
   // Debounced search - faster for snappier feel
@@ -689,6 +725,39 @@ export default function MenuLightweight() {
             </div>
           </div>
 
+          {/* Social Media Hyperlinks (beside logo) */}
+          <div className="flex items-center gap-1.5 z-10">
+            <a
+              href="https://www.instagram.com/azuracafeegy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:scale-110 active:scale-95 transition-all shadow-md"
+              title="Instagram @azuracafeegy"
+            >
+              <Instagram size={13} />
+            </a>
+            <a
+              href="https://www.tiktok.com/@azuracafee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white bg-black hover:scale-110 active:scale-95 transition-all shadow-md border border-white/20"
+              title="TikTok @azuracafee"
+            >
+              <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.46-.77-.53-1.44-1.24-1.99-2-.03 2.93-.01 5.86-.02 8.79-.01 1.76-.41 3.55-1.39 4.96-1.13 1.62-3 2.68-4.99 2.73-2.11.11-4.32-.61-5.75-2.18-1.52-1.55-2.2-3.83-1.84-5.97.31-2.03 1.63-3.92 3.51-4.75 1.58-.72 3.39-.77 5.02-.28v4.14c-1.12-.48-2.48-.41-3.51.24-.92.61-1.42 1.74-1.28 2.82.12.98.81 1.83 1.75 2.08.97.28 2.07-.02 2.72-.8.55-.65.73-1.51.72-2.35-.02-4.29-.01-8.58-.01-12.87z"/>
+              </svg>
+            </a>
+            <a
+              href="https://web.facebook.com/p/Azura-cafe-restaurant-61577762257966"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white bg-[#1877f2] hover:scale-110 active:scale-95 transition-all shadow-md"
+              title="Facebook"
+            >
+              <Facebook size={13} />
+            </a>
+          </div>
+
           {/* Brand text */}
           <div className="flex-1 min-w-0 z-10">
             <h1
@@ -801,7 +870,7 @@ export default function MenuLightweight() {
               </div>
             ))}
           </div>
-        ) : paginated.length === 0 ? (
+        ) : (paginated.length === 0 && cat !== "offers") ? (
           <div className="text-center py-20 flex flex-col items-center">
             <div className="text-7xl mb-4 animate-bounce" style={{ animationDuration: '3s' }}>🔍</div>
             <p className="text-xl font-bold text-gray-700">{tr("Nothing found", "لا توجد نتائج")}</p>
@@ -818,15 +887,19 @@ export default function MenuLightweight() {
           <>
             {/* Category Hero Header Banner */}
             {!search && (() => {
-              const hero = banners[cat] || CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
+              const hero = categoryBanners[cat] || CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
               const currentCatObj = CATS.find(c => c.id === cat);
               return (
                 <div className="relative w-full h-44 rounded-3xl overflow-hidden shadow-md mb-6 border border-border/20 group">
-                  <img
-                    src={hero.image}
-                    alt={cat}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  {hero.image ? (
+                    <img
+                      src={hero.image}
+                      alt={cat}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-r from-amber-500/80 to-amber-700" />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 text-white">
                     <div className="flex items-center gap-2 mb-1">
@@ -843,18 +916,51 @@ export default function MenuLightweight() {
               );
             })()}
 
-            <div className="grid grid-cols-2 gap-4">
-              {paginated.map((item, idx) => (
-                <MenuItemCard
-                  key={item.id}
-                  item={item}
-                  lang={lang}
-                  idx={idx}
-                  onClick={handleSelectItem}
-                  CATS={CATS}
-                />
-              ))}
-            </div>
+            {cat === "offers" ? (
+              <div className="space-y-6 col-span-2">
+                {offers.length === 0 ? (
+                  <p className="text-center text-sm text-muted-foreground py-12">{tr("No promotional offers available right now. Check back soon!", "لا توجد عروض ترويجية نشطة حالياً. تفقد الصفحة لاحقاً!")}</p>
+                ) : (
+                  offers.filter(o => o.active !== false).map((offer) => (
+                    <div key={offer.id} className="card-elevated overflow-hidden bg-card border border-border/15 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-4 p-4">
+                      {offer.image && (
+                        <div className="w-full md:w-1/3 h-40 rounded-2xl overflow-hidden bg-muted">
+                          <img src={offer.image} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" alt="" />
+                        </div>
+                      )}
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="text-base font-black text-foreground">{lang === "ar" ? offer.titleAr : offer.title}</h3>
+                            {(offer.badge || offer.badgeAr) && (
+                              <span className="bg-primary text-white text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wide">
+                                {lang === "ar" ? (offer.badgeAr || offer.badge) : offer.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {lang === "ar" ? offer.descriptionAr : offer.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {paginated.map((item, idx) => (
+                  <MenuItemCard
+                    key={item.id}
+                    item={item}
+                    lang={lang}
+                    idx={idx}
+                    onClick={handleSelectItem}
+                    CATS={CATS}
+                  />
+                ))}
+              </div>
+            )}
           </>
         )}
 

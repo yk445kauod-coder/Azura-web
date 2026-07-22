@@ -1005,6 +1005,17 @@ export const fullMenuData: Record<string, Record<string, {
     }
   },
   "croissant": {
+    "almond-croissant": {
+      "name": "Almond Croissant",
+      "nameAr": "كروسان لوز",
+      "description": "Croissant filled with almond cream and topped with sliced almonds",
+      "descriptionAr": "كروسان محشي كريمة لوز مع شرائح لوز من فوق",
+      "price": 95,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80"
+    },
     "azura-croissant": {
       "name": "Azura Croissant",
       "nameAr": "ازورا كرواسون",
@@ -1028,6 +1039,17 @@ export const fullMenuData: Record<string, Record<string, {
         "شيدر"
       ]
     },
+    "chocolate-croissant": {
+      "name": "Chocolate Croissant",
+      "nameAr": "كروسان شوكولاته",
+      "description": "Buttery croissant with rich chocolate filling",
+      "descriptionAr": "كروسان بالزبدة مع حشوة شوكولاته غنية",
+      "price": 79,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80"
+    },
     "classic": {
       "name": "Classic",
       "nameAr": "كلاسيك",
@@ -1036,6 +1058,17 @@ export const fullMenuData: Record<string, Record<string, {
       "price": 71,
       "category": "croissant",
       "categoryAr": "كرواسون",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80"
+    },
+    "cream-croissant": {
+      "name": "Cream Croissant",
+      "nameAr": "كروسان كريمة",
+      "description": "Light croissant filled with fresh whipped cream",
+      "descriptionAr": "كروسان خفيف محشي بكريمة مخفوقة طازجة",
+      "price": 69,
+      "category": "croissant",
+      "categoryAr": "كروسان",
       "available": true,
       "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80"
     },
@@ -1057,6 +1090,17 @@ export const fullMenuData: Record<string, Record<string, {
         "شيدر",
         "صوص جبنه"
       ]
+    },
+    "nutella-croissant": {
+      "name": "Nutella Croissant",
+      "nameAr": "كروسان نوتيلا",
+      "description": "Fresh croissant filled with Nutella hazelnut spread",
+      "descriptionAr": "كروسان طازج محشي بسبريد النوتيلا",
+      "price": 85,
+      "category": "croissant",
+      "categoryAr": "كروسان",
+      "available": true,
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80"
     }
   },
   "desserts": {

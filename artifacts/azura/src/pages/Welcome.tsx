@@ -79,8 +79,14 @@ export default function Welcome() {
       setError(tr("Enter a valid table number (1-50)", "ادخل رقم طاولة صحيح (1-50)")); return;
     }
     setLoading(true);
-    try { await loginAnonymous(name.trim(), tableNum.trim()); }
-    catch { setError(tr("Something went wrong. Try again.", "حدث خطأ، حاول مجدداً")); }
+    try {
+      localStorage.setItem("azura-tips-pending", "true");
+      await loginAnonymous(name.trim(), tableNum.trim());
+    }
+    catch {
+      localStorage.removeItem("azura-tips-pending");
+      setError(tr("Something went wrong. Try again.", "حدث خطأ، حاول مجدداً"));
+    }
     setLoading(false);
   };
 

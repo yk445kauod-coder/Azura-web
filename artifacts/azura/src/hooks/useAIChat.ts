@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { db, ref, onValue, off, push, set } from "@/lib/firebase";
 import { chatWithAI } from "@/lib/crypto";
+import { logUserActivity } from "@/lib/activityTracker";
 
 export interface Message {
   id: string;
@@ -42,7 +43,8 @@ export function useAIChat(uid?: string) {
     systemPrompt: string,
     parseResponse: (text: string) => { text: string; suggestedItems: any[] }
   ) => {
-    if (!uid || !text.trim() || !apiKey) return;
+    // We allow sending even without apiKey to support Pollinations free model fallback
+    if (!uid || !text.trim()) return;
 
     setLoading(true);
     setError(null);
@@ -57,6 +59,7 @@ export function useAIChat(uid?: string) {
     try {
       // 1. Save user message
       await push(ref(db, `conversations/${uid}/barista`), userMsg);
+      logUserActivity(uid, "ai_chat", { text }, 10);
 
       // 2. Start thinking simulation
       setIsThinking(true);
@@ -90,10 +93,12 @@ export function useAIChat(uid?: string) {
           suggestedItems
         };
         await push(ref(db, `conversations/${uid}/barista`), aiMsg);
+        logUserActivity(uid, "ai_reply", { response: cleanText, suggestionsCount: suggestedItems?.length || 0 }, 5);
       }
     } catch (err: any) {
       setError(err.message || "Failed to get AI response");
       setIsThinking(false);
+      logUserActivity(uid, "ai_error", { errorMessage: err.message || "Failed to get AI response" }, -2);
     } finally {
       setLoading(false);
     }

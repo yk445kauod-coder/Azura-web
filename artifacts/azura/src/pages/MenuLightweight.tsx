@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { logUserActivity, updateUserCategoryAffinity } from "@/lib/activityTracker";
+import { Search, X, ChevronLeft, ChevronRight, Instagram, Facebook } from "lucide-react";
 
 interface MenuItem {
   id: string; name: string; nameAr: string;
@@ -13,12 +15,12 @@ interface MenuItem {
   searchStr?: string;
 }
 
-function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
+function normalizeItem(id: string, raw: Record<string, unknown>, parentCategory?: string): MenuItem {
   const name = String(raw.name || raw.nameEn || raw.title || "");
   const nameAr = String(raw.nameAr || raw.titleAr || "");
   const description = String(raw.description || raw.descEn || raw.desc || "");
   const descriptionAr = String(raw.descriptionAr || raw.descAr || "");
-  const category = String(raw.category || "food");
+  const category = String(parentCategory || raw.category || "food").toLowerCase().trim();
   const ingredients = Array.isArray(raw.ingredients) ? raw.ingredients as string[] : (typeof raw.ingredients === "string" ? raw.ingredients.split(",").map(i => i.trim()) : []);
   const ingredientsAr = Array.isArray(raw.ingredientsAr) ? raw.ingredientsAr as string[] : (typeof raw.ingredientsAr === "string" ? raw.ingredientsAr.split("،").map(i => i.trim()) : []);
 
@@ -52,10 +54,10 @@ function normalizeItem(id: string, raw: Record<string, unknown>): MenuItem {
 const CATS = [
   { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
   { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
-  { id: "fries",            emoji: "🍟",  en: "Fries",               ar: "فرايز"           },
   { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
   { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
   { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
+  { id: "cocktails",        emoji: "🍹",  en: "Cocktails",           ar: "كوكتيل"          },
   { id: "soups",            emoji: "🍲",  en: "Soup",                ar: "شوربة"           },
   { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
   { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
@@ -91,7 +93,6 @@ const CATS = [
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
   new_items:      ["new_items"],
-  fries:          ["fries"],
   appetizers:     ["appetizers", "appetizer"],
   soups:          ["soups", "soup"],
   salads:         ["salads", "salad"],
@@ -112,7 +113,8 @@ const CAT_ALIASES: Record<string, string[]> = {
   frappuccino:    ["frappuccino", "frappe"],
   iced_coffee:    ["iced_coffee"],
   mojitos:        ["mojitos", "mojito"],
-  mocktails:      ["mocktails", "mocktail", "cocktails"],
+  mocktails:      ["mocktails", "mocktail"],
+  cocktails:      ["cocktails", "cocktail"],
   boba_tea:       ["boba_tea"],
   fresh_juices:   ["fresh_juices", "fresh_juice"],
   smoothies:      ["smoothies", "smoothie"],
@@ -121,7 +123,7 @@ const CAT_ALIASES: Record<string, string[]> = {
   desserts:       ["desserts", "dessert"],
   crepes:         ["crepes", "crepe"],
   pancakes:       ["pancakes"],
-  add_ons:        ["add_ons", "extra_kitchen"],
+  add_ons:        ["add_ons", "extra_kitchen", "fries"],
   shisha:         ["shisha"],
   soft_drinks:    ["soft_drinks"],
 };
@@ -164,6 +166,94 @@ const NORMALIZED_SYNONYMS = Object.entries(SEARCH_SYNONYMS).map(([key, synonyms]
   synonyms: synonyms.map(s => normalizeText(s))
 }));
 
+const CAT_HERO_IMAGES: Record<string, { image: string, titleAr: string, titleEn: string, descAr: string, descEn: string }> = {
+  "new_items": {
+    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80",
+    titleEn: "Top Picks & Featured Dishes",
+    titleAr: "أطباقنا المميزة والموصى بها",
+    descEn: "Chef's curated selection of delightful meals and drinks",
+    descAr: "تشكيلة مختارة بعناية من أشهى أطباقنا ومشروباتنا"
+  },
+  "breakfast": {
+    image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&q=80",
+    titleEn: "Premium Breakfast Spread",
+    titleAr: "ركن الفطور الفاخر",
+    descEn: "Start your day with our nutritious and delicious breakfast choices",
+    descAr: "ابدأ يومك بنشاط وحيوية مع وجبات الفطور الطازجة والشهية"
+  },
+  "croissant": {
+    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80",
+    titleEn: "Fresh Baked Croissants",
+    titleAr: "مخبوزات الكرواسون الطازجة",
+    descEn: "Flaky, buttery, and baked fresh daily with your favorite fillings",
+    descAr: "كرواسون مقرمش وهش بالزبدة، يُخبز طازجاً يومياً بحشواتك المفضلة"
+  },
+  "soft_drinks": {
+    image: "https://images.unsplash.com/photo-1629203851022-36c64237d951?w=800&q=80",
+    titleEn: "Chilled Soda & Cans",
+    titleAr: "المشروبات الغازية المنعشة",
+    descEn: "Stay refreshed with our select chilled soft drinks and beverages",
+    descAr: "انتعش مع تشكيلة من المشروبات الغازية الباردة"
+  },
+  "coffee": {
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
+    titleEn: "Specialty Espresso & Coffee",
+    titleAr: "ركن القهوة المختصة والاسبريسو",
+    descEn: "Rich, aromatic, and brewed to perfection from premium Arabica beans",
+    descAr: "قهوة غنية وعطرية مُعدة من أجود حبوب البن الفاخرة"
+  },
+  "smoothies": {
+    image: "https://images.unsplash.com/photo-1505252585441-ca40d922998a?w=800&q=80",
+    titleEn: "Fresh Fruit Smoothies",
+    titleAr: "سموزي الفواكه الطبيعية",
+    descEn: "Creamy, naturally sweet, and blended with real delicious fruits",
+    descAr: "مشروبات سموزي طبيعية وباردة مخفوقة بالفواكه الطازجة"
+  },
+  "mocktails": {
+    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&q=80",
+    titleEn: "Signature Mocktails & Drinks",
+    titleAr: "موكتيلات وأكواب منعشة",
+    descEn: "Expertly mixed non-alcoholic signature creations",
+    descAr: "مشروبات وموكتيلات مبتكرة ومنعشة لتعديل مزاجك"
+  },
+  "appetizers": {
+    image: "https://images.unsplash.com/photo-1573821663912-6df460f9c684?w=800&q=80",
+    titleEn: "Starters & Appetizers",
+    titleAr: "المقبلات والمشهيات",
+    descEn: "Perfect platters and bites to share with friends and family",
+    descAr: "أطباق مقبلات ووجبات خفيفة مثالية للمشاركة"
+  },
+  "burgers": {
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",
+    titleEn: "Juicy Beef Burgers",
+    titleAr: "برجر اللحم المشوي",
+    descEn: "Premium beef patties grilled with fresh toppings and specialty sauces",
+    descAr: "برجر لحم فاخر مشوي على اللهب مع خضروات طازجة وصوصات خاصة"
+  },
+  "pasta": {
+    image: "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=800&q=80",
+    titleEn: "Gourmet Italian Pasta",
+    titleAr: "الباستا والمعكرونة الإيطالية",
+    descEn: "Fresh penne and spaghetti tossed in creamy and savory rich sauces",
+    descAr: "باستا إيطالية أصيلة بصوصات كريمية وطماطم غنية بالبارميزان"
+  },
+  "desserts": {
+    image: "https://images.unsplash.com/photo-1551024601-bec78acc704b?w=800&q=80",
+    titleEn: "Heavenly Desserts & Cakes",
+    titleAr: "الحلويات والكيك الفاخر",
+    descEn: "Indulge in our exquisite sweet creations and warm baked cakes",
+    descAr: "دلل نفسك مع تشكيلتنا الرائعة من الكيك والحلويات اللذيذة"
+  }
+};
+
+const DEFAULT_CAT_HERO = {
+  image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
+  titleEn: "Azura Selection",
+  titleAr: "قائمة أزورا الفاخرة",
+  descEn: "Handcrafted recipes made with premium, fresh ingredients",
+  descAr: "أصناف ومأكولات محضرة بأجود المكونات الطازجة"
+};
+
 const ITEMS_PER_PAGE = 24;
 
 // Memoized individual item card for peak scroll performance
@@ -181,6 +271,7 @@ const MenuItemCard = memo(({
   CATS: any[];
 }) => {
   const cat = CATS.find(c => c.id === item.category) || CATS.find(c => (CAT_ALIASES[c.id] || []).includes(item.category));
+  const hasDesc = lang === "ar" ? item.descriptionAr : item.description;
 
   return (
     <div
@@ -190,54 +281,42 @@ const MenuItemCard = memo(({
         animationDelay: `${idx * 20}ms`,
         animation: "fadeInSimple 0.25s ease-out forwards",
         contentVisibility: "auto",
-        containIntrinsicSize: "0 200px"
+        containIntrinsicSize: "0 150px"
       }}
     >
-      <div className="rounded-2xl overflow-hidden bg-card border border-border/30 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20">
-        <div className="relative h-36 overflow-hidden bg-muted/30">
-          {item.image ? (
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-              decoding="async"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-4xl opacity-40">{cat?.emoji || "🍽️"}</span>
+      <div className="h-full rounded-2xl bg-card border border-border/30 p-3 shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200 group-hover:border-primary/20 flex flex-col justify-between">
+        <div>
+          {/* Badges/Category & Recommendation */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="px-1.5 py-0.5 rounded-full bg-primary/5 text-primary text-[8px] font-bold flex items-center gap-1">
+              <span>{cat?.emoji || "🍽️"}</span>
+              <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
             </div>
-          )}
-
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[9px] font-bold flex items-center gap-1">
-            <span>{cat?.emoji}</span>
-            <span>{lang === "ar" ? cat?.ar : cat?.en}</span>
+            {item.recommended && (
+              <span className="text-[10px]" title={lang === "ar" ? "مُوصى به" : "Recommended"}>⭐</span>
+            )}
+            {!item.recommended && item.category === "new_items" && (
+              <span className="text-[8px] font-bold text-red-500 uppercase">{lang === "ar" ? "جديد" : "NEW"}</span>
+            )}
           </div>
-          {item.recommended && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-amber-200/50 text-white text-[9px] font-black tracking-wide shadow-sm flex items-center gap-1">
-              <span>⭐</span>
-              <span>{lang === "ar" ? "مُوصى به" : "TOP"}</span>
-            </div>
-          )}
-          {!item.recommended && item.category === "new_items" && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] font-black tracking-wide">
-              {lang === "ar" ? "جديد" : "NEW"}
-            </div>
-          )}
-        </div>
 
-        <div className="p-3">
-          <h3 className="font-bold text-sm text-foreground truncate">
+          <h3 className="font-bold text-sm text-foreground line-clamp-1 leading-snug">
             {lang === "ar" ? item.nameAr : item.name}
           </h3>
-          <div className="flex items-center justify-between mt-2.5">
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-base font-black text-primary">{item.price}</span>
-              <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
-            </div>
-            <div className="px-2 py-0.5 rounded-lg bg-primary/5 text-primary text-[9px] font-bold">
-              {lang === "ar" ? "تفاصيل" : "Details"}
-            </div>
+
+          <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1 min-h-[24px] leading-relaxed">
+            {hasDesc ? hasDesc : (lang === "ar" ? "اضغط لعرض المكونات والتفاصيل الكاملة" : "Click to view ingredients and details")}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/10">
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-sm font-black text-primary">{item.price}</span>
+            <span className="text-[8px] text-muted-foreground font-bold uppercase">{lang === "ar" ? "ج.م" : "EGP"}</span>
+          </div>
+          <div className="text-[9px] text-primary/80 font-bold group-hover:text-primary transition-colors flex items-center gap-0.5">
+            <span>{lang === "ar" ? "تفاصيل" : "Details"}</span>
+            <span className="text-[8px]">{lang === "ar" ? "←" : "→"}</span>
           </div>
         </div>
       </div>
@@ -395,6 +474,7 @@ function ItemModal({ item, onClose, lang }: { item: MenuItem; onClose: () => voi
 
 export default function MenuLightweight() {
   const { lang, isRTL } = useLang();
+  const { user } = useAuth();
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -412,6 +492,18 @@ export default function MenuLightweight() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const handleSelectItem = useCallback((item: MenuItem | null) => {
+    setSelectedItem(item);
+    if (user?.uid && item) {
+      logUserActivity(user.uid, "view_item", {
+        itemId: item.id,
+        name: item.name,
+        category: item.category
+      }, 6);
+      updateUserCategoryAffinity(user.uid, item.category, 8);
+    }
+  }, [user?.uid]);
+
   // Fetch menu from Firebase
   useEffect(() => {
     const menuRef = ref(db, "menu");
@@ -427,7 +519,7 @@ export default function MenuLightweight() {
         } else {
           Object.entries(v).forEach(([subId, subVal]) => {
             if (typeof subVal === "object" && subVal !== null)
-              result.push(normalizeItem(subId, subVal as Record<string, unknown>));
+              result.push(normalizeItem(subId, subVal as Record<string, unknown>, key));
           });
         }
       });
@@ -443,6 +535,13 @@ export default function MenuLightweight() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  // Track search terms in CRM
+  useEffect(() => {
+    if (debouncedSearch.trim() && user?.uid) {
+      logUserActivity(user.uid, "search_menu", { query: debouncedSearch.trim() }, 3);
+    }
+  }, [debouncedSearch, user?.uid]);
+
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [cat, debouncedSearch]);
 
@@ -450,11 +549,12 @@ export default function MenuLightweight() {
   const { filtered, counts, activeCats } = useMemo(() => {
     const countsMap: Record<string, number> = {};
     CATS.forEach(c => countsMap[c.id] = 0);
+    countsMap["offers"] = offers.length;
 
     const filteredList = items.filter((item) => {
       if (!item.available) return false;
 
-      const itemCatLower = item.category.toLowerCase();
+      const itemCatLower = item.category.toLowerCase().trim();
       const itemSearchStr = item.searchStr || "";
 
       // Update counts for ALL categories this item belongs to
@@ -525,9 +625,9 @@ export default function MenuLightweight() {
       return true;
     });
 
-    const active = CATS.filter(c => c.id === "all" || countsMap[c.id] > 0);
+    const active = CATS.filter(c => c.id === "all" || (c.id === "offers" && offers.length > 0) || countsMap[c.id] > 0);
     return { filtered: filteredList, counts: countsMap, activeCats: active };
-  }, [items, cat, debouncedSearch]);
+  }, [items, cat, debouncedSearch, offers]);
 
   // Paginated items
   const paginated = useMemo(() => {
@@ -576,6 +676,39 @@ export default function MenuLightweight() {
                 style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
               />
             </div>
+          </div>
+
+          {/* Social Media Hyperlinks (beside logo) */}
+          <div className="flex items-center gap-1.5 z-10">
+            <a
+              href="https://www.instagram.com/azuracafeegy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:scale-110 active:scale-95 transition-all shadow-md"
+              title="Instagram @azuracafeegy"
+            >
+              <Instagram size={13} />
+            </a>
+            <a
+              href="https://www.tiktok.com/@azuracafee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white bg-black hover:scale-110 active:scale-95 transition-all shadow-md border border-white/20"
+              title="TikTok @azuracafee"
+            >
+              <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.46-.77-.53-1.44-1.24-1.99-2-.03 2.93-.01 5.86-.02 8.79-.01 1.76-.41 3.55-1.39 4.96-1.13 1.62-3 2.68-4.99 2.73-2.11.11-4.32-.61-5.75-2.18-1.52-1.55-2.2-3.83-1.84-5.97.31-2.03 1.63-3.92 3.51-4.75 1.58-.72 3.39-.77 5.02-.28v4.14c-1.12-.48-2.48-.41-3.51.24-.92.61-1.42 1.74-1.28 2.82.12.98.81 1.83 1.75 2.08.97.28 2.07-.02 2.72-.8.55-.65.73-1.51.72-2.35-.02-4.29-.01-8.58-.01-12.87z"/>
+              </svg>
+            </a>
+            <a
+              href="https://web.facebook.com/p/Azura-cafe-restaurant-61577762257966"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white bg-[#1877f2] hover:scale-110 active:scale-95 transition-all shadow-md"
+              title="Facebook"
+            >
+              <Facebook size={13} />
+            </a>
           </div>
 
           {/* Brand text */}
@@ -645,6 +778,10 @@ export default function MenuLightweight() {
               onClick={() => {
                 setCat(c.id);
                 if (search) setSearch(""); // Clear search when switching sections manually
+                if (user?.uid) {
+                  logUserActivity(user.uid, "click_category", { category: c.id }, 5);
+                  updateUserCategoryAffinity(user.uid, c.id, 10);
+                }
               }}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap
@@ -700,18 +837,47 @@ export default function MenuLightweight() {
           </div>
         ) : (
           /* GRID VIEW WITH SHIMMER */
-          <div className="grid grid-cols-2 gap-4">
-            {paginated.map((item, idx) => (
-              <MenuItemCard
-                key={item.id}
-                item={item}
-                lang={lang}
-                idx={idx}
-                onClick={setSelectedItem}
-                CATS={CATS}
-              />
-            ))}
-          </div>
+          <>
+            {/* Category Hero Header Banner */}
+            {!search && (() => {
+              const hero = CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
+              const currentCatObj = CATS.find(c => c.id === cat);
+              return (
+                <div className="relative w-full h-44 rounded-3xl overflow-hidden shadow-md mb-6 border border-border/20 group">
+                  <img
+                    src={hero.image}
+                    alt={cat}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">{currentCatObj?.emoji || "🍽️"}</span>
+                      <h2 className="text-base font-black tracking-wide">
+                        {lang === "ar" ? hero.titleAr : hero.titleEn}
+                      </h2>
+                    </div>
+                    <p className="text-[11px] text-white/80 font-medium line-clamp-2 leading-relaxed">
+                      {lang === "ar" ? hero.descAr : hero.descEn}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="grid grid-cols-2 gap-4">
+              {paginated.map((item, idx) => (
+                <MenuItemCard
+                  key={item.id}
+                  item={item}
+                  lang={lang}
+                  idx={idx}
+                  onClick={handleSelectItem}
+                  CATS={CATS}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination */}

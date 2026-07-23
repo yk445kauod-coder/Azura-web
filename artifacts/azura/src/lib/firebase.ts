@@ -161,8 +161,7 @@ export async function mergeMenuIngredients() {
         const itemExists = categoryExists && !!(existingMenu[category] as Record<string, unknown>)[itemKey];
 
         if (!itemExists) {
-          // New item — write the full object
-          updates[path] = itemData;
+          // Skip processing deleted or non-existent items to prevent re-pushing them to the database
         } else {
           // Existing item — only patch ingredients & descriptions
           if (itemData.ingredients) updates[`${path}/ingredients`] = itemData.ingredients;
@@ -178,6 +177,48 @@ export async function mergeMenuIngredients() {
     }
   } catch {
     // Silent fail — non-critical
+  }
+}
+
+// Programmatically remove requested deleted items and migrate moved items cleanly on start
+export async function cleanDeletedItemsFromDB() {
+  try {
+    // 1. Delete requested items
+    const itemsToDelete = [
+      "menu/new_items/smoky-bbq-wings",
+      "menu/breakfast/avocado-eggs",
+      "menu/breakfast/shakshuka-deluxe",
+      "menu/breakfast/english-breakfast"
+    ];
+    for (const path of itemsToDelete) {
+      await remove(ref(db, path));
+    }
+
+    // 2. Migrate lemon drinks from mojitos to mocktails if they are still in mojitos
+    const lemonDrinks = ["lemon-mint", "lemon-passion", "lemon-pink", "lemon-strawberry"];
+    for (const key of lemonDrinks) {
+      const oldPath = `menu/mojitos/${key}`;
+      const newPath = `menu/mocktails/${key}`;
+
+      const oldSnap = await get(ref(db, oldPath));
+      if (oldSnap.exists()) {
+        const data = oldSnap.val();
+        // Update category properties
+        data.category = "mocktails";
+        data.categoryAr = "موكتيل";
+
+        await set(ref(db, newPath), data);
+        await remove(ref(db, oldPath));
+      } else {
+        // Ensure they are seeded under mocktails if they don't exist yet
+        const newSnap = await get(ref(db, newPath));
+        if (!newSnap.exists() && fullMenuData.mocktails && fullMenuData.mocktails[key]) {
+          await set(ref(db, newPath), fullMenuData.mocktails[key]);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to cleanly run DB migration and deletions on RTDB", e);
   }
 }
 

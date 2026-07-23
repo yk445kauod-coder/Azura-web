@@ -75,7 +75,8 @@ function renderMarkdown(text: string): string {
     .replace(/^### (.*$)/gm, '<h3 class="text-base font-black mt-4 mb-2 text-primary">$1</h3>')
     .replace(/^## (.*$)/gm, '<h2 class="text-lg font-black mt-5 mb-3 text-primary">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-xl font-black mt-6 mb-4 text-primary">$1</h1>')
-    .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1 list-disc pl-1">$1</li>')
+    .replace(/^- (.*$)/gm, '<li class="ml-5 mb-1 list-disc pl-1 text-foreground/90">$1</li>')
+    .replace(/^\d+\.\s+(.*$)/gm, '<li class="ml-5 mb-1 list-decimal pl-1 text-foreground/90">$1</li>')
     // Images (Unescape the src for images specifically)
     .replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
       const cleanSrc = src.replace(/&amp;/g, "&");
@@ -118,7 +119,21 @@ function renderMarkdown(text: string): string {
     html = newLines.join("\n");
   }
 
-  return html.replace(/\n/g, '<br/>');
+  // Intelligently add <br/> only for non-block level newlines to optimize spacing
+  const blockTags = ['</div>', '</table>', '</tr>', '</th>', '</td>', '</h3>', '</h2>', '</h1>', '</li>', '</thead', '</tbody'];
+  const lines = html.split('\n');
+  const spacedLines = lines.map((line, idx) => {
+    const trimmed = line.trim();
+    if (!trimmed) return "";
+    const hasBlock = blockTags.some(tag => trimmed.endsWith(tag) || trimmed.startsWith(tag.replace('/', '')));
+    const nextTrimmed = (lines[idx + 1] || "").trim();
+    const nextHasBlock = blockTags.some(tag => nextTrimmed.startsWith(tag) || nextTrimmed.startsWith(tag.replace('/', '')));
+    if (hasBlock || nextHasBlock) {
+      return line;
+    }
+    return line + '<br/>';
+  });
+  return spacedLines.filter(Boolean).join('');
 }
 
 export default function AIBarista() {
@@ -137,9 +152,13 @@ export default function AIBarista() {
   const [menuNode, setMenuNode] = useState("menu");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greetingMsg, setGreetingMsg] = useState("");
+  const [specialPromotion, setSpecialPromotion] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
   const [egyKey, setEgyKey] = useState("");
+  const [aiProvider, setAiProvider] = useState("groq");
+  const [knowledgeBase, setKnowledgeBase] = useState("");
+  const [workStyle, setWorkStyle] = useState("Egyptian Dialect");
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
   const [memories, setMemories] = useState<string[]>([]);
 
@@ -169,7 +188,19 @@ export default function AIBarista() {
           setEgyKey("");
         }
         setAiEnabled(data.aiEnabled !== false);
+        setAiProvider(data.aiProvider || "groq");
+        setWorkStyle(data.workStyle || "Egyptian Dialect");
         setMenuNode(data.menuNode || "menu");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const kbRef = ref(db, "ai-knowledge-base");
+    const unsubscribe = onValue(kbRef, (snap) => {
+      if (snap.exists()) {
+        setKnowledgeBase(snap.val() || "");
       }
     });
     return () => unsubscribe();
@@ -206,6 +237,7 @@ export default function AIBarista() {
         const cfg = snap.val() as Record<string, string>;
         setSystemPrompt(lang === "ar" ? (cfg.systemPromptAr || cfg.systemPrompt) : cfg.systemPrompt);
         setGreetingMsg(lang === "ar" ? (cfg.greetingAr || cfg.greeting) : cfg.greeting);
+        setSpecialPromotion(lang === "ar" ? (cfg.specialPromotionAr || cfg.specialPromotion || "") : (cfg.specialPromotion || ""));
       }
     });
 
@@ -323,7 +355,22 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 5. Provide accurate descriptions and ingredients based on the data.
 6. Keep responses conversational, not robotic. Use friendly emojis occasionally.`;
 
-    return `${systemPrompt || defaultPrompt}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;
+    let workStyleInstruction = "";
+    if (workStyle === "Egyptian Dialect") {
+      workStyleInstruction = "You must speak in authentic Egyptian dialect ('عامية مصرية مية في المية'), using popular local cafe terms and warm Alexandria-style hospitality.";
+    } else if (workStyle === "Chatty & Fun") {
+      workStyleInstruction = "Be extremely cheerful, energetic, tell light coffee jokes, use plenty of emojis, and chat in detail about our items.";
+    } else if (workStyle === "Professional Cafe Host") {
+      workStyleInstruction = "Be sophisticated, polite, formal, and highly professional like a lead sommelier in a high-end restaurant.";
+    } else if (workStyle === "Quick & Direct") {
+      workStyleInstruction = "Keep answers very brief, concise, straight-to-the-point, and avoid long preambles. Recommend items instantly.";
+    }
+
+    const kbCtx = knowledgeBase ? `\n\nCUSTOM CAFE KNOWLEDGE BASE:\n${knowledgeBase}` : "";
+    const styleCtx = workStyleInstruction ? `\n\nWORK STYLE INSTRUCTION:\n${workStyleInstruction}` : "";
+    const promoCtx = specialPromotion ? `\n\nPROMOTED ITEM / SPECIAL OFFER:\nThe admin wants you to actively promote and upsell the following special item/offer in your responses to users when relevant (or mention it casually if appropriate):\n${specialPromotion}` : "";
+
+    return `${systemPrompt || defaultPrompt}${styleCtx}${kbCtx}${promoCtx}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;
   };
 
   const parseMessage = (raw: string) => {
@@ -375,10 +422,11 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
     const text = (msgText || input).trim();
     if (!text || loading) return;
 
-    if (!aiEnabled || !egyKey) return;
+    if (!aiEnabled) return;
 
     setInput("");
-    await baseSendMessage(text, egyKey, buildSystemPrompt(), parseMessage);
+    const keyToUse = egyKey || "pollinations_free";
+    await baseSendMessage(text, keyToUse, buildSystemPrompt(), parseMessage);
     
     // Update memory asynchronously after response
     if (user) {
@@ -391,7 +439,7 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
           Recent Chat:
           ${lastMsgs.map(m => `${m.role}: ${m.content}`).join("\n")}`;
 
-          const fact = await chatWithAI(egyKey, "Extract key user facts for memory.", [], summaryPrompt);
+          const fact = await chatWithAI(keyToUse, "Extract key user facts for memory.", [], summaryPrompt);
           if (fact && fact.length > 5 && fact.length < 100) {
             const memRef = ref(db, `users/${user.uid}/memories/${Date.now()}`);
             await set(memRef, fact);

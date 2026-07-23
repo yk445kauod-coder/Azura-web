@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&family=Silkscreen:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -31,33 +31,29 @@
 }
 
 :root {
-  /* ── OMS Premium 16-Bit Palette ── */
-  --background: 39 44% 94%;        /* Cream #F7F2E8 */
-  --foreground: 0 0% 7%;           /* Deep Black #111111 */
-  --card: 37 38% 74%;              /* Warm Beige #D9C2A3 */
-  --card-foreground: 0 0% 7%;
-  --border: 24 29% 33%;            /* Coffee Brown #6F4E37 */
-  --input: 37 38% 74%;
-  --ring: 31 88% 55%;              /* Warm Orange #F28C28 */
-  --primary: 31 88% 55%;           /* Warm Orange #F28C28 */
-  --primary-foreground: 0 0% 7%;
-  --secondary: 24 29% 33%;         /* Coffee Brown #6F4E37 */
-  --secondary-foreground: 39 44% 94%;
-  --muted: 0 0% 12%;               /* Dark Charcoal #1E1E1E */
-  --muted-foreground: 37 38% 74%;
-  --accent: 31 88% 55%;            /* Warm Orange #F28C28 */
-  --accent-foreground: 39 44% 94%;
-  --destructive: 0 100% 30%;       /* Deep Red */
-  --destructive-foreground: 39 44% 94%;
-  --success: 120 61% 20%;          /* Forest Green */
-  --warning: 45 100% 49%;          /* Golden Amber */
-  --info: 210 100% 75%;            /* Soft Blue */
+  /* ── Azura Palette (Original) ── */
+  --background: 38 40% 93%;        /* warm parchment */
+  --foreground: 22 55% 12%;        /* near-black espresso */
+  --card: 38 35% 96%;              /* slightly lighter card */
+  --card-foreground: 22 55% 12%;
+  --border: 35 22% 82%;
+  --input: 35 22% 82%;
+  --ring: 22 55% 30%;
+  --primary: 22 55% 22%;           /* rich dark brown */
+  --primary-foreground: 38 55% 96%;
+  --secondary: 35 42% 52%;         /* warm golden tan */
+  --secondary-foreground: 38 55% 96%;
+  --muted: 38 20% 87%;
+  --muted-foreground: 22 20% 48%;
+  --accent: 35 50% 60%;            /* bright gold */
+  --accent-foreground: 22 55% 12%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 100%;
 
-  /* ── Typography ── */
-  --font-heading:      'Silkscreen', 'IBM Plex Sans Arabic', sans-serif;
-  --font-body:         'IBM Plex Sans Arabic', sans-serif;
-  --font-pixel:        'Silkscreen', sans-serif;
-  --font-arabic:       'IBM Plex Sans Arabic', sans-serif;
+  /* ── Typography — IBM Plex Sans Arabic (primary for both LTR & RTL) ── */
+  --font-heading:      'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body:         'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-arabic:       'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-handwritten:  'Dancing Script', cursive;
   --radius: 1rem;
   --safe-area-bottom: env(safe-area-inset-bottom, 20px);
@@ -332,128 +328,27 @@
   .scroll-hide { scrollbar-width:none; -ms-overflow-style:none; }
   .scroll-hide::-webkit-scrollbar { display:none; }
 
-  /* --- Handcrafted Pixel Art Design System --- */
-
-  /* Pixel Borders */
-  .pixel-border-wood {
-    border: 4px solid #6F4E37;
-    box-shadow:
-      inset -4px -4px 0 0 #3D2B1F,
-      inset 4px 4px 0 0 #A67C52;
-    background-color: #D9C2A3;
-  }
-
-  .pixel-border-bronze {
-    border: 4px solid #8C6A3B;
-    box-shadow:
-      inset -4px -4px 0 0 #5A4321,
-      inset 4px 4px 0 0 #CDA15E;
-    background-color: #D9C2A3;
-  }
-
-  .pixel-border-paper {
-    border: 4px solid #D9C2A3;
-    box-shadow:
-      inset -4px -4px 0 0 #BCA58C,
-      inset 4px 4px 0 0 #FFFFFF;
-    background-color: #F7F2E8;
-  }
-
-  .pixel-card {
-    background: hsl(var(--card));
-    border: 4px solid hsl(var(--border));
-    box-shadow:
-      4px 4px 0 0 rgba(0,0,0,0.2),
-      inset -4px -4px 0 0 rgba(0,0,0,0.1),
-      inset 4px 4px 0 0 rgba(255,255,255,0.2);
-    image-rendering: pixelated;
-  }
-
-  .pixel-btn {
-    font-family: var(--font-pixel);
-    border: 4px solid hsl(var(--border));
-    box-shadow:
-      inset -4px -4px 0 0 rgba(0,0,0,0.2),
-      inset 4px 4px 0 0 rgba(255,255,255,0.3);
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: transform 0.1s;
-    image-rendering: pixelated;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-  }
-
-  .pixel-btn:active {
-    transform: translate(2px, 2px);
-    box-shadow:
-      inset 4px 4px 0 0 rgba(0,0,0,0.2),
-      inset -4px -4px 0 0 rgba(255,255,255,0.3);
-  }
-
-  .pixel-btn-primary {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    border-color: #A65D1A;
-  }
-
-  .pixel-btn-secondary {
-    background-color: hsl(var(--secondary));
-    color: hsl(var(--secondary-foreground));
-    border-color: #3D2B1F;
-  }
-
-  .pixel-input {
-    background-color: #F7F2E8;
-    border: 4px solid hsl(var(--border));
-    box-shadow: inset 4px 4px 0 0 rgba(0,0,0,0.1);
-    padding: 0.75rem;
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    outline: none;
-  }
-
-  .pixel-input:focus {
-    border-color: hsl(var(--primary));
-  }
-
-  .pixel-shadow {
-    box-shadow: 8px 8px 0 0 rgba(0,0,0,0.15);
-  }
-
-  .pixel-font {
-    font-family: var(--font-pixel);
-  }
-
-  .pixel-text-shadow {
-    text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-  }
-
-  /* Redefining existing components with Pixel style */
+  /* iOS Category Chips */
   .chip {
-    font-family: var(--font-pixel);
-    border: 2px solid hsl(var(--border));
-    padding: 0.4rem 0.8rem;
-    transition: all 0.1s;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-    image-rendering: pixelated;
   }
   .chip-active {
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
-    box-shadow: inset -2px -2px 0 0 rgba(0,0,0,0.2), inset 2px 2px 0 0 rgba(255,255,255,0.3);
-    border-color: #A65D1A;
+    box-shadow: var(--shadow-primary);
   }
   .chip-inactive {
-    background: #D9C2A3;
-    color: #6F4E37;
-    box-shadow: inset -2px -2px 0 0 rgba(0,0,0,0.1), inset 2px 2px 0 0 rgba(255,255,255,0.2);
+    background: hsl(var(--card));
+    color: hsl(var(--muted-foreground));
+    box-shadow: var(--shadow-xs);
+    border: 0.5px solid rgba(0,0,0,0.06);
   }
   .chip-inactive:hover { 
     background: hsl(var(--muted)); 
@@ -595,6 +490,8 @@
     --input: 0 0% 16%;
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 60%;
+    --primary: 35 60% 75%;          /* high-contrast bright warm gold/amber */
+    --secondary: 35 30% 85%;        /* light warm cream */
   }
   
   .glass {
@@ -657,5 +554,22 @@
     opacity: 1;
     transform: scale(1) rotate(0) translateY(0);
     filter: blur(0);
+  }
+}
+
+/* ── Premium High-Performance Glassmorphism (0% Rendering Overhead) ── */
+.glass-premium {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.01) !important;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-premium {
+    background: rgba(20, 24, 40, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12) !important;
   }
 }

@@ -174,9 +174,9 @@ export default function AIAdminAssistant() {
       get(ref(db, "feedback")),
       get(ref(db, "menu"))
     ]);
-    updateAnalytics({ 
-      users: usersSnap.exists() ? Object.values(usersSnap.val()) : [], 
-      feedback: feedbackSnap.exists() ? Object.values(feedbackSnap.val()) : [] 
+    updateAnalytics({
+      users: usersSnap.exists() ? Object.values(usersSnap.val()) : [],
+      feedback: feedbackSnap.exists() ? Object.values(feedbackSnap.val()) : []
     });
     loadMenuItems(menuSnap);
   };
@@ -221,11 +221,11 @@ I can help you with everything regarding Azura!`;
 
   const generateResponse = async (userInput: string): Promise<string> => {
     const input = userInput.toLowerCase();
-    
+
     // User Analytics
     if (input.includes("users") || input.includes("analytics") || input.includes("customers") || input.includes("تحليل") || input.includes("مستخدمين")) {
       if (!analytics) return tr("Loading analytics...", "جاري تحميل التحليلات...");
-      return lang === "ar" 
+      return lang === "ar"
         ? `👥 تقرير المستخدمين
 
 • إجمالي المستخدمين: ${analytics.totalCustomers}
@@ -241,17 +241,17 @@ I can help you with everything regarding Azura!`;
 • Heavy Users (30m+): ${analytics.heavyUsers}
 • Total App Usage Time: ${formatDuration(analytics.totalUsageTime)}`;
     }
-    
+
     // Menu search
     const searchTerm = userInput.toLowerCase();
-    const filteredItems = menuItems.filter(item => 
+    const filteredItems = menuItems.filter(item =>
       item.name.toLowerCase().includes(searchTerm) ||
       (item.nameAr && item.nameAr.includes(searchTerm)) ||
       item.category.toLowerCase().includes(searchTerm)
     ).slice(0, 8);
-    
+
     if (filteredItems.length > 0) {
-      const itemsList = filteredItems.map(item => 
+      const itemsList = filteredItems.map(item =>
         `• ${item.name}${item.nameAr ? ` (${item.nameAr})` : ''} - ${item.price} EGP [${item.category}]`
       ).join("\n");
       return lang === "ar"
@@ -262,7 +262,7 @@ ${itemsList}`
 
 ${itemsList}`;
     }
-    
+
     // Suggestions
     if (input.includes("suggest") || input.includes("idea") || input.includes("اقتراح") || input.includes("فكرة")) {
       return lang === "ar"
@@ -281,7 +281,7 @@ ${itemsList}`;
 4. Improve menu with professional photos
 5. Partner with nearby businesses`;
     }
-    
+
     // Help
     if (input.includes("help") || input.includes("مساعدة") || input.includes("ماذا") || input.includes("commands")) {
       return lang === "ar"
@@ -298,7 +298,7 @@ ${itemsList}`;
 • "suggestions" - Improvement ideas
 • "show menu" - Open menu viewer`;
     }
-    
+
     // Default
     return lang === "ar"
       ? `🤔 يمكنني مساعدتك في:
@@ -407,7 +407,7 @@ Always prioritize ROI and customer lifetime value (LTV).`;
       };
       setMessages(prev => [...prev, assistantMessage]);
       saveMessage(assistantMessage);
-      
+
       if (input.toLowerCase().includes("show menu") || input.toLowerCase().includes("عرض القائمة")) {
         setShowMenuViewer(true);
       }
@@ -457,14 +457,14 @@ Always prioritize ROI and customer lifetime value (LTV).`;
           >
             <FileSpreadsheet size={16} />
           </button>
-          <button 
+          <button
             onClick={() => setShowMenuViewer(!showMenuViewer)}
             className={`p-2 hover:bg-muted rounded-lg transition-colors ${showMenuViewer ? 'bg-primary/10' : ''}`}
             title={tr("View Menu", "عرض القائمة")}
           >
             <BookOpen size={14} className={showMenuViewer ? 'text-primary' : ''} />
           </button>
-          <button 
+          <button
             onClick={loadAllData}
             className="p-2 hover:bg-muted rounded-lg transition-colors"
             title={tr("Refresh Data", "تحديث البيانات")}
@@ -521,14 +521,14 @@ Always prioritize ROI and customer lifetime value (LTV).`;
               >
                 <ExternalLink size={12} />
               </a>
-              <button 
+              <button
                 onClick={toggleFullscreen}
                 className="p-1.5 hover:bg-muted rounded-lg transition-colors"
                 title={isFullscreen ? tr("Exit fullscreen", "الخروج") : tr("Fullscreen", "ملء الشاشة")}
               >
                 {isFullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
               </button>
-              <button 
+              <button
                 onClick={() => setShowMenuViewer(false)}
                 className="p-1.5 hover:bg-muted rounded-lg transition-colors"
               >
@@ -536,11 +536,11 @@ Always prioritize ROI and customer lifetime value (LTV).`;
               </button>
             </div>
           </div>
-          <div 
+          <div
             ref={menuViewerRef}
             className="w-full h-48 rounded-lg overflow-hidden border bg-white"
           >
-            <iframe 
+            <iframe
               src="https://azura-app.pages.dev"
               className="w-full h-full"
               title={tr("Azura Menu", "قائمة أزورا")}
@@ -580,11 +580,11 @@ Always prioritize ROI and customer lifetime value (LTV).`;
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg) => (
-          <div 
-            key={msg.id} 
+          <div
+            key={msg.id}
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
-            <div 
+            <div
               className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground rounded-br-md"

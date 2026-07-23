@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
-import { db, ref, onValue, off, get } from "@/lib/firebase";
+import { db, ref, onValue, off } from "@/lib/firebase";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { logUserActivity, updateUserCategoryAffinity } from "@/lib/activityTracker";
@@ -51,47 +51,44 @@ function normalizeItem(id: string, raw: Record<string, unknown>, parentCategory?
   };
 }
 
-const DEFAULT_CATEGORIES = [
-  { id: "offers",        emoji: "🏷️",  en: "Offers",              ar: "العروض",         group: "special" },
-  { id: "recommended",   emoji: "⭐",  en: "Top Picks",           ar: "الأفضل",         group: "special" },
-  { id: "new_items",     emoji: "🆕",  en: "New",                 ar: "جديد",           group: "special" },
-  { id: "breakfast",     emoji: "🍳",  en: "Breakfast",           ar: "إفطار",          group: "special" },
-  { id: "soups",         emoji: "🍲",  en: "Soup",                ar: "شوربة",          group: "food"    },
-  { id: "appetizers",    emoji: "🍟",  en: "Appetizers",          ar: "مقبلات",          group: "food"    },
-  { id: "salads",        emoji: "🥗",  en: "Salads",              ar: "سلطات",          group: "food"    },
-  { id: "pasta",         emoji: "🍝",  en: "Pasta",               ar: "مكرونة",         group: "food"    },
-  { id: "tortilla",      emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا",        group: "food"    },
-  { id: "toast",         emoji: "🥪",  en: "Toast",               ar: "توست",           group: "food"    },
-  { id: "croissant",     emoji: "🥐",  en: "Croissant",           ar: "كرواسون",        group: "food"    },
-  { id: "main_dishes",   emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية",    group: "food"    },
-  { id: "burgers",       emoji: "🍔",  en: "Burgers",             ar: "برجر",           group: "food"    },
-  { id: "smash_burgers", emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر",      group: "food"    },
-  { id: "fried_chicken", emoji: "🍗",  en: "Fried Chicken",       ar: "فراخ مقلية",     group: "food"    },
-  { id: "waffle",        emoji: "🧇",  en: "Waffle",              ar: "وافل",           group: "food"    },
-  { id: "desserts",      emoji: "🍰",  en: "Desserts",             ar: "حلويات",         group: "food"    },
-  { id: "crepes",        emoji: "🥞",  en: "Crepes",              ar: "كريب",           group: "food"    },
-  { id: "pancakes",      emoji: "🥞",  en: "Pancakes",             ar: "بان كيك",        group: "food"    },
-  { id: "hot_drinks",    emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة",   group: "barista" },
-  { id: "coffee",        emoji: "☕",  en: "Coffee",               ar: "قهوة",           group: "barista" },
-  { id: "corto",         emoji: "🥛",  en: "Corto",               ar: "كورتو",          group: "barista" },
-  { id: "hot_chocolate", emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة",  group: "barista" },
-  { id: "sahlab",        emoji: "🥛",  en: "Sahlab",              ar: "سحلب",          group: "barista" },
-  { id: "frappuccino",   emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو",      group: "barista" },
-  { id: "iced_coffee",   emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة",     group: "barista" },
-  { id: "mojitos",       emoji: "🍹",  en: "Mojitos",             ar: "موجيتو",         group: "barista" },
-  { id: "boba_tea",      emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي",        group: "barista" },
-  { id: "fresh_juices",  emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج",       group: "barista" },
-  { id: "mocktails",     emoji: "🍸",  en: "Mocktails",           ar: "موكتيل",         group: "barista" },
-  { id: "cocktails",     emoji: "🍹",  en: "Cocktails",           ar: "كوكتيل",         group: "barista" },
-  { id: "smoothies",     emoji: "🥤",  en: "Smoothie",            ar: "سموذي",          group: "barista" },
-  { id: "milkshakes",    emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك",       group: "barista" },
-  { id: "add_ons",       emoji: "➕",  en: "Add-ons",              ar: "إضافات",         group: "barista" },
-  { id: "shisha",        emoji: "💨",  en: "Hookah",                ar: "شيشة",           group: "barista" },
-  { id: "soft_drinks",   emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية",   group: "barista" },
-  { id: "all",           emoji: "✨",  en: "All",                  ar: "الكل",           group: "special" }
+const CATS = [
+  { id: "recommended",      emoji: "⭐",  en: "Top Picks",           ar: "الأفضل"          },
+  { id: "new_items",        emoji: "🆕",  en: "New",                 ar: "جديد"            },
+  { id: "appetizers",       emoji: "🍢",  en: "Appetizers",         ar: "مقبلات"          },
+  { id: "mojitos",          emoji: "🍹",  en: "Mojitos",             ar: "موجيتو"          },
+  { id: "mocktails",        emoji: "🍸",  en: "Mocktails",           ar: "موكتيل"          },
+  { id: "cocktails",        emoji: "🍹",  en: "Cocktails",           ar: "كوكتيل"          },
+  { id: "soups",            emoji: "🍲",  en: "Soup",                ar: "شوربة"           },
+  { id: "salads",           emoji: "🥗",  en: "Salads",              ar: "سلطات"           },
+  { id: "pasta",            emoji: "🍝",  en: "Pasta",               ar: "مكرونة"          },
+  { id: "tortilla",         emoji: "🌯",  en: "Tortilla",            ar: "تورتيلا"         },
+  { id: "toast",            emoji: "🥪",  en: "Toast",               ar: "توست"            },
+  { id: "croissant",        emoji: "🥐",  en: "Croissant",           ar: "كرواسون"         },
+  { id: "breakfast",        emoji: "🍳",  en: "Breakfast",           ar: "إفطار"           },
+  { id: "main_dishes",      emoji: "🍽️",  en: "Main Dishes",         ar: "أطباق رئيسية"     },
+  { id: "burgers",          emoji: "🍔",  en: "Burgers",             ar: "برجر"            },
+  { id: "smash_burgers",    emoji: "🔥",  en: "Smash Burgers",       ar: "سماش برجر"       },
+  { id: "fried_chicken",    emoji: "🍗",  en: "Fried Chicken",      ar: "فراخ مقلية"      },
+  { id: "hot_drinks",       emoji: "☕",  en: "Hot Drinks",          ar: "مشروبات ساخنة"   },
+  { id: "coffee",           emoji: "☕",  en: "Coffee",               ar: "قهوة"            },
+  { id: "corto",            emoji: "🥛",  en: "Corto",               ar: "كورتو"           },
+  { id: "hot_chocolate",    emoji: "🍫",  en: "Hot Chocolate",       ar: "شوكولاتة ساخنة"  },
+  { id: "sahlab",           emoji: "🥛",  en: "Sahlab",              ar: "سحلب"            },
+  { id: "frappuccino",      emoji: "🧊",  en: "Frappuccino",         ar: "فرابتشينو"       },
+  { id: "iced_coffee",      emoji: "🧋",  en: "Iced Coffee",        ar: "قهوة مثلجة"      },
+  { id: "boba_tea",         emoji: "🧋",  en: "Boba Tea",            ar: "بوبا تي"         },
+  { id: "fresh_juices",     emoji: "🍊",  en: "Fresh Juice",         ar: "عصير طازج"       },
+  { id: "smoothies",        emoji: "🥤",  en: "Smoothie",            ar: "سموذي"           },
+  { id: "milkshakes",       emoji: "🥛",  en: "Milkshake",            ar: "ميلك شيك"        },
+  { id: "waffle",           emoji: "🧇",  en: "Waffle",               ar: "وافل"            },
+  { id: "desserts",         emoji: "🍰",  en: "Desserts",             ar: "حلويات"          },
+  { id: "crepes",           emoji: "🥞",  en: "Crepe",                ar: "كريب"            },
+  { id: "pancakes",         emoji: "🥞",  en: "Pancakes",             ar: "بان كيك"         },
+  { id: "add_ons",          emoji: "➕",  en: "Add-ons",              ar: "إضافات"          },
+  { id: "shisha",           emoji: "💨",  en: "Hookah",                ar: "شيشة"            },
+  { id: "soft_drinks",      emoji: "🥤",  en: "Soft Drinks",          ar: "مشروبات غازية"   },
+  { id: "all",              emoji: "✨",  en: "All",                  ar: "الكل"            },
 ];
-
-const CATS = DEFAULT_CATEGORIES;
 
 const CAT_ALIASES: Record<string, string[]> = {
   recommended:    ["recommended"],
@@ -481,25 +478,12 @@ export default function MenuLightweight() {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("offers"); // Offers page is the first page/tab
+  const [cat, setCat] = useState("recommended");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-
-  const [dbCategories, setDbCategories] = useState<any[]>([]);
-  const [offers, setOffers] = useState<any[]>([]);
-  const [categoryBanners, setCategoryBanners] = useState<Record<string, any>>({});
-
-  const CATS = useMemo(() => {
-    const list = dbCategories.length > 0 ? dbCategories : DEFAULT_CATEGORIES;
-    // Ensure "All" is appended at the end dynamically
-    if (!list.some(c => c.id === "all")) {
-      return [...list, { id: "all", emoji: "✨", en: "All", ar: "الكل", group: "special" }];
-    }
-    return list;
-  }, [dbCategories]);
 
   const tr = useCallback((en: string, ar: string) => lang === "ar" ? ar : en, [lang]);
 
@@ -520,61 +504,29 @@ export default function MenuLightweight() {
     }
   }, [user?.uid]);
 
-  // Fetch all menu, category, banner, and offers dynamically.
-  // We use get() single-time reads, and subscribe ONLY to a tiny lightweight "db-version" number.
-  // Whenever the admin updates something, the tiny "db-version" changes and triggers fetchAllData().
-  // This is highly optimal and completely eliminates websocket connection limits on Firebase Spark plan!
+  // Fetch menu from Firebase
   useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        const [menuSnap, catsSnap, offersSnap, bannersSnap] = await Promise.all([
-          get(ref(db, "menu")),
-          get(ref(db, "categories")),
-          get(ref(db, "offers")),
-          get(ref(db, "category-banners"))
-        ]);
-
-        if (catsSnap.exists()) {
-          setDbCategories(catsSnap.val() || []);
-        }
-        if (offersSnap.exists()) {
-          const offersData = offersSnap.val() || {};
-          setOffers(Object.entries(offersData).map(([id, v]: any) => ({ id, ...v })));
-        }
-        if (bannersSnap.exists()) {
-          setCategoryBanners(bannersSnap.val() || {});
-        }
-
-        if (menuSnap.exists()) {
-          const data = menuSnap.val() as Record<string, Record<string, unknown>>;
-          const result: MenuItem[] = [];
-          Object.entries(data).forEach(([key, val]) => {
-            if (typeof val !== "object" || val === null) return;
-            const v = val as Record<string, unknown>;
-            if (v.price !== undefined || v.name !== undefined) {
-              result.push(normalizeItem(key, v));
-            } else {
-              Object.entries(v).forEach(([subId, subVal]) => {
-                if (typeof subVal === "object" && subVal !== null)
-                  result.push(normalizeItem(subId, subVal as Record<string, unknown>, key));
-              });
-            }
+    const menuRef = ref(db, "menu");
+    onValue(menuRef, (snap) => {
+      if (!snap.exists()) { setLoading(false); return; }
+      const data = snap.val() as Record<string, Record<string, unknown>>;
+      const result: MenuItem[] = [];
+      Object.entries(data).forEach(([key, val]) => {
+        if (typeof val !== "object" || val === null) return;
+        const v = val as Record<string, unknown>;
+        if (v.price !== undefined || v.name !== undefined) {
+          result.push(normalizeItem(key, v));
+        } else {
+          Object.entries(v).forEach(([subId, subVal]) => {
+            if (typeof subVal === "object" && subVal !== null)
+              result.push(normalizeItem(subId, subVal as Record<string, unknown>, key));
           });
-          setItems(result);
         }
-      } catch (err) {
-        console.error("Error loading menu data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const versionRef = ref(db, "db-version");
-    const unsub = onValue(versionRef, () => {
-      fetchAllData();
+      });
+      setItems(result);
+      setLoading(false);
     });
-
-    return () => unsub();
+    return () => off(ref(db, "menu"));
   }, []);
 
   // Debounced search - faster for snappier feel
@@ -597,6 +549,7 @@ export default function MenuLightweight() {
   const { filtered, counts, activeCats } = useMemo(() => {
     const countsMap: Record<string, number> = {};
     CATS.forEach(c => countsMap[c.id] = 0);
+    countsMap["offers"] = offers.length;
 
     const filteredList = items.filter((item) => {
       if (!item.available) return false;
@@ -672,9 +625,9 @@ export default function MenuLightweight() {
       return true;
     });
 
-    const active = CATS.filter(c => c.id === "all" || countsMap[c.id] > 0);
+    const active = CATS.filter(c => c.id === "all" || (c.id === "offers" && offers.length > 0) || countsMap[c.id] > 0);
     return { filtered: filteredList, counts: countsMap, activeCats: active };
-  }, [items, cat, debouncedSearch]);
+  }, [items, cat, debouncedSearch, offers]);
 
   // Paginated items
   const paginated = useMemo(() => {
@@ -870,7 +823,7 @@ export default function MenuLightweight() {
               </div>
             ))}
           </div>
-        ) : (paginated.length === 0 && cat !== "offers") ? (
+        ) : paginated.length === 0 ? (
           <div className="text-center py-20 flex flex-col items-center">
             <div className="text-7xl mb-4 animate-bounce" style={{ animationDuration: '3s' }}>🔍</div>
             <p className="text-xl font-bold text-gray-700">{tr("Nothing found", "لا توجد نتائج")}</p>
@@ -887,19 +840,15 @@ export default function MenuLightweight() {
           <>
             {/* Category Hero Header Banner */}
             {!search && (() => {
-              const hero = categoryBanners[cat] || CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
+              const hero = CAT_HERO_IMAGES[cat] || DEFAULT_CAT_HERO;
               const currentCatObj = CATS.find(c => c.id === cat);
               return (
                 <div className="relative w-full h-44 rounded-3xl overflow-hidden shadow-md mb-6 border border-border/20 group">
-                  {hero.image ? (
-                    <img
-                      src={hero.image}
-                      alt={cat}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-amber-500/80 to-amber-700" />
-                  )}
+                  <img
+                    src={hero.image}
+                    alt={cat}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 text-white">
                     <div className="flex items-center gap-2 mb-1">
@@ -916,51 +865,18 @@ export default function MenuLightweight() {
               );
             })()}
 
-            {cat === "offers" ? (
-              <div className="space-y-6 col-span-2">
-                {offers.length === 0 ? (
-                  <p className="text-center text-sm text-muted-foreground py-12">{tr("No promotional offers available right now. Check back soon!", "لا توجد عروض ترويجية نشطة حالياً. تفقد الصفحة لاحقاً!")}</p>
-                ) : (
-                  offers.filter(o => o.active !== false).map((offer) => (
-                    <div key={offer.id} className="card-elevated overflow-hidden bg-card border border-border/15 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-4 p-4">
-                      {offer.image && (
-                        <div className="w-full md:w-1/3 h-40 rounded-2xl overflow-hidden bg-muted">
-                          <img src={offer.image} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" alt="" />
-                        </div>
-                      )}
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <h3 className="text-base font-black text-foreground">{lang === "ar" ? offer.titleAr : offer.title}</h3>
-                            {(offer.badge || offer.badgeAr) && (
-                              <span className="bg-primary text-white text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wide">
-                                {lang === "ar" ? (offer.badgeAr || offer.badge) : offer.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {lang === "ar" ? offer.descriptionAr : offer.description}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {paginated.map((item, idx) => (
-                  <MenuItemCard
-                    key={item.id}
-                    item={item}
-                    lang={lang}
-                    idx={idx}
-                    onClick={handleSelectItem}
-                    CATS={CATS}
-                  />
-                ))}
-              </div>
-            )}
+            <div className="grid grid-cols-2 gap-4">
+              {paginated.map((item, idx) => (
+                <MenuItemCard
+                  key={item.id}
+                  item={item}
+                  lang={lang}
+                  idx={idx}
+                  onClick={handleSelectItem}
+                  CATS={CATS}
+                />
+              ))}
+            </div>
           </>
         )}
 

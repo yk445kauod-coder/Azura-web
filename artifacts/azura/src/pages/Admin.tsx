@@ -1099,14 +1099,14 @@ const SystemTab = ({ tr }: { tr: any }) => {
 
       <div className="card-elevated rounded-2xl p-5 border border-border/10 border-l-4 border-destructive space-y-4 bg-card">
         <h3 className="font-bold text-destructive flex items-center gap-2"><RotateCcw size={18}/> {tr("Critical Actions","عمليات خطيرة")}</h3>
-        <button onClick={async () => { if (await swalConfirm(tr("Wipe all data?", "مسح كل البيانات؟"), tr("This cannot be undone.", "لا يمكن التراجع."))) { ["users", "feedback", "support-chat", "broadcast", "reels", "tables", "feature-flags", "homepage-banner", "conversations", "categories", "offers", "category-banners"].forEach(p => remove(ref(db, p))); swalSuccess("System reset!"); } }} className="w-full py-3 rounded-xl bg-destructive text-white font-bold flex items-center justify-center gap-2 hover:bg-destructive/90 transition-colors"><Trash2 size={16}/> {tr("Reset All Data","إعادة تعيين كل البيانات")}</button>
+        <button onClick={async () => { if (await swalConfirm(tr("Wipe all data?", "مسح كل البيانات؟"), tr("This cannot be undone.", "لا يمكن التراجع."))) { ["menu", "users", "feedback", "support-chat", "broadcast", "reels", "tables", "feature-flags", "homepage-banner", "conversations"].forEach(p => remove(ref(db, p))); swalSuccess("System reset!"); } }} className="w-full py-3 rounded-xl bg-destructive text-white font-bold flex items-center justify-center gap-2 hover:bg-destructive/90 transition-colors"><Trash2 size={16}/> {tr("Reset All Data","إعادة تعيين كل البيانات")}</button>
       </div>
     </div>
   );
 };
 
 const BaristaTab = ({ tr }: { tr: any }) => {
-  const [config, setConfig] = useState({ baristaName: "", baristaAvatar: "", instagram: "", cafeName: "", cafeLocation: "", cafeHours: "", cafePhone: "", systemPrompt: "", systemPromptAr: "", greeting: "", greetingAr: "" });
+  const [config, setConfig] = useState({ baristaName: "", baristaAvatar: "", instagram: "", cafeName: "", cafeLocation: "", cafeHours: "", cafePhone: "", systemPrompt: "", systemPromptAr: "", greeting: "", greetingAr: "", specialPromotion: "", specialPromotionAr: "" });
   const [apiSettings, setApiSettings] = useState({ aiEnabled: true, groqKey: "", menuNode: "menu", workStyle: "Egyptian Dialect" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1196,6 +1196,17 @@ const BaristaTab = ({ tr }: { tr: any }) => {
         <div className="space-y-4">
           <div><label className={lbl}>Greeting (EN)</label><textarea className={`${inp} h-20`} value={config.greeting} onChange={e => setConfig({...config, greeting: e.target.value})} /></div>
           <div><label className={lbl}>Greeting (AR)</label><textarea className={`${inp} h-20`} dir="rtl" value={config.greetingAr} onChange={e => setConfig({...config, greetingAr: e.target.value})} /></div>
+        </div>
+      </div>
+
+      <div className="card-elevated rounded-2xl p-5 space-y-4 border border-border/10 border-l-4 border-rose-500 bg-card">
+        <div className="flex items-center gap-2 mb-2"><Megaphone size={18} className="text-rose-500"/><h3 className="font-bold text-foreground">{tr("Special Promotions to Push", "العروض والمنتجات الخاصة للترويج")}</h3></div>
+        <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">
+          {tr("The AI will actively pitch, recommend, and upsell these items or offers naturally in conversation.", "سيقوم الذكاء الاصطناعي بالترويج لهذه المنتجات أو العروض واقتراحها بشكل طبيعي أثناء المحادثة.")}
+        </p>
+        <div className="space-y-4">
+          <div><label className={lbl}>Special Promotion (EN)</label><textarea className={`${inp} h-20`} value={config.specialPromotion || ""} onChange={e => setConfig({...config, specialPromotion: e.target.value})} placeholder="e.g. Try our premium Turkish Coffee Double with a freshly baked Butter Croissant!" /></div>
+          <div><label className={lbl}>Special Promotion (AR)</label><textarea className={`${inp} h-20`} dir="rtl" value={config.specialPromotionAr || ""} onChange={e => setConfig({...config, specialPromotionAr: e.target.value})} placeholder="مثال: جرب القهوة التركي الدبل المميزة مع كرواسون الزبدة الساخن!" /></div>
         </div>
       </div>
 
@@ -1933,7 +1944,12 @@ export default function Admin() {
   // Grown API settings state
   const [apiSettings, setApiSettings] = useState({
     groqKey: "",
-    aiProvider: "groq" as "groq" | "pollinations" | "openai",
+    geminiKey: "",
+    openrouterKey: "",
+    openaiKey: "",
+    zaiKey: "",
+    claudeKey: "",
+    aiProvider: "groq" as "groq" | "pollinations" | "openai" | "gemini" | "openrouter" | "zai" | "claude",
     openaiEndpoint: "",
     aiEnabled: true,
     menuNode: "menu",
@@ -2002,8 +2018,18 @@ export default function Admin() {
 
     onValue(ref(db, "api-settings"), (s) => {
       if (s.exists()) {
-        setApiSettings(prev => ({ ...prev, ...s.val() }));
-        addLogRef.current("API and AI Provider settings loaded.");
+        const val = s.val() || {};
+        const decrypted = {
+          ...val,
+          groqKey: val.groqKey ? decryptKey(val.groqKey) : "",
+          geminiKey: val.geminiKey ? decryptKey(val.geminiKey) : "",
+          openrouterKey: val.openrouterKey ? decryptKey(val.openrouterKey) : "",
+          openaiKey: val.openaiKey ? decryptKey(val.openaiKey) : "",
+          zaiKey: val.zaiKey ? decryptKey(val.zaiKey) : "",
+          claudeKey: val.claudeKey ? decryptKey(val.claudeKey) : "",
+        };
+        setApiSettings(prev => ({ ...prev, ...decrypted }));
+        addLogRef.current("API and AI Provider settings loaded and decrypted.");
       }
     });
     onValue(ref(db, "feature-flags"), (s) => {
@@ -2185,7 +2211,7 @@ export default function Admin() {
               </h3>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">{tr("AI Provider","مزود الذكاء")}</label>
+                <label className="text-sm font-semibold text-foreground">{tr("Primary AI Provider","مزود الذكاء الرئيسي")}</label>
                 <select
                   className={inp}
                   value={apiSettings.aiProvider}
@@ -2193,28 +2219,87 @@ export default function Admin() {
                 >
                   <option value="groq">Groq (DeepSeek Qwen)</option>
                   <option value="pollinations">Pollinations (Free)</option>
+                  <option value="gemini">Google Gemini API</option>
+                  <option value="openrouter">OpenRouter API</option>
                   <option value="openai">OpenAI Compatible</option>
+                  <option value="zai">Z.ai API</option>
+                  <option value="claude">Anthropic Claude API</option>
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">
-                  {apiSettings.aiProvider === "openai" ? tr("API Key", "مفتاح API") : tr("Groq API Key","مفتاح API Groq")}
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <input
-                      type={showApiKey ? "text" : "password"}
-                      className={`${inp} w-full pr-10`}
-                      placeholder={apiSettings.aiProvider === "pollinations" ? "Not required" : "sk-... / gsk_..."}
-                      value={apiSettings.groqKey}
-                      onChange={(e) => setApiSettings(p => ({...p, groqKey: e.target.value}))}
-                      disabled={apiSettings.aiProvider === "pollinations"}
-                    />
-                    <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      {showApiKey ? <EyeOff size={16}/> : <Eye size={16}/>}
-                    </button>
-                  </div>
+              <div className="space-y-4 pt-4 border-t border-border/10">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{tr("Fallback & Provider Keys", "مفاتيح مزودي الخدمة البديلة")}</h4>
+
+                {/* Groq Key */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">Groq API Key</label>
+                  <input
+                    type="password"
+                    className={inp}
+                    placeholder="gsk_..."
+                    value={apiSettings.groqKey || ""}
+                    onChange={(e) => setApiSettings(p => ({...p, groqKey: e.target.value}))}
+                  />
+                </div>
+
+                {/* Gemini Key */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">Google Gemini API Key</label>
+                  <input
+                    type="password"
+                    className={inp}
+                    placeholder="AIzaSy..."
+                    value={apiSettings.geminiKey || ""}
+                    onChange={(e) => setApiSettings(p => ({...p, geminiKey: e.target.value}))}
+                  />
+                </div>
+
+                {/* OpenRouter Key */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">OpenRouter API Key</label>
+                  <input
+                    type="password"
+                    className={inp}
+                    placeholder="sk-or-v1-..."
+                    value={apiSettings.openrouterKey || ""}
+                    onChange={(e) => setApiSettings(p => ({...p, openrouterKey: e.target.value}))}
+                  />
+                </div>
+
+                {/* OpenAI Key */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">OpenAI API Key</label>
+                  <input
+                    type="password"
+                    className={inp}
+                    placeholder="sk-proj-..."
+                    value={apiSettings.openaiKey || ""}
+                    onChange={(e) => setApiSettings(p => ({...p, openaiKey: e.target.value}))}
+                  />
+                </div>
+
+                {/* Z.ai Key */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">Z.ai API Key</label>
+                  <input
+                    type="password"
+                    className={inp}
+                    placeholder="z-..."
+                    value={apiSettings.zaiKey || ""}
+                    onChange={(e) => setApiSettings(p => ({...p, zaiKey: e.target.value}))}
+                  />
+                </div>
+
+                {/* Claude Key */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">Anthropic Claude API Key</label>
+                  <input
+                    type="password"
+                    className={inp}
+                    placeholder="sk-ant-..."
+                    value={apiSettings.claudeKey || ""}
+                    onChange={(e) => setApiSettings(p => ({...p, claudeKey: e.target.value}))}
+                  />
                 </div>
               </div>
 
@@ -2236,10 +2321,21 @@ export default function Admin() {
                 onClick={async () => {
                   setSavingApiKey(true);
                   try {
-                    const finalKey = apiSettings.groqKey?.startsWith("gsk") || apiSettings.groqKey?.startsWith("sk") || apiSettings.groqKey?.startsWith("AIza")
-                      ? encryptKey(apiSettings.groqKey)
-                      : apiSettings.groqKey;
-                    await smartSet("api-settings", { ...apiSettings, groqKey: finalKey });
+                    const encryptIfNeeded = (k: string) => {
+                      if (!k) return "";
+                      if (k.startsWith("___ENC___")) return k;
+                      return encryptKey(k);
+                    };
+                    const payload = {
+                      ...apiSettings,
+                      groqKey: encryptIfNeeded(apiSettings.groqKey),
+                      geminiKey: encryptIfNeeded(apiSettings.geminiKey),
+                      openrouterKey: encryptIfNeeded(apiSettings.openrouterKey),
+                      openaiKey: encryptIfNeeded(apiSettings.openaiKey),
+                      zaiKey: encryptIfNeeded(apiSettings.zaiKey),
+                      claudeKey: encryptIfNeeded(apiSettings.claudeKey),
+                    };
+                    await smartSet("api-settings", payload);
                     swalSuccess("Saved!");
                   } catch (e) {
                     swalError("Failed to save settings");

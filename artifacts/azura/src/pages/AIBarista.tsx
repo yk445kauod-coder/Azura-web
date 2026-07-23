@@ -152,6 +152,7 @@ export default function AIBarista() {
   const [menuNode, setMenuNode] = useState("menu");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [greetingMsg, setGreetingMsg] = useState("");
+  const [specialPromotion, setSpecialPromotion] = useState("");
   const [greeted, setGreeted] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
   const [egyKey, setEgyKey] = useState("");
@@ -236,6 +237,7 @@ export default function AIBarista() {
         const cfg = snap.val() as Record<string, string>;
         setSystemPrompt(lang === "ar" ? (cfg.systemPromptAr || cfg.systemPrompt) : cfg.systemPrompt);
         setGreetingMsg(lang === "ar" ? (cfg.greetingAr || cfg.greeting) : cfg.greeting);
+        setSpecialPromotion(lang === "ar" ? (cfg.specialPromotionAr || cfg.specialPromotion || "") : (cfg.specialPromotion || ""));
       }
     });
 
@@ -366,8 +368,9 @@ Good response: "Depends on your taste! For strong coffee lovers, our Espresso is
 
     const kbCtx = knowledgeBase ? `\n\nCUSTOM CAFE KNOWLEDGE BASE:\n${knowledgeBase}` : "";
     const styleCtx = workStyleInstruction ? `\n\nWORK STYLE INSTRUCTION:\n${workStyleInstruction}` : "";
+    const promoCtx = specialPromotion ? `\n\nPROMOTED ITEM / SPECIAL OFFER:\nThe admin wants you to actively promote and upsell the following special item/offer in your responses to users when relevant (or mention it casually if appropriate):\n${specialPromotion}` : "";
 
-    return `${systemPrompt || defaultPrompt}${styleCtx}${kbCtx}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;
+    return `${systemPrompt || defaultPrompt}${styleCtx}${kbCtx}${promoCtx}\n\nMENU DATA (STRICT NAMES & IDs):\n${menuCtx}`;
   };
 
   const parseMessage = (raw: string) => {

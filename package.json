@@ -7,5 +7,9 @@
     "build": "pnpm --filter azura build",
     "preview": "pnpm --filter azura preview"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@playwright/test": "^1.61.1",
+    "playwright": "^1.62.1"
+  }
 }

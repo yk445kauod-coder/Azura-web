@@ -1,0 +1,9 @@
+
+> @workspace/azura@1.0.0 serve /app/artifacts/azura
+> vite preview --config vite.config.ts --host 0.0.0.0
+
+  ➜  Local:   http://localhost:5000/
+  ➜  Network: http://192.168.0.2:5000/
+/app/artifacts/azura:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/azura@1.0.0 serve: `vite preview --config vite.config.ts --host 0.0.0.0`
+Exit status 143

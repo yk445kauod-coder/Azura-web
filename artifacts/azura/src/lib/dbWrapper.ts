@@ -73,7 +73,10 @@ export async function smartGet(path: string) {
 
   if (mode === "r2") {
     const config = await getR2Config();
-    if (!config) throw new Error("R2 Not Configured");
+    if (!config) {
+      console.warn("R2 is not configured, returning local/cached data.");
+      return r2Cache[path] || null;
+    }
 
     // Attempt to get from R2
     try {
@@ -102,8 +105,11 @@ export async function smartSet(path: string, data: any) {
 
   if (mode === "r2") {
     const config = await getR2Config();
-    if (!config) throw new Error("R2 Not Configured");
     r2Cache[path] = data;
+    if (!config) {
+      console.warn("R2 is not configured, saved locally in cache.");
+      return;
+    }
     return uploadToR2(`${path}.json`, data);
   }
 }
@@ -127,11 +133,13 @@ export async function smartUpdate(path: string, data: any) {
 
   if (mode === "r2") {
     const config = await getR2Config();
-    if (!config) throw new Error("R2 Not Configured");
-
     const existing = await smartGet(path) || {};
     const merged = { ...existing, ...data };
     r2Cache[path] = merged;
+    if (!config) {
+      console.warn("R2 is not configured, updated locally in cache.");
+      return;
+    }
     return uploadToR2(`${path}.json`, merged);
   }
 }
@@ -143,6 +151,7 @@ export async function smartPush(path: string, data: any) {
       await set(res, data);
       return res.key;
     } catch (e) {
+      console.error("Firebase Push Failed, switching to R2 Fallback", e);
       setDBMode("r2");
     }
   }
@@ -162,11 +171,13 @@ export async function smartRemove(path: string) {
       await remove(ref(db, path));
       return;
     } catch (e) {
+      console.error("Firebase Remove Failed, switching to R2 Fallback", e);
       setDBMode("r2");
     }
   }
 
   if (mode === "r2") {
+    const config = await getR2Config();
     // Handling removal in R2 is tricky if path is a child
     // For simplicity, we assume root-ish paths or handle them via smartGet/Set
     const parts = path.split('/');
@@ -178,6 +189,11 @@ export async function smartRemove(path: string) {
         delete parentData[childKey];
         return smartSet(parentPath, parentData);
       }
+    }
+    r2Cache[path] = null;
+    if (!config) {
+      console.warn("R2 is not configured, removed locally in cache.");
+      return;
     }
     return uploadToR2(`${path}.json`, null);
   }

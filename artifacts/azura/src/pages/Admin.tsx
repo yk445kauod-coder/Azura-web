@@ -688,6 +688,14 @@ export default function Admin() {
 
   const tr = (en: string, ar: string) => lang === "ar" ? ar : en;
 
+  const activeTables = useMemo(() => {
+    return tablesRaw.map(t => ({
+      ...t,
+      userCount: users.filter(u => u.tableNumber === t.number).length,
+      status: users.some(u => u.tableNumber === t.number) ? "occupied" : "available"
+    })).sort((a,b) => a.number - b.number);
+  }, [tablesRaw, users]);
+
   useEffect(() => {
     if (!authed) return;
     onValue(ref(db, "api-settings"), (s) => s.exists() && setApiSettings(s.val()));
@@ -784,7 +792,7 @@ export default function Admin() {
           {tab === "reels" && <ReelsTab tr={tr} reels={reels} togglePin={(r: Reel) => smartUpdate(`reels/${r.id}`, {pinned: !r.pinned})} deleteReel={(r: Reel) => smartRemove(`reels/${r.id}`)} />}
           {tab === "api" && <div className="page-enter card-elevated rounded-2xl p-5 border-l-4 border-primary space-y-4"><h3 className="font-bold flex items-center gap-2"><Key size={18}/> API Settings</h3><input className="input-field px-3 py-2 text-sm w-full" type="password" value={apiSettings.groqKey} onChange={e => setApiSettings({...apiSettings, groqKey: e.target.value})} placeholder="Groq Key" /><button onClick={async () => { await smartSet("api-settings", { ...apiSettings, groqKey: apiSettings.groqKey?.startsWith("gsk") ? encryptKey(apiSettings.groqKey) : apiSettings.groqKey }); swalSuccess("Saved!"); }} className="btn-primary w-full py-3 rounded-xl font-bold">Save Settings</button></div>}
           {tab === "system" && <SystemTab tr={tr} />}
-          {tab === "tables" && <TablesTab tr={tr} activeTables={useMemo(() => tablesRaw.map(t => ({ ...t, userCount: users.filter(u => u.tableNumber === t.number).length, status: users.some(u => u.tableNumber === t.number) ? "occupied" : "available" })).sort((a,b) => a.number-b.number), [tablesRaw, users])} users={users} />}
+          {tab === "tables" && <TablesTab tr={tr} activeTables={activeTables} users={users} />}
           {tab === "barista" && <BaristaTab tr={tr} />}
           {tab === "ai" && <div className="page-enter"><AIAdminAssistant /></div>}
         </Suspense>

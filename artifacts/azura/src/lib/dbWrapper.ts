@@ -73,7 +73,10 @@ export async function smartGet(path: string) {
 
   if (mode === "r2") {
     const config = await getR2Config();
-    if (!config) throw new Error("R2 Not Configured");
+    if (!config) {
+      console.warn("R2 Not Configured, returning cached or empty data");
+      return r2Cache[path] || null;
+    }
 
     // Attempt to get from R2
     try {
@@ -102,8 +105,11 @@ export async function smartSet(path: string, data: any) {
 
   if (mode === "r2") {
     const config = await getR2Config();
-    if (!config) throw new Error("R2 Not Configured");
     r2Cache[path] = data;
+    if (!config) {
+      console.warn("R2 Not Configured, cached write locally");
+      return;
+    }
     return uploadToR2(`${path}.json`, data);
   }
 }
@@ -127,11 +133,13 @@ export async function smartUpdate(path: string, data: any) {
 
   if (mode === "r2") {
     const config = await getR2Config();
-    if (!config) throw new Error("R2 Not Configured");
-
     const existing = await smartGet(path) || {};
     const merged = { ...existing, ...data };
     r2Cache[path] = merged;
+    if (!config) {
+      console.warn("R2 Not Configured, cached update locally");
+      return;
+    }
     return uploadToR2(`${path}.json`, merged);
   }
 }

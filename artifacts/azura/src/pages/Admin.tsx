@@ -719,6 +719,16 @@ export default function Admin() {
   const MENU_CATEGORIES = ["recommended", "new_items", "soups", "appetizers", "salads", "pasta", "tortilla", "toast", "croissant", "breakfast", "main_dishes", "burgers", "smash_burgers", "fried_chicken", "hot_drinks", "coffee", "corto", "hot_chocolate", "sahlab", "frappuccino", "iced_coffee", "mojitos", "boba_tea", "fresh_juices", "cocktails", "smoothies", "milkshakes", "waffle", "desserts", "crepes", "pancakes", "add_ons", "shisha", "soft_drinks"];
   const CAT_META: Record<string, { emoji: string; en: string; ar: string }> = { recommended: { emoji: "⭐", en: "Top Picks", ar: "الأفضل" }, new_items: { emoji: "🆕", en: "New", ar: "جديد" }, soups: { emoji: "🍲", en: "Soup", ar: "شوربة" }, appetizers: { emoji: "🍟", en: "Appetizers", ar: "مقبلات" }, salads: { emoji: "🥗", en: "Salads", ar: "سلطات" }, pasta: { emoji: "🍝", en: "Pasta", ar: "مكرونة" }, tortilla: { emoji: "🌯", en: "Tortilla", ar: "تورتيلا" }, toast: { emoji: "🍞", en: "Toast", ar: "توست" }, croissant: { emoji: "🥐", en: "Croissant", ar: "كرواسون" }, breakfast: { emoji: "🍳", en: "Breakfast", ar: "فطور" }, main_dishes: { emoji: "🍽️", en: "Main Dishes", ar: "أطباق رئيسية" }, burgers: { emoji: "🍔", en: "Burgers", ar: "برجر" }, smash_burgers: { emoji: "🔥", en: "Smash Burgers", ar: "سماش برجر" }, fried_chicken: { emoji: "🍗", en: "Fried Chicken", ar: "فراخ مقلية" }, hot_drinks: { emoji: "☕", en: "Hot Drinks", ar: "مشروبات ساخنة" }, coffee: { emoji: "☕", en: "Coffee", ar: "قهوة" }, corto: { emoji: "🥛", en: "Corto", ar: "كورتو" }, hot_chocolate: { emoji: "🍫", en: "Hot Chocolate", ar: "شوكولاتة ساخنة" }, sahlab: { emoji: "🥛", en: "Sahlab", ar: "سحلب" }, frappuccino: { emoji: "🧊", en: "Frappuccino", ar: "فرابتشينو" }, iced_coffee: { emoji: "🧋", en: "Iced Coffee", ar: "قهوة مثلجة" }, mojitos: { emoji: "🍹", en: "Mojitos", ar: "موجيتو" }, boba_tea: { emoji: "🧋", en: "Boba Tea", ar: "بوبا تي" }, fresh_juices: { emoji: "🍊", en: "Fresh Juices", ar: "عصائر طازجة" }, cocktails: { emoji: "🍸", en: "Cocktails", ar: "كوكتيل" }, smoothies: { emoji: "🥤", en: "Smoothies", ar: "سموذي" }, milkshakes: { emoji: "🥛", en: "Milkshakes", ar: "ميلك شيك" }, waffle: { emoji: "🧇", en: "Waffle", ar: "وافل" }, desserts: { emoji: "🍰", en: "Desserts", ar: "حلويات" }, crepes: { emoji: "🥞", en: "Crepes", ar: "كريب" }, pancakes: { emoji: "🥞", en: "Pancakes", ar: "بان كيك" }, add_ons: { emoji: "➕", en: "Add-ons", ar: "إضافات" }, shisha: { emoji: "💨", en: "Hookah", ar: "شيشة" }, soft_drinks: { emoji: "🥤", en: "Soft Drinks", ar: "مشروبات غازية" } };
 
+  const activeTables = useMemo(() => {
+    return tablesRaw
+      .map(t => ({
+        ...t,
+        userCount: users.filter(u => u.tableNumber === t.number).length,
+        status: users.some(u => u.tableNumber === t.number) ? "occupied" : "available"
+      }))
+      .sort((a, b) => a.number - b.number);
+  }, [tablesRaw, users]);
+
   if (!authed) return (
     <div className="min-h-screen flex items-center justify-center bg-muted">
       <div className="pixel-card pixel-border-wood p-8 max-w-xs w-full text-center space-y-6">
@@ -784,7 +794,7 @@ export default function Admin() {
           {tab === "reels" && <ReelsTab tr={tr} reels={reels} togglePin={(r: Reel) => smartUpdate(`reels/${r.id}`, {pinned: !r.pinned})} deleteReel={(r: Reel) => smartRemove(`reels/${r.id}`)} />}
           {tab === "api" && <div className="page-enter card-elevated rounded-2xl p-5 border-l-4 border-primary space-y-4"><h3 className="font-bold flex items-center gap-2"><Key size={18}/> API Settings</h3><input className="input-field px-3 py-2 text-sm w-full" type="password" value={apiSettings.groqKey} onChange={e => setApiSettings({...apiSettings, groqKey: e.target.value})} placeholder="Groq Key" /><button onClick={async () => { await smartSet("api-settings", { ...apiSettings, groqKey: apiSettings.groqKey?.startsWith("gsk") ? encryptKey(apiSettings.groqKey) : apiSettings.groqKey }); swalSuccess("Saved!"); }} className="btn-primary w-full py-3 rounded-xl font-bold">Save Settings</button></div>}
           {tab === "system" && <SystemTab tr={tr} />}
-          {tab === "tables" && <TablesTab tr={tr} activeTables={useMemo(() => tablesRaw.map(t => ({ ...t, userCount: users.filter(u => u.tableNumber === t.number).length, status: users.some(u => u.tableNumber === t.number) ? "occupied" : "available" })).sort((a,b) => a.number-b.number), [tablesRaw, users])} users={users} />}
+          {tab === "tables" && <TablesTab tr={tr} activeTables={activeTables} users={users} />}
           {tab === "barista" && <BaristaTab tr={tr} />}
           {tab === "ai" && <div className="page-enter"><AIAdminAssistant /></div>}
         </Suspense>
